@@ -26,7 +26,7 @@ import sys
 import logging
 
 from appengine_django import InstallAppengineHelperForDjango
-InstallAppengineHelperForDjango()
+InstallAppengineHelperForDjango(version='1.1')
 
 from appengine_django import have_django_zip
 from appengine_django import django_zip_path
