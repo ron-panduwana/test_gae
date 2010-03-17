@@ -1,5 +1,5 @@
-application: ga-powepanel-dev
-version: 1
+application: ga-powerpanel-dev
+version: pazabo
 runtime: python
 api_version: 1
 
