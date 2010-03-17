@@ -1,7 +1,7 @@
 import unittest
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
-from gausers.models import Role
+from crgappspanel.models import Role
 
 
 class RoleCreationTestCase(unittest.TestCase):
