@@ -101,7 +101,8 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-     'appengine_django',
+    'appengine_django',
+    'gausers',
 #    'django.contrib.auth',
 #    'django.contrib.contenttypes',
 #    'django.contrib.sessions',
