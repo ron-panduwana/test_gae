@@ -1,10 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 
 def users(request):
-    if 'sortby' in request.GET:
-        sortby = request.GET['sortby']
-    else:
-        sortby = 'name'
+    sortby = request.GET.get('sortby', 'name')
     asc = not ('asc' in request.GET) or (request.GET['asc'] == 'true')
     
     def compare(x, y):
