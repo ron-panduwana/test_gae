@@ -1,7 +1,37 @@
+import os
 import unittest
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
-from crgappspanel.models import Role
+from crgappspanel.models import GAUser, Role
+
+
+os.environ['SERVER_NAME'] = 'localhost'
+os.environ['SERVER_PORT'] = '8000'
+os.environ['USER_EMAIL'] = 'test@example.com'
+os.environ['USER_IS_ADMIN'] = '1'
+
+
+class GDataTestCase(unittest.TestCase):
+    def testGetAllUsers(self):
+        for user in GAUser.all().fetch(100):
+            print user
+
+    def testGetUserByName(self):
+        print GAUser.get_by_key_name('kamil')
+
+    def testSaveUser(self):
+        user = GAUser.get_by_key_name('kamil')
+        kamil.given_name = 'other_name'
+        kamil.put()
+
+    def testNewUser(self):
+        new_user = GAUser(
+            user_name='test',
+            given_name='Test',
+            family_name='Account',
+            password='some_password',
+        )
+        new_user.put()
 
 
 class RoleCreationTestCase(unittest.TestCase):

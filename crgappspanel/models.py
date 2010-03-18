@@ -1,9 +1,48 @@
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
+from crlib import gdata
 
 
-class User(object):
-    pass
+def _tmp_get_credentials():
+    credentials = []
+    with open('google_apps.txt') as f:
+        for line in f:
+            credentials.append(line.strip())
+    return credentials[:3]
+
+
+class GAUser(gdata.Model):
+    id = gdata.StringProperty('id.text', read_only=True)
+    user_name = gdata.StringProperty('login.user_name', read_only=True)
+    given_name = gdata.StringProperty('name.given_name')
+    family_name = gdata.StringProperty('name.family_name')
+    password = gdata.StringProperty('login.password', read_only=True)
+    suspended = gdata.BooleanProperty('login.suspended', default=False)
+
+    def __repr__(self):
+        return '<GAUser: %s>' % self.user_name
+
+    @classmethod
+    def gdata_service(cls):
+        from lib.gdata.apps import service
+        email, password, domain = _tmp_get_credentials()
+        return service.AppsService(email, password, domain)
+
+    def gdata_create(self):
+        return self.service.CreateUser(
+            self.user_name, self.family_name, self.given_name, self.password,
+            self.suspended and 'true' or 'false')
+
+    def gdata_update(self, atom):
+        return self.service.UpdateUser(self.user_name, atom)
+
+    @classmethod
+    def gdata_retrieve_all(cls):
+        return cls.service.RetrieveAllUsers().entry
+
+    @classmethod
+    def gdata_retrieve(cls, user_name):
+        return cls.service.RetrieveUser(user_name)
 
 
 class Role(BaseModel):
@@ -41,5 +80,5 @@ class Role(BaseModel):
 
 
 class _UserRoleMapping(BaseModel):
-    role = db.ReferenceProperty(Role)
+    roles = db.ListProperty(db.Key)
 
