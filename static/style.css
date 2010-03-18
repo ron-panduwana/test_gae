@@ -1,0 +1,48 @@
+html {
+	font-size: 62.5%;
+}
+
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 1.2em;
+}
+
+table {
+	font-size: inherit;
+}
+
+a:link, a:visited {
+	color: #0066cc;
+}
+
+a:hover {
+	color: #cc6600;
+}
+
+a.asc {
+	background: url('/static/down_2.gif') no-repeat scroll right center transparent;
+	padding-right: 10px;
+}
+
+a.desc {
+	background: url('/static/up_2.gif') no-repeat scroll right center transparent;
+	padding-right: 10px;
+
+table.data {
+	border-collapse: collapse;
+}
+
+table.data th {
+	background: url('/static/tablebar_bg.png') repeat-x scroll center bottom;
+	border-bottom: 1px solid #cccccc;
+}
+
+table.data td {
+	border-bottom: 1px solid lightgray;
+}
+
+table.data th, table.data td {
+	padding: 2px 5px;
+	
+	text-align: left;
+}
