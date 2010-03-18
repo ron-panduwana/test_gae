@@ -21,8 +21,8 @@ class GDataTestCase(unittest.TestCase):
 
     def testSaveUser(self):
         user = GAUser.get_by_key_name('kamil')
-        kamil.given_name = 'other_name'
-        kamil.put()
+        user.given_name = 'other_name'
+        user.put()
 
     def testNewUser(self):
         new_user = GAUser(
