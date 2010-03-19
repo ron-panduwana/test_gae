@@ -16,6 +16,7 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     (r'^users/$', 'crgappspanel.views.users'),
+    (r'^groups/$', 'crgappspanel.views.groups'),
     # Example:
     # (r'^foo/', include('foo.urls')),
 
