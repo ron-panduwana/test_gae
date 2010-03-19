@@ -6,11 +6,13 @@ BadValueError = db.BadValueError
 
 
 def _clone_atom(atom):
+    """Make a copy of atom object."""
     from lib.atom import CreateClassFromXMLString
     return CreateClassFromXMLString(atom.__class__, unicode(atom))
 
 
 class GDataQuery(object):
+    """db.Query equivalent."""
     def __init__(self, model_class):
         self._filters = []
         self._model = model_class
@@ -24,6 +26,10 @@ class GDataQuery(object):
             return results[0]
 
     def fetch(self, limit, offset=0):
+        """Fetch given number of elements from a feed provided by
+        AtomMapper.retrieve_all().
+
+        """
         items = []
         for i, item in enumerate(self._model._mapper.retrieve_all()):
             if i < limit:
@@ -32,17 +38,45 @@ class GDataQuery(object):
 
 
 class StringProperty(db.Property):
+    """This and below classes are equivalents of respective db.Property classes.
+
+    Go to .google_appengine/google/appengine/ext/db/ for original
+    implementation.
+
+    Design of these classes resembles db.Property. Whereas db.Property has
+    get_value_for_datastore() and make_value_from_datastore() to convert between
+    datastore representation and Python native objects, we use
+    make_value_from_atom() and set_value_on_atom().
+
+    We use the same constructor parameters as db.Property (i.e. required,
+    default, etc), but we also add new parameter: read_only, which says that the
+    property shouldn't be persisted to GData.
+
+    The first parameter to property constructor is attribute name within Atom
+    object that holds respective value. For example, given gdata.apps.UserEntry
+    object attribute name 'login.user_name' would correspond to:
+
+    user_entry.login.user_name
+
+    """
+
     def __init__(self, attr, *args, **kwargs):
         self.attrs = attr.split('.')
         self.read_only = kwargs.pop('read_only', False)
         super(StringProperty, self).__init__(*args, **kwargs)
 
     def make_value_from_atom(self, atom):
+        """Given a subclass of atom.AtomBase return corresponding value for this
+        property.
+        """
         for attr in self.attrs:
             atom = getattr(atom, attr)
         return atom
 
     def set_value_on_atom(self, atom, value):
+        """Set the property value at the given place within the atom object.
+
+        """
         if self.read_only:
             return
         for attr in self.attrs[:-1]:
@@ -51,6 +85,7 @@ class StringProperty(db.Property):
 
 
 class PasswordProperty(StringProperty):
+    """Hashes given property with SHA-1."""
     def set_value_on_atom(self, atom, value):
         if not value:
             return
@@ -84,6 +119,14 @@ class IntegerProperty(StringProperty):
 
 
 class ReferenceProperty(StringProperty):
+    """Equivalent of db.ReferenceProperty.
+
+    Most of the code is actually copied from Google original implementation.
+    Unfortunately, it's not so easy to simply subclass db.ReferenceProperty,
+    because there are minor but important differences (db.ReferenceProperty uses
+    db.Key as a intermediate representation whereas we simply use a string.
+
+    """
     def __init__(self, reference_class, *args, **kwargs):
         self.reference_class = reference_class
         self.collection_name = kwargs.pop('collection_name', None)
@@ -192,6 +235,17 @@ class _GDataModelMetaclass(db.PropertiedClass):
 
 
 class EmptyAtom(object):
+    """This class is an atom.AtomBase replacement which allows for simple
+    attribute assignments, e.g.:
+
+    mt = EmptyAtom()
+    mt.attr1.attr2 = 'val'
+    mt.attr3 = 5
+
+    print mt.attr1 => EmptyAtom object
+    print mt.attr1.attr2 => 'val'
+
+    """
     def __init__(self):
         self._attrs = {}
 
@@ -208,6 +262,29 @@ class EmptyAtom(object):
 
 
 class Model(object):
+    """db.BaseModel (and usual Django model) replacement.
+
+    This class provides most of the db.BaseModel methods, i.e. all(),
+    get_by_key_name(), put(), etc.
+    It of course doesn't interact with App Engine datastore, but instead uses
+    Python GData bindings.
+    It needs additional object - AtomMapper, which provides actual
+    implementation of GData interaction. This mapper is declared as Mapper class
+    attribute, and then it's available as _mapper attribute.
+
+    Usual model methods are mapped to mapper methods in the following way:
+
+        save()/put() -> _mapper.update() or _mapper.create() (depending on
+            whether it's first save of the object);
+        all() -> _mapper.retrieve_all();
+        get_by_key_name() -> _mapper.retrieve();
+
+    Mapper methods work on AtomBase subclasses, which are stored in Model's
+    _atom attribute. This attribute is updated after save() call (so that it
+    stores a value which would be returned from GData API).
+
+    """
+
     __metaclass__ = _GDataModelMetaclass
 
     def __init__(self, **kwargs):
@@ -254,6 +331,12 @@ class Model(object):
 
     @classmethod
     def _atom_to_kwargs(cls, atom):
+        """Returns a dictionary of property values read from the AtomBase
+        object, e.g.:
+
+            {'user_name': value of atom.login.user_name}
+
+        """
         props = {}
         for prop in cls._properties.values():
             props[prop.name] = prop.make_value_from_atom(atom)
@@ -261,12 +344,22 @@ class Model(object):
 
     @classmethod
     def _from_atom(cls, atom):
+        """Creates new Model instance from given AtomBase object."""
         props = {'_atom' : atom}
         props.update(cls._atom_to_kwargs(atom))
         return cls(**props)
 
 
 class _GDataServiceDescriptor(object):
+    """This object makes sure that ProgrammaticLogin() is called before the
+    gdata.GDataService objects is used for the first time and it makes sure that
+    it's called only once.
+
+    It's a Python descriptor:
+
+    http://docs.python.org/reference/datamodel.html#implementing-descriptors
+
+    """
     def __get__(self, instance, owner):
         if instance._service.GetClientLoginToken() is None:
             instance._service.ProgrammaticLogin()
@@ -274,6 +367,24 @@ class _GDataServiceDescriptor(object):
 
 
 class AtomMapper(object):
+    """Subclasses of this class implement actual interaction with GData APIs.
+
+    AtomMapper corresponds to AtomBase subclass (e.g. UserEntry, NicknameEntry,
+    etc.).
+    It should provide the following methods:
+
+    create_service() -> return proper gdata.service.GDataService object;
+    create() -> called when new Model instance is to be saved for the first
+        time;
+    update() -> called when Model instance is to be saved after initial
+        create();
+    retrieve_all() -> returns all instances of the given Atom object, used by
+        GDataQuery.fetch();
+    retrieve() -> used to retrieve Model instance by its key_name, i.e. it's
+        called by Model.get_by_key_name().
+
+    """
+
     from atom.token_store import TokenStore
     token_store = TokenStore()
     service = _GDataServiceDescriptor()
