@@ -9,7 +9,7 @@ class Table(object):
         self.css_class = css_class    # table css classes
     
     def gen_js(self, objs):
-        
+        return ''
     
     def gen_html(self, objs):
         # starting with table start tag with appropriate class

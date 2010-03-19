@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/90/trunk/closure/bin/build
+END
+depswriter.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/90/trunk/closure/bin/build/depswriter.py
+END
+depstree_test.py
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/89/trunk/closure/bin/build/depstree_test.py
+END
+depstree.py
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/89/trunk/closure/bin/build/depstree.py
+END
+source_test.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/89/trunk/closure/bin/build/source_test.py
+END
+source.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/89/trunk/closure/bin/build/source.py
+END
+closurebuilder.py
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/90/trunk/closure/bin/build/closurebuilder.py
+END
+treescan.py
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/89/trunk/closure/bin/build/treescan.py
+END
+jscompiler.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/89/trunk/closure/bin/build/jscompiler.py
+END
