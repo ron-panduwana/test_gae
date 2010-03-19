@@ -191,7 +191,7 @@ class _GDataModelMetaclass(db.PropertiedClass):
         return new_cls
 
 
-class DummyAtom(object):
+class EmptyAtom(object):
     def __init__(self):
         self._attrs = {}
 
@@ -203,7 +203,7 @@ class DummyAtom(object):
 
     def __getattr__(self, name):
         if not self.__dict__['_attrs'].has_key(name):
-            setattr(self, name, DummyAtom())
+            setattr(self, name, EmptyAtom())
         return self.__dict__['_attrs'][name]
 
 
@@ -225,7 +225,7 @@ class Model(object):
         return GDataQuery(cls)
 
     def save(self):
-        atom = self._atom and _clone_atom(self._atom) or DummyAtom()
+        atom = self._atom and _clone_atom(self._atom) or EmptyAtom()
         for prop in self._properties.itervalues():
             prop.set_value_on_atom(atom, getattr(self, prop.name))
         if self.is_saved():
