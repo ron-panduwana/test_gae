@@ -2,6 +2,10 @@
 
 {% block title %}Users list{% endblock %}
 
+{% block head %}
+	<script type="text/javascript" src="/static/table.js"></script>
+{% endblock %}
+
 {% block content %}
 	<table width="100%" class="data">
 		<!-- column width specifiers -->
@@ -12,7 +16,7 @@
 		<!-- table header -->
 		<thead>
 			<tr>
-				<th><input type="checkbox"/></th>
+				<th><input type="checkbox" id="userSelect" onchange="onSelectAll(this)"/></th>
 				{% for colspec in table.columns %}
 					<th>
 						<a href="?sortby={{ colspec.name }}{% ifequal colspec.name sortby %}{% if asc %}&asc=false{% endif %}{% endifequal %}"
@@ -30,7 +34,7 @@
 		<tbody>
 			{% for row in table.rows %}
 				<tr>
-					<td><input type="checkbox"/></td>
+					<td><input type="checkbox" id="userSelect_{{ forloop.counter0 }}" onchange="onSelectRow(this)"/></td>
 					{% for obj in row %}
 						<td>{{ obj }}</td>
 					{% endfor %}
