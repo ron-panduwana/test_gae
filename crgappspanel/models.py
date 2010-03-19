@@ -13,32 +13,11 @@ def _tmp_get_credentials():
 
 class GAUser(gdata.Model):
     id = gdata.StringProperty('id.text', read_only=True)
-    user_name = gdata.StringProperty('login.user_name', read_only=True)
-    given_name = gdata.StringProperty('name.given_name')
-    family_name = gdata.StringProperty('name.family_name')
-    password = gdata.StringProperty('login.password', read_only=True)
+    user_name = gdata.StringProperty('login.user_name', required=True)
+    given_name = gdata.StringProperty('name.given_name', required=True)
+    family_name = gdata.StringProperty('name.family_name', required=True)
+    password = gdata.StringProperty('login.password')
     suspended = gdata.BooleanProperty('login.suspended', default=False)
-
-    #class Meta:
-    #    def service(instance):
-    #        from lib.gdata.apps import service
-    #        email, password, domain = _tmp_get_credentials()
-    #        return service.AppsService(email, password, domain)
-
-    #    def create(instance):
-    #        return instance.service.CreateUser(
-    #            instance.user_name, instance.family_name,
-    #            instance.given_name, instance.password,
-    #            instance.suspended and 'true' or 'false')
-
-    #    def update(instance, atom):
-    #        return instance.service.UpdateUser(instance.user_name, atom)
-
-    #    def retrieve_all(instance):
-    #        return instance.service.RetrieveAllUsers().entry
-
-    #    def retrieve(instance, user_name):
-    #        return instance.service.RetrieveUser(user_name)
 
     def __repr__(self):
         return '<GAUser: %s>' % self.user_name
@@ -55,7 +34,8 @@ class GAUser(gdata.Model):
             self.suspended and 'true' or 'false')
 
     def gdata_update(self, atom):
-        return self.service.UpdateUser(self.user_name, atom)
+        return self.service.UpdateUser(
+            self._orig_properties['user_name'], atom)
 
     @classmethod
     def gdata_retrieve_all(cls):

@@ -12,16 +12,32 @@ os.environ['USER_IS_ADMIN'] = '1'
 
 
 class GDataTestCase(unittest.TestCase):
+    USER_NAME = 'kamil'
+
     def testGetAllUsers(self):
         for user in GAUser.all().fetch(100):
             print user
 
     def testGetUserByName(self):
-        print GAUser.get_by_key_name('kamil')
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        self.assertNotEqual(user, None)
 
     def testSaveUser(self):
-        user = GAUser.get_by_key_name('kamil')
+        user = GAUser.get_by_key_name(self.USER_NAME)
         user.given_name = 'other_name'
+        user.put()
+
+        user.given_name = 'Kamil'
+        user.put()
+
+    def testChangePassword(self):
+        # We need additional test account to test such features
+        self.assertTrue(False)
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        user.password = 'new_password'
+        user.put()
+
+        user.password = self.password
         user.put()
 
     def testNewUser(self):
@@ -32,6 +48,22 @@ class GDataTestCase(unittest.TestCase):
             password='some_password',
         )
         new_user.put()
+
+    def testRenameUser(self):
+        # We need additional test account to test such features
+        self.assertTrue(False)
+        user = GAUser.get_by_key_name('kamil')
+        user.user_name = 'new_user'
+        user.put()
+
+    def testMultipleChanges(self):
+        # We need additional test account to test such features
+        self.assertTrue(False)
+        user = GAUser.get_by_key_name('kamil')
+        user.user_name = 'new_user'
+        user.given_name = 'Test'
+        user.password = 'new_password'
+        user.put()
 
 
 class RoleCreationTestCase(unittest.TestCase):

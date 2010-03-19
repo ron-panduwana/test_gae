@@ -93,6 +93,7 @@ class Model(object):
 
     def __init__(self, **kwargs):
         self._atom = kwargs.pop('_atom', None)
+        self._orig_properties = dict(kwargs)
 
         for prop in self._properties.values():
             if prop.name in kwargs:
@@ -106,13 +107,19 @@ class Model(object):
         return GDataQuery(cls)
 
     def save(self):
+        # TODO: handle situation when nothing changes
         if self._atom:
             for prop in self._properties.values():
                 prop.set_value_on_atom(self._atom, getattr(self, prop.name))
-            self.gdata_update(self._atom)
+            self._orig_properties = self._atom_to_kwargs(
+                self.gdata_update(self._atom))
         else:
             self._atom = self.gdata_create()
+            self._orig_properties = self._atom_to_kwargs(self._atom)
     put = save
+
+    def is_saved(self):
+        return self._atom is not None
 
     @classmethod
     def kind(cls):
@@ -127,10 +134,16 @@ class Model(object):
         return cls._from_atom(atom)
 
     @classmethod
-    def _from_atom(cls, atom):
-        props = {'_atom' : atom}
+    def _atom_to_kwargs(cls, atom):
+        props = {}
         for prop in cls._properties.values():
             props[prop.name] = prop.make_value_from_atom(atom)
+        return props
+
+    @classmethod
+    def _from_atom(cls, atom):
+        props = {'_atom' : atom}
+        props.update(cls._atom_to_kwargs(atom))
         return cls(**props)
 
 
