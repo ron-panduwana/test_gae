@@ -9,10 +9,11 @@ def _tmp_get_credentials():
         for line in f:
             credentials.append(line.strip())
     return credentials[:3]
+_credentials = _tmp_get_credentials()
 
 
 class GAUser(gdata.Model):
-    Mapper = gdata.UserEntryMapper(*_tmp_get_credentials())
+    Mapper = gdata.UserEntryMapper(*_credentials)
 
     id = gdata.StringProperty('id.text', read_only=True)
     user_name = gdata.StringProperty('login.user_name', required=True)
@@ -22,8 +23,26 @@ class GAUser(gdata.Model):
     suspended = gdata.BooleanProperty('login.suspended', default=False)
     admin = gdata.BooleanProperty('login.admin', default=False)
 
+    def key(self):
+        return self.user_name
+
     def __repr__(self):
         return '<GAUser: %s>' % self.user_name
+
+
+class GANickname(gdata.Model):
+    Mapper = gdata.NicknameEntryMapper(*_credentials)
+
+    nickname = gdata.StringProperty('nickname.name', required=True)
+    user = gdata.ReferenceProperty(
+        GAUser, 'login.user_name', required=True,
+        collection_name='nicknames')
+
+    def key(self):
+        return self.nickname
+
+    def __repr__(self):
+        return '<GANickname: %s>' % self.nickname
 
 
 class Role(BaseModel):

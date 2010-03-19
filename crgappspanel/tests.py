@@ -2,7 +2,7 @@ import os
 import unittest
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
-from crgappspanel.models import GAUser, Role
+from crgappspanel.models import GAUser, GANickname, Role
 
 
 os.environ['SERVER_NAME'] = 'localhost'
@@ -45,6 +45,22 @@ class GDataTestCase(unittest.TestCase):
             password='some_password',
         )
         new_user.put()
+
+    def testCreateNickname(self):
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        nickname = GANickname(
+            nickname='testnick',
+            user=user)
+        nickname.put()
+
+        nickname = GANickname.get_by_key_name('testnick')
+        self.assertTrue(nickname is not None)
+        self.assertEqual(nickname.user.user_name, user.user_name)
+
+    def testNicknamesCollection(self):
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        for nickname in user.nicknames:
+            print nickname
 
     def testRenameUser(self):
         # We need to handle nicknames first

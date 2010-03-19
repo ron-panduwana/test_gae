@@ -16,7 +16,7 @@ class GDataQuery(object):
         self._model = model_class
 
     def filter(self, property_operator, value):
-        raise NotImplemented
+        raise NotImplementedError
 
     def get(self):
         results = self.fetch(1)
@@ -83,7 +83,100 @@ class IntegerProperty(StringProperty):
         super(IntegerProperty, self).set_value_on_atom(atom, str(value))
 
 
-# TODO: ReferenceProperty, ListProperty
+class ReferenceProperty(StringProperty):
+    def __init__(self, reference_class, *args, **kwargs):
+        self.reference_class = reference_class
+        self.collection_name = kwargs.pop('collection_name', None)
+        super(ReferenceProperty, self).__init__(*args, **kwargs)
+
+    def __property_config__(self, model_class, property_name):
+        super(ReferenceProperty, self).__property_config__(
+            model_class, property_name)
+
+        if self.collection_name is None:
+            self.collection_name = '%s_set' % (model_class.__name__.lower())
+
+        setattr(
+            self.reference_class, self.collection_name,
+            _ReverseReferenceProperty(model_class, property_name))
+
+    def set_value_on_atom(self, atom, value):
+        super(ReferenceProperty, self).set_value_on_atom(
+            atom, value.key())
+
+    def __get__(self, model_instance, model_class):
+        """Get reference object.
+
+        This method will fetch unresolved entities from the datastore if
+        they are not already loaded.
+
+        Returns:
+          ReferenceProperty to Model object if property is set, else None.
+        """
+        if model_instance is None:
+            return self
+        if hasattr(model_instance, self.__id_attr_name()):
+            reference_id = getattr(model_instance, self.__id_attr_name())
+        else:
+            reference_id = None
+        if reference_id is not None:
+            resolved = getattr(model_instance, self.__resolved_attr_name())
+            if resolved is not None:
+                return resolved
+            else:
+                instance = self.reference_class.get_by_key_name(reference_id)
+                if instance is None:
+                    raise Error('ReferenceProperty failed to be resolved')
+                setattr(model_instance, self.__resolved_attr_name(), instance)
+                return instance
+        else:
+            return None
+
+    def __set__(self, model_instance, value):
+        """Set reference."""
+        value = self.validate(value)
+        if value is not None:
+            if isinstance(value, basestring):
+                setattr(model_instance, self.__id_attr_name(), value)
+                setattr(model_instance, self.__resolved_attr_name(), None)
+            else:
+                setattr(model_instance, self.__id_attr_name(), value.key())
+                setattr(model_instance, self.__resolved_attr_name(), value)
+        else:
+            setattr(model_instance, self.__id_attr_name(), None)
+            setattr(model_instance, self.__resolved_attr_name(), None)
+
+    def __id_attr_name(self):
+        """Get attribute of referenced id.
+
+        Returns:
+          Attribute where to store id of referenced entity.
+        """
+        return self._attr_name()
+
+    def __resolved_attr_name(self):
+        """Get attribute of resolved attribute.
+
+        The resolved attribute is where the actual loaded reference instance is
+        stored on the referring model instance.
+
+        Returns:
+          Attribute name of where to store resolved reference model instance.
+        """
+        return '_RESOLVED' + self._attr_name()
+
+
+class _ReverseReferenceProperty(db._ReverseReferenceProperty):
+    def __get__(self, model_instance, model_class):
+        """Fetches collection of model instances of this collection property."""
+        if model_instance is not None:
+            query = GDataQuery(self.__model)
+            return query.filter(self.__property + ' =', model_instance.key())
+        else:
+            return self
+
+
+# TODO: ListProperty
 
 
 class _GDataModelMetaclass(db.PropertiedClass):
@@ -136,6 +229,9 @@ class Model(object):
         for prop in self._properties.itervalues():
             prop.set_value_on_atom(atom, getattr(self, prop.name))
         if self.is_saved():
+            if not hasattr(self._mapper, 'update'):
+                raise Exception('Mapper %s doesn\'t support model updates.' %
+                                self._mapper)
             self._atom = self._mapper.update(atom, self._atom)
         else:
             self._atom = self._mapper.create(atom)
@@ -187,10 +283,11 @@ class AtomMapper(object):
 
 
 class UserEntryMapper(AtomMapper):
-    def create_service(self, email, password, domain):
+    @classmethod
+    def create_service(cls, email, password, domain):
         from lib.gdata.apps import service
         return service.AppsService(
-            email, password, domain, token_store=self.token_store)
+            email, password, domain, token_store=cls.token_store)
 
     def create(self, atom):
         return self.service.CreateUser(
@@ -211,4 +308,18 @@ class UserEntryMapper(AtomMapper):
 
 class NicknameEntryMapper(AtomMapper):
     create_service = UserEntryMapper.create_service
+
+    def create(self, atom):
+        return self.service.CreateNickname(
+            atom.login.user_name, atom.nickname.name)
+
+    def retrieve_all(self):
+        return self.service.RetrieveAllNicknames().entry
+
+    def retrieve(self, nickname):
+        return self.service.RetrieveNickname(nickname)
+
+    #@filter('user')
+    #def filter_by_user(self, user_name):
+    #    return self.service.RetrieveNicknames(user_name).entry
 
