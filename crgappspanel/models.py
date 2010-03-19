@@ -19,6 +19,27 @@ class GAUser(gdata.Model):
     password = gdata.StringProperty('login.password', read_only=True)
     suspended = gdata.BooleanProperty('login.suspended', default=False)
 
+    #class Meta:
+    #    def service(instance):
+    #        from lib.gdata.apps import service
+    #        email, password, domain = _tmp_get_credentials()
+    #        return service.AppsService(email, password, domain)
+
+    #    def create(instance):
+    #        return instance.service.CreateUser(
+    #            instance.user_name, instance.family_name,
+    #            instance.given_name, instance.password,
+    #            instance.suspended and 'true' or 'false')
+
+    #    def update(instance, atom):
+    #        return instance.service.UpdateUser(instance.user_name, atom)
+
+    #    def retrieve_all(instance):
+    #        return instance.service.RetrieveAllUsers().entry
+
+    #    def retrieve(instance, user_name):
+    #        return instance.service.RetrieveUser(user_name)
+
     def __repr__(self):
         return '<GAUser: %s>' % self.user_name
 
