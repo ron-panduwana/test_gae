@@ -33,8 +33,6 @@ class GDataTestCase(unittest.TestCase):
         user.put()
 
     def testChangePassword(self):
-        # We need additional test account to test such features
-        self.assertTrue(False)
         user = GAUser.get_by_key_name(self.USER_NAME)
         user.password = 'new_password'
         user.put()
@@ -49,14 +47,14 @@ class GDataTestCase(unittest.TestCase):
         new_user.put()
 
     def testRenameUser(self):
-        # We need additional test account to test such features
+        # We need to handle nicknames first
         self.assertTrue(False)
         user = GAUser.get_by_key_name(self.USER_NAME)
         user.user_name = 'new_user'
         user.put()
 
     def testMultipleChanges(self):
-        # We need additional test account to test such features
+        # We need to handle nicknames first
         self.assertTrue(False)
         user = GAUser.get_by_key_name(self.USER_NAME)
         user.user_name = 'new_user'

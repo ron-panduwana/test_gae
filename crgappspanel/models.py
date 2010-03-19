@@ -12,6 +12,8 @@ def _tmp_get_credentials():
 
 
 class GAUser(gdata.Model):
+    Mapper = gdata.UserEntryMapper(*_tmp_get_credentials())
+
     id = gdata.StringProperty('id.text', read_only=True)
     user_name = gdata.StringProperty('login.user_name', required=True)
     given_name = gdata.StringProperty('name.given_name', required=True)
@@ -22,30 +24,6 @@ class GAUser(gdata.Model):
 
     def __repr__(self):
         return '<GAUser: %s>' % self.user_name
-
-    @classmethod
-    def gdata_service(cls):
-        from lib.gdata.apps import service
-        email, password, domain = _tmp_get_credentials()
-        return service.AppsService(email, password, domain)
-
-    def gdata_create(self):
-        return self.service.CreateUser(
-            self.user_name, self.family_name, self.given_name, self.password,
-            self.suspended and 'true' or 'false',
-            password_hash_function='SHA-1')
-
-    def gdata_update(self, atom):
-        atom.login.hash_function_name = 'SHA-1'
-        return self.service.UpdateUser(self._orig_properties['user_name'], atom)
-
-    @classmethod
-    def gdata_retrieve_all(cls):
-        return cls.service.RetrieveAllUsers().entry
-
-    @classmethod
-    def gdata_retrieve(cls, user_name):
-        return cls.service.RetrieveUser(user_name)
 
 
 class Role(BaseModel):

@@ -1,4 +1,13 @@
 from google.appengine.ext import db
+from lib.atom import AtomBase
+
+
+BadValueError = db.BadValueError
+
+
+def _clone_atom(atom):
+    from lib.atom import CreateClassFromXMLString
+    return CreateClassFromXMLString(atom.__class__, unicode(atom))
 
 
 class GDataQuery(object):
@@ -16,7 +25,7 @@ class GDataQuery(object):
 
     def fetch(self, limit, offset=0):
         items = []
-        for i, item in enumerate(self._model.gdata_retrieve_all()):
+        for i, item in enumerate(self._model._mapper.retrieve_all()):
             if i < limit:
                 items.append(self._model._from_atom(item))
         return items
@@ -59,6 +68,12 @@ class BooleanProperty(StringProperty):
         super(BooleanProperty, self).set_value_on_atom(
             atom, value and 'true' or 'false')
 
+    def validate(self, value):
+        value = super(BooleanProperty, self).validate(value)
+        if value is not None and not isinstance(value, bool):
+            raise BadValueError('Property %s must be a bool' % self.name)
+        return value
+
 
 class IntegerProperty(StringProperty):
     def make_value_from_atom(self, atom):
@@ -71,30 +86,32 @@ class IntegerProperty(StringProperty):
 # TODO: ReferenceProperty, ListProperty
 
 
-class _GDataService(object):
-    def __init__(self, service):
-        from lib.gdata.alt.appengine import run_on_appengine
-        run_on_appengine(service)
-        self.service = service
-        self.logged_in = False
-
-    def __get__(self, instance, owner):
-        if not self.logged_in:
-            self.service.ProgrammaticLogin()
-            self.logged_in = True
-        return self.service
-
-
 class _GDataModelMetaclass(db.PropertiedClass):
     def __new__(cls, name, bases, attrs):
         new_cls = super(_GDataModelMetaclass, cls).__new__(cls, name, bases, attrs)
         if name == 'Model':
             return new_cls
 
-        new_cls.service = _GDataService(new_cls.gdata_service())
-        del new_cls.gdata_service
+        new_cls._mapper = new_cls.Mapper
+        del new_cls.Mapper
 
         return new_cls
+
+
+class DummyAtom(object):
+    def __init__(self):
+        self._attrs = {}
+
+    def __setattr__(self, name, value):
+        if name.startswith('_'):
+            self.__dict__[name] = value
+        else:
+            self.__dict__['_attrs'][name] = value
+
+    def __getattr__(self, name):
+        if not self.__dict__['_attrs'].has_key(name):
+            setattr(self, name, DummyAtom())
+        return self.__dict__['_attrs'][name]
 
 
 class Model(object):
@@ -102,7 +119,6 @@ class Model(object):
 
     def __init__(self, **kwargs):
         self._atom = kwargs.pop('_atom', None)
-        self._orig_properties = dict(kwargs)
 
         for prop in self._properties.values():
             if prop.name in kwargs:
@@ -116,15 +132,13 @@ class Model(object):
         return GDataQuery(cls)
 
     def save(self):
-        # TODO: handle situation when nothing changes
-        if self._atom:
-            for prop in self._properties.values():
-                prop.set_value_on_atom(self._atom, getattr(self, prop.name))
-            self._orig_properties = self._atom_to_kwargs(
-                self.gdata_update(self._atom))
+        atom = self._atom and _clone_atom(self._atom) or DummyAtom()
+        for prop in self._properties.itervalues():
+            prop.set_value_on_atom(atom, getattr(self, prop.name))
+        if self.is_saved():
+            self._atom = self._mapper.update(atom, self._atom)
         else:
-            self._atom = self.gdata_create()
-            self._orig_properties = self._atom_to_kwargs(self._atom)
+            self._atom = self._mapper.create(atom)
     put = save
 
     def is_saved(self):
@@ -137,7 +151,7 @@ class Model(object):
     @classmethod
     def get_by_key_name(cls, key_name):
         try:
-            atom = cls.gdata_retrieve(key_name)
+            atom = cls._mapper.retrieve(key_name)
         except Exception, e:
             return None
         return cls._from_atom(atom)
@@ -155,4 +169,46 @@ class Model(object):
         props.update(cls._atom_to_kwargs(atom))
         return cls(**props)
 
+
+class _GDataServiceDescriptor(object):
+    def __get__(self, instance, owner):
+        if instance._service.GetClientLoginToken() is None:
+            instance._service.ProgrammaticLogin()
+        return instance._service
+
+
+class AtomMapper(object):
+    from atom.token_store import TokenStore
+    token_store = TokenStore()
+    service = _GDataServiceDescriptor()
+
+    def __init__(self, *args, **kwargs):
+        self._service = self.create_service(*args, **kwargs)
+
+
+class UserEntryMapper(AtomMapper):
+    def create_service(self, email, password, domain):
+        from lib.gdata.apps import service
+        return service.AppsService(
+            email, password, domain, token_store=self.token_store)
+
+    def create(self, atom):
+        return self.service.CreateUser(
+            atom.login.user_name, atom.name.family_name,
+            atom.name.given_name, atom.login.password,
+            atom.login.suspended, password_hash_function='SHA-1')
+
+    def update(self, atom, old_atom):
+        atom.login.hash_function_name = 'SHA-1'
+        return self.service.UpdateUser(old_atom.login.user_name, atom)
+
+    def retrieve_all(self):
+        return self.service.RetrieveAllUsers().entry
+
+    def retrieve(self, user_name):
+        return self.service.RetrieveUser(user_name)
+
+
+class NicknameEntryMapper(AtomMapper):
+    create_service = UserEntryMapper.create_service
 
