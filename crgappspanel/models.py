@@ -1,3 +1,4 @@
+from __future__ import with_statement
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from crlib import gdata
