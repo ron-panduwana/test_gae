@@ -37,9 +37,6 @@ class GDataTestCase(unittest.TestCase):
         user.password = 'new_password'
         user.put()
 
-        user.password = self.password
-        user.put()
-
     def testNewUser(self):
         new_user = GAUser(
             user_name='test',

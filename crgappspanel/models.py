@@ -16,8 +16,9 @@ class GAUser(gdata.Model):
     user_name = gdata.StringProperty('login.user_name', required=True)
     given_name = gdata.StringProperty('name.given_name', required=True)
     family_name = gdata.StringProperty('name.family_name', required=True)
-    password = gdata.StringProperty('login.password')
+    password = gdata.PasswordProperty('login.password')
     suspended = gdata.BooleanProperty('login.suspended', default=False)
+    admin = gdata.BooleanProperty('login.admin', default=False)
 
     def __repr__(self):
         return '<GAUser: %s>' % self.user_name
@@ -31,11 +32,12 @@ class GAUser(gdata.Model):
     def gdata_create(self):
         return self.service.CreateUser(
             self.user_name, self.family_name, self.given_name, self.password,
-            self.suspended and 'true' or 'false')
+            self.suspended and 'true' or 'false',
+            password_hash_function='SHA-1')
 
     def gdata_update(self, atom):
-        return self.service.UpdateUser(
-            self._orig_properties['user_name'], atom)
+        atom.login.hash_function_name = 'SHA-1'
+        return self.service.UpdateUser(self._orig_properties['user_name'], atom)
 
     @classmethod
     def gdata_retrieve_all(cls):

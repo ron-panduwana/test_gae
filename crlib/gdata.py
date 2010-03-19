@@ -41,6 +41,15 @@ class StringProperty(db.Property):
         setattr(atom, self.attrs[-1], value)
 
 
+class PasswordProperty(StringProperty):
+    def set_value_on_atom(self, atom, value):
+        if not value:
+            return
+        import hashlib
+        hashed = hashlib.sha1(unicode(value).encode('utf8')).hexdigest()
+        super(PasswordProperty, self).set_value_on_atom(atom, hashed)
+
+
 class BooleanProperty(StringProperty):
     def make_value_from_atom(self, atom):
         return super(
