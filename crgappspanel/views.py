@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from crgappspanel.tables import Table, Field
 
-objects = [
+_users = [
     {
         'name': 'Pawel Zaborski',
         'username': 'pawel@moroccanholidayrental.com',
@@ -34,9 +34,30 @@ objects = [
         'roles': 'sample',
         'last_login': 'Mar 15',
     },
+#    {
+#        'name': 'google user',
+#        'username': users[0].user_name,
+#        'status': '',
+#        'quota': '3% of 25 GB',
+#        'roles': 'sample',
+#        'last_login': 'Mar 15',
+#    },
 ]
 
-fields = [
+_groups = [
+    {
+        'name': 'Agent Portugal',
+        'email': 'agent.pt@moroccanholidayrental.com',
+        'type': 'Custom',
+    },
+    {
+        'name': 'All Polish speakers',
+        'email': 'all.polish.speakers@moroccanholidayrental.com',
+        'type': 'Custom',
+    },
+]
+
+_userFields = [
     Field('name', 'Name'),
     Field('username', 'Username'),
     Field('status', 'Status'),
@@ -44,42 +65,50 @@ fields = [
     Field('roles', 'Roles'),
     Field('last_login', 'Last signed in')
 ]
-fieldNames = [field.name for field in fields]
 
-widths = [
+_groupFields = [
+    Field('name', 'Name'),
+    Field('email', 'Email address'),
+    Field('type', 'Type'),
+]
+
+_userWidths = [
     '5%', '15%', '25%', '15%', '15%', '15%', '10%'
 ]
 
+_groupWidths = [
+    '5%', '40%', '40%', '15%'
+]
+
+def _get_sortby_asc(request, valid):
+    sortby = request.GET.get('sortby', valid[0])
+    asc = (request.GET.get('asc', 'true') == 'true')
+    if sortby in valid:
+        return (sortby, asc)
+    else:
+        return (valid[0], asc)
+
 def users(request):
-    sortby = request.GET.get('sortby', 'name')
-    if not sortby in fieldNames:
-        sortby = 'name'
-    asc = not ('asc' in request.GET) or (request.GET['asc'] == 'true')
+    sortby, asc = _get_sortby_asc(request, [f.name for f in _userFields])
     
-    def compare(x, y):
-        xx = x[sortby]
-        yy = y[sortby]
-        if xx < yy:
-            if asc:
-                return -1
-            else:
-                return 1
-        elif xx > yy:
-            if asc:
-                return 1
-            else:
-                return -1
-        else:
-            return 0
-    
-    objects.sort(compare)
-    
-    table = Table(fields)
+    table = Table(_userFields, sortby=sortby, asc=asc)
+    table.sort(_users)
     
     ctx = {
-        'table': table.generate(objects),
-        'widths': widths,
-        'sortby': sortby,
-        'asc': asc,
+        'table': table.generate(_users),
+        'widths': _userWidths,
     }
     return render_to_response('users_list.html', ctx)
+
+def groups(request):
+    sortby, asc = _get_sortby_asc(request, [f.name for f in _groupFields])
+    
+    table = Table(_groupFields, sortby=sortby, asc=asc)
+    print _groups
+    table.sort(_groups)
+    
+    ctx = {
+        'table': table.generate(_groups),
+        'widths': _groupWidths,
+    }
+    return render_to_response('groups_list.html', ctx)
