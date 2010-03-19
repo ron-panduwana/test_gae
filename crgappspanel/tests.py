@@ -12,7 +12,9 @@ os.environ['USER_IS_ADMIN'] = '1'
 
 
 class GDataTestCase(unittest.TestCase):
-    USER_NAME = 'kamil'
+    USER_NAME = 'skymail'
+    USER_GIVEN_NAME = 'sky'
+    USER_FAMILY_NAME = 'mail'
 
     def testGetAllUsers(self):
         for user in GAUser.all().fetch(100):
@@ -27,7 +29,7 @@ class GDataTestCase(unittest.TestCase):
         user.given_name = 'other_name'
         user.put()
 
-        user.given_name = 'Kamil'
+        user.given_name = self.USER_GIVEN_NAME
         user.put()
 
     def testChangePassword(self):
@@ -49,14 +51,14 @@ class GDataTestCase(unittest.TestCase):
     def testRenameUser(self):
         # We need additional test account to test such features
         self.assertTrue(False)
-        user = GAUser.get_by_key_name('kamil')
+        user = GAUser.get_by_key_name(self.USER_NAME)
         user.user_name = 'new_user'
         user.put()
 
     def testMultipleChanges(self):
         # We need additional test account to test such features
         self.assertTrue(False)
-        user = GAUser.get_by_key_name('kamil')
+        user = GAUser.get_by_key_name(self.USER_NAME)
         user.user_name = 'new_user'
         user.given_name = 'Test'
         user.password = 'new_password'
