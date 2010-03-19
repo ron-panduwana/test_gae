@@ -27,6 +27,7 @@ a.asc {
 a.desc {
 	background: url('/static/up_2.gif') no-repeat scroll right center transparent;
 	padding-right: 10px;
+}
 
 table.data {
 	border-collapse: collapse;

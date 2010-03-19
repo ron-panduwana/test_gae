@@ -3,7 +3,8 @@
 {% block title %}Users list{% endblock %}
 
 {% block content %}
-<table class="data" width="100%">
+{{ table|safe }}
+<!--<table class="data" width="100%">
 	<col width="5%"/>
 	<col width="15%"/>
 	<col width="25%"/>
@@ -15,12 +16,12 @@
 	<tbody>
 		<tr>
 			<th><input type="checkbox"/></th>
-			<th><a href="?sortby=name{% ifequal sortby 'name' %}{% if asc %}&asc=false{% endif %}{% endifequal %}">Name</a></th>
-			<th><a href="?sortby=username{% ifequal sortby 'username' %}{% if asc %}&asc=false{% endif %}{% endifequal %}">Username</a></th>
-			<th><a href="?sortby=status{% ifequal sortby 'status' %}{% if asc %}&asc=false{% endif %}{% endifequal %}">Status</a></th>
-			<th><a href="?sortby=quota{% ifequal sortby 'quota' %}{% if asc %}&asc=false{% endif %}{% endifequal %}">Email Quota</th>
-			<th><a href="?sortby=roles{% ifequal sortby 'roles' %}{% if asc %}&asc=false{% endif %}{% endifequal %}">Roles</th>
-			<th><a href="?sortby=last_login{% ifequal sortby 'last_login' %}{% if asc %}&asc=false{% endif %}{% endifequal %}">Last signed in</th>
+			<th><a {% ifequal order '+name' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=name{% ifequal order '+name' %}&asc=false{% endifequal %}">Name</a></th>
+			<th><a {% ifequal order '+username' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=username{% ifequal order '+username' %}&asc=false{% endifequal %}">Username</a></th>
+			<th><a {% ifequal order '+status' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=status{% ifequal order '+status' %}&asc=false{% endifequal %}">Status</a></th>
+			<th><a {% ifequal order '+quota' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=quota{% ifequal order '+quota' %}&asc=false{% endifequal %}">Email Quota</th>
+			<th><a {% ifequal order '+roles' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=roles{% ifequal order '+roles' %}&asc=false{% endifequal %}">Roles</th>
+			<th><a {% ifequal order '+last_login' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=last_login{% ifequal order '+last_login' %}&asc=false{% endifequal %}">Last signed in</th>
 		</tr>
 		{% for obj in objects %}
 		<tr>
@@ -34,5 +35,5 @@
 		</tr>
 		{% endfor %}
 	</tbody>
-</table>
+</table>-->
 {% endblock %}
