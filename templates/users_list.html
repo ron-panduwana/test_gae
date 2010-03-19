@@ -2,38 +2,44 @@
 
 {% block title %}Users list{% endblock %}
 
+{% block head %}
+	<script type="text/javascript" src="/static/table.js"></script>
+{% endblock %}
+
 {% block content %}
-{{ table|safe }}
-<!--<table class="data" width="100%">
-	<col width="5%"/>
-	<col width="15%"/>
-	<col width="25%"/>
-	<col width="15%"/>
-	<col width="15%"/>
-	<col width="15%"/>
-	<col width="10%"/>
-	
-	<tbody>
-		<tr>
-			<th><input type="checkbox"/></th>
-			<th><a {% ifequal order '+name' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=name{% ifequal order '+name' %}&asc=false{% endifequal %}">Name</a></th>
-			<th><a {% ifequal order '+username' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=username{% ifequal order '+username' %}&asc=false{% endifequal %}">Username</a></th>
-			<th><a {% ifequal order '+status' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=status{% ifequal order '+status' %}&asc=false{% endifequal %}">Status</a></th>
-			<th><a {% ifequal order '+quota' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=quota{% ifequal order '+quota' %}&asc=false{% endifequal %}">Email Quota</th>
-			<th><a {% ifequal order '+roles' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=roles{% ifequal order '+roles' %}&asc=false{% endifequal %}">Roles</th>
-			<th><a {% ifequal order '+last_login' %}class="asc" {% endifequal %}{% ifequal order '+name' %}class="asc" {% endifequal %}href="?sortby=last_login{% ifequal order '+last_login' %}&asc=false{% endifequal %}">Last signed in</th>
-		</tr>
-		{% for obj in objects %}
-		<tr>
-			<td><input type="checkbox"/></td>
-			<td>{{ obj.name }}</td>
-			<td>{{ obj.username }}</td>
-			<td>{{ obj.status }}</td>
-			<td>{{ obj.quota }}</td>
-			<td>{{ obj.roles }}</td>
-			<td>{{ obj.last_login }}</td>
-		</tr>
+	<table width="100%" class="data">
+		<!-- column width specifiers -->
+		{% for width in widths %}
+			<col width="{{ width }}"/>
 		{% endfor %}
-	</tbody>
-</table>-->
+		
+		<!-- table header -->
+		<thead>
+			<tr>
+				<th><input type="checkbox" id="userSelect" onchange="onSelectAll(this)"/></th>
+				{% for colspec in table.columns %}
+					<th>
+						<a href="?sortby={{ colspec.name }}{% ifequal colspec.name sortby %}{% if asc %}&asc=false{% endif %}{% endifequal %}"
+								{% ifequal colspec.name sortby %}
+									class="{% if asc %}asc{% else %}desc{% endif %}"
+								{% endifequal %}>
+							{{ colspec.caption }}
+						</a>
+					</th>
+				{% endfor %}
+			</tr>
+		</thead>
+		
+		<!-- table body -->
+		<tbody>
+			{% for row in table.rows %}
+				<tr>
+					<td><input type="checkbox" id="userSelect_{{ forloop.counter0 }}" onchange="onSelectRow(this)"/></td>
+					{% for obj in row %}
+						<td>{{ obj }}</td>
+					{% endfor %}
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
 {% endblock %}
