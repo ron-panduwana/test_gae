@@ -44,15 +44,15 @@ fields = [
     Field('roles', 'Roles'),
     Field('last_login', 'Last signed in')
 ]
+fieldNames = [field.name for field in fields]
+
 widths = [
     '5%', '15%', '25%', '15%', '15%', '15%', '10%'
 ]
-fieldNames = [field.name for field in fields]
 
 def users(request):
-    if ('sortby' in request.GET) and (request.GET['sortby'] in fieldNames):
-        sortby = request.GET['sortby']
-    else:
+    sortby = request.GET.get('sortby', 'name')
+    if not sortby in fieldNames:
         sortby = 'name'
     asc = not ('asc' in request.GET) or (request.GET['asc'] == 'true')
     
@@ -74,6 +74,12 @@ def users(request):
     
     objects.sort(compare)
     
-    table = Table(fields, widths, select=True, sortby=sortby, asc=asc, html_width='100%', css_class='data')
+    table = Table(fields)
     
-    return render_to_response('users_list.html', {'table_js': table.gen_js(objects), 'table_html': table.gen_html(objects)})
+    ctx = {
+        'table': table.generate(objects),
+        'widths': widths,
+        'sortby': sortby,
+        'asc': asc,
+    }
+    return render_to_response('users_list.html', ctx)

@@ -3,8 +3,39 @@
 {% block title %}Users list{% endblock %}
 
 {% block content %}
-<script type="text/javascript" language="javascript">
-{{ table_js|safe }}
-</script>
-{{ table_html|safe }}
+	<table width="100%" class="data">
+		<!-- column width specifiers -->
+		{% for width in widths %}
+			<col width="{{ width }}"/>
+		{% endfor %}
+		
+		<!-- table header -->
+		<thead>
+			<tr>
+				<th><input type="checkbox"/></th>
+				{% for colspec in table.columns %}
+					<th>
+						<a href="?sortby={{ colspec.name }}{% ifequal colspec.name sortby %}{% if asc %}&asc=false{% endif %}{% endifequal %}"
+								{% ifequal colspec.name sortby %}
+									class="{% if asc %}asc{% else %}desc{% endif %}"
+								{% endifequal %}>
+							{{ colspec.caption }}
+						</a>
+					</th>
+				{% endfor %}
+			</tr>
+		</thead>
+		
+		<!-- table body -->
+		<tbody>
+			{% for row in table.rows %}
+				<tr>
+					<td><input type="checkbox"/></td>
+					{% for obj in row %}
+						<td>{{ obj }}</td>
+					{% endfor %}
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
 {% endblock %}
