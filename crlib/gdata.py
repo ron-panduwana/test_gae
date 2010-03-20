@@ -1,5 +1,6 @@
 from google.appengine.ext import db
-from lib.atom import AtomBase
+from atom import AtomBase
+from atom.token_store import TokenStore
 
 
 BadValueError = db.BadValueError
@@ -385,7 +386,6 @@ class AtomMapper(object):
 
     """
 
-    from atom.token_store import TokenStore
     token_store = TokenStore()
     service = _GDataServiceDescriptor()
 

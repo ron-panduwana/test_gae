@@ -15,6 +15,9 @@
 # Django settings for google-app-engine-django project.
 
 import os
+import sys
+
+sys.path.insert(1, 'lib')
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
