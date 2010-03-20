@@ -22,15 +22,7 @@ class Table(object):
         }
     
     def sort(self, objs):
-        def compare(x, y):
-            xx = x[self.sortby]
-            yy = y[self.sortby]
-            if self.asc:
-                return cmp(xx, yy)
-            else:
-                return cmp(yy, xx)
-        
-        objs.sort(compare)
+        objs.sort(key=lambda x: x[self.sortby], reverse=not self.asc)
 
 class Field(object):
     def __init__(self, name, caption):
