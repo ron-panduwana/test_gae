@@ -10,8 +10,8 @@
 			<th><input type="checkbox" id="{{ checkboxName }}" onchange="onSelectAll(this)"/></th>
 			{% for colspec in columns %}
 				<th>
-					<a href="?sortby={{ colspec.name }}{% ifequal colspec.name sortby %}{% if asc %}&asc=false{% endif %}{% endifequal %}"
-							{% ifequal colspec.name sortby %}
+					<a href="?sortby={{ colspec.name }}{% ifequal colspec.name sortby.name %}{% if asc %}&asc=false{% endif %}{% endifequal %}"
+							{% ifequal colspec.name sortby.name %}
 								class="{% if asc %}asc{% else %}desc{% endif %}"
 							{% endifequal %}>
 						{{ colspec.caption }}

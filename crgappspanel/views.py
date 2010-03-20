@@ -1,35 +1,40 @@
 from django.shortcuts import render_to_response, get_object_or_404
-from crgappspanel.tables import Table, Field
+from crgappspanel.tables import Table, Column
+from crgappspanel.models import GAUser
 
 _users = [
     {
-        'name': 'Pawel Zaborski',
-        'username': 'pawel@moroccanholidayrental.com',
-        'status': 'Administrator',
+        'given_name': 'Pawel',
+        'family_name': 'Zaborski',
+        'user_name': 'pawel@moroccanholidayrental.com',
+        'admin': 'True',
         'quota': '0% of 25 GB',
         'roles': 'admin',
         'last_login': '9:28 pm',
     },
     {
-        'name': 'Roland Plaszowski',
-        'username': 'roland@moroccanholidayrental.com',
-        'status': 'Administrator',
+        'given_name': 'Roland',
+        'family_name': 'Plaszowski',
+        'user_name': 'roland@moroccanholidayrental.com',
+        'admin': 'True',
         'quota': '0% of 25 GB',
         'roles': 'admin',
         'last_login': 'Jan 6',
     },
     {
-        'name': 'Kamil Klimkiewicz',
-        'username': 'kamil@moroccanholidayrental.com',
-        'status': '',
+        'given_name': 'Kamil',
+        'family_name': 'Klimkiewicz',
+        'user_name': 'kamil@moroccanholidayrental.com',
+        'admin': 'True',
         'quota': '0% of 25 GB',
         'roles': 'admin',
         'last_login': '3:15 pm',
     },
     {
-        'name': 'sky mail',
-        'username': 'skymail@moroccanholidayrental.com',
-        'status': '',
+        'given_name': 'sky',
+        'family_name': 'mail',
+        'user_name': 'skymail@moroccanholidayrental.com',
+        'admin': 'False',
         'quota': '3% of 25 GB',
         'roles': 'sample',
         'last_login': 'Mar 15',
@@ -49,19 +54,50 @@ _groups = [
     },
 ]
 
+def _get_name(x):
+    try:
+        given_name, family_name = x['given_name'], x['family_name']
+    except:
+        given_name, family_name = x.given_name, x.family_name
+    
+    return '%s %s' % (given_name, family_name)
+
+def _get_status(x):
+    try:
+        suspended = x['suspended']
+        admin = x['admin']
+    except:
+        suspended = x.suspended
+        admin = x.admin
+    
+    if suspended:
+        return 'Suspended'
+    if admin:
+        return 'Administrator'
+    return ''
+
+def _get_or_empty(x, attr):
+    try:
+        return x[attr]
+    except:
+        try:
+            return getattr(x, attr)
+        except:
+            return ''
+
 _userFields = [
-    Field('name', 'Name'),
-    Field('username', 'Username'),
-    Field('status', 'Status'),
-    Field('quota', 'Email quota'),
-    Field('roles', 'Roles'),
-    Field('last_login', 'Last signed in')
+    Column('Name', 'name', getter=_get_name),
+    Column('Username', 'user_name'),
+    Column('Status', 'status', getter=_get_status),
+    Column('Email quota', 'quota', getter=lambda x: _get_or_empty(x, 'quota')),
+    Column('Roles', 'roles', getter=lambda x: _get_or_empty(x, 'roles')),
+    Column('Last signed in', 'last_login', getter=lambda x: _get_or_empty(x, 'last_login'))
 ]
 
 _groupFields = [
-    Field('name', 'Name'),
-    Field('email', 'Email address'),
-    Field('type', 'Type'),
+    Column('Name', 'name'),
+    Column('Email address', 'email'),
+    Column('Type', 'type'),
 ]
 
 _userWidths = [
@@ -83,6 +119,8 @@ def _get_sortby_asc(request, valid):
 def users(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _userFields])
     
+    _users = GAUser.all().fetch(100)
+    
     table = Table(_userFields, sortby=sortby, asc=asc)
     table.sort(_users)
     
@@ -95,3 +133,18 @@ def groups(request):
     table.sort(_groups)
     
     return render_to_response('groups_list.html', {'table': table.generate(_groups, _groupWidths)})
+
+def test(request):
+    users = GAUser.all().fetch(100)
+    
+    res = ''
+    for i in range(len(users)):
+        res += 'users[%d]:\n' % i
+        for field_name in ['given_name', 'family_name', 'user_name', 'password', 'suspended', 'admin']:
+            field_value = getattr(users[i], field_name)
+            res += '  %s: %s [%s]\n' % (field_name, field_value, str(type(field_value)))
+        res += '\n'
+    res += '\n'
+    
+    import django.http
+    return django.http.HttpResponse(res, mimetype='text/plain')
