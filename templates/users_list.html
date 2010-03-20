@@ -7,39 +7,5 @@
 {% endblock %}
 
 {% block content %}
-	<table width="100%" class="data">
-		<!-- column width specifiers -->
-		{% for width in widths %}
-			<col width="{{ width }}"/>
-		{% endfor %}
-		
-		<!-- table header -->
-		<thead>
-			<tr>
-				<th><input type="checkbox" id="userSelect" onchange="onSelectAll(this)"/></th>
-				{% for colspec in table.columns %}
-					<th>
-						<a href="?sortby={{ colspec.name }}{% ifequal colspec.name table.sortby %}{% if table.asc %}&asc=false{% endif %}{% endifequal %}"
-								{% ifequal colspec.name table.sortby %}
-									class="{% if table.asc %}asc{% else %}desc{% endif %}"
-								{% endifequal %}>
-							{{ colspec.caption }}
-						</a>
-					</th>
-				{% endfor %}
-			</tr>
-		</thead>
-		
-		<!-- table body -->
-		<tbody>
-			{% for row in table.rows %}
-				<tr>
-					<td><input type="checkbox" id="userSelect_{{ forloop.counter0 }}" onchange="onSelectRow(this)"/></td>
-					{% for obj in row %}
-						<td>{{ obj }}</td>
-					{% endfor %}
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+	{{ table }}
 {% endblock %}

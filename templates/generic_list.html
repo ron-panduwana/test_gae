@@ -1,0 +1,35 @@
+<table width="100%" class="data">
+	<!-- column width specifiers -->
+	{% for width in widths %}
+		<col width="{{ width }}"/>
+	{% endfor %}
+	
+	<!-- table header -->
+	<thead>
+		<tr>
+			<th><input type="checkbox" id="{{ checkboxName }}" onchange="onSelectAll(this)"/></th>
+			{% for colspec in columns %}
+				<th>
+					<a href="?sortby={{ colspec.name }}{% ifequal colspec.name sortby %}{% if asc %}&asc=false{% endif %}{% endifequal %}"
+							{% ifequal colspec.name sortby %}
+								class="{% if asc %}asc{% else %}desc{% endif %}"
+							{% endifequal %}>
+						{{ colspec.caption }}
+					</a>
+				</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	
+	<!-- table body -->
+	<tbody>
+		{% for row in rows %}
+			<tr>
+				<td><input type="checkbox" id="{{ checkboxName }}_{{ forloop.counter0 }}" onchange="onSelectRow(this)"/></td>
+				{% for obj in row %}
+					<td>{{ obj }}</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
