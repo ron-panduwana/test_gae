@@ -25,18 +25,10 @@ class Table(object):
         def compare(x, y):
             xx = x[self.sortby]
             yy = y[self.sortby]
-            if xx < yy:
-                if self.asc:
-                    return -1
-                else:
-                    return 1
-            elif xx > yy:
-                if self.asc:
-                    return 1
-                else:
-                    return -1
+            if self.asc:
+                return cmp(xx, yy)
             else:
-                return 0
+                return cmp(yy, xx)
         
         objs.sort(compare)
 
