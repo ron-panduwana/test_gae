@@ -5,38 +5,33 @@ from crgappspanel.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname
 from crgappspanel.sample_data import get_sample_groups
 
-def _get_name(x):
+def _get_prop(obj, prop, default=None):
     try:
-        given_name, family_name = x['given_name'], x['family_name']
+        return obj[prop]
     except:
-        given_name, family_name = x.given_name, x.family_name
-    
+        if default != None:
+            try:
+                return getattr(obj, prop)
+            except:
+                return default
+        else:
+            return getattr(obj, prop)
+
+def _get_name(x):
+    given_name, family_name = _get_prop(x, 'given_name'), _get_prop(x, 'family_name')
     return '%s %s' % (given_name, family_name)
 
 def _get_status(x):
-    try:
-        suspended, admin = x['suspended'], x['admin']
-    except:
-        suspended, admin = x.suspended, x.admin
-    
+    suspended, admin = _get_prop(x, 'suspended'), _get_prop(x, 'admin')
     return 'Suspended' if suspended else 'Administrator' if admin else ''
-
-def _get_or_empty(x, attr):
-    try:
-        return x[attr]
-    except:
-        try:
-            return getattr(x, attr)
-        except:
-            return ''
 
 _userFields = [
     Column('Name', 'name', getter=_get_name),
     Column('Username', 'user_name', id=True),
     Column('Status', 'status', getter=_get_status),
-    Column('Email quota', 'quota', getter=lambda x: _get_or_empty(x, 'quota')),
-    Column('Roles', 'roles', getter=lambda x: _get_or_empty(x, 'roles')),
-    Column('Last signed in', 'last_login', getter=lambda x: _get_or_empty(x, 'last_login'))
+    Column('Email quota', 'quota', getter=lambda x: _get_prop(x, 'quota', default='')),
+    Column('Roles', 'roles', getter=lambda x: _get_prop(x, 'roles', default='')),
+    Column('Last signed in', 'last_login', getter=lambda x: _get_prop(x, 'last_login', default=''))
 ]
 
 _groupFields = [

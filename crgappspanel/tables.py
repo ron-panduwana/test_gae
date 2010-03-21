@@ -6,21 +6,19 @@ class Table(object):
         self.id_column = None
         
         # looking for id column
-        for col in self.columns:
-            if col.id:
-                if self.id_column != None:
-                    raise ValueError('Exactly one column must have id=True')
-                self.id_column = col  # id column found
-        if self.id_column == None:
-            raise ValueError('Exactly one column must have id=True')
+        ids = [col for col in self.columns if col.id]
+        if len(ids) != 1:
+            raise ValueError('Exactly one column must have id=True.')
+        self.id_column = ids[0]
         
         # setting sort column
-        self.sortby = self.id_column  # sort by id column by default
-        if sortby != None:
-            for col in self.columns:
-                if sortby == col.name:
-                    self.sortby = col  # column to sort by
-                    break
+        if sortby:
+            sortbys = [col for col in self.columns if col.name == sortby]
+            if len(sortbys) != 1:
+                raise ValueError('Exactly one column must have name equal to sortby name.')
+            self.sortby = sortbys[0]
+        else:
+            self.sortby = self.id_column  # sort by id column by default
         
         # setting sort direction
         self.asc = asc if asc != None else True
@@ -28,13 +26,10 @@ class Table(object):
     def generate(self, objs, widths, checkboxName='select'):
         rows = []
         for obj in objs:
-            row = {
+            rows.append({
                 'id': self.id_column.value(obj),
-                'data': [],
-            }
-            for col in self.columns:
-                row['data'].append(col.value(obj))
-            rows.append(row)
+                'data': [col.value(obj) for col in self.columns],
+            })
         
         return render_to_string('objects_list.html', {
             'columns': self.columns,
