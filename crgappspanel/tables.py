@@ -14,13 +14,16 @@ class Table(object):
         if self.id_column == None:
             raise ValueError('Exactly one column must have id=True')
         
-        # setting sort properties
+        # setting sort column
         self.sortby = self.id_column  # sort by id column by default
-        for col in self.columns:
-            if sortby == col.name:
-                self.sortby = col  # column to sort by
-                break
-        self.asc = asc          # ascending ?
+        if sortby != None:
+            for col in self.columns:
+                if sortby == col.name:
+                    self.sortby = col  # column to sort by
+                    break
+        
+        # setting sort direction
+        self.asc = asc if asc != None else True
     
     def generate(self, objs, widths, checkboxName='select'):
         rows = []

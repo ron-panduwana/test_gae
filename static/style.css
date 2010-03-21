@@ -29,30 +29,35 @@ a.desc {
 	padding-right: 10px;
 }
 
-table.data {
+table.list {
 	border-collapse: collapse;
 }
 
-table.data th {
+table.list th {
 	background: url('/static/tablebar_bg.png') repeat-x scroll center bottom;
 	border-bottom: 1px solid #cccccc;
 }
 
-table.data td {
+table.list td {
 	border-bottom: 1px solid lightgray;
 }
 
-table.data th, table.data td {
+table.list th, table.list td {
 	padding: 2px 5px;
 	
 	text-align: left;
 }
 
-table.form {
+table.list tr:hover td {
+	background-color: #ffffcc;
+	cursor: pointer;
+}
+
+table.details {
 	border-collapse: collapse;
 }
 
-table.form th, table.form td {
+table.details th, table.details td {
 	border-top: 1px solid #cccccc;
 	
 	vertical-align: top;
@@ -60,7 +65,7 @@ table.form th, table.form td {
 	padding: 10px 0 15px 0;
 }
 
-table.form th {
+table.details th {
 	padding-right: 20px;
 	
 	width: 12em;

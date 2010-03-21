@@ -2,59 +2,8 @@ from django import forms
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 from crgappspanel.tables import Table, Column
-from crgappspanel.models import GAUser
-
-_users = [
-    {
-        'given_name': 'Pawel',
-        'family_name': 'Zaborski',
-        'user_name': 'pawel@moroccanholidayrental.com',
-        'admin': 'True',
-        'quota': '0% of 25 GB',
-        'roles': 'admin',
-        'last_login': '9:28 pm',
-    },
-    {
-        'given_name': 'Roland',
-        'family_name': 'Plaszowski',
-        'user_name': 'roland@moroccanholidayrental.com',
-        'admin': 'True',
-        'quota': '0% of 25 GB',
-        'roles': 'admin',
-        'last_login': 'Jan 6',
-    },
-    {
-        'given_name': 'Kamil',
-        'family_name': 'Klimkiewicz',
-        'user_name': 'kamil@moroccanholidayrental.com',
-        'admin': 'True',
-        'quota': '0% of 25 GB',
-        'roles': 'admin',
-        'last_login': '3:15 pm',
-    },
-    {
-        'given_name': 'sky',
-        'family_name': 'mail',
-        'user_name': 'skymail@moroccanholidayrental.com',
-        'admin': 'False',
-        'quota': '3% of 25 GB',
-        'roles': 'sample',
-        'last_login': 'Mar 15',
-    },
-]
-
-_groups = [
-    {
-        'name': 'Agent Portugal',
-        'email': 'agent.pt@moroccanholidayrental.com',
-        'type': 'Custom',
-    },
-    {
-        'name': 'All Polish speakers',
-        'email': 'all.polish.speakers@moroccanholidayrental.com',
-        'type': 'Custom',
-    },
-]
+from crgappspanel.models import GAUser, GANickname
+from crgappspanel.sample_data import get_sample_groups
 
 def _get_name(x):
     try:
@@ -66,17 +15,11 @@ def _get_name(x):
 
 def _get_status(x):
     try:
-        suspended = x['suspended']
-        admin = x['admin']
+        suspended, admin = x['suspended'], x['admin']
     except:
-        suspended = x.suspended
-        admin = x.admin
+        suspended, admin = x.suspended, x.admin
     
-    if suspended:
-        return 'Suspended'
-    if admin:
-        return 'Administrator'
-    return ''
+    return 'Suspended' if suspended else 'Administrator' if admin else ''
 
 def _get_or_empty(x, attr):
     try:
@@ -118,21 +61,21 @@ class UserForm(forms.Form):
     admin = forms.BooleanField(label='Privileges', required=False, help_text='Administrators can manage all users and settings for this domain')
 
 def _get_sortby_asc(request, valid):
-    sortby = request.GET.get('sortby', valid[0])
+    sortby = request.GET.get('sortby', None)
     asc = (request.GET.get('asc', 'true') == 'true')
     if not sortby in valid:
-        sortby = valid[0]
+        sortby = None
     return (sortby, asc)
 
 def users(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _userFields])
     
-    _users = GAUser.all().fetch(100)
+    users = GAUser.all().fetch(100)
     
     table = Table(_userFields, sortby=sortby, asc=asc)
-    table.sort(_users)
+    table.sort(users)
     
-    return render_to_response('users_list.html', {'table': table.generate(_users, _userWidths)})
+    return render_to_response('users_list.html', {'table': table.generate(users, _userWidths)})
 
 def user(request, name=None):
     if name == None:
@@ -162,10 +105,11 @@ def user(request, name=None):
 def groups(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _groupFields])
     
+    groups = get_sample_groups()
     table = Table(_groupFields, sortby=sortby, asc=asc)
-    table.sort(_groups)
+    table.sort(groups)
     
-    return render_to_response('groups_list.html', {'table': table.generate(_groups, _groupWidths)})
+    return render_to_response('groups_list.html', {'table': table.generate(groups, _groupWidths)})
 
 def test(request):
     users = GAUser.all().fetch(100)
@@ -177,6 +121,11 @@ def test(request):
             field_value = getattr(users[i], field_name)
             res += '  %s: %s [%s]\n' % (field_name, field_value, str(type(field_value)))
         res += '\n'
+    res += '\n'
+    
+    nicknames = GANickname.all().fetch(100)
+    for i in range(len(nicknames)):
+        res += 'nicknames[%d]: %s\n' % (i, nicknames[i].nickname)
     res += '\n'
     
     return HttpResponse(res, mimetype='text/plain')
