@@ -1,6 +1,6 @@
 from django import forms
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, redirect
 from crgappspanel.tables import Table, Column
 from crgappspanel.models import GAUser
 
@@ -89,7 +89,7 @@ def _get_or_empty(x, attr):
 
 _userFields = [
     Column('Name', 'name', getter=_get_name),
-    Column('Username', 'user_name'),
+    Column('Username', 'user_name', id=True),
     Column('Status', 'status', getter=_get_status),
     Column('Email quota', 'quota', getter=lambda x: _get_or_empty(x, 'quota')),
     Column('Roles', 'roles', getter=lambda x: _get_or_empty(x, 'roles')),
@@ -98,7 +98,7 @@ _userFields = [
 
 _groupFields = [
     Column('Name', 'name'),
-    Column('Email address', 'email'),
+    Column('Email address', 'email', id=True),
     Column('Type', 'type'),
 ]
 
@@ -135,14 +135,29 @@ def users(request):
     return render_to_response('users_list.html', {'table': table.generate(_users, _userWidths)})
 
 def user(request, name=None):
+    if name == None:
+        return redirect('..')
+    
+    _user = GAUser.get_by_key_name(name)
+    
     if request.method == 'POST':
         form = UserForm(request.POST, auto_id=True)
         if form.is_valid():
-            return HttpResponse('Form is valid!', mimetype='text/plain')
+            return redirect('crgappspanel.views.user', name=name)
     else:
-        form = UserForm(auto_id=True)
+        form = UserForm(initial={
+            'given_name': _user.given_name,
+            'family_name': _user.family_name,
+            'suspernded': _user.suspended,
+            'admin': _user.admin,
+        }, auto_id=True)
     
-    return render_to_response('user_details.html', {'name': name, 'form': form})
+    return render_to_response('user_details.html', {
+        'name': name,
+        'given_name': _user.given_name,
+        'family_name': _user.family_name,
+        'form': form
+    })
 
 def groups(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _groupFields])

@@ -3,9 +3,15 @@
 {% block title %}User details: {{ name }}{% endblock %}
 
 {% block content %}
-	<form action="/users/{{ name }}/" method="POST">
+	<form action="/users/{{ name }}/" method="POST" style="border: 1px solid #cccccc; padding: 20px">
+		<div><a href="..">Back to user list</a></div>
 		<table class="form" width="100%">
 			<tbody>
+				<tr>
+					<td colspan="2">
+						<h1>{{ given_name }} {{ family_name }}</h1>
+					</td>
+				</tr>
 				{% for field in form %}
 					<tr>
 						<th>{{ field.label }}</th>

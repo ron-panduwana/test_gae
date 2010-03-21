@@ -53,7 +53,7 @@ table.form {
 }
 
 table.form th, table.form td {
-	border-bottom: 1px solid #cccccc;
+	border-top: 1px solid #cccccc;
 	
 	vertical-align: top;
 	

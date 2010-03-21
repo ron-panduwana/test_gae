@@ -26,8 +26,8 @@
 		{% for row in rows %}
 			<tr>
 				<td><input type="checkbox" id="{{ checkboxName }}_{{ forloop.counter0 }}" onchange="onSelectRow(this)"/></td>
-				{% for obj in row %}
-					<td>{{ obj }}</td>
+				{% for obj in row.data %}
+					<td onclick="showDetails('{{ row.id }}')">{{ obj }}</td>
 				{% endfor %}
 			</tr>
 		{% endfor %}
