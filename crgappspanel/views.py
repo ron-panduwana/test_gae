@@ -1,3 +1,5 @@
+from django import forms
+from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from crgappspanel.tables import Table, Column
 from crgappspanel.models import GAUser
@@ -108,13 +110,19 @@ _groupWidths = [
     '5%', '40%', '40%', '15%'
 ]
 
+class UserForm(forms.Form):
+    user_name = forms.CharField(label='Username')
+    given_name = forms.CharField(label='Given name')
+    family_name = forms.CharField(label='Family name')
+    suspended = forms.BooleanField(label='Account suspended', required=False)
+    admin = forms.BooleanField(label='Privileges', required=False, help_text='Administrators can manage all users and settings for this domain')
+
 def _get_sortby_asc(request, valid):
     sortby = request.GET.get('sortby', valid[0])
     asc = (request.GET.get('asc', 'true') == 'true')
-    if sortby in valid:
-        return (sortby, asc)
-    else:
-        return (valid[0], asc)
+    if not sortby in valid:
+        sortby = valid[0]
+    return (sortby, asc)
 
 def users(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _userFields])
@@ -125,6 +133,16 @@ def users(request):
     table.sort(_users)
     
     return render_to_response('users_list.html', {'table': table.generate(_users, _userWidths)})
+
+def user(request, name=None):
+    if request.method == 'POST':
+        form = UserForm(request.POST, auto_id=True)
+        if form.is_valid():
+            return HttpResponse('Form is valid!', mimetype='text/plain')
+    else:
+        form = UserForm(auto_id=True)
+    
+    return render_to_response('user_details.html', {'name': name, 'form': form})
 
 def groups(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _groupFields])
@@ -146,5 +164,4 @@ def test(request):
         res += '\n'
     res += '\n'
     
-    import django.http
-    return django.http.HttpResponse(res, mimetype='text/plain')
+    return HttpResponse(res, mimetype='text/plain')

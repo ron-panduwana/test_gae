@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}User details: {{ name }}{% endblock %}
+
+{% block content %}
+	<form action="/users/{{ name }}/" method="POST">
+		<table class="form" width="100%">
+			<tbody>
+				{% for field in form %}
+					<tr>
+						<th>{{ field.label }}</th>
+						<td>
+							{% ifnotequal field.help_text "" %}
+								<label for="{{ field.html_name }}">
+							{% endifnotequal %}
+							{{ field }}
+							{% ifnotequal field.help_text "" %}
+								{{ field.help_text }}</label>
+							{% endifnotequal %}
+						</td>
+					</tr>
+				{% endfor %}
+				<tr>
+					<td></td>
+					<td>
+						<input type="submit" value="save"/>
+						<input type="reset" value="reset"/>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+{% endblock %}

@@ -16,6 +16,7 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     (r'^users/$', 'crgappspanel.views.users'),
+    (r'^users/(?P<name>.+)/$', 'crgappspanel.views.user'),
     (r'^groups/$', 'crgappspanel.views.groups'),
     (r'^test/$', 'crgappspanel.views.test'), # TODO remove this test
     # Example:
