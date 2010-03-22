@@ -367,17 +367,32 @@ class _GDataServiceDescriptor(object):
     http://docs.python.org/reference/datamodel.html#implementing-descriptors
 
     """
+    MEMCACHE_KEY = 'clientlogintoken:%s'
+    DAY = 24 * 60 * 60
+
     def __get__(self, instance, owner):
         if instance._service.GetClientLoginToken() is None:
-            # ProgrammaticLogin may raise CaptchaRequired:
-            # We handle this situation in
-            # crgappspanel.middleware.CaptchaRequiredMiddleware:
-            # http://code.google.com/intl/pl/googleapps/faq.html#captchas
-            from gdata.service import CaptchaRequired
-            try:
-                instance._service.ProgrammaticLogin()
-            except CaptchaRequired:
-                raise GDataCaptchaRequiredError(instance._service.domain)
+            # Try to get the token from memcache
+            key = self.MEMCACHE_KEY % instance._service.email
+            token = memcache.get(key)
+            if token:
+                instance._service.SetClientLoginToken(token)
+            else:
+                # ProgrammaticLogin may raise CaptchaRequired:
+                # We handle this situation in
+                # crgappspanel.middleware.CaptchaRequiredMiddleware:
+                # http://code.google.com/intl/pl/googleapps/faq.html#captchas
+                from gdata.service import CaptchaRequired
+                try:
+                    instance._service.ProgrammaticLogin()
+                    # The auth token is valid for 24 hours:
+                    # http://code.google.com/intl/pl/googleapps/faq.html#avoidcaptcha
+                    # We keep it 30 minutes shorter than that to avoid using
+                    # invalid token
+                    memcache.set(key, instance._service.GetClientLoginToken(),
+                                 self.DAY - 30 * 60)
+                except CaptchaRequired:
+                    raise GDataCaptchaRequiredError(instance._service.domain)
         return instance._service
 
 
