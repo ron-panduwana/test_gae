@@ -1,7 +1,7 @@
 from __future__ import with_statement
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
-from crlib import gdata
+from crlib import gdata_wrapper as gd
 
 
 def _tmp_get_credentials():
@@ -13,16 +13,17 @@ def _tmp_get_credentials():
 _credentials = _tmp_get_credentials()
 
 
-class GAUser(gdata.Model):
-    Mapper = gdata.UserEntryMapper(*_credentials)
+class GAUser(gd.Model):
+    Mapper = gd.UserEntryMapper(*_credentials)
 
-    id = gdata.StringProperty('id.text', read_only=True)
-    user_name = gdata.StringProperty('login.user_name', required=True)
-    given_name = gdata.StringProperty('name.given_name', required=True)
-    family_name = gdata.StringProperty('name.family_name', required=True)
-    password = gdata.PasswordProperty('login.password')
-    suspended = gdata.BooleanProperty('login.suspended', default=False)
-    admin = gdata.BooleanProperty('login.admin', default=False)
+    id = gd.StringProperty('id.text', read_only=True)
+    user_name = gd.StringProperty('login.user_name', required=True,
+                                     read_only=True)
+    given_name = gd.StringProperty('name.given_name', required=True)
+    family_name = gd.StringProperty('name.family_name', required=True)
+    password = gd.PasswordProperty('login.password')
+    suspended = gd.BooleanProperty('login.suspended', default=False)
+    admin = gd.BooleanProperty('login.admin', default=False)
 
     def key(self):
         return self.user_name
@@ -31,11 +32,11 @@ class GAUser(gdata.Model):
         return '<GAUser: %s>' % self.user_name
 
 
-class GANickname(gdata.Model):
-    Mapper = gdata.NicknameEntryMapper(*_credentials)
+class GANickname(gd.Model):
+    Mapper = gd.NicknameEntryMapper(*_credentials)
 
-    nickname = gdata.StringProperty('nickname.name', required=True)
-    user = gdata.ReferenceProperty(
+    nickname = gd.StringProperty('nickname.name', required=True)
+    user = gd.ReferenceProperty(
         GAUser, 'login.user_name', required=True,
         collection_name='nicknames')
 

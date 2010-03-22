@@ -14,12 +14,13 @@
 
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('',
-    (r'^$', 'crgappspanel.views.index'),
-    (r'^users/$', 'crgappspanel.views.users'),
-    (r'^users/(?P<name>.+)/$', 'crgappspanel.views.user'),
-    (r'^groups/$', 'crgappspanel.views.groups'),
-    (r'^test/$', 'crgappspanel.views.test'), # TODO remove this test
+urlpatterns = patterns(
+    'crgappspanel.views',
+    (r'^$', 'index'),
+    (r'^users/$', 'users'),
+    (r'^users/(?P<name>.+)/$', 'user'),
+    (r'^groups/$', 'groups'),
+    (r'^test/$', 'test'), # TODO remove this test
     # Example:
     # (r'^foo/', include('foo.urls')),
 

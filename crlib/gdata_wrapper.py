@@ -1,4 +1,5 @@
 from google.appengine.ext import db
+from google.appengine.api import memcache
 from atom import AtomBase
 from atom.token_store import TokenStore
 
@@ -351,6 +352,11 @@ class Model(object):
         return cls(**props)
 
 
+class GDataCaptchaRequiredError(Exception):
+    def __init__(self, domain):
+        self.domain = domain
+
+
 class _GDataServiceDescriptor(object):
     """This object makes sure that ProgrammaticLogin() is called before the
     gdata.GDataService objects is used for the first time and it makes sure that
@@ -363,7 +369,15 @@ class _GDataServiceDescriptor(object):
     """
     def __get__(self, instance, owner):
         if instance._service.GetClientLoginToken() is None:
-            instance._service.ProgrammaticLogin()
+            # ProgrammaticLogin may raise CaptchaRequired:
+            # We handle this situation in
+            # crgappspanel.middleware.CaptchaRequiredMiddleware:
+            # http://code.google.com/intl/pl/googleapps/faq.html#captchas
+            from gdata.service import CaptchaRequired
+            try:
+                instance._service.ProgrammaticLogin()
+            except CaptchaRequired:
+                raise GDataCaptchaRequiredError(instance._service.domain)
         return instance._service
 
 
@@ -396,9 +410,12 @@ class AtomMapper(object):
 class UserEntryMapper(AtomMapper):
     @classmethod
     def create_service(cls, email, password, domain):
-        from lib.gdata.apps import service
-        return service.AppsService(
-            email, password, domain, token_store=cls.token_store)
+        from gdata.apps import service
+        from gdata.alt.appengine import run_on_appengine
+        service = service.AppsService(email, password, domain,
+                                      token_store=cls.token_store)
+        return service
+
 
     def create(self, atom):
         return self.service.CreateUser(
