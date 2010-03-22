@@ -62,6 +62,9 @@ def _get_sortby_asc(request, valid):
         sortby = None
     return (sortby, asc)
 
+def index(request):
+    return render_to_response('index.html', dict(pages=['users', 'groups', 'test']))
+
 def users(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _userFields])
     
@@ -110,17 +113,17 @@ def test(request):
     users = GAUser.all().fetch(100)
     
     res = ''
-    for i in range(len(users)):
-        res += 'users[%d]:\n' % i
+    for index, user in enumerate(users):
+        res += 'users[%d]:\n' % index
         for field_name in ['given_name', 'family_name', 'user_name', 'password', 'suspended', 'admin']:
-            field_value = getattr(users[i], field_name)
+            field_value = getattr(user, field_name)
             res += '  %s: %s [%s]\n' % (field_name, field_value, str(type(field_value)))
         res += '\n'
     res += '\n'
     
     nicknames = GANickname.all().fetch(100)
-    for i in range(len(nicknames)):
-        res += 'nicknames[%d]: %s\n' % (i, nicknames[i].nickname)
+    for index, nickname in enumerate(nicknames):
+        res += 'nicknames[%d]: %s\n' % (index, nickname.nickname)
     res += '\n'
     
     return HttpResponse(res, mimetype='text/plain')
