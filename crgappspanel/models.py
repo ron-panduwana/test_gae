@@ -17,19 +17,13 @@ class GAUser(gd.Model):
     Mapper = gd.UserEntryMapper(*_credentials)
 
     id = gd.StringProperty('id.text', read_only=True)
-    user_name = gd.StringProperty('login.user_name', required=True,
-                                     read_only=True)
+    title = gd.StringProperty('title.text', read_only=True)
+    user_name = gd.StringProperty('login.user_name', required=True)
     given_name = gd.StringProperty('name.given_name', required=True)
     family_name = gd.StringProperty('name.family_name', required=True)
     password = gd.PasswordProperty('login.password')
     suspended = gd.BooleanProperty('login.suspended', default=False)
     admin = gd.BooleanProperty('login.admin', default=False)
-
-    def key(self):
-        return self.user_name
-
-    def __repr__(self):
-        return '<GAUser: %s>' % self.user_name
 
 
 class GANickname(gd.Model):
@@ -37,14 +31,11 @@ class GANickname(gd.Model):
 
     nickname = gd.StringProperty('nickname.name', required=True)
     user = gd.ReferenceProperty(
-        GAUser, 'login.user_name', required=True,
-        collection_name='nicknames')
+        GAUser, 'login.user_name', required=True, collection_name='nicknames')
 
-    def key(self):
-        return self.nickname
 
-    def __repr__(self):
-        return '<GANickname: %s>' % self.nickname
+class TestModel(BaseModel):
+    user = gd.ReferenceProperty(GAUser)
 
 
 class Role(BaseModel):

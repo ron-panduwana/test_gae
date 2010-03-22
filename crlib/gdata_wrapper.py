@@ -1,3 +1,5 @@
+import logging
+from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from atom import AtomBase
@@ -132,6 +134,7 @@ class ReferenceProperty(StringProperty):
     def __init__(self, reference_class, *args, **kwargs):
         self.reference_class = reference_class
         self.collection_name = kwargs.pop('collection_name', None)
+        args = args or ('',)
         super(ReferenceProperty, self).__init__(*args, **kwargs)
 
     def __property_config__(self, model_class, property_name):
@@ -148,6 +151,10 @@ class ReferenceProperty(StringProperty):
     def set_value_on_atom(self, atom, value):
         super(ReferenceProperty, self).set_value_on_atom(
             atom, value.key())
+
+    def get_value_for_datastore(self, model_instance):
+        """Get key of reference rather than reference itself."""
+        return getattr(model_instance, self.__id_attr_name())
 
     def __get__(self, model_instance, model_class):
         """Get reference object.
@@ -214,8 +221,11 @@ class ReferenceProperty(StringProperty):
 class _ReverseReferenceProperty(db._ReverseReferenceProperty):
     def __get__(self, model_instance, model_class):
         """Fetches collection of model instances of this collection property."""
-        if model_instance is not None:
+        if isinstance(model_instance, Model):
             query = GDataQuery(self.__model)
+            return query.filter(self.__property + ' =', model_instance.key())
+        elif isinstance(model_instance, db.Model):
+            query = db.Query(self.__model)
             return query.filter(self.__property + ' =', model_instance.key())
         else:
             return self
@@ -298,6 +308,18 @@ class Model(object):
             else:
                 value = prop.default_value()
             prop.__set__(self, value)
+
+    def __repr__(self):
+        return '<%s: %s>' % (self.__class__.__name__, self.key())
+
+    def __cmp__(self, other):
+        if not isinstance(other, self.__class__):
+            return -2
+        kinds = cmp(self.kind(), other.kind())
+        return kinds == 0 and cmp(self.key(), other.key()) or kinds
+
+    def key(self):
+        return self._mapper.key(self._atom)
 
     @classmethod
     def all(cls):
@@ -448,6 +470,9 @@ class UserEntryMapper(AtomMapper):
     def retrieve(self, user_name):
         return self.service.RetrieveUser(user_name)
 
+    def key(self, atom):
+        return atom.login.user_name
+
 
 class NicknameEntryMapper(AtomMapper):
     create_service = UserEntryMapper.create_service
@@ -461,6 +486,9 @@ class NicknameEntryMapper(AtomMapper):
 
     def retrieve(self, nickname):
         return self.service.RetrieveNickname(nickname)
+
+    def key(self, atom):
+        return atom.nickname.name
 
     #@filter('user')
     #def filter_by_user(self, user_name):

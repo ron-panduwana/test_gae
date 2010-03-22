@@ -2,7 +2,8 @@ import os
 import unittest
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
-from crgappspanel.models import GAUser, GANickname, Role
+from gdata.apps.service import AppsForYourDomainException
+from crgappspanel.models import GAUser, GANickname, Role, TestModel
 
 
 os.environ['SERVER_NAME'] = 'localhost'
@@ -44,7 +45,7 @@ class GDataTestCase(unittest.TestCase):
             family_name='Account',
             password='some_password',
         )
-        new_user.put()
+        self.assertRaises(AppsForYourDomainException, new_user.put)
 
     def testCreateNickname(self):
         user = GAUser.get_by_key_name(self.USER_NAME)
@@ -77,6 +78,14 @@ class GDataTestCase(unittest.TestCase):
         user.given_name = 'Test'
         user.password = 'new_password'
         user.put()
+
+    def testReferencePropertyOnNormalModel(self):
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        test_model = TestModel(user=user)
+        test_model.put()
+
+        test_model = TestModel.all().get()
+        self.assertEqual(user, test_model.user)
 
 
 class RoleCreationTestCase(unittest.TestCase):
