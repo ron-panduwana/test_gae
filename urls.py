@@ -21,6 +21,7 @@ urlpatterns = patterns(
     (r'^users/(?P<name>.+)/$', 'user'),
     (r'^groups/$', 'groups'),
     (r'^test/$', 'test'), # TODO remove this test
+    url(r'^captcha/(?P<captcha_hash>\w{10})/$', 'captcha', name='captcha'),
     # Example:
     # (r'^foo/', include('foo.urls')),
 

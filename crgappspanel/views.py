@@ -1,5 +1,6 @@
+from google.appengine.api import memcache
 from django import forms
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
 from crgappspanel.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname
@@ -127,4 +128,18 @@ def test(request):
     res += '\n'
     
     return HttpResponse(res, mimetype='text/plain')
+
+
+def captcha(request, captcha_hash):
+    redirect_to = request.GET.get('redirect_to', '/')
+    if request.method == 'POST':
+        email = request.POST.get('email', '')
+        if email:
+            memcache.set('captcha_response:%s' % email, request.POST, 5 * 60)
+    else:
+        captcha_info = memcache.get('captcha:%s' % captcha_hash)
+        if captcha_info is not None:
+            return render_to_response('captcha.html', captcha_info)
+    return HttpResponseRedirect(redirect_to)
+
 

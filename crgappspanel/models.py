@@ -30,6 +30,7 @@ class GANickname(gd.Model):
     Mapper = gd.NicknameEntryMapper(*_credentials)
 
     nickname = gd.StringProperty('nickname.name', required=True)
+    user_name = gd.StringProperty('login.user_name')
     user = gd.ReferenceProperty(
         GAUser, 'login.user_name', required=True, collection_name='nicknames')
 

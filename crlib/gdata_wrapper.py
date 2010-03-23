@@ -61,19 +61,25 @@ class GDataQuery(object):
                 return asc and c or c * -1
         return 0
 
+    def _normalize_parameter(self, value):
+        if isinstance(value, Model):
+            return value.key()
+        return value
+
     def _retrieve_ordered(self):
-        gen = (self._model._from_atom(item)
-               for item in self._model._mapper.retrieve_all())
+        if self._filters and \
+           hasattr(self._model._mapper, 'filter_by_%s' % self._filters[0][0]):
+            retriever = getattr(
+                self._model._mapper, 'filter_by_%s' % self._filters[0][0])
+            retriever = retriever(self._filters[0][2])
+        else:
+            retriever = self._model._mapper.retrieve_all()
+        gen = (self._model._from_atom(item) for item in retriever)
         if not self._orders:
             return gen
         items = list(gen)
         items.sort(cmp=self._cmp_items)
         return items
-
-    def _normalize_parameter(self, value):
-        if isinstance(value, Model):
-            return value.key()
-        return value
 
     def __iter__(self):
         for item in self._retrieve_ordered():
@@ -280,12 +286,12 @@ class _ReverseReferenceProperty(db._ReverseReferenceProperty):
         """Fetches collection of model instances of this collection property."""
         if isinstance(model_instance, Model):
             query = GDataQuery(self.__model)
-            return query.filter(self.__property + ' =', model_instance.key())
         elif isinstance(model_instance, db.Model):
             query = db.Query(self.__model)
-            return query.filter(self.__property + ' =', model_instance.key())
         else:
             return self
+
+        return query.filter(self.__property + ' =', model_instance.key())
 
 
 # TODO: ListProperty
@@ -432,8 +438,10 @@ class Model(object):
 
 
 class GDataCaptchaRequiredError(Exception):
-    def __init__(self, domain):
-        self.domain = domain
+    def __init__(self, email, captcha_token, captcha_url):
+        self.email = email
+        self.captcha_token = captcha_token
+        self.captcha_url = captcha_url
 
 
 class _GDataServiceDescriptor(object):
@@ -452,26 +460,33 @@ class _GDataServiceDescriptor(object):
     def __get__(self, instance, owner):
         if instance._service.GetClientLoginToken() is None:
             # Try to get the token from memcache
-            key = self.MEMCACHE_KEY % instance._service.email
-            token = memcache.get(key)
+            token_key = self.MEMCACHE_KEY % instance._service.email
+            response_key = 'captcha_response:%s' % instance._service.email
+            token = memcache.get(token_key)
             if token:
                 instance._service.SetClientLoginToken(token)
             else:
-                # ProgrammaticLogin may raise CaptchaRequired:
-                # We handle this situation in
-                # crgappspanel.middleware.CaptchaRequiredMiddleware:
-                # http://code.google.com/intl/pl/googleapps/faq.html#captchas
                 from gdata.service import CaptchaRequired
+
+                captcha_info = memcache.get(response_key) or {}
+                captcha_token = captcha_info.get('token', None)
+                captcha_response = captcha_info.get('response', None)
                 try:
-                    instance._service.ProgrammaticLogin()
+                    instance._service.ProgrammaticLogin(
+                        captcha_token, captcha_response)
                     # The auth token is valid for 24 hours:
                     # http://code.google.com/intl/pl/googleapps/faq.html#avoidcaptcha
                     # We keep it 30 minutes shorter than that to avoid using
                     # invalid token
-                    memcache.set(key, instance._service.GetClientLoginToken(),
-                                 self.DAY - 30 * 60)
+                    memcache.set(
+                        token_key, instance._service.GetClientLoginToken(),
+                        self.DAY - 30 * 60)
+                    memcache.delete(response_key)
                 except CaptchaRequired:
-                    raise GDataCaptchaRequiredError(instance._service.domain)
+                    raise GDataCaptchaRequiredError(
+                        instance._service.email,
+                        instance._service.captcha_token,
+                        instance._service.captcha_url)
         return instance._service
 
 
@@ -546,6 +561,9 @@ class NicknameEntryMapper(AtomMapper):
 
     def key(self, atom):
         return atom.nickname.name
+
+    def filter_by_user_name(self, user_name):
+        return self.service.RetrieveNicknames(user_name).entry
 
     #@filter('user')
     #def filter_by_user(self, user_name):
