@@ -1,4 +1,6 @@
 import logging
+import operator
+import re
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from google.appengine.api import memcache
@@ -17,17 +19,45 @@ def _clone_atom(atom):
 
 class GDataQuery(object):
     """db.Query equivalent."""
+
+    _PROPERTY_RE = re.compile(r'([\w_]+)\s*(\<|\<\=|\=|\>\=|\>|\!\=|[iI][nN])?\s*$')
+    _FUNCS = {
+        '>': operator.gt,
+        '>=': operator.ge,
+        '<': operator.lt,
+        '<=': operator.le,
+        '!=': operator.ne,
+        '=': operator.eq,
+        'in': lambda *args: False,
+    }
+
     def __init__(self, model_class):
         self._filters = []
         self._model = model_class
 
     def filter(self, property_operator, value):
-        raise NotImplementedError
+        match = self._PROPERTY_RE.match(property_operator)
+        if not match:
+            raise Exception('Invalid property_operator: %s'
+                            % property_operator)
+        operator = (match.groups()[1] or '=').strip().lower()
+        self._filters.append((match.groups()[0], operator, value))
+        return self
 
     def get(self):
         results = self.fetch(1)
         if results:
             return results[0]
+
+    def __iter__(self):
+        for item in self._model._mapper.retrieve_all():
+            item = self._model._from_atom(item)
+            for property, operator, value in self._filters:
+                item_value = getattr(item, property)
+                if not self._FUNCS[operator](item_value, value):
+                    break
+            else:
+                yield item
 
     def fetch(self, limit, offset=0):
         """Fetch given number of elements from a feed provided by
@@ -35,9 +65,10 @@ class GDataQuery(object):
 
         """
         items = []
-        for i, item in enumerate(self._model._mapper.retrieve_all()):
+        limit = max(0, limit)
+        for i, item in enumerate(self):
             if i < limit:
-                items.append(self._model._from_atom(item))
+                items.append(item)
         return items
 
 
