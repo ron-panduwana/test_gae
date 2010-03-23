@@ -22,13 +22,13 @@ def _get_status(x):
 
 _userFields = [
     Column('Name', 'name', getter=lambda x: x.get_full_name()),
-    Column('Username', 'user_name', getter=lambda x: '%s@%s' % (getattr(x, 'user_name', ''), _domain)),
+    Column('Username', 'username', getter=lambda x: '%s@%s' % (getattr(x, 'user_name', ''), _domain)),
     Column('Status', 'status', getter=_get_status),
     Column('Email quota', 'quota', getter=lambda x: getattr(x, 'quota', '')),
     Column('Roles', 'roles', getter=lambda x: getattr(x, 'roles', '')),
     Column('Last signed in', 'last_login', getter=lambda x: getattr(x, 'last_login', ''))
 ]
-_userId = _userFields[1]
+_userId = Column('Username', 'user_name')
 
 _groupFields = [
     Column('Name', 'title'),
