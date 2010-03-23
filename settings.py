@@ -16,8 +16,9 @@
 
 import os
 import sys
+import logging
 
-sys.path.insert(1, 'lib')
+sys.path.insert(1, os.path.join(sys.path[0], 'lib'))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -83,6 +84,7 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
+    'crgappspanel.middleware.CaptchaRequiredMiddleware',
 #    'django.contrib.sessions.middleware.SessionMiddleware',
 #    'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'django.middleware.doc.XViewMiddleware',

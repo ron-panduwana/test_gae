@@ -14,7 +14,7 @@
 				</tr>
 				{% for field in form %}
 					<tr>
-						<th>{{ field.label }}</th>
+						<th>{{ field.label_tag }}</th>
 						<td>
 							{% ifnotequal field.help_text "" %}
 								<label for="{{ field.html_name }}">

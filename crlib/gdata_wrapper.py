@@ -1,4 +1,8 @@
+import logging
+import operator
+import re
 from google.appengine.ext import db
+from google.appengine.api import memcache
 from atom import AtomBase
 from atom.token_store import TokenStore
 
@@ -14,17 +18,72 @@ def _clone_atom(atom):
 
 class GDataQuery(object):
     """db.Query equivalent."""
+
+    _PROPERTY_RE = re.compile(r'([\w_]+)\s*(\<|\<\=|\=|\>\=|\>|\!\=|[iI][nN])?\s*$')
+    _FUNCS = {
+        '>': operator.gt,
+        '>=': operator.ge,
+        '<': operator.lt,
+        '<=': operator.le,
+        '!=': operator.ne,
+        '=': operator.eq,
+        'in': lambda *args: False,
+    }
+
     def __init__(self, model_class):
         self._filters = []
+        self._orders = []
         self._model = model_class
 
+    def order(self, property):
+        self._orders.append((
+            property.lstrip('-'), not property.startswith('-')))
+        return self
+
     def filter(self, property_operator, value):
-        raise NotImplementedError
+        match = self._PROPERTY_RE.match(property_operator)
+        if not match:
+            raise Exception('Invalid property_operator: %s'
+                            % property_operator)
+        operator = (match.groups()[1] or '=').strip().lower()
+        self._filters.append((match.groups()[0], operator, value))
+        return self
 
     def get(self):
         results = self.fetch(1)
         if results:
             return results[0]
+
+    def _cmp_items(self, x, y):
+        for property, asc in self._orders:
+            c = cmp(getattr(x, property), getattr(y, property))
+            if c != 0:
+                return asc and c or c * -1
+        return 0
+
+    def _retrieve_ordered(self):
+        gen = (self._model._from_atom(item)
+               for item in self._model._mapper.retrieve_all())
+        if not self._orders:
+            return gen
+        items = list(gen)
+        items.sort(cmp=self._cmp_items)
+        return items
+
+    def _normalize_parameter(self, value):
+        if isinstance(value, Model):
+            return value.key()
+        return value
+
+    def __iter__(self):
+        for item in self._retrieve_ordered():
+            for property, operator, value in self._filters:
+                item_value = getattr(item, property)
+                item_value = self._normalize_parameter(item_value)
+                if not self._FUNCS[operator](item_value, value):
+                    break
+            else:
+                yield item
 
     def fetch(self, limit, offset=0):
         """Fetch given number of elements from a feed provided by
@@ -32,9 +91,10 @@ class GDataQuery(object):
 
         """
         items = []
-        for i, item in enumerate(self._model._mapper.retrieve_all()):
+        limit = max(0, limit)
+        for i, item in enumerate(self):
             if i < limit:
-                items.append(self._model._from_atom(item))
+                items.append(item)
         return items
 
 
@@ -131,6 +191,7 @@ class ReferenceProperty(StringProperty):
     def __init__(self, reference_class, *args, **kwargs):
         self.reference_class = reference_class
         self.collection_name = kwargs.pop('collection_name', None)
+        args = args or ('',)
         super(ReferenceProperty, self).__init__(*args, **kwargs)
 
     def __property_config__(self, model_class, property_name):
@@ -147,6 +208,10 @@ class ReferenceProperty(StringProperty):
     def set_value_on_atom(self, atom, value):
         super(ReferenceProperty, self).set_value_on_atom(
             atom, value.key())
+
+    def get_value_for_datastore(self, model_instance):
+        """Get key of reference rather than reference itself."""
+        return getattr(model_instance, self.__id_attr_name())
 
     def __get__(self, model_instance, model_class):
         """Get reference object.
@@ -213,8 +278,11 @@ class ReferenceProperty(StringProperty):
 class _ReverseReferenceProperty(db._ReverseReferenceProperty):
     def __get__(self, model_instance, model_class):
         """Fetches collection of model instances of this collection property."""
-        if model_instance is not None:
+        if isinstance(model_instance, Model):
             query = GDataQuery(self.__model)
+            return query.filter(self.__property + ' =', model_instance.key())
+        elif isinstance(model_instance, db.Model):
+            query = db.Query(self.__model)
             return query.filter(self.__property + ' =', model_instance.key())
         else:
             return self
@@ -298,6 +366,18 @@ class Model(object):
                 value = prop.default_value()
             prop.__set__(self, value)
 
+    def __repr__(self):
+        return '<%s: %s>' % (self.__class__.__name__, self.key())
+
+    def __cmp__(self, other):
+        if not isinstance(other, self.__class__):
+            return -2
+        kinds = cmp(self.kind(), other.kind())
+        return kinds == 0 and cmp(self.key(), other.key()) or kinds
+
+    def key(self):
+        return self._mapper.key(self._atom)
+
     @classmethod
     def all(cls):
         return GDataQuery(cls)
@@ -351,6 +431,11 @@ class Model(object):
         return cls(**props)
 
 
+class GDataCaptchaRequiredError(Exception):
+    def __init__(self, domain):
+        self.domain = domain
+
+
 class _GDataServiceDescriptor(object):
     """This object makes sure that ProgrammaticLogin() is called before the
     gdata.GDataService objects is used for the first time and it makes sure that
@@ -361,9 +446,32 @@ class _GDataServiceDescriptor(object):
     http://docs.python.org/reference/datamodel.html#implementing-descriptors
 
     """
+    MEMCACHE_KEY = 'clientlogintoken:%s'
+    DAY = 24 * 60 * 60
+
     def __get__(self, instance, owner):
         if instance._service.GetClientLoginToken() is None:
-            instance._service.ProgrammaticLogin()
+            # Try to get the token from memcache
+            key = self.MEMCACHE_KEY % instance._service.email
+            token = memcache.get(key)
+            if token:
+                instance._service.SetClientLoginToken(token)
+            else:
+                # ProgrammaticLogin may raise CaptchaRequired:
+                # We handle this situation in
+                # crgappspanel.middleware.CaptchaRequiredMiddleware:
+                # http://code.google.com/intl/pl/googleapps/faq.html#captchas
+                from gdata.service import CaptchaRequired
+                try:
+                    instance._service.ProgrammaticLogin()
+                    # The auth token is valid for 24 hours:
+                    # http://code.google.com/intl/pl/googleapps/faq.html#avoidcaptcha
+                    # We keep it 30 minutes shorter than that to avoid using
+                    # invalid token
+                    memcache.set(key, instance._service.GetClientLoginToken(),
+                                 self.DAY - 30 * 60)
+                except CaptchaRequired:
+                    raise GDataCaptchaRequiredError(instance._service.domain)
         return instance._service
 
 
@@ -396,9 +504,12 @@ class AtomMapper(object):
 class UserEntryMapper(AtomMapper):
     @classmethod
     def create_service(cls, email, password, domain):
-        from lib.gdata.apps import service
-        return service.AppsService(
-            email, password, domain, token_store=cls.token_store)
+        from gdata.apps import service
+        from gdata.alt.appengine import run_on_appengine
+        service = service.AppsService(email, password, domain,
+                                      token_store=cls.token_store)
+        return service
+
 
     def create(self, atom):
         return self.service.CreateUser(
@@ -416,6 +527,9 @@ class UserEntryMapper(AtomMapper):
     def retrieve(self, user_name):
         return self.service.RetrieveUser(user_name)
 
+    def key(self, atom):
+        return atom.login.user_name
+
 
 class NicknameEntryMapper(AtomMapper):
     create_service = UserEntryMapper.create_service
@@ -429,6 +543,9 @@ class NicknameEntryMapper(AtomMapper):
 
     def retrieve(self, nickname):
         return self.service.RetrieveNickname(nickname)
+
+    def key(self, atom):
+        return atom.nickname.name
 
     #@filter('user')
     #def filter_by_user(self, user_name):

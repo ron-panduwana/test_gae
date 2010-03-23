@@ -127,3 +127,4 @@ def test(request):
     res += '\n'
     
     return HttpResponse(res, mimetype='text/plain')
+
