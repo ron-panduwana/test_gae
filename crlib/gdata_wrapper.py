@@ -71,10 +71,16 @@ class GDataQuery(object):
         items.sort(cmp=self._cmp_items)
         return items
 
+    def _normalize_parameter(self, value):
+        if isinstance(value, Model):
+            return value.key()
+        return value
+
     def __iter__(self):
         for item in self._retrieve_ordered():
             for property, operator, value in self._filters:
                 item_value = getattr(item, property)
+                item_value = self._normalize_parameter(item_value)
                 if not self._FUNCS[operator](item_value, value):
                     break
             else:
