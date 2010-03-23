@@ -1,7 +1,6 @@
 import logging
 import operator
 import re
-from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from atom import AtomBase
