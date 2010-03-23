@@ -2,12 +2,13 @@
 	<!-- column width specifiers -->
 	{% for width in widths %}
 		<col width="{{ width }}"/>
+	{% empty %}
 	{% endfor %}
 	
 	<!-- table header -->
 	<thead>
 		<tr>
-			<th><input type="checkbox" id="{{ checkboxName }}" onchange="onSelectAll(this)"/></th>
+			<th><input type="checkbox" id="{{ tableName }}_select" onchange="onSelectAll(this)"/></th>
 			{% for colspec in columns %}
 				<th>
 					<a href="?sortby={{ colspec.name }}{% ifequal colspec.name sortby.name %}{% if asc %}&asc=false{% endif %}{% endifequal %}"
@@ -24,8 +25,8 @@
 	<!-- table body -->
 	<tbody>
 		{% for row in rows %}
-			<tr>
-				<td><input type="checkbox" id="{{ checkboxName }}_{{ forloop.counter0 }}" onchange="onSelectRow(this)"/></td>
+			<tr id="{{ tableName }}_row_{{ forloop.counter0 }}">
+				<td><input type="checkbox" id="{{ tableName }}_select_{{ forloop.counter0 }}" onchange="onSelectRow(this)"/></td>
 				{% for obj in row.data %}
 					<td onclick="showDetails('{{ row.id }}')">{{ obj }}</td>
 				{% endfor %}

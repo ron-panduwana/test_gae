@@ -24,6 +24,9 @@ class GAUser(gd.Model):
     password = gd.PasswordProperty('login.password')
     suspended = gd.BooleanProperty('login.suspended', default=False)
     admin = gd.BooleanProperty('login.admin', default=False)
+    
+    def get_full_name(self):
+        return '%s %s' % (self.given_name, self.family_name)
 
 
 class GANickname(gd.Model):

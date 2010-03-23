@@ -2,21 +2,37 @@ goog.require('goog.dom')
 
 counts = {}
 
-function _baseName(name) {
-	return name.substring(0, name.lastIndexOf('_'))
+function _getTableName(name) {
+	return name.substring(0, name.indexOf('_'))
 }
 
-function _childName(name, index) {
-	return name + '_' + index
+function _getNumber(name) {
+	return name.substring(name.lastIndexOf('_')+1)
 }
 
-function _getElementCount(name) {
-	if (!counts[name]) {
-		var i = 0
-		while (goog.dom.$(_childName(name, i))) ++i
-		counts[name] = i
+function _getCheckboxName(tableName, number) {
+	if (number != null) {
+		return String.format('{0}_select_{1}', tableName, number)
+	} else {
+		return String.format('{0}_select', tableName)
 	}
-	return counts[name]
+}
+
+function _getTableRowName(tableName, number) {
+	if (number != null) {
+		return String.format('{0}_row_{1}', tableName, number)
+	} else {
+		return String.format('{0}_row', tableName)
+	}
+}
+
+function _getElementCount(tableName) {
+	if (!counts[tableName]) {
+		var i = 0
+		while (goog.dom.$(_getTableRowName(tableName, i))) ++i
+		counts[tableName] = i
+	}
+	return counts[tableName]
 }
 
 function showDetails(obj) {
@@ -24,21 +40,25 @@ function showDetails(obj) {
 }
 
 function onSelectAll(obj) {
-	var count = _getElementCount(obj.id)
+	var tableName = _getTableName(obj.id)
+	var count = _getElementCount(tableName)
 	
 	for (var i = 0 ; i < count ; ++i) {
-		goog.dom.$(_childName(obj.id, i)).checked = obj.checked
+		goog.dom.$(_getCheckboxName(tableName, i)).checked = obj.checked
+		goog.dom.$(_getTableRowName(tableName, i)).className = (obj.checked) ? 'selected' : ''
 	}
 }
 
 function onSelectRow(obj) {
-	var base = _baseName(obj.id)
-	var count = _getElementCount(base)
+	var tableName = _getTableName(obj.id)
+	var count = _getElementCount(tableName)
+	
+	goog.dom.$(_getTableRowName(tableName, _getNumber(obj.id))).className = (obj.checked) ? 'selected' : ''
 	
 	var selCount = 0
 	for (var i = 0 ; i < count ; ++i) {
-		if (goog.dom.$(_childName(base, i)).checked) ++selCount
+		if (goog.dom.$(_getCheckboxName(tableName, i)).checked) ++selCount
 	}
 	
-	goog.dom.$(base).checked = (selCount == count)
+	goog.dom.$(_getCheckboxName(tableName, null)).checked = (selCount == count)
 }
