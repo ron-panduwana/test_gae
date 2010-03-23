@@ -79,7 +79,7 @@ def user(request, name=None):
     if name == None:
         return redirect('..')
     
-    _user = GAUser.get_by_key_name(name)
+    user = GAUser.get_by_key_name(name)
     
     if request.method == 'POST':
         form = UserForm(request.POST, auto_id=True)
@@ -87,16 +87,16 @@ def user(request, name=None):
             return redirect('crgappspanel.views.user', name=name)
     else:
         form = UserForm(initial={
-            'given_name': _user.given_name,
-            'family_name': _user.family_name,
-            'suspernded': _user.suspended,
-            'admin': _user.admin,
+            'given_name': user.given_name,
+            'family_name': user.family_name,
+            'suspernded': user.suspended,
+            'admin': user.admin,
         }, auto_id=True)
     
     return render_to_response('user_details.html', {
         'name': name,
-        'given_name': _user.given_name,
-        'family_name': _user.family_name,
+        'given_name': user.given_name,
+        'family_name': user.family_name,
         'form': form
     })
 
