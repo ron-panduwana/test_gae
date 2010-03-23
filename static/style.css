@@ -53,6 +53,10 @@ table.list tr:hover td {
 	cursor: pointer;
 }
 
+table.list tr.selected td {
+	background-color: #ffffcc;
+}
+
 table.details {
 	border-collapse: collapse;
 }

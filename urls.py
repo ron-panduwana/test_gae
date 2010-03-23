@@ -20,7 +20,7 @@ urlpatterns = patterns(
     (r'^users/$', 'users'),
     (r'^users/(?P<name>.+)/$', 'user'),
     (r'^groups/$', 'groups'),
-    (r'^test/$', 'test'), # TODO remove this test
+    (r'^test/$', 'test'), # TODO remove this test in the future
     # Example:
     # (r'^foo/', include('foo.urls')),
 

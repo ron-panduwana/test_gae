@@ -23,7 +23,7 @@ class Table(object):
         # setting sort direction
         self.asc = asc if asc != None else True
     
-    def generate(self, objs, widths, checkboxName='select'):
+    def generate(self, objs, widths, tableName='table'):
         rows = []
         for obj in objs:
             rows.append({
@@ -37,7 +37,7 @@ class Table(object):
             'sortby': self.sortby,
             'asc': self.asc,
             'widths': widths,
-            'checkboxName': checkboxName,
+            'tableName': tableName,
         })
     
     def sort(self, objs):
