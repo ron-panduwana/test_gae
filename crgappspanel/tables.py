@@ -1,15 +1,18 @@
 from django.template.loader import render_to_string
 
 class Table(object):
-    def __init__(self, columns, sortby=None, asc=None):
+    """Represents table display configuration.
+    
+    Table consists of:
+    - list of visible column specifications
+    - id_column - id column specification - provides default sorting order
+    - sortby property determining sorting column
+    - asc property determining whether sort should be ascending or not
+    """
+    
+    def __init__(self, columns, id_column, sortby=None, asc=None):
         self.columns = columns  # columns presented in the table
-        self.id_column = None
-        
-        # looking for id column
-        ids = [col for col in self.columns if col.id]
-        if len(ids) != 1:
-            raise ValueError('Exactly one column must have id=True.')
-        self.id_column = ids[0]
+        self.id_column = id_column
         
         # setting sort column
         if sortby:
@@ -23,7 +26,10 @@ class Table(object):
         # setting sort direction
         self.asc = asc if asc != None else True
     
-    def generate(self, objs, widths, tableName='table'):
+    def generate(self, objs, widths=None, tableName='table'):
+        if widths == None:
+            widths = []
+        
         rows = []
         for obj in objs:
             rows.append({
@@ -44,11 +50,10 @@ class Table(object):
         objs.sort(key=lambda x: self.sortby.value(x), reverse=not self.asc)
 
 class Column(object):
-    def __init__(self, caption, name, getter=None, id=False):
+    def __init__(self, caption, name, getter=None):
         self.caption = caption
         self.name = name
         self.getter = getter
-        self.id = id
     
     def value(self, obj):
         if self.getter:

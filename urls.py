@@ -19,6 +19,7 @@ urlpatterns = patterns(
     (r'^$', 'index'),
     (r'^users/$', 'users'),
     (r'^users/(?P<name>.+)/$', 'user'),
+    (r'^users/(?P<name>.+)/(?P<action>.+)/$', 'user_action'),
     (r'^groups/$', 'groups'),
     (r'^test/$', 'test'), # TODO remove this test in the future
     # Example:

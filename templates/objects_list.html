@@ -2,6 +2,7 @@
 	<!-- column width specifiers -->
 	{% for width in widths %}
 		<col width="{{ width }}"/>
+	{% empty %}
 	{% endfor %}
 	
 	<!-- table header -->

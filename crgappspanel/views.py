@@ -1,59 +1,44 @@
+from __future__ import with_statement
 from django import forms
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
-from crgappspanel.tables import Table, Column
+
+from crgappspanel.forms import UserForm
 from crgappspanel.models import GAUser, GANickname
-from crgappspanel.sample_data import get_sample_groups
+from crgappspanel.tables import Table, Column
 
-def _get_prop(obj, prop, default=None):
-    try:
-        return obj[prop]
-    except:
-        if default != None:
-            try:
-                return getattr(obj, prop)
-            except:
-                return default
-        else:
-            return getattr(obj, prop)
+# sample data - to be removed in some future
+from crgappspanel.sample_data import get_sample_users, get_sample_groups
 
-def _get_name(x):
-    given_name, family_name = _get_prop(x, 'given_name'), _get_prop(x, 'family_name')
-    return '%s %s' % (given_name, family_name)
+# temporary domain extraction
+with open('google_apps.txt') as f:
+    f.readline()
+    f.readline()
+    _domain = f.readline().strip()
 
 def _get_status(x):
-    suspended, admin = _get_prop(x, 'suspended'), _get_prop(x, 'admin')
+    suspended, admin = getattr(x, 'suspended'), getattr(x, 'admin')
     return 'Suspended' if suspended else 'Administrator' if admin else ''
 
 _userFields = [
-    Column('Name', 'name', getter=_get_name),
-    Column('Username', 'user_name', id=True),
+    Column('Name', 'name', getter=lambda x: x.get_full_name()),
+    Column('Username', 'user_name', getter=lambda x: '%s@%s' % (getattr(x, 'user_name', ''), _domain)),
     Column('Status', 'status', getter=_get_status),
-    Column('Email quota', 'quota', getter=lambda x: _get_prop(x, 'quota', default='')),
-    Column('Roles', 'roles', getter=lambda x: _get_prop(x, 'roles', default='')),
-    Column('Last signed in', 'last_login', getter=lambda x: _get_prop(x, 'last_login', default=''))
+    Column('Email quota', 'quota', getter=lambda x: getattr(x, 'quota', '')),
+    Column('Roles', 'roles', getter=lambda x: getattr(x, 'roles', '')),
+    Column('Last signed in', 'last_login', getter=lambda x: getattr(x, 'last_login', ''))
 ]
+_userId = _userFields[1]
 
 _groupFields = [
-    Column('Name', 'name'),
-    Column('Email address', 'email', id=True),
-    Column('Type', 'type'),
+    Column('Name', 'title'),
+    Column('Email address', 'name'),
+    Column('Type', 'kind'),
 ]
+_groupId = _groupFields[1]
 
-_userWidths = [
-    '5%', '15%', '25%', '15%', '15%', '15%', '10%'
-]
-
-_groupWidths = [
-    '5%', '40%', '40%', '15%'
-]
-
-class UserForm(forms.Form):
-    user_name = forms.CharField(label='Username')
-    given_name = forms.CharField(label='Given name')
-    family_name = forms.CharField(label='Family name')
-    suspended = forms.BooleanField(label='Account suspended', required=False)
-    admin = forms.BooleanField(label='Privileges', required=False, help_text='Administrators can manage all users and settings for this domain')
+_userWidths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
+_groupWidths = ['%d%%' % x for x in (5, 40, 40, 15)]
 
 def _get_sortby_asc(request, valid):
     sortby = request.GET.get('sortby', None)
@@ -70,44 +55,56 @@ def users(request):
     
     users = GAUser.all().fetch(100)
     
-    table = Table(_userFields, sortby=sortby, asc=asc)
+    table = Table(_userFields, _userId, sortby=sortby, asc=asc)
     table.sort(users)
     
-    return render_to_response('users_list.html', {'table': table.generate(users, _userWidths)})
+    return render_to_response('users_list.html', {'table': table.generate(users, widths=_userWidths), 'domain': _domain})
 
 def user(request, name=None):
-    if name == None:
-        return redirect('..')
+    if not name:
+        raise ValueError('name = %s' % name)
+        return redirect('crgappspanel.views.users')
     
     user = GAUser.get_by_key_name(name)
     
     if request.method == 'POST':
         form = UserForm(request.POST, auto_id=True)
         if form.is_valid():
+            user.given_name = form['given_name']
             return redirect('crgappspanel.views.user', name=name)
     else:
         form = UserForm(initial={
+            'user_name': '%s@%s' % (user.user_name, _domain),
             'given_name': user.given_name,
             'family_name': user.family_name,
-            'suspernded': user.suspended,
             'admin': user.admin,
         }, auto_id=True)
     
     return render_to_response('user_details.html', {
+        'domain': _domain,
         'name': name,
         'given_name': user.given_name,
         'family_name': user.family_name,
-        'form': form
+        'form': form,
     })
+
+def user_action(request, name=None, action=None):
+    if not all(name, action):
+        raise ValueError('name = %s, action = %s' % (name, action))
+        return redirect('crgappspanel.views.users')
+    
+    user = GAUser.get_by_key_name(name)
+    
+    # TODO ...
 
 def groups(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _groupFields])
     
     groups = get_sample_groups()
-    table = Table(_groupFields, sortby=sortby, asc=asc)
+    table = Table(_groupFields, _groupId, sortby=sortby, asc=asc)
     table.sort(groups)
     
-    return render_to_response('groups_list.html', {'table': table.generate(groups, _groupWidths)})
+    return render_to_response('groups_list.html', {'table': table.generate(groups, widths=_groupWidths), 'domain': _domain})
 
 def test(request):
     users = GAUser.all().fetch(100)
@@ -127,4 +124,3 @@ def test(request):
     res += '\n'
     
     return HttpResponse(res, mimetype='text/plain')
-
