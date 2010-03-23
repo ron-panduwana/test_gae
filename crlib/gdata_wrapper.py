@@ -33,7 +33,13 @@ class GDataQuery(object):
 
     def __init__(self, model_class):
         self._filters = []
+        self._orders = []
         self._model = model_class
+
+    def order(self, property):
+        self._orders.append((
+            property.lstrip('-'), not property.startswith('-')))
+        return self
 
     def filter(self, property_operator, value):
         match = self._PROPERTY_RE.match(property_operator)
@@ -49,9 +55,24 @@ class GDataQuery(object):
         if results:
             return results[0]
 
+    def _cmp_items(self, x, y):
+        for property, asc in self._orders:
+            c = cmp(getattr(x, property), getattr(y, property))
+            if c != 0:
+                return asc and c or c * -1
+        return 0
+
+    def _retrieve_ordered(self):
+        gen = (self._model._from_atom(item)
+               for item in self._model._mapper.retrieve_all())
+        if not self._orders:
+            return gen
+        items = list(gen)
+        items.sort(cmp=self._cmp_items)
+        return items
+
     def __iter__(self):
-        for item in self._model._mapper.retrieve_all():
-            item = self._model._from_atom(item)
+        for item in self._retrieve_ordered():
             for property, operator, value in self._filters:
                 item_value = getattr(item, property)
                 if not self._FUNCS[operator](item_value, value):

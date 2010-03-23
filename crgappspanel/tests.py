@@ -122,6 +122,10 @@ class GDataTestCase(unittest.TestCase):
             i += 1
         self.assertEqual(i, 5)
 
+    def testGDataQueryOrder(self):
+        for user in GAUser.all().order('admin').order('user_name'):
+            print user
+
 
 class RoleCreationTestCase(unittest.TestCase):
     def setUp(self):
