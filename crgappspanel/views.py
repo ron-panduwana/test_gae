@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-from google.appengine.api import memcache
-=======
 from __future__ import with_statement
->>>>>>> 05cd3f6ded0bdfe36645189f8b2ffa810c34a110
+from google.appengine.api import memcache
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
