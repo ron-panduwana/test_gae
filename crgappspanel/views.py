@@ -16,19 +16,14 @@ from settings import APPS_DOMAIN
 # sample data - to be removed in some future
 from crgappspanel.sample_data import get_sample_users, get_sample_groups
 
-# temporary domain extraction
-with open('google_apps.txt') as f:
-    f.readline()
-    f.readline()
-    _domain = f.readline().strip()
-
 def _get_status(x):
     suspended, admin = getattr(x, 'suspended'), getattr(x, 'admin')
     return 'Suspended' if suspended else 'Administrator' if admin else ''
 
 _userFields = [
     Column('Name', 'name', getter=lambda x: x.get_full_name()),
-    Column('Username', 'username', getter=lambda x: '%s@%s' % (getattr(x, 'user_name', ''), _domain)),
+    Column('Username', 'username', getter=lambda x: '%s@%s' % (
+        getattr(x, 'user_name', ''), APPS_DOMAIN)),
     Column('Status', 'status', getter=_get_status),
     Column('Email quota', 'quota', getter=lambda x: getattr(x, 'quota', '')),
     Column('Roles', 'roles', getter=lambda x: getattr(x, 'roles', '')),
@@ -56,6 +51,7 @@ def _get_sortby_asc(request, valid):
 def index(request):
     return render_to_response('index.html', dict(pages=['users', 'groups', 'test']))
 
+@admin_required
 def users(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _userFields])
     
@@ -64,8 +60,11 @@ def users(request):
     table = Table(_userFields, _userId, sortby=sortby, asc=asc)
     table.sort(users)
     
-    return render_to_response('users_list.html', {'table': table.generate(users, widths=_userWidths), 'domain': _domain})
+    return render_to_response('users_list.html', {
+        'table': table.generate(users, widths=_userWidths),
+        'domain': APPS_DOMAIN})
 
+@admin_required
 def user(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -80,20 +79,21 @@ def user(request, name=None):
             return redirect('crgappspanel.views.user', name=name)
     else:
         form = UserForm(initial={
-            'user_name': '%s@%s' % (user.user_name, _domain),
+            'user_name': '%s@%s' % (user.user_name, APPS_DOMAIN),
             'given_name': user.given_name,
             'family_name': user.family_name,
             'admin': user.admin,
         }, auto_id=True)
     
     return render_to_response('user_details.html', {
-        'domain': _domain,
+        'domain': APPS_DOMAIN,
         'name': name,
         'given_name': user.given_name,
         'family_name': user.family_name,
         'form': form,
     })
 
+@admin_required
 def user_action(request, name=None, action=None):
     if not all(name, action):
         raise ValueError('name = %s, action = %s' % (name, action))
@@ -110,7 +110,9 @@ def groups(request):
     table = Table(_groupFields, _groupId, sortby=sortby, asc=asc)
     table.sort(groups)
     
-    return render_to_response('groups_list.html', {'table': table.generate(groups, widths=_groupWidths), 'domain': _domain})
+    return render_to_response('groups_list.html', {
+        'table': table.generate(groups, widths=_groupWidths),
+        'domain': APPS_DOMAIN})
 
 
 def logout(request):
