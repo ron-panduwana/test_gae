@@ -8,6 +8,7 @@ handlers:
   static_dir: static
 
 - url: /.*
+  login: admin
   script: main.py
 
 skip_files:

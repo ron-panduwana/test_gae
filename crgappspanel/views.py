@@ -1,12 +1,17 @@
 from __future__ import with_statement
+import logging
 from google.appengine.api import memcache
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
+from django.core.urlresolvers import reverse
 
-from crgappspanel.forms import UserForm
+from crgappspanel.forms import UserForm, LoginForm
 from crgappspanel.models import GAUser, GANickname
 from crgappspanel.tables import Table, Column
+from crgappspanel.decorators import admin_required, CLIENT_LOGIN_INFO, \
+        CLIENT_LOGIN_TOKEN_KEY
+from settings import APPS_DOMAIN
 
 # sample data - to be removed in some future
 from crgappspanel.sample_data import get_sample_users, get_sample_groups
@@ -107,6 +112,40 @@ def groups(request):
     
     return render_to_response('groups_list.html', {'table': table.generate(groups, widths=_groupWidths), 'domain': _domain})
 
+
+def logout(request):
+    try:
+        request.session.flush()
+    except TypeError:
+        pass
+    return HttpResponseRedirect('/')
+
+
+def login(request):
+    redirect_to = request.GET.get(
+        'redirect_to', request.META.get('HTTP_REFERER', '/'))
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = '%s@%s' % (form.cleaned_data['user_name'], APPS_DOMAIN)
+            request.session[CLIENT_LOGIN_INFO] = {
+                'domain': APPS_DOMAIN,
+                'email': email,
+                'password': form.cleaned_data['password'],
+            }
+            memcache.set(
+                CLIENT_LOGIN_TOKEN_KEY % email, form.token, 24 * 60 * 60)
+            return HttpResponseRedirect(redirect_to)
+    else:
+        form = LoginForm()
+    ctx = {
+        'form': form,
+        'domain': APPS_DOMAIN,
+    }
+    return render_to_response('login.html', ctx)
+
+
+@admin_required
 def test(request):
     users = GAUser.all().fetch(100)
     
@@ -125,17 +164,4 @@ def test(request):
     res += '\n'
     
     return HttpResponse(res, mimetype='text/plain')
-
-
-def captcha(request, captcha_hash):
-    redirect_to = request.GET.get('redirect_to', '/')
-    if request.method == 'POST':
-        email = request.POST.get('email', '')
-        if email:
-            memcache.set('captcha_response:%s' % email, request.POST, 5 * 60)
-    else:
-        captcha_info = memcache.get('captcha:%s' % captcha_hash)
-        if captcha_info is not None:
-            return render_to_response('captcha.html', captcha_info)
-    return HttpResponseRedirect(redirect_to)
 

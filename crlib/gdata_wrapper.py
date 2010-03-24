@@ -454,39 +454,13 @@ class _GDataServiceDescriptor(object):
     http://docs.python.org/reference/datamodel.html#implementing-descriptors
 
     """
-    MEMCACHE_KEY = 'clientlogintoken:%s'
-    DAY = 24 * 60 * 60
-
     def __get__(self, instance, owner):
         if instance._service.GetClientLoginToken() is None:
-            # Try to get the token from memcache
-            token_key = self.MEMCACHE_KEY % instance._service.email
-            response_key = 'captcha_response:%s' % instance._service.email
-            token = memcache.get(token_key)
-            if token:
-                instance._service.SetClientLoginToken(token)
-            else:
-                from gdata.service import CaptchaRequired
-
-                captcha_info = memcache.get(response_key) or {}
-                captcha_token = captcha_info.get('token', None)
-                captcha_response = captcha_info.get('response', None)
-                try:
-                    instance._service.ProgrammaticLogin(
-                        captcha_token, captcha_response)
-                    # The auth token is valid for 24 hours:
-                    # http://code.google.com/intl/pl/googleapps/faq.html#avoidcaptcha
-                    # We keep it 30 minutes shorter than that to avoid using
-                    # invalid token
-                    memcache.set(
-                        token_key, instance._service.GetClientLoginToken(),
-                        self.DAY - 30 * 60)
-                    memcache.delete(response_key)
-                except CaptchaRequired:
-                    raise GDataCaptchaRequiredError(
-                        instance._service.email,
-                        instance._service.captcha_token,
-                        instance._service.captcha_url)
+            import os
+            service = instance._service
+            service.domain = os.environ['CLIENT_LOGIN_DOMAIN']
+            instance._service.SetClientLoginToken(
+                os.environ['CLIENT_LOGIN_TOKEN'])
         return instance._service
 
 
@@ -520,11 +494,7 @@ class UserEntryMapper(AtomMapper):
     @classmethod
     def create_service(cls, email, password, domain):
         from gdata.apps import service
-        from gdata.alt.appengine import run_on_appengine
-        service = service.AppsService(email, password, domain,
-                                      token_store=cls.token_store)
-        return service
-
+        return service.AppsService()
 
     def create(self, atom):
         return self.service.CreateUser(

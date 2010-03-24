@@ -22,7 +22,8 @@ urlpatterns = patterns(
     (r'^users/(?P<name>.+)/(?P<action>.+)/$', 'user_action'),
     (r'^groups/$', 'groups'),
     (r'^test/$', 'test'), # TODO remove this test in the future
-    url(r'^captcha/(?P<captcha_hash>\w{10})/$', 'captcha', name='captcha'),
+    url(r'^login/$', 'login', name='login'),
+    url(r'^logout/$', 'logout', name='logout'),
     # Example:
     # (r'^foo/', include('foo.urls')),
 
