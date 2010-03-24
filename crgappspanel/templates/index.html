@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Listing{% endblock %}
+{% block title %}{% trans "Listing" %}{% endblock %}
 
 {% block content %}
 	{% for page in pages %}

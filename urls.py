@@ -14,16 +14,18 @@
 
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns(
-    'crgappspanel.views',
-    (r'^$', 'index'),
-    (r'^users/$', 'users'),
-    (r'^users/(?P<name>.+)/$', 'user'),
-    (r'^users/(?P<name>.+)/(?P<action>.+)/$', 'user_action'),
-    (r'^groups/$', 'groups'),
-    (r'^test/$', 'test'), # TODO remove this test in the future
-    url(r'^login/$', 'login', name='login'),
-    url(r'^logout/$', 'logout', name='logout'),
+urlpatterns = patterns('',
+    (r'^i18n/', include('django.conf.urls.i18n')),
+    
+    (r'^$', 'crgappspanel.views.index'),
+    (r'^users/$', 'crgappspanel.views.users'),
+    (r'^users/(?P<name>.+)/$', 'crgappspanel.views.user'),
+    (r'^users/(?P<name>.+)/(?P<action>.+)/$', 'crgappspanel.views.user_action'),
+    (r'^groups/$', 'crgappspanel.views.groups'),
+    (r'^language/$', 'crgappspanel.views.language'),
+    (r'^test/$', 'crgappspanel.views.test'), # TODO remove this test in the future
+    url(r'^login/$', 'crgappspanel.views.login', name='login'),
+    url(r'^logout/$', 'crgappspanel.views.logout', name='logout'),
     # Example:
     # (r'^foo/', include('foo.urls')),
 

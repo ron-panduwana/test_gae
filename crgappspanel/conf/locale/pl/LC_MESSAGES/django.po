@@ -1,0 +1,89 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-24 20:42+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: .\views.py:22
+msgid "Suspended"
+msgstr "Zablokowany"
+
+#: .\views.py:22
+msgid "Administrator"
+msgstr "Administrator"
+
+#: .\views.py:25 .\views.py:35
+msgid "Name"
+msgstr "Imię i nazwisko"
+
+#: .\views.py:26
+msgid "Username"
+msgstr "Nazwa użytkownika"
+
+#: .\views.py:27
+msgid "Status"
+msgstr "Status"
+
+#: .\views.py:28
+msgid "Email quota"
+msgstr "Zużycie konta mailowego"
+
+#: .\views.py:29
+msgid "Roles"
+msgstr "Role"
+
+#: .\views.py:30
+msgid "Last signed in"
+msgstr "Ostatnie logowanie"
+
+#: .\views.py:36
+msgid "Email address"
+msgstr "Adres e-mail"
+
+#: .\views.py:37
+msgid "Type"
+msgstr "Typ"
+
+#: .\views.py:152
+msgid "English"
+msgstr "Angielski"
+
+#: .\views.py:153
+msgid "Polish"
+msgstr "Polski"
+
+#: .\templates\groups_list.html.py:4
+msgid "Groups list"
+msgstr "Lista grup"
+
+#: .\templates\index.html.py:4
+msgid "Listing"
+msgstr "Lista widoków"
+
+#: .\templates\language.html.py:4
+msgid "Language settings"
+msgstr "Ustawienia języka"
+
+#: .\templates\user_details.html.py:4
+msgid "User details"
+msgstr "Dane użytkownika"
+
+#: .\templates\user_details.html.py:8
+msgid "Back to user list"
+msgstr "Powrót do listy użytkowników"
+
+#: .\templates\users_list.html.py:4
+msgid "Users list"
+msgstr "Lista użytkowników"

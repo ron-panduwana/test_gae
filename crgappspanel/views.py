@@ -5,6 +5,7 @@ from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
 
 from crgappspanel.forms import UserForm, LoginForm
 from crgappspanel.models import GAUser, GANickname
@@ -18,23 +19,22 @@ from crgappspanel.sample_data import get_sample_users, get_sample_groups
 
 def _get_status(x):
     suspended, admin = getattr(x, 'suspended'), getattr(x, 'admin')
-    return 'Suspended' if suspended else 'Administrator' if admin else ''
+    return _('Suspended') if x.suspended else _('Administrator') if x.admin else ''
 
 _userFields = [
-    Column('Name', 'name', getter=lambda x: x.get_full_name()),
-    Column('Username', 'username', getter=lambda x: '%s@%s' % (
-        getattr(x, 'user_name', ''), APPS_DOMAIN)),
-    Column('Status', 'status', getter=_get_status),
-    Column('Email quota', 'quota', getter=lambda x: getattr(x, 'quota', '')),
-    Column('Roles', 'roles', getter=lambda x: getattr(x, 'roles', '')),
-    Column('Last signed in', 'last_login', getter=lambda x: getattr(x, 'last_login', ''))
+    Column(_('Name'), 'name', getter=lambda x: x.get_full_name()),
+    Column(_('Username'), 'username', getter=lambda x: '%s@%s' % (getattr(x, 'user_name', ''), APPS_DOMAIN)),
+    Column(_('Status'), 'status', getter=_get_status),
+    Column(_('Email quota'), 'quota', getter=lambda x: getattr(x, 'quota', '')),
+    Column(_('Roles'), 'roles', getter=lambda x: getattr(x, 'roles', '')),
+    Column(_('Last signed in'), 'last_login', getter=lambda x: getattr(x, 'last_login', ''))
 ]
-_userId = Column('Username', 'user_name')
+_userId = Column(None, 'user_name')
 
 _groupFields = [
-    Column('Name', 'title'),
-    Column('Email address', 'name'),
-    Column('Type', 'kind'),
+    Column(_('Name'), 'title'),
+    Column(_('Email address'), 'name'),
+    Column(_('Type'), 'kind'),
 ]
 _groupId = _groupFields[1]
 
@@ -49,7 +49,7 @@ def _get_sortby_asc(request, valid):
     return (sortby, asc)
 
 def index(request):
-    return render_to_response('index.html', dict(pages=['users', 'groups', 'test']))
+    return render_to_response('index.html', dict(pages=['users', 'groups', 'language', 'test']))
 
 @admin_required
 def users(request):
@@ -147,6 +147,12 @@ def login(request):
     }
     return render_to_response('login.html', ctx)
 
+def language(request):
+    LANGUAGES = (
+        ('en', _('English')),
+        ('pl', _('Polish')),
+    )
+    return render_to_response('language.html', {'LANGUAGES': LANGUAGES})
 
 @admin_required
 def test(request):
@@ -167,4 +173,3 @@ def test(request):
     res += '\n'
     
     return HttpResponse(res, mimetype='text/plain')
-

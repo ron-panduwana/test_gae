@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}User details: {{ name }}{% endblock %}
+{% block title %}{% trans "User details" %}: {{ name }}{% endblock %}
 
 {% block content %}
 	<form action="/users/{{ name }}/" method="POST" style="border: 1px solid #cccccc; padding: 20px">
-		<div><a href="..">&laquo; Back to user list</a></div>
+		<div><a href="..">&laquo; {% trans "Back to user list" %}</a></div>
 		<table class="details" width="100%">
 			<tbody>
 				<tr>
