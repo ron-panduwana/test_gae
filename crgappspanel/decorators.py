@@ -2,6 +2,7 @@ import os
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from google.appengine.api import memcache
+from crgappspanel.forms import LoginForm
 
 
 CLIENT_LOGIN_INFO = 'client_login_info'

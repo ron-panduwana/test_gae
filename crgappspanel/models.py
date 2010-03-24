@@ -4,17 +4,8 @@ from google.appengine.ext import db
 from crlib import gdata_wrapper as gd
 
 
-def _tmp_get_credentials():
-    credentials = []
-    with open('google_apps.txt') as f:
-        for line in f:
-            credentials.append(line.strip())
-    return credentials[:3]
-_credentials = _tmp_get_credentials()
-
-
 class GAUser(gd.Model):
-    Mapper = gd.UserEntryMapper(*_credentials)
+    Mapper = gd.UserEntryMapper()
 
     id = gd.StringProperty('id.text', read_only=True)
     title = gd.StringProperty('title.text', read_only=True)
@@ -30,7 +21,7 @@ class GAUser(gd.Model):
 
 
 class GANickname(gd.Model):
-    Mapper = gd.NicknameEntryMapper(*_credentials)
+    Mapper = gd.NicknameEntryMapper()
 
     nickname = gd.StringProperty('nickname.name', required=True)
     user_name = gd.StringProperty('login.user_name')

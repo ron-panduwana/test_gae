@@ -437,13 +437,6 @@ class Model(object):
         return cls(**props)
 
 
-class GDataCaptchaRequiredError(Exception):
-    def __init__(self, email, captcha_token, captcha_url):
-        self.email = email
-        self.captcha_token = captcha_token
-        self.captcha_url = captcha_url
-
-
 class _GDataServiceDescriptor(object):
     """This object makes sure that ProgrammaticLogin() is called before the
     gdata.GDataService objects is used for the first time and it makes sure that
@@ -492,7 +485,7 @@ class AtomMapper(object):
 
 class UserEntryMapper(AtomMapper):
     @classmethod
-    def create_service(cls, email, password, domain):
+    def create_service(cls):
         from gdata.apps import service
         return service.AppsService()
 
