@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 
 from crgappspanel.forms import UserForm, LoginForm
 from crgappspanel.models import GAUser, GANickname
-from crgappspanel.tables import Table, Column
+from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.decorators import admin_required, CLIENT_LOGIN_INFO, \
         CLIENT_LOGIN_TOKEN_KEY
 from settings import APPS_DOMAIN
@@ -103,6 +103,7 @@ def user_action(request, name=None, action=None):
     
     # TODO ...
 
+@admin_required
 def groups(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _groupFields])
     
