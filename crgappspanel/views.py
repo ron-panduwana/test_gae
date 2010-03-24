@@ -78,7 +78,7 @@ def user(request, name=None):
         if form.is_valid():
             form.set_data(user)
             user.save()
-            return redirect('crgappspanel.views.user', name=name)
+            return redirect('crgappspanel.views.user', name=user.user_name)
     else:
         form = UserForm(initial={
             'user_name': user.user_name,
@@ -90,20 +90,26 @@ def user(request, name=None):
     
     return render_to_response('user_details.html', {
         'domain': APPS_DOMAIN,
-        'name': name,
-        'given_name': user.given_name,
-        'family_name': user.family_name,
+        'user': user,
         'form': form,
     })
 
 @admin_required
 def user_action(request, name=None, action=None):
-    if not all(name, action):
+    if not all((name, action)):
         raise ValueError('name = %s, action = %s' % (name, action))
     
     user = GAUser.get_by_key_name(name)
     
-    # TODO ...
+    if action == 'suspend':
+        user.suspended = True
+        user.save()
+    elif action == '!suspend':
+        user.suspended = False
+        user.save()
+    else:
+        raise ValueError('unknown action: %s' % action)
+    return redirect('crgappspanel.views.user', name=user.user_name)
 
 @admin_required
 def groups(request):

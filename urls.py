@@ -19,8 +19,8 @@ urlpatterns = patterns('',
     
     (r'^$', 'crgappspanel.views.index'),
     (r'^users/$', 'crgappspanel.views.users'),
-    (r'^users/(?P<name>.+)/$', 'crgappspanel.views.user'),
-    (r'^users/(?P<name>.+)/(?P<action>.+)/$', 'crgappspanel.views.user_action'),
+    (r'^users/(?P<name>[^/]+)/$', 'crgappspanel.views.user'),
+    (r'^users/(?P<name>[^/]+)/(?P<action>[^/]+)/$', 'crgappspanel.views.user_action'),
     (r'^groups/$', 'crgappspanel.views.groups'),
     (r'^language/$', 'crgappspanel.views.language'),
     (r'^test/$', 'crgappspanel.views.test'), # TODO remove this test in the future
