@@ -12,7 +12,7 @@ from crgappspanel.models import GAUser, GANickname
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.decorators import admin_required, CLIENT_LOGIN_INFO, \
         CLIENT_LOGIN_TOKEN_KEY
-from settings import APPS_DOMAIN
+from settings import APPS_DOMAIN, LANGUAGES
 
 # sample data - to be removed in some future
 from crgappspanel.sample_data import get_sample_users, get_sample_groups
@@ -68,22 +68,25 @@ def users(request):
 def user(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
-        return redirect('crgappspanel.views.users')
     
     user = GAUser.get_by_key_name(name)
+    if not user:
+        return redirect('crgappspanel.views.users')
     
     if request.method == 'POST':
         form = UserForm(request.POST, auto_id=True)
         if form.is_valid():
-            user.given_name = form['given_name']
+            form.set_data(user)
+            user.save()
             return redirect('crgappspanel.views.user', name=name)
     else:
         form = UserForm(initial={
-            'user_name': '%s@%s' % (user.user_name, APPS_DOMAIN),
+            'user_name': user.user_name,
             'given_name': user.given_name,
             'family_name': user.family_name,
             'admin': user.admin,
         }, auto_id=True)
+        form.fields['user_name'].help_text = '@%s' % APPS_DOMAIN
     
     return render_to_response('user_details.html', {
         'domain': APPS_DOMAIN,
@@ -97,7 +100,6 @@ def user(request, name=None):
 def user_action(request, name=None, action=None):
     if not all(name, action):
         raise ValueError('name = %s, action = %s' % (name, action))
-        return redirect('crgappspanel.views.users')
     
     user = GAUser.get_by_key_name(name)
     
@@ -148,10 +150,6 @@ def login(request):
     return render_to_response('login.html', ctx)
 
 def language(request):
-    LANGUAGES = (
-        ('en', _('English')),
-        ('pl', _('Polish')),
-    )
     return render_to_response('language.html', {'LANGUAGES': LANGUAGES})
 
 @admin_required

@@ -24,6 +24,13 @@
 							{% ifnotequal field.help_text "" %}
 								{{ field.help_text }}</label>
 							{% endifnotequal %}
+							
+							{% for error in field.errors %}
+								{% if forloop.first %}
+									<span style="color: red">{{ error }}</span>
+								{% endif %}
+							{% empty %}
+							{% endfor %}
 						</td>
 					</tr>
 				{% endfor %}

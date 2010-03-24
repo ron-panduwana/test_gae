@@ -49,6 +49,14 @@ TIME_ZONE = 'UTC'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
+# LANGUAGES presented as suggested here:
+# http://docs.djangoproject.com/en/dev/ref/settings/
+gettext = lambda s: s
+LANGUAGES = (
+    ('en', gettext('English')),
+    ('pl', gettext('Polish')),
+)
+
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not

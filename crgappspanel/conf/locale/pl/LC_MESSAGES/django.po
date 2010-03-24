@@ -38,7 +38,7 @@ msgstr "Status"
 
 #: .\views.py:28
 msgid "Email quota"
-msgstr "Zużycie konta mailowego"
+msgstr "Zajętość konta mailowego"
 
 #: .\views.py:29
 msgid "Roles"
