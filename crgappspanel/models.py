@@ -27,6 +27,9 @@ class GANickname(gd.Model):
     user_name = gd.StringProperty('login.user_name')
     user = gd.ReferenceProperty(
         GAUser, 'login.user_name', required=True, collection_name='nicknames')
+    
+    def __str__(self):
+        return self.nickname
 
 
 class TestModel(BaseModel):

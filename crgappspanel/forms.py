@@ -1,17 +1,26 @@
 import logging
 from django import forms
 
+__all__ = ('UserForm', 'LoginForm')
+
 class UserForm(forms.Form):
     user_name = forms.CharField(label='User name')
     given_name = forms.CharField(label='Given name')
     family_name = forms.CharField(label='Family name')
     admin = forms.BooleanField(label='Privileges', required=False, help_text='Administrators can manage all users and settings for this domain')
+    nicknames = forms.CharField(label='Nicknames', required=False)
     
-    def set_data(self, user):
+    def populate(self, user):
         user.user_name = self.cleaned_data['user_name']
         user.given_name = self.cleaned_data['given_name']
         user.family_name = self.cleaned_data['family_name']
         user.admin = self.cleaned_data['admin']
+    
+    def get_nickname(self):
+        nicknames = self.cleaned_data['nicknames'].strip()
+        if nicknames:
+            return nicknames
+        return None
 
 
 class LoginForm(forms.Form):

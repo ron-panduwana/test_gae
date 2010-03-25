@@ -76,8 +76,10 @@ def user(request, name=None):
     if request.method == 'POST':
         form = UserForm(request.POST, auto_id=True)
         if form.is_valid():
-            form.set_data(user)
+            form.populate(user)
             user.save()
+            if form.get_nickname():
+                GANickname(user=user, nickname=form.get_nickname()).save()
             return redirect('crgappspanel.views.user', name=user.user_name)
     else:
         form = UserForm(initial={
@@ -85,6 +87,7 @@ def user(request, name=None):
             'given_name': user.given_name,
             'family_name': user.family_name,
             'admin': user.admin,
+            'nicknames': '',
         }, auto_id=True)
         form.fields['user_name'].help_text = '@%s' % APPS_DOMAIN
     
@@ -92,6 +95,7 @@ def user(request, name=None):
         'domain': APPS_DOMAIN,
         'user': user,
         'form': form,
+        'full_nicknames': ['<b>%s</b>@%s' % (nick, APPS_DOMAIN) for nick in user.nicknames]
     })
 
 @admin_required

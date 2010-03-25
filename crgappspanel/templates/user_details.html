@@ -22,27 +22,15 @@
 						{% endif %}
 					</td>
 				</tr>
-				{% for field in form %}
-					<tr>
-						<th>{{ field.label_tag }}</th>
-						<td>
-							{% ifnotequal field.help_text "" %}
-								<label for="{{ field.html_name }}">
-							{% endifnotequal %}
-							{{ field }}
-							{% ifnotequal field.help_text "" %}
-								{{ field.help_text }}</label>
-							{% endifnotequal %}
-							
-							{% for error in field.errors %}
-								{% if forloop.first %}
-									<span style="color: red">{{ error }}</span>
-								{% endif %}
-							{% empty %}
-							{% endfor %}
-						</td>
-					</tr>
-				{% endfor %}
+				{% with form.user_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+				{% with form.given_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+				{% with form.family_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+				{% with form.admin as field %}{% include "snippets/form_field.html" %}{% endwith %}
+				{% with form.nicknames as field %}{% with full_nicknames as items %}
+					{% autoescape off %}
+						{% include "snippets/form_field_with_items.html" %}
+					{% endautoescape %}
+				{% endwith %}{% endwith %}
 				<tr>
 					<td></td>
 					<td>

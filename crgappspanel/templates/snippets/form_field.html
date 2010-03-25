@@ -1,0 +1,19 @@
+<tr>
+	<th>{{ field.label_tag }}</th>
+	<td>
+		{% if field.help_text %}
+			<label for="{{ field.html_name }}">
+		{% endif %}
+		{{ field }}
+		{% if field.help_text %}
+			{{ field.help_text }}</label>
+		{% endif %}
+		
+		{% for error in field.errors %}
+			{% if forloop.first %}
+				<span style="color: red">{{ error }}</span>
+			{% endif %}
+		{% empty %}
+		{% endfor %}
+	</td>
+</tr>
