@@ -4,21 +4,17 @@
 {% block title %}{% trans "User details" %}: {{ user.user_name }}{% endblock %}
 
 {% block content %}
-	<form action="/users/{{ user.user_name }}/" method="POST" style="border: 1px solid #cccccc; padding: 20px">
-		<div><a href="..">&laquo; {% trans "Back to user list" %}</a></div>
+	<form action="{% url user-details user.user_name %}" method="POST" style="border: 1px solid #cccccc; padding: 20px">
+		<div><a href="{% url users %}">&laquo; {% trans "Back to user list" %}</a></div>
 		<table class="details" width="100%">
 			<tbody>
 				<tr>
 					<td colspan="2">
-						<h1>{{ user.given_name }} {{ user.family_name }}</h1>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="2">
+						<h1 style="margin-bottom: 0">{{ user.given_name }} {{ user.family_name }}</h1>
 						{% if user.suspended %}
-							<a href="/users/{{ user.user_name }}/!suspend/">Restore</a>
+							<a href="{% url user-action user.user_name '!suspend'%}">Restore</a>
 						{% else %}
-							<a href="/users/{{ user.user_name }}/suspend/">Suspend</a>
+							<a href="{% url user-action user.user_name 'suspend'%}">Suspend</a>
 						{% endif %}
 					</td>
 				</tr>

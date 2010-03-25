@@ -71,7 +71,7 @@ def user(request, name=None):
     
     user = GAUser.get_by_key_name(name)
     if not user:
-        return redirect('crgappspanel.views.users')
+        return redirect('users')
     
     if request.method == 'POST':
         form = UserForm(request.POST, auto_id=True)
@@ -80,7 +80,7 @@ def user(request, name=None):
             user.save()
             if form.get_nickname():
                 GANickname(user=user, nickname=form.get_nickname()).save()
-            return redirect('crgappspanel.views.user', name=user.user_name)
+            return redirect('user-details', name=user.user_name)
     else:
         form = UserForm(initial={
             'user_name': user.user_name,
@@ -95,8 +95,7 @@ def user(request, name=None):
         'domain': APPS_DOMAIN,
         'user': user,
         'form': form,
-        'full_nicknames': ['<b>%s</b>@%s' % (nick, APPS_DOMAIN) for nick in user.nicknames]
-    })
+        'full_nicknames': ['<b>%s</b>@%s' % (nick, APPS_DOMAIN) for nick in user.nicknames]})
 
 @admin_required
 def user_action(request, name=None, action=None):
@@ -113,7 +112,7 @@ def user_action(request, name=None, action=None):
         user.save()
     else:
         raise ValueError('unknown action: %s' % action)
-    return redirect('crgappspanel.views.user', name=user.user_name)
+    return redirect('user-details', name=user.user_name)
 
 @admin_required
 def groups(request):
