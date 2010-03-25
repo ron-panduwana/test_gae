@@ -8,7 +8,7 @@
 	<!-- table header -->
 	<thead>
 		<tr>
-			<th><input type="checkbox" id="{{ tableName }}_select" onchange="onSelectAll(this)"/></th>
+			<th><input type="checkbox" id="{{ tableName }}_select" onchange="cr.table.onSelectAll(this)"/></th>
 			{% for colspec in columns %}
 				<th>
 					<a href="?sortby={{ colspec.name }}{% ifequal colspec.name sortby.name %}{% if asc %}&asc=false{% endif %}{% endifequal %}"
@@ -26,9 +26,9 @@
 	<tbody>
 		{% for row in rows %}
 			<tr id="{{ tableName }}_row_{{ forloop.counter0 }}">
-				<td><input type="checkbox" id="{{ tableName }}_select_{{ forloop.counter0 }}" onchange="onSelectRow(this)"/></td>
+				<td><input type="checkbox" id="{{ tableName }}_select_{{ forloop.counter0 }}" onchange="cr.table.onSelectRow(this)"/></td>
 				{% for obj in row.data %}
-					<td onclick="showDetails('{{ row.id }}')">{{ obj }}</td>
+					<td onclick="cr.table.showDetails('{{ row.id }}')">{{ obj }}</td>
 				{% endfor %}
 			</tr>
 		{% endfor %}

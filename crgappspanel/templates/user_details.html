@@ -4,6 +4,7 @@
 {% block title %}{% trans "User details" %}: {{ user.user_name }}{% endblock %}
 
 {% block content %}
+	<script type="text/javascript" src="/static/expandField.js"></script>
 	<form action="{% url user-details user.user_name %}" method="POST" style="border: 1px solid #cccccc; padding: 20px">
 		<div><a href="{% url users %}">&laquo; {% trans "Back to user list" %}</a></div>
 		<table class="details" width="100%">
@@ -19,8 +20,7 @@
 					</td>
 				</tr>
 				{% with form.user_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
-				{% with form.given_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
-				{% with form.family_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+				{% with form.full_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
 				{% with form.admin as field %}{% include "snippets/form_field.html" %}{% endwith %}
 				{% with form.nicknames as field %}{% with full_nicknames as items %}
 					{% autoescape off %}

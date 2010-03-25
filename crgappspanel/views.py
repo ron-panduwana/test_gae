@@ -84,21 +84,24 @@ def user(request, name=None):
     else:
         form = UserForm(initial={
             'user_name': user.user_name,
-            'given_name': user.given_name,
-            'family_name': user.family_name,
+            'full_name': [user.given_name, user.family_name],
             'admin': user.admin,
             'nicknames': '',
         }, auto_id=True)
         form.fields['user_name'].help_text = '@%s' % APPS_DOMAIN
     
+    fmt = '<b>%s</b>@%s - <a href="%s">Remove</a>'
+    def remove_nick_link(x):
+        return reverse('user-action', kwargs=dict(name=user.user_name, action='remove-nickname', arg=str(x)))
+    full_nicknames = [fmt % (nick, APPS_DOMAIN, remove_nick_link(nick)) for nick in user.nicknames]
     return render_to_response('user_details.html', {
         'domain': APPS_DOMAIN,
         'user': user,
         'form': form,
-        'full_nicknames': ['<b>%s</b>@%s' % (nick, APPS_DOMAIN) for nick in user.nicknames]})
+        'full_nicknames': full_nicknames})
 
 @admin_required
-def user_action(request, name=None, action=None):
+def user_action(request, name=None, action=None, arg=None):
     if not all((name, action)):
         raise ValueError('name = %s, action = %s' % (name, action))
     
@@ -110,8 +113,13 @@ def user_action(request, name=None, action=None):
     elif action == '!suspend':
         user.suspended = False
         user.save()
+    elif action == 'remove-nickname':
+        if not arg:
+            raise ValueError('arg = %s' % arg)
+        nickname = arg
+        # TODO add nickname removal code
     else:
-        raise ValueError('unknown action: %s' % action)
+        raise ValueError('Unknown action: %s' % action)
     return redirect('user-details', name=user.user_name)
 
 @admin_required
@@ -126,18 +134,8 @@ def groups(request):
         'table': table.generate(groups, widths=_groupWidths),
         'domain': APPS_DOMAIN})
 
-
-def logout(request):
-    try:
-        request.session.flush()
-    except TypeError:
-        pass
-    return HttpResponseRedirect('/')
-
-
 def login(request):
-    redirect_to = request.GET.get(
-        'redirect_to', request.META.get('HTTP_REFERER', '/'))
+    redirect_to = request.GET.get('redirect_to', request.META.get('HTTP_REFERER', '/'))
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -147,8 +145,7 @@ def login(request):
                 'email': email,
                 'password': form.cleaned_data['password'],
             }
-            memcache.set(
-                CLIENT_LOGIN_TOKEN_KEY % email, form.token, 24 * 60 * 60)
+            memcache.set(CLIENT_LOGIN_TOKEN_KEY % email, form.token, 24 * 60 * 60)
             return HttpResponseRedirect(redirect_to)
     else:
         form = LoginForm()
@@ -157,6 +154,13 @@ def login(request):
         'domain': APPS_DOMAIN,
     }
     return render_to_response('login.html', ctx)
+
+def logout(request):
+    try:
+        request.session.flush()
+    except TypeError:
+        pass
+    return HttpResponseRedirect('/')
 
 def language(request):
     return render_to_response('language.html', {'LANGUAGES': LANGUAGES})
