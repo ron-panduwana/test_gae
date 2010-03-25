@@ -1,17 +1,14 @@
 from __future__ import with_statement
-import logging
-from google.appengine.api import memcache
 from django import forms
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
-from crgappspanel.forms import UserForm, LoginForm
+from crgappspanel.forms import UserForm
 from crgappspanel.models import GAUser, GANickname
 from crgappspanel.helpers.tables import Table, Column
-from crgappspanel.decorators import admin_required, CLIENT_LOGIN_INFO, \
-        CLIENT_LOGIN_TOKEN_KEY
+from crlib.users import admin_required
 from settings import APPS_DOMAIN, LANGUAGES
 
 # sample data - to be removed in some future
@@ -134,36 +131,10 @@ def groups(request):
         'table': table.generate(groups, widths=_groupWidths),
         'domain': APPS_DOMAIN})
 
-def login(request):
-    redirect_to = request.GET.get('redirect_to', request.META.get('HTTP_REFERER', '/'))
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            email = '%s@%s' % (form.cleaned_data['user_name'], APPS_DOMAIN)
-            request.session[CLIENT_LOGIN_INFO] = {
-                'domain': APPS_DOMAIN,
-                'email': email,
-                'password': form.cleaned_data['password'],
-            }
-            memcache.set(CLIENT_LOGIN_TOKEN_KEY % email, form.token, 24 * 60 * 60)
-            return HttpResponseRedirect(redirect_to)
-    else:
-        form = LoginForm()
-    ctx = {
-        'form': form,
-        'domain': APPS_DOMAIN,
-    }
-    return render_to_response('login.html', ctx)
-
-def logout(request):
-    try:
-        request.session.flush()
-    except TypeError:
-        pass
-    return HttpResponseRedirect('/')
 
 def language(request):
     return render_to_response('language.html', {'LANGUAGES': LANGUAGES})
+
 
 @admin_required
 def test(request):

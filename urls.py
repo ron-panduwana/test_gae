@@ -28,8 +28,9 @@ urlpatterns = patterns('',
     url(r'^language/$', 'crgappspanel.views.language', name='language'),
     url(r'^test/$', 'crgappspanel.views.test', name='test'), # TODO remove this test in the future
     
-    url(r'^login/$', 'crgappspanel.views.login', name='login'),
-    url(r'^logout/$', 'crgappspanel.views.logout', name='logout'),
+    url(r'^login/$', 'crlib.users.generic_login_view',
+        {'template': 'login.html'}),
+    url(r'^logout/$', 'crlib.users.generic_logout_view', name='logout'),
     # Example:
     # (r'^foo/', include('foo.urls')),
 

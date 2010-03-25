@@ -6,12 +6,19 @@ from google.appengine.ext import db
 from gdata.apps.service import AppsForYourDomainException
 from crgappspanel.models import GAUser, GANickname, Role, TestModel
 from crlib.gdata_wrapper import GDataQuery
+from crlib.users import set_testing_user
 
 
 os.environ['SERVER_NAME'] = 'localhost'
 os.environ['SERVER_PORT'] = '8000'
 os.environ['USER_EMAIL'] = 'test@example.com'
 os.environ['USER_IS_ADMIN'] = '1'
+
+
+with open('google_apps.txt') as f:
+    lines = f.readlines()
+credentials = [line.strip() for line in lines[:2]]
+set_testing_user(*credentials)
 
 
 class GDataTestCase(unittest.TestCase):

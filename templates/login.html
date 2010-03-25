@@ -11,9 +11,10 @@
         <p>{{ form.user_name.label_tag }}: {{ form.user_name }} @{{ domain }}</p>
         <p>{{ form.password.errors }}</p>
         <p>{{ form.password.label_tag }}: {{ form.password }}</p>
-        {% if form.captcha_url %}
-        <p><img src="{{ form.captcha_url }}"></p>
+        {% if form.captcha_url.data %}
+        <p><img src="{{ form.captcha_url.data }}"></p>
         {{ form.captcha_token }}
+        {{ form.captcha_url }}
         <p>{{ form.captcha.errors }}</p>
         <p>{{ form.captcha.label_tag }}: {{ form.captcha }}</p>
         {% endif %}
