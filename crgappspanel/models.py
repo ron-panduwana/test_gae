@@ -15,6 +15,10 @@ class GAUser(gd.Model):
     password = gd.PasswordProperty('login.password')
     suspended = gd.BooleanProperty('login.suspended', default=False)
     admin = gd.BooleanProperty('login.admin', default=False)
+    agreed_to_terms = gd.BooleanProperty(
+        'login.agreed_to_terms', read_only=True)
+    quota = gd.IntegerProperty('quota.limit')
+    change_password= gd.BooleanProperty('login.change_password', default=False)
     
     def get_full_name(self):
         return '%s %s' % (self.given_name, self.family_name)
