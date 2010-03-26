@@ -6,7 +6,7 @@ from google.appengine.ext import db
 from gdata.apps.service import AppsForYourDomainException
 from crgappspanel.models import GAUser, GANickname, Role, TestModel
 from crlib.gdata_wrapper import GDataQuery
-from crlib.users import set_testing_user
+from crlib.users import _set_testing_user
 
 
 os.environ['SERVER_NAME'] = 'localhost'
@@ -18,13 +18,14 @@ os.environ['USER_IS_ADMIN'] = '1'
 with open('google_apps.txt') as f:
     lines = f.readlines()
 credentials = [line.strip() for line in lines[:2]]
-set_testing_user(*credentials)
+_set_testing_user(*credentials)
 
 
 class GDataTestCase(unittest.TestCase):
     USER_NAME = 'skymail'
     USER_GIVEN_NAME = 'sky'
     USER_FAMILY_NAME = 'mail'
+    NUMBER_OF_USERS = 5
 
     def testGetAllUsers(self):
         for user in GAUser.all().fetch(100):
@@ -66,6 +67,18 @@ class GDataTestCase(unittest.TestCase):
         nickname = GANickname.get_by_key_name('testnick')
         self.assertTrue(nickname is not None)
         self.assertEqual(nickname.user.user_name, user.user_name)
+
+    def testDeleteNickname(self):
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        nickname = GANickname(
+            nickname='to_be_deleted',
+            user=user)
+        nickname.put()
+
+        nickname.delete()
+
+        nickname = GANickname.get_by_key_name('to_be_deleted')
+        self.assertEqual(nickname, None)
 
     def testNicknamesCollection(self):
         user = GAUser.get_by_key_name(self.USER_NAME)
@@ -127,7 +140,7 @@ class GDataTestCase(unittest.TestCase):
         i = 0
         for user in GAUser.all():
             i += 1
-        self.assertEqual(i, 5)
+        self.assertEqual(i, self.NUMBER_OF_USERS)
 
     def testGDataQueryOrder(self):
         for user in GAUser.all().order('admin').order('user_name'):
