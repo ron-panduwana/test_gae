@@ -513,6 +513,9 @@ class UserEntryMapper(AtomMapper):
     def key(self, atom):
         return atom.login.user_name
 
+    def delete(self, atom):
+        self.service.DeleteUser(atom.login.user_name)
+
 
 class NicknameEntryMapper(AtomMapper):
     create_service = UserEntryMapper.create_service
