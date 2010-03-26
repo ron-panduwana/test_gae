@@ -1,11 +1,13 @@
 import logging
 import os
+import urllib
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django import forms
 from google.appengine.api import memcache
 from gdata.service import GDataService, CaptchaRequired, BadAuthentication
+from gdata.apps.service import AppsForYourDomainException
 from settings import APPS_DOMAIN
 
 
@@ -67,7 +69,13 @@ class UsersMiddleware(object):
 
     def process_exception(self, request, exception):
         if isinstance(exception, LoginRequiredError):
-            return HttpResponseRedirect(create_login_url(request.path))
+            return HttpResponseRedirect(
+                create_login_url(request.get_full_path()))
+        elif isinstance(exception, AppsForYourDomainException) and \
+                exception.reason == 'Unauthorized':
+            request.session.flush()
+            return HttpResponseRedirect(
+                create_login_url(request.get_full_path()))
 
 
 class _LoginForm(forms.Form):
@@ -164,18 +172,20 @@ def admin_required(func):
     def new(request, *args, **kwargs):
         if is_current_user_admin():
             return func(request, *args, **kwargs)
-        return HttpResponseRedirect(create_login_url(request.path))
+        return HttpResponseRedirect(create_login_url(request.get_full_path()))
     new.__name__ = func.__name__
     new.__doc__ = func.__doc__
     return new
 
 
 def create_login_url(dest_url):
-    return reverse(generic_login_view) + '?redirect_to=%s' % dest_url
+    return reverse(generic_login_view) + '?%s' % urllib.urlencode({
+        'redirect_to': dest_url})
 
 
 def create_logout_url(dest_url):
-    return reverse(generic_logout_view) + '?redirect_to=%s' % dest_url
+    return reverse(generic_logout_view) + '?%s' % urllib.urlencode({
+        'redirect_to': dest_url})
 
 
 def get_current_user():
