@@ -5,8 +5,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django import forms
 from google.appengine.api import memcache
-from gdata.apps.service import AppsService
-from gdata.service import CaptchaRequired, BadAuthentication
+from gdata.service import GDataService, CaptchaRequired, BadAuthentication
 from settings import APPS_DOMAIN
 
 
@@ -45,10 +44,10 @@ class UsersMiddleware(object):
         memcache_key = _MEMCACHE_TOKEN_KEY % client_login_info['email']
         token = memcache.get(memcache_key)
         if not token:
-            service = AppsService(
+            service = GDataService(
                 email=client_login_info['email'],
                 password=client_login_info['password'],
-                domain=APPS_DOMAIN)
+                service='apps')
             try:
                 service.ProgrammaticLogin()
             except CaptchaRequired:
@@ -91,10 +90,10 @@ class _LoginForm(forms.Form):
         if self._errors:
             return self.cleaned_data
 
-        service = AppsService(
+        service = GDataService(
             email='%s@%s' % (self.cleaned_data['user_name'], APPS_DOMAIN),
             password=self.cleaned_data['password'],
-            domain=APPS_DOMAIN)
+            service='apps')
 
         try:
             service.ProgrammaticLogin(
@@ -105,8 +104,8 @@ class _LoginForm(forms.Form):
             self.data['captcha_token'] = service.captcha_token
             self.data['captcha_url'] = service.captcha_url
             raise forms.ValidationError('Please provide captcha')
-        except BadAuthentication:
-            raise forms.ValidationError('Invalid login data')
+        except BadAuthentication, e:
+            raise forms.ValidationError(e.message)
 
         self.token = service.GetClientLoginToken()
 
@@ -157,6 +156,11 @@ def generic_logout_view(request):
 
 
 def admin_required(func):
+    """Decorator. Makes sure current user is logged in and is administrator.
+    
+    Redirects to login page otherwise.
+
+    """
     def new(request, *args, **kwargs):
         if is_current_user_admin():
             return func(request, *args, **kwargs)
@@ -187,11 +191,11 @@ def is_current_user_admin():
     return os.environ.has_key(_ENVIRON_TOKEN)
 
 
-def set_testing_user(email, password):
-    service = AppsService(
+def _set_testing_user(email, password):
+    service = GDataService(
         email=email,
         password=password,
-        domain=APPS_DOMAIN)
+        service='apps')
     service.ProgrammaticLogin()
     token = service.GetClientLoginToken()
     memcache.set(_MEMCACHE_TOKEN_KEY % email, token, 24 * 60 * 60)
