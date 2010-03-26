@@ -401,6 +401,9 @@ class Model(object):
             self._atom = self._mapper.create(atom)
     put = save
 
+    def delete(self):
+        self._mapper.delete(self._atom)
+
     def is_saved(self):
         return self._atom is not None
 
@@ -529,6 +532,9 @@ class NicknameEntryMapper(AtomMapper):
 
     def filter_by_user_name(self, user_name):
         return self.service.RetrieveNicknames(user_name).entry
+
+    def delete(self, atom):
+        self.service.DeleteNickname(atom.nickname.name)
 
     #@filter('user')
     #def filter_by_user(self, user_name):
