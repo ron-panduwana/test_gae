@@ -2,15 +2,15 @@ import random
 from django import forms
 from django.utils.safestring import mark_safe
 
-__all__ = ('TextInput2', 'ExpandField')
+__all__ = ('TextInput2', 'ExpandWidget', 'SwapWidget')
 
 def encode_js(text):
     return text.replace('\\', '\\\\').replace('"', '\\"').replace("'", "\\'")
 
-class TextInput2(forms.MultiWidget):
-    def __init__(self):
-        widgets = (forms.TextInput(), forms.TextInput())
-        super(TextInput2, self).__init__(widgets)
+class DoubleWidget(forms.MultiWidget):
+    def __init__(self, widget1, widget2):
+        widgets = (widget1, widget2)
+        super(DoubleWidget, self).__init__(widgets)
     
     def decompress(self, value):
         return value
@@ -25,7 +25,6 @@ class ExpandWidget(forms.Widget):
         self.collapsed = collapsed
         self.expanded = expanded
         
-        random.seed()
         id = ''
         for i in xrange(25):
             id += chr(random.randint(ord('a'), ord('z')))
@@ -53,3 +52,37 @@ class ExpandWidget(forms.Widget):
                 %(hidden_html)s
                 %(content)s
             </div>''' % ctx)
+
+class SwapWidget(forms.Widget):
+    def __init__(self, widget_c, text_c, widget_e, text_e, *args, **kwargs):
+        super(SwapWidget, self).__init__(*args, **kwargs)
+        self.widget_c = widget_c
+        self.text_c = text_c
+        self.widget_e = widget_e
+        self.text_e = text_e
+        
+        id = ''
+        for i in xrange(25):
+            id += chr(random.randint(ord('a'), ord('z')))
+        self.id = id
+    
+    def render(self, name, value, attrs=None):
+        d = {
+            'link_start': '''<a href="#" onclick="cr.swapWidget.swap('%s')">''' % self.id,
+            'link_end': '</a>',
+        }
+        
+        ctx = {
+            'id': self.id,
+            'content_c': self.text_c % dict(d, widget=self.widget_c.render(name, value)),
+            'content_e': self.text_e % dict(d, widget=self.widget_e.render(name, value)),
+        }
+        
+        return mark_safe(u'''
+            <div id="swapWidget_%(id)s_c" style="margin: 0; padding: 0; display: block">
+                %(content_c)s
+            </div>
+            <div id="swapWidget_%(id)s_e" style="margin: 0; padding: 0; display: none">
+                %(content_e)s
+            </div>
+            ''' % ctx)
