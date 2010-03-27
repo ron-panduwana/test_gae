@@ -20,6 +20,8 @@
 					</td>
 				</tr>
 				{% with form.user_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+				{% with form.password as field %}{% include "snippets/form_field.html" %}{% endwith %}
+				{% with form.change_password as field %}{% include "snippets/form_field.html" %}{% endwith %}
 				{% with form.full_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
 				{% with form.admin as field %}{% include "snippets/form_field.html" %}{% endwith %}
 				{% with form.nicknames as field %}{% with full_nicknames as items %}

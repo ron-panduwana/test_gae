@@ -38,6 +38,7 @@ _groupId = _groupFields[1]
 _userWidths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
 _groupWidths = ['%d%%' % x for x in (5, 40, 40, 15)]
 
+
 def _get_sortby_asc(request, valid):
     sortby = request.GET.get('sortby', None)
     asc = (request.GET.get('asc', 'true') == 'true')
@@ -45,8 +46,10 @@ def _get_sortby_asc(request, valid):
         sortby = None
     return (sortby, asc)
 
+
 def index(request):
     return render_to_response('index.html', dict(pages=['users', 'groups', 'language', 'test']))
+
 
 @admin_required
 def users(request):
@@ -60,6 +63,7 @@ def users(request):
     return render_to_response('users_list.html', {
         'table': table.generate(users, widths=_userWidths),
         'domain': APPS_DOMAIN})
+
 
 @admin_required
 def user(request, name=None):
@@ -81,6 +85,8 @@ def user(request, name=None):
     else:
         form = UserForm(initial={
             'user_name': user.user_name,
+            'password': '',
+            'change_password': user.change_password,
             'full_name': [user.given_name, user.family_name],
             'admin': user.admin,
             'nicknames': '',
@@ -89,13 +95,15 @@ def user(request, name=None):
     
     fmt = '<b>%s</b>@%s - <a href="%s">Remove</a>'
     def remove_nick_link(x):
-        return reverse('user-action', kwargs=dict(name=user.user_name, action='remove-nickname', arg=str(x)))
+        kwargs=dict(name=user.user_name, action='remove-nickname', arg=str(x))
+        return reverse('user-action', kwargs=kwargs)
     full_nicknames = [fmt % (nick, APPS_DOMAIN, remove_nick_link(nick)) for nick in user.nicknames]
     return render_to_response('user_details.html', {
         'domain': APPS_DOMAIN,
         'user': user,
         'form': form,
         'full_nicknames': full_nicknames})
+
 
 @admin_required
 def user_action(request, name=None, action=None, arg=None):
@@ -118,6 +126,7 @@ def user_action(request, name=None, action=None, arg=None):
     else:
         raise ValueError('Unknown action: %s' % action)
     return redirect('user-details', name=user.user_name)
+
 
 @admin_required
 def groups(request):
@@ -143,7 +152,7 @@ def test(request):
     res = ''
     for index, user in enumerate(users):
         res += 'users[%d]:\n' % index
-        for field_name in ['given_name', 'family_name', 'user_name', 'password', 'suspended', 'admin']:
+        for field_name in ['given_name', 'family_name', 'user_name', 'password', 'suspended', 'admin', 'quota', 'change_password']:
             field_value = getattr(user, field_name)
             res += '  %s: %s [%s]\n' % (field_name, field_value, str(type(field_value)))
         res += '\n'
