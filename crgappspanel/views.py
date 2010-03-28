@@ -116,19 +116,19 @@ def user_action(request, name=None, action=None, arg=None):
     if not all((name, action)):
         raise ValueError('name = %s, action = %s' % (name, action))
     
-    user = GAUser.get_by_key_name(name)
-    
     if action == 'suspend':
+        user = GAUser.get_by_key_name(name)
         user.suspended = True
         user.save()
     elif action == '!suspend':
+        user = GAUser.get_by_key_name(name)
         user.suspended = False
         user.save()
     elif action == 'remove-nickname':
         if not arg:
             raise ValueError('arg = %s' % arg)
-        nickname = arg
-        # TODO add nickname removal code
+        nickname = GANickname.get_by_key_name(arg)
+        nickname.delete()
     else:
         raise ValueError('Unknown action: %s' % action)
     return redirect('user-details', name=user.user_name)
