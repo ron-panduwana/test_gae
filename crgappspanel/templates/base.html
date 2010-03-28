@@ -1,0 +1,26 @@
+<html>
+	<head>
+		<title>{% block title %}SAMPLE TITLE{% endblock %}</title>
+		<link rel="Stylesheet" href="/static/style.css" type="text/css"/>
+		<script type="text/javascript" src="/static/closure-library/closure/goog/base.js"></script>
+		<script type="text/javascript" src="/static/commons.js"></script>
+		{% block head %}{% endblock %}
+	</head>
+	<body style="margin: 0px; padding: 20px">
+		<div id="menu">
+			<ul>
+				<li{% ifequal section "1" %} class="selected"{% endifequal %}>
+					<a href="#">Dashboard</a></li>
+				<li{% ifequal section "2" %} class="selected"{% endifequal %}>
+					<a href="/users/" title="User and group administration panels">Users and groups</a></li>
+				<li{% ifequal section "3" %} class="selected"{% endifequal %}>
+					<a href="#">Domain settings</a></li>
+				<li{% ifequal section "4" %} class="selected"{% endifequal %}>
+					<a href="#">Advanced tools</a></li>
+				<li{% ifequal section "5" %} class="selected"{% endifequal %}>
+					<a href="#">Support</a></li>
+			</ul>
+		</div>
+		{% block content %}{% endblock %}
+	</body>
+</html>

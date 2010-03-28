@@ -12,11 +12,11 @@ table {
 }
 
 a:link, a:visited {
-	color: #0066cc;
+	color: #06c;
 }
 
 a:hover {
-	color: #cc6600;
+	color: #c60;
 }
 
 a.asc {
@@ -29,13 +29,49 @@ a.desc {
 	padding-right: 10px;
 }
 
+div#menu ul {
+	clear: both;
+	float: left;
+	width: 100%;
+	background: url("/static/navbar_bg.png");
+	padding: 0;
+	color: white;
+	list-style: none;
+}
+
+div#menu li {
+	position: relative;
+	float: left;
+	border-right: 1px solid #59d;
+}
+
+div#menu li:hover {
+	background: url("/static/navbar_bg3.png");
+}
+
+div#menu li.selected {
+	background: url("/static/navbar_bg2.png");
+}
+
+div#menu li.selected:hover {
+	background: url("/static/navbar_bg2.png");
+}
+
+div#menu li a {
+	display: block;
+	padding: 5px 15px;
+	text-decoration: none;
+	color: white;
+	font-weight: bold;
+}
+
 table.list {
 	border-collapse: collapse;
 }
 
 table.list th {
 	background: url('/static/tablebar_bg.png') repeat-x scroll center bottom;
-	border-bottom: 1px solid #cccccc;
+	border-bottom: 1px solid #ccc;
 }
 
 table.list td {
@@ -49,12 +85,12 @@ table.list th, table.list td {
 }
 
 table.list tr:hover td {
-	background-color: #ffffcc;
+	background-color: #ffc;
 	cursor: pointer;
 }
 
 table.list tr.selected td {
-	background-color: #ffffcc;
+	background-color: #ffc;
 }
 
 table.details {
@@ -62,7 +98,7 @@ table.details {
 }
 
 table.details th, table.details td {
-	border-top: 1px solid #cccccc;
+	border-top: 1px solid #ccc;
 	
 	vertical-align: top;
 	

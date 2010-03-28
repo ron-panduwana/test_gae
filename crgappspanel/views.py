@@ -1,4 +1,5 @@
 from __future__ import with_statement
+
 from django import forms
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
@@ -13,6 +14,7 @@ from settings import APPS_DOMAIN, LANGUAGES
 
 # sample data - to be removed in some future
 from crgappspanel.sample_data import get_sample_users, get_sample_groups
+
 
 def _get_status(x):
     suspended, admin = getattr(x, 'suspended'), getattr(x, 'admin')
@@ -61,8 +63,10 @@ def users(request):
     table.sort(users)
     
     return render_to_response('users_list.html', {
-        'table': table.generate(users, widths=_userWidths),
-        'domain': APPS_DOMAIN})
+            'section': '2',
+            'domain': APPS_DOMAIN,
+            'table': table.generate(users, widths=_userWidths),
+    })
 
 
 @admin_required
@@ -84,12 +88,12 @@ def user(request, name=None):
             return redirect('user-details', name=user.user_name)
     else:
         form = UserForm(initial={
-            'user_name': user.user_name,
-            'password': '',
-            'change_password': user.change_password,
-            'full_name': [user.given_name, user.family_name],
-            'admin': user.admin,
-            'nicknames': '',
+                'user_name': user.user_name,
+                'password': '',
+                'change_password': user.change_password,
+                'full_name': [user.given_name, user.family_name],
+                'admin': user.admin,
+                'nicknames': '',
         }, auto_id=True)
         form.fields['user_name'].help_text = '@%s' % APPS_DOMAIN
     
@@ -99,10 +103,12 @@ def user(request, name=None):
         return reverse('user-action', kwargs=kwargs)
     full_nicknames = [fmt % (nick, APPS_DOMAIN, remove_nick_link(nick)) for nick in user.nicknames]
     return render_to_response('user_details.html', {
-        'domain': APPS_DOMAIN,
-        'user': user,
-        'form': form,
-        'full_nicknames': full_nicknames})
+            'section': '2',
+            'domain': APPS_DOMAIN,
+            'user': user,
+            'form': form,
+            'full_nicknames': full_nicknames,
+    })
 
 
 @admin_required
@@ -137,8 +143,10 @@ def groups(request):
     table.sort(groups)
     
     return render_to_response('groups_list.html', {
-        'table': table.generate(groups, widths=_groupWidths),
-        'domain': APPS_DOMAIN})
+            'section': '2',
+            'domain': APPS_DOMAIN,
+            'table': table.generate(groups, widths=_groupWidths),
+    })
 
 
 def language(request):
