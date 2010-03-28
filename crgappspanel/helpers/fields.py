@@ -1,3 +1,5 @@
+import logging
+
 from django import forms
 
 from crgappspanel.helpers import widgets
