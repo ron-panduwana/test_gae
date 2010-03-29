@@ -1,3 +1,9 @@
+/* clear everything */
+div, h1, h2, h3, h4, h5, h6, p, ul, ol, li, form, fieldset, table, td, th {
+	margin: 0;
+	padding: 0;
+}
+
 html {
 	font-size: 62.5%;
 }
@@ -7,8 +13,12 @@ body {
 	font-size: 1.2em;
 }
 
-table {
-	font-size: inherit;
+table, tr, th, td {
+	font: inherit;
+}
+
+th {
+	font-weight: bold;
 }
 
 a:link, a:visited {
@@ -33,8 +43,7 @@ div#menu ul {
 	clear: both;
 	float: left;
 	width: 100%;
-	background: url("/static/navbar_bg.png");
-	padding: 0;
+	background: url("/static/navbar_bg.png") repeat scroll 0 0 transparent;
 	color: white;
 	list-style: none;
 }
@@ -65,7 +74,44 @@ div#menu li a {
 	font-weight: bold;
 }
 
+div#tabs {
+	background-color: #eaf3fd;
+	border-bottom: 1px solid #c6dff9;
+	padding: 2px 2px 0 15px;
+	/*display: block;*/
+}
+
+#section_title {
+	margin: 5px 5px 5px 0;
+}
+
+div#tabs ul {
+	list-style: none;
+	padding-top: 4px;
+}
+
+div#tabs li {
+	float: left;
+	margin: 0 0.5em 0 0;
+	position: relative;
+	padding: 5px 15px 2px 15px;
+}
+
+div#tabs li.selected {
+	position: relative;
+	top: 1px;
+	background-color: white;
+	border-width: 1px 1px 0 1px;
+	border-style: solid solid none solid;
+	border-color: #c6dff9;
+}
+
+div#content {
+	clear: both;
+}
+
 table.list {
+	margin-top: 1.5em;
 	border-collapse: collapse;
 }
 
@@ -99,15 +145,12 @@ table.details {
 
 table.details th, table.details td {
 	border-top: 1px solid #ccc;
-	
 	vertical-align: top;
-	
 	padding: 10px 0 15px 0;
 }
 
 table.details th {
 	padding-right: 20px;
-	
 	width: 12em;
 	text-align: right;
 }

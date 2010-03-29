@@ -53,6 +53,17 @@ def index(request):
     return render_to_response('index.html', dict(pages=['users', 'groups', 'language', 'test']))
 
 
+def ctx(d, section=None, subsection=None):
+    from crgappspanel.sections import SECTIONS
+    d['domain'] = APPS_DOMAIN
+    d['sections'] = SECTIONS
+    if section is not None:
+        d['sel_section'] = SECTIONS[section - 1]
+        if subsection is not None:
+            d['sel_subsection'] = SECTIONS[section - 1]['subsections'][subsection - 1]
+    return d
+
+
 @admin_required
 def users(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _userFields])
@@ -62,11 +73,9 @@ def users(request):
     table = Table(_userFields, _userId, sortby=sortby, asc=asc)
     table.sort(users)
     
-    return render_to_response('users_list.html', {
-            'section': '2',
-            'domain': APPS_DOMAIN,
+    return render_to_response('users_list.html', ctx({
             'table': table.generate(users, widths=_userWidths),
-    })
+    }, 2, 1))
 
 
 @admin_required
@@ -102,13 +111,13 @@ def user(request, name=None):
         kwargs=dict(name=user.user_name, action='remove-nickname', arg=str(x))
         return reverse('user-action', kwargs=kwargs)
     full_nicknames = [fmt % (nick, APPS_DOMAIN, remove_nick_link(nick)) for nick in user.nicknames]
-    return render_to_response('user_details.html', {
+    return render_to_response('user_details.html', ctx({
             'section': '2',
             'domain': APPS_DOMAIN,
             'user': user,
             'form': form,
             'full_nicknames': full_nicknames,
-    })
+    }, 2))
 
 
 @admin_required
@@ -142,11 +151,11 @@ def groups(request):
     table = Table(_groupFields, _groupId, sortby=sortby, asc=asc)
     table.sort(groups)
     
-    return render_to_response('groups_list.html', {
+    return render_to_response('groups_list.html', ctx({
             'section': '2',
             'domain': APPS_DOMAIN,
             'table': table.generate(groups, widths=_groupWidths),
-    })
+    }, 2, 2))
 
 
 def language(request):

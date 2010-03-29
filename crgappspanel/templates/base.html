@@ -7,20 +7,39 @@
 		{% block head %}{% endblock %}
 	</head>
 	<body style="margin: 0px; padding: 20px">
+		{% if sel_section %}
 		<div id="menu">
 			<ul>
-				<li{% ifequal section "1" %} class="selected"{% endifequal %}>
-					<a href="#">Dashboard</a></li>
-				<li{% ifequal section "2" %} class="selected"{% endifequal %}>
-					<a href="/users/" title="User and group administration panels">Users and groups</a></li>
-				<li{% ifequal section "3" %} class="selected"{% endifequal %}>
-					<a href="#">Domain settings</a></li>
-				<li{% ifequal section "4" %} class="selected"{% endifequal %}>
-					<a href="#">Advanced tools</a></li>
-				<li{% ifequal section "5" %} class="selected"{% endifequal %}>
-					<a href="#">Support</a></li>
+				{% for section in sections %}
+				<li{% ifequal section.name sel_section.name %} class="selected"{% endifequal %}>
+					<a href="{{ section.view|default_if_none:"#" }}">
+						{{ section.name }}
+					</a>
+				</li>
+				{% endfor %}
 			</ul>
+			<div style="clear: both"></div>
 		</div>
-		{% block content %}{% endblock %}
+		{% endif %}
+		{% if sel_subsection %}
+		<div id="tabs">
+			<h2 id="section_title">{{ sel_section.name }}</h2>
+			<ul>
+				{% for subsection in sel_section.subsections %}
+				<li{% ifequal subsection.name sel_subsection.name %} class="selected"{% endifequal %}>
+					{% ifequal subsection.name sel_subsection.name %}
+						{{ subsection.name }}
+					{% else %}
+						<a href="{{ subsection.view }}">{{ subsection.name }}</a>
+					{% endifequal %}
+				</li>
+				{% endfor %}
+			</ul>
+			<div style="clear: both"></div>
+		</div>
+		{% endif %}
+		<div id="content">
+			{% block content %}{% endblock %}
+		</div>
 	</body>
 </html>

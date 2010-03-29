@@ -7,8 +7,8 @@
 	<script type="text/javascript" src="/static/expandField.js"></script>
 	<script type="text/javascript" src="/static/swapWidget.js"></script>
 	
-	<form action="{% url user-details user.user_name %}" method="POST" style="border: 1px solid #cccccc; padding: 20px">
-		<div><a href="{% url users %}">&laquo; {% trans "Back to user list" %}</a></div>
+	<div><a href="{% url users %}">&laquo; {% trans "Back to user list" %}</a></div>
+	<form action="{% url user-details user.user_name %}" method="POST" style="padding: 25px">
 		<table class="details" width="100%">
 			<tbody>
 				<tr>
