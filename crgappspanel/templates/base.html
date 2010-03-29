@@ -2,9 +2,19 @@
 <html>
 	<head>
 		<title>{% block title %}SAMPLE TITLE{% endblock %}</title>
-		<link rel="Stylesheet" href="/static/style.css" type="text/css"/>
+		
+		<link rel="Stylesheet" href="/static/styles/style.css" type="text/css"/>
+		<link rel="Stylesheet" href="/static/closure-library/closure/goog/css/dialog.css" type="text/css"/>
+		{% for style in styles %}
+		<link rel="Stylesheet" href="/static/styles/{{ style }}.css" type="text/css"/>
+		{% endfor %}
+		
 		<script type="text/javascript" src="/static/closure-library/closure/goog/base.js"></script>
-		<script type="text/javascript" src="/static/commons.js"></script>
+		<script type="text/javascript" src="/static/scripts/commons.js"></script>
+		{% for script in scripts %}
+		<script type="text/javascript" src="/static/scripts/{{ script }}.js"></script>
+		{% endfor %}
+		
 		{% block head %}{% endblock %}
 	</head>
 	<body style="margin: 0px; padding: 20px">

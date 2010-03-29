@@ -74,7 +74,9 @@ def users(request):
     table.sort(users)
     
     return render_to_response('users_list.html', ctx({
-            'table': table.generate(users, widths=_userWidths),
+        'table': table.generate(users, widths=_userWidths),
+        'styles': ['table-list'],
+        'scripts': ['table'],
     }, 2, 1))
 
 
@@ -97,12 +99,12 @@ def user(request, name=None):
             return redirect('user-details', name=user.user_name)
     else:
         form = UserForm(initial={
-                'user_name': user.user_name,
-                'password': '',
-                'change_password': user.change_password,
-                'full_name': [user.given_name, user.family_name],
-                'admin': user.admin,
-                'nicknames': '',
+            'user_name': user.user_name,
+            'password': '',
+            'change_password': user.change_password,
+            'full_name': [user.given_name, user.family_name],
+            'admin': user.admin,
+            'nicknames': '',
         }, auto_id=True)
         form.fields['user_name'].help_text = '@%s' % APPS_DOMAIN
     
@@ -112,11 +114,11 @@ def user(request, name=None):
         return reverse('user-action', kwargs=kwargs)
     full_nicknames = [fmt % (nick, APPS_DOMAIN, remove_nick_link(nick)) for nick in user.nicknames]
     return render_to_response('user_details.html', ctx({
-            'section': '2',
-            'domain': APPS_DOMAIN,
-            'user': user,
-            'form': form,
-            'full_nicknames': full_nicknames,
+        'user': user,
+        'form': form,
+        'full_nicknames': full_nicknames,
+        'styles': ['table-details', 'user-details'],
+        'scripts': ['expand-field', 'swap-widget', 'user-details'],
     }, 2))
 
 
@@ -152,9 +154,9 @@ def groups(request):
     table.sort(groups)
     
     return render_to_response('groups_list.html', ctx({
-            'section': '2',
-            'domain': APPS_DOMAIN,
-            'table': table.generate(groups, widths=_groupWidths),
+        'table': table.generate(groups, widths=_groupWidths),
+        'styles': ['table-list'],
+        'scripts': ['table'],
     }, 2, 2))
 
 

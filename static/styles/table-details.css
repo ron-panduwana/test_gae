@@ -1,0 +1,15 @@
+table.details {
+	border-collapse: collapse;
+}
+
+table.details th, table.details td {
+	border-top: 1px solid #ccc;
+	vertical-align: top;
+	padding: 10px 0 15px 0;
+}
+
+table.details th {
+	padding-right: 20px;
+	width: 12em;
+	text-align: right;
+}

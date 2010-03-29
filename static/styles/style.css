@@ -30,12 +30,12 @@ a:hover {
 }
 
 a.asc {
-	background: url('/static/down_2.gif') no-repeat scroll right center transparent;
+	background: url('/static/images/down_2.gif') no-repeat scroll right center transparent;
 	padding-right: 10px;
 }
 
 a.desc {
-	background: url('/static/up_2.gif') no-repeat scroll right center transparent;
+	background: url('/static/images/up_2.gif') no-repeat scroll right center transparent;
 	padding-right: 10px;
 }
 
@@ -43,7 +43,7 @@ div#menu ul {
 	clear: both;
 	float: left;
 	width: 100%;
-	background: url("/static/navbar_bg.png") repeat scroll 0 0 transparent;
+	background: url("/static/images/navbar_bg.png") repeat scroll 0 0 transparent;
 	color: white;
 	list-style: none;
 }
@@ -55,15 +55,15 @@ div#menu li {
 }
 
 div#menu li:hover {
-	background: url("/static/navbar_bg3.png");
+	background: url("/static/images/navbar_bg3.png");
 }
 
 div#menu li.selected {
-	background: url("/static/navbar_bg2.png");
+	background: url("/static/images/navbar_bg2.png");
 }
 
 div#menu li.selected:hover {
-	background: url("/static/navbar_bg2.png");
+	background: url("/static/images/navbar_bg2.png");
 }
 
 div#menu li a {
@@ -108,51 +108,6 @@ div#tabs li.selected {
 
 div#content {
 	clear: both;
-}
-
-table.list {
-	margin-top: 1.5em;
-	border-collapse: collapse;
-}
-
-table.list th {
-	background: url('/static/tablebar_bg.png') repeat-x scroll center bottom;
-	border-bottom: 1px solid #ccc;
-}
-
-table.list td {
-	border-bottom: 1px solid lightgray;
-}
-
-table.list th, table.list td {
-	padding: 2px 5px;
-	
-	text-align: left;
-}
-
-table.list tr:hover td {
-	background-color: #ffc;
-	cursor: pointer;
-}
-
-table.list tr.selected td {
-	background-color: #ffc;
-}
-
-table.details {
-	border-collapse: collapse;
-}
-
-table.details th, table.details td {
-	border-top: 1px solid #ccc;
-	vertical-align: top;
-	padding: 10px 0 15px 0;
-}
-
-table.details th {
-	padding-right: 20px;
-	width: 12em;
-	text-align: right;
 }
 
 input[type="submit"] {

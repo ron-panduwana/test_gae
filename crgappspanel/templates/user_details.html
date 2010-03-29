@@ -4,8 +4,37 @@
 {% block title %}{% trans "User details" %}: {{ user.user_name }}{% endblock %}
 
 {% block content %}
-	<script type="text/javascript" src="/static/expandField.js"></script>
-	<script type="text/javascript" src="/static/swapWidget.js"></script>
+	<script type="text/javascript">
+		var dialogSuspend = new goog.ui.Dialog()
+		dialogSuspend.setTitle('{% trans "Suspend user" %}')
+		dialogSuspend.setContent('{% trans "Are you sure want to suspend selected user?" %}')
+		dialogSuspend.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+		
+		goog.events.listen(dialogSuspend, goog.ui.Dialog.EventType.SELECT, function(e) {
+			if (e.key == 'yes') {
+				open('{% url user-action user.user_name "suspend" %}', '_self')
+			}
+		})
+		
+		var dialogRestore = new goog.ui.Dialog()
+		dialogRestore.setTitle('{% trans "Restore user" %}')
+		dialogRestore.setContent('{% trans "Are you sure want to restore selected user?" %}')
+		dialogRestore.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+		
+		goog.events.listen(dialogRestore, goog.ui.Dialog.EventType.SELECT, function(e) {
+			if (e.key == 'yes') {
+				open('{% url user-action user.user_name "!suspend" %}', '_self')
+			}
+		})
+		
+		goog.events.listen(window, 'unload', function() {
+			goog.events.removeAll()
+		})
+		
+		function showDialog(dialog) {
+			dialog.setVisible(true)
+		}
+	</script>
 	
 	<div><a href="{% url users %}">&laquo; {% trans "Back to user list" %}</a></div>
 	<form action="{% url user-details user.user_name %}" method="POST" style="padding: 25px">
@@ -15,9 +44,9 @@
 					<td colspan="2">
 						<h1 style="margin-bottom: 0">{{ user.given_name }} {{ user.family_name }}</h1>
 						{% if user.suspended %}
-							<a href="{% url user-action user.user_name '!suspend'%}">Restore</a>
+							<a href="#" onclick="showDialog(dialogRestore)">Restore</a>
 						{% else %}
-							<a href="{% url user-action user.user_name 'suspend'%}">Suspend</a>
+							<a href="#" onclick="showDialog(dialogSuspend)">Suspend</a>
 						{% endif %}
 					</td>
 				</tr>
