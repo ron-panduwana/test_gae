@@ -15,7 +15,7 @@ nicknames_e = '<br/>Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_en
 
 
 class UserForm(forms.Form):
-    user_name = forms.CharField(label='User name')
+    user_name = forms.CharField(label='Username')
     password = fields.CharField2(label='Password', required=False, widget=password_2)
     change_password = forms.BooleanField(label='Password', required=False,
         help_text='Require a change of password in the next sign in')

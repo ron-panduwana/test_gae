@@ -1,3 +1,13 @@
+div.back {
+	background-color: #eaf3fd;
+	border-bottom: 1px solid #c6dff9;
+	padding: 2px;
+}
+
+form.details {
+	padding: 10px 25px;
+}
+
 table.details {
 	border-collapse: collapse;
 }
@@ -6,6 +16,10 @@ table.details th, table.details td {
 	border-top: 1px solid #ccc;
 	vertical-align: top;
 	padding: 10px 0 15px 0;
+}
+
+table.details tr.first th, table.details tr.first td {
+	border-top-style: none;
 }
 
 table.details th {
