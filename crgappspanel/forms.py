@@ -3,7 +3,7 @@ from django import forms
 from crgappspanel import models
 from crgappspanel.helpers import fields, widgets
 
-__all__ = ('UserForm', 'LoginForm')
+__all__ = ('UserForm')
 
 password_c = '%(widget)s%(link_start)sChange password%(link_end)s WARNING: dangerous, without confirmation yet!'
 password_1 = widgets.DoubleWidget(forms.HiddenInput(), forms.HiddenInput())
@@ -26,19 +26,14 @@ class UserForm(forms.Form):
         widget=widgets.SwapWidget(forms.HiddenInput(), nicknames_c, forms.TextInput(), nicknames_e))
     
     def populate(self, user):
-        #for key in ['user_name', 'password', 'password_0', 'full_name']:
-        #    if key in self.cleaned_data:
-        #        print key, '=', self._cd(key)
-        user.user_name = self._cd('user_name')
-        if self._cd('password')[0] != '' and self._cd('password')[0] == self._cd('password')[1]:
-            user.password = self._cd('password')[0]
-        user.change_password = self._cd('change_password')
-        user.given_name = self._cd('full_name')[0]
-        user.family_name = self._cd('full_name')[1]
-        user.admin = self._cd('admin')
-    
-    def _cd(self, attr):
-        return self.cleaned_data[attr]
+        user.user_name = self.cleaned_data['user_name']
+        password = self.cleaned_data['password']
+        if password and password[0] != '' and password[0] == password[1]:
+            user.password = password[0]
+        user.change_password = self.cleaned_data['change_password']
+        user.given_name = self.cleaned_data['full_name'][0]
+        user.family_name = self.cleaned_data['full_name'][1]
+        user.admin = self.cleaned_data['admin']
     
     def get_nickname(self):
         nicknames = self.cleaned_data['nicknames'].strip()

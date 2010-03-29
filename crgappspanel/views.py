@@ -125,12 +125,12 @@ def user_action(request, name=None, action=None, arg=None):
     if not all((name, action)):
         raise ValueError('name = %s, action = %s' % (name, action))
     
+    user = GAUser.get_by_key_name(name)
+    
     if action == 'suspend':
-        user = GAUser.get_by_key_name(name)
         user.suspended = True
         user.save()
     elif action == '!suspend':
-        user = GAUser.get_by_key_name(name)
         user.suspended = False
         user.save()
     elif action == 'remove-nickname':
