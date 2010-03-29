@@ -10,8 +10,8 @@ password_1 = widgets.DoubleWidget(forms.HiddenInput(), forms.HiddenInput())
 password_e = 'Enter new password:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 password_2 = widgets.DoubleWidget(forms.PasswordInput(), forms.PasswordInput())
 
-nicknames_c = '%(widget)s%(link_start)sAdd nickname%(link_end)s'
-nicknames_e = 'Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+nicknames_c = '<br/>%(widget)s%(link_start)sAdd nickname%(link_end)s'
+nicknames_e = '<br/>Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 
 
 class UserForm(forms.Form):
