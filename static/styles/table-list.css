@@ -26,3 +26,8 @@ table.list tr:hover td {
 table.list tr.selected td {
 	background-color: #ffc;
 }
+
+table.list th.bar {
+	background: none repeat scroll 0 0 #c2cdd8;
+	padding: 4px;
+}

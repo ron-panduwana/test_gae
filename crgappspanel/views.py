@@ -76,7 +76,7 @@ def users(request):
     return render_to_response('users_list.html', ctx({
         'table': table.generate(users, widths=_userWidths),
         'styles': ['table-list'],
-        'scripts': ['table'],
+        'scripts': ['table', 'users'],
     }, 2, 1))
 
 
@@ -135,6 +135,9 @@ def user_action(request, name=None, action=None, arg=None):
     elif action == '!suspend':
         user.suspended = False
         user.save()
+    elif action == 'remove':
+        user.delete()
+        return redirect('users')
     elif action == 'remove-nickname':
         if not arg:
             raise ValueError('arg = %s' % arg)

@@ -4,72 +4,72 @@
 {% block title %}{% trans "User details" %}: {{ user.user_name }}{% endblock %}
 
 {% block content %}
-	<script type="text/javascript">
-		var dialogSuspend = new goog.ui.Dialog()
-		dialogSuspend.setTitle('{% trans "Suspend user" %}')
-		dialogSuspend.setContent('{% trans "Are you sure want to suspend selected user?" %}')
-		dialogSuspend.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
-		
-		goog.events.listen(dialogSuspend, goog.ui.Dialog.EventType.SELECT, function(e) {
-			if (e.key == 'yes') {
-				open('{% url user-action user.user_name "suspend" %}', '_self')
-			}
-		})
-		
-		var dialogRestore = new goog.ui.Dialog()
-		dialogRestore.setTitle('{% trans "Restore user" %}')
-		dialogRestore.setContent('{% trans "Are you sure want to restore selected user?" %}')
-		dialogRestore.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
-		
-		goog.events.listen(dialogRestore, goog.ui.Dialog.EventType.SELECT, function(e) {
-			if (e.key == 'yes') {
-				open('{% url user-action user.user_name "!suspend" %}', '_self')
-			}
-		})
-		
-		goog.events.listen(window, 'unload', function() {
-			goog.events.removeAll()
-		})
-		
-		function showDialog(dialog) {
-			dialog.setVisible(true)
-		}
-	</script>
-	
-	<div class="back"><a href="{% url users %}">&laquo; {% trans "Back to user list" %}</a></div>
-	<form action="{% url user-details user.user_name %}" method="POST" class="details">
-		<table class="details" width="100%">
-			<tbody>
-				<tr class="first">
-					<td colspan="2">
-						<h1 style="display: inline">{{ user.given_name }} {{ user.family_name }}</h1>
-						{% if user.admin %}<span class="admin-label">{% trans "Administrator" %}</span>{% endif %}
-						<br/>
-						{% if user.suspended %}
-						<a href="#" onclick="showDialog(dialogRestore)">{% trans "Restore" %}</a>
-						{% else %}
-						<a href="#" onclick="showDialog(dialogSuspend)">{% trans "Suspend" %}</a>
-						{% endif %}
-					</td>
-				</tr>
-				{% with form.user_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
-				{% with form.password as field %}{% include "snippets/form_field.html" %}{% endwith %}
-				{% with form.change_password as field %}{% include "snippets/form_field.html" %}{% endwith %}
-				{% with form.full_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
-				{% with form.admin as field %}{% include "snippets/form_field.html" %}{% endwith %}
-				{% with form.nicknames as field %}{% with full_nicknames as items %}
-					{% autoescape off %}
-						{% include "snippets/form_field_with_items.html" %}
-					{% endautoescape %}
-				{% endwith %}{% endwith %}
-				<tr>
-					<td></td>
-					<td>
-						<input type="submit" value="save"/>
-						<input type="reset" value="reset"/>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</form>
+<script type="text/javascript">
+var dialogSuspend = new goog.ui.Dialog()
+dialogSuspend.setTitle('{% trans "Suspend user" %}')
+dialogSuspend.setContent('{% trans "Are you sure want to suspend selected user?" %}')
+dialogSuspend.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+
+goog.events.listen(dialogSuspend, goog.ui.Dialog.EventType.SELECT, function(e) {
+	if (e.key == 'yes') {
+		open('{% url user-action user.user_name "suspend" %}', '_self')
+	}
+})
+
+var dialogRestore = new goog.ui.Dialog()
+dialogRestore.setTitle('{% trans "Restore user" %}')
+dialogRestore.setContent('{% trans "Are you sure want to restore selected user?" %}')
+dialogRestore.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+
+goog.events.listen(dialogRestore, goog.ui.Dialog.EventType.SELECT, function(e) {
+	if (e.key == 'yes') {
+		open('{% url user-action user.user_name "!suspend" %}', '_self')
+	}
+})
+
+goog.events.listen(window, 'unload', function() {
+	goog.events.removeAll()
+})
+
+function showDialog(dialog) {
+	dialog.setVisible(true)
+}
+</script>
+
+<div class="back"><a href="{% url users %}">&laquo; {% trans "Back to user list" %}</a></div>
+<form action="{% url user-details user.user_name %}" method="POST" class="details">
+	<table class="details" width="100%">
+		<tbody>
+			<tr class="first">
+				<td colspan="2">
+					<h1 style="display: inline">{{ user.given_name }} {{ user.family_name }}</h1>
+					{% if user.admin %}<span class="admin-label">{% trans "Administrator" %}</span>{% endif %}
+					<br/>
+					{% if user.suspended %}
+					<a href="#" onclick="showDialog(dialogRestore)">{% trans "Restore" %}</a>
+					{% else %}
+					<a href="#" onclick="showDialog(dialogSuspend)">{% trans "Suspend" %}</a>
+					{% endif %}
+				</td>
+			</tr>
+			{% with form.user_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.password as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.change_password as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.full_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.admin as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.nicknames as field %}{% with full_nicknames as items %}
+				{% autoescape off %}
+					{% include "snippets/form_field_with_items.html" %}
+				{% endautoescape %}
+			{% endwith %}{% endwith %}
+			<tr>
+				<td></td>
+				<td>
+					<input type="submit" value="save"/>
+					<input type="reset" value="reset"/>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</form>
 {% endblock %}

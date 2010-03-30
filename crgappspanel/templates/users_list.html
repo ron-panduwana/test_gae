@@ -4,5 +4,25 @@
 {% block title %}{% trans "Users list" %}{% endblock %}
 
 {% block content %}
-	{{ table }}
+<script type="text/javascript">
+cr.table.deletes['table'] = function(list, reallyDelete) {
+	var dialogDelete = new goog.ui.Dialog()
+	dialogDelete.setTitle('{% trans "Remove users" %}')
+	dialogDelete.setContent('{% trans "Are you sure want to remove selected users?" %}')
+	dialogDelete.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+	
+	goog.events.listenOnce(dialogDelete, goog.ui.Dialog.EventType.SELECT, function(e) {
+		if (e.key == 'yes') {
+			reallyDelete()
+			open(window.location, '_self')
+		}
+	})
+	dialogDelete.setVisible(true)
+}
+
+goog.events.listen(window, 'unload', function() {
+	goog.events.removeAll()
+})
+</script>
+{{ table }}
 {% endblock %}
