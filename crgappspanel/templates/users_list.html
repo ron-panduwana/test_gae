@@ -14,7 +14,10 @@ cr.table.deletes['table'] = function(list, reallyDelete) {
 	goog.events.listenOnce(dialogDelete, goog.ui.Dialog.EventType.SELECT, function(e) {
 		if (e.key == 'yes') {
 			reallyDelete()
-			open(window.location, '_self')
+			
+			goog.Timer.callOnce(function() {
+				window.open(window.location, '_self')
+			}, 2500)
 		}
 	})
 	dialogDelete.setVisible(true)

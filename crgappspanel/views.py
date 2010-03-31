@@ -76,7 +76,7 @@ def users(request):
     return render_to_response('users_list.html', ctx({
         'table': table.generate(users, widths=_userWidths),
         'styles': ['table-list'],
-        'scripts': ['table', 'users'],
+        'scripts': ['table', 'users-list'],
     }, 2, 1))
 
 
