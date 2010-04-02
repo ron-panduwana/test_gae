@@ -30,7 +30,9 @@ class UserForm(forms.Form):
         if not password or password[0] == '' or password[0] != password[1]:
             return None
         
-        return models.GAUser(user_name=self.cleaned_data['user_name'], password=password,
+        return models.GAUser(
+            user_name=self.cleaned_data['user_name'],
+            password=password,
             given_name=self.cleaned_data['full_name'][0],
             family_name=self.cleaned_data['full_name'][1])
     
