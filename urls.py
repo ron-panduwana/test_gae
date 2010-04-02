@@ -20,7 +20,8 @@ urlpatterns = patterns('',
     url(r'^$', 'crgappspanel.views.index', name='index'),
     
     url(r'^users/$', 'crgappspanel.views.users', name='users'),
-    url(r'^users/(?P<name>[^/]+)/$', 'crgappspanel.views.user', name='user-details'),
+    url(r'^users/create/$', 'crgappspanel.views.user_create', name='user-create'),
+    url(r'^users/(?P<name>[^/]+)/details/$', 'crgappspanel.views.user', name='user-details'),
     url(r'^users/(?P<name>[^/]+)/(?P<action>[^/]+)/$', 'crgappspanel.views.user_action', name='user-action'),
     url(r'^users/(?P<name>[^/]+)/(?P<action>[^/]+)/(?P<arg>[^/]+)/$', 'crgappspanel.views.user_action', name='user-action'),
     

@@ -4,6 +4,7 @@
 {% block title %}{% trans "Users list" %}{% endblock %}
 
 {% block content %}
+<a href="{% url user-create %}" class="action-link">Create a new user</a>
 <script type="text/javascript">
 cr.table.deletes['table'] = function(list, reallyDelete) {
 	var dialogDelete = new goog.ui.Dialog()

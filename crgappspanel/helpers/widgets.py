@@ -13,6 +13,8 @@ class DoubleWidget(forms.MultiWidget):
         super(DoubleWidget, self).__init__(widgets)
     
     def decompress(self, value):
+        if value is None:
+            return [None, None]
         return value
     
     def format_output(self, rendered_widgets):

@@ -107,7 +107,19 @@ div#tabs li.selected {
 }
 
 div#content {
+	padding: 1.5em;
 	clear: both;
+}
+
+div.back {
+	background-color: #eaf3fd;
+	border-bottom: 1px solid #c6dff9;
+	padding: 2px;
+}
+
+a.action-link {
+	font-size: 125%;
+	font-weight: bold;
 }
 
 input[type="submit"] {

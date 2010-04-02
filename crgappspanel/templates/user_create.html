@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create user" %}{% endblock %}
+
+{% block content %}
+<!--<div class="back"><a href="{% url users %}">&laquo; {% trans "Back to user list" %}</a></div>-->
+<form action="{% url user-create %}" method="POST" class="create">
+	<h1>Create a new user</h1>
+	
+	First and Last name<br/>
+	{{ form.full_name }}
+	{% for error in form.full_name.errors %}
+		{% if forloop.first %}
+			<span style="color: red">{{ error }}</span>
+		{% endif %}
+	{% empty %}
+	{% endfor %}
+	
+	<br/><br/>
+	Username<br/>
+	{{ form.user_name }} {{ form.user_name.help_text }}
+	{% for error in form.user_name.errors %}
+		{% if forloop.first %}
+			<span style="color: red">{{ error }}</span>
+		{% endif %}
+	{% empty %}
+	{% endfor %}
+	
+	<br/><br/>
+	Temporary password:
+	<input type="hidden" name="password_0" value="{{ temp_password }}"/>
+	<input type="hidden" name="password_1" value="{{ temp_password }}"/>
+	<span style="color: gray">{{ temp_password }}</span>
+	
+	<br/><br/>
+	<input type="submit" value="create"/>
+	<input type="button" onclick="window.open('{% url users %}', '_self')" value="cancel"/>
+</form>
+{% endblock %}

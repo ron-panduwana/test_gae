@@ -1,14 +1,9 @@
-div.back {
-	background-color: #eaf3fd;
-	border-bottom: 1px solid #c6dff9;
-	padding: 2px;
-}
-
 form.details {
 	padding: 10px 25px;
 }
 
 table.details {
+	margin-top: 1em;
 	border-collapse: collapse;
 }
 

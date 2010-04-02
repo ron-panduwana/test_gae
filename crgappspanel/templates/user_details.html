@@ -36,22 +36,17 @@ function showDialog(dialog) {
 }
 </script>
 
-<div class="back"><a href="{% url users %}">&laquo; {% trans "Back to user list" %}</a></div>
 <form action="{% url user-details user.user_name %}" method="POST" class="details">
+	<h1 style="display: inline">{{ user.given_name }} {{ user.family_name }}</h1>
+	{% if user.admin %}<span class="admin-label">{% trans "Administrator" %}</span>{% endif %}
+	<br/>
+	{% if user.suspended %}
+	<a href="#" onclick="showDialog(dialogRestore)">{% trans "Restore" %}</a>
+	{% else %}
+	<a href="#" onclick="showDialog(dialogSuspend)">{% trans "Suspend" %}</a>
+	{% endif %}
 	<table class="details" width="100%">
 		<tbody>
-			<tr class="first">
-				<td colspan="2">
-					<h1 style="display: inline">{{ user.given_name }} {{ user.family_name }}</h1>
-					{% if user.admin %}<span class="admin-label">{% trans "Administrator" %}</span>{% endif %}
-					<br/>
-					{% if user.suspended %}
-					<a href="#" onclick="showDialog(dialogRestore)">{% trans "Restore" %}</a>
-					{% else %}
-					<a href="#" onclick="showDialog(dialogSuspend)">{% trans "Suspend" %}</a>
-					{% endif %}
-				</td>
-			</tr>
 			{% with form.user_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.password as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.change_password as field %}{% include "snippets/form_field.html" %}{% endwith %}

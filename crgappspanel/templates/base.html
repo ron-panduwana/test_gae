@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/DTD/strict.dtd">
 <html>
 	<head>
@@ -30,23 +31,29 @@
 			<div style="clear: both"></div>
 		</div>
 		{% endif %}
+		
 		{% if sel_subsection %}
-		<div id="tabs">
-			<h2 id="section_title">{{ sel_section.name }}</h2>
-			<ul>
-				{% for subsection in sel_section.subsections %}
-				<li{% ifequal subsection.name sel_subsection.name %} class="selected"{% endifequal %}>
-					{% ifequal subsection.name sel_subsection.name %}
-						{{ subsection.name }}
-					{% else %}
-						<a href="{{ subsection.view }}">{{ subsection.name }}</a>
-					{% endifequal %}
-				</li>
-				{% endfor %}
-			</ul>
-			<div style="clear: both"></div>
-		</div>
+			{% if back_button %}
+				<div class="back"><a href="{{ sel_subsection.view }}">&laquo; {% trans "Back to user list" %}</a></div>
+			{% else %}
+				<div id="tabs">
+					<h2 id="section_title">{{ sel_section.name }}</h2>
+					<ul>
+						{% for subsection in sel_section.subsections %}
+						<li{% ifequal subsection.name sel_subsection.name %} class="selected"{% endifequal %}>
+							{% ifequal subsection.name sel_subsection.name %}
+								{{ subsection.name }}
+							{% else %}
+								<a href="{{ subsection.view }}">{{ subsection.name }}</a>
+							{% endifequal %}
+						</li>
+						{% endfor %}
+					</ul>
+					<div style="clear: both"></div>
+				</div>
+			{% endif %}
 		{% endif %}
+		
 		<div id="content">
 			{% block content %}{% endblock %}
 		</div>

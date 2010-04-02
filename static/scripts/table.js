@@ -45,7 +45,7 @@ cr.table.getElementCount = function(tableName) {
 }
 
 cr.table.showDetails = function(obj) {
-	open(obj + '/', '_self')
+	window.open(String.format('{0}/details/', obj), '_self')
 }
 
 cr.table.onSelectAll = function(obj) {

@@ -1,5 +1,7 @@
 from __future__ import with_statement
 
+import os
+
 from django import forms
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
@@ -48,12 +50,20 @@ def _get_sortby_asc(request, valid):
         sortby = None
     return (sortby, asc)
 
+_password_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+def _get_password_char(n1, n2):
+    return _password_chars[(256 * n1 + n2) % len(_password_chars)]
+
+def _random_password(chars):
+    bts = os.urandom(2 * chars)
+    return ''.join(_get_password_char(ord(b1), ord(b2)) for b1, b2 in zip(bts[:chars], bts[chars:]))
+
 
 def index(request):
     return render_to_response('index.html', dict(pages=['users', 'groups', 'language', 'test']))
 
 
-def ctx(d, section=None, subsection=None):
+def ctx(d, section=None, subsection=None, back=False):
     from crgappspanel.sections import SECTIONS
     d['domain'] = APPS_DOMAIN
     d['sections'] = SECTIONS
@@ -61,6 +71,7 @@ def ctx(d, section=None, subsection=None):
         d['sel_section'] = SECTIONS[section - 1]
         if subsection is not None:
             d['sel_subsection'] = SECTIONS[section - 1]['subsections'][subsection - 1]
+            d['back_button'] = back
     return d
 
 
@@ -78,6 +89,26 @@ def users(request):
         'styles': ['table-list'],
         'scripts': ['table', 'users-list'],
     }, 2, 1))
+
+
+@admin_required
+def user_create(request):
+    if request.method == 'POST':
+        form = UserForm(request.POST, auto_id=True)
+        if form.is_valid():
+            user = form.create()
+            user.save()
+            return redirect('user-details', name=user.user_name)
+    else:
+        form = UserForm(auto_id=True)
+        form.fields['user_name'].help_text = '@%s' % APPS_DOMAIN
+    
+    temp_password = _random_password(6)
+    
+    return render_to_response('user_create.html', ctx({
+        'form': form,
+        'temp_password': temp_password,
+    }, 2, 1, True))
 
 
 @admin_required
@@ -119,7 +150,7 @@ def user(request, name=None):
         'full_nicknames': full_nicknames,
         'styles': ['table-details', 'user-details'],
         'scripts': ['expand-field', 'swap-widget', 'user-details'],
-    }, 2))
+    }, 2, 1, True))
 
 
 @admin_required

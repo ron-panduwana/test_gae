@@ -25,6 +25,15 @@ class UserForm(forms.Form):
     nicknames = forms.CharField(label='Nicknames', required=False,
         widget=widgets.SwapWidget(forms.HiddenInput(), nicknames_c, forms.TextInput(), nicknames_e))
     
+    def create(self):
+        password = self.cleaned_data['password']
+        if not password or password[0] == '' or password[0] != password[1]:
+            return None
+        
+        return models.GAUser(user_name=self.cleaned_data['user_name'], password=password,
+            given_name=self.cleaned_data['full_name'][0],
+            family_name=self.cleaned_data['full_name'][1])
+    
     def populate(self, user):
         user.user_name = self.cleaned_data['user_name']
         password = self.cleaned_data['password']
