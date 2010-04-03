@@ -4,7 +4,8 @@ import unittest
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from gdata.apps.service import AppsForYourDomainException
-from crgappspanel.models import GAUser, GANickname, Role, TestModel
+from crgappspanel.models import GAUser, GANickname, Role, TestModel, \
+        SharedContact, ContactEmail, ExtendedProperty
 from crlib.gdata_wrapper import GDataQuery
 from crlib.users import _set_testing_user
 
@@ -22,9 +23,9 @@ _set_testing_user(*credentials)
 
 
 class GDataTestCase(unittest.TestCase):
-    USER_NAME = 'skymail'
-    USER_GIVEN_NAME = 'sky'
-    USER_FAMILY_NAME = 'mail'
+    USER_NAME = 'test'
+    USER_GIVEN_NAME = 'Test'
+    USER_FAMILY_NAME = 'Account'
     NUMBER_OF_USERS = 5
 
     def testGetAllUsers(self):
@@ -145,6 +146,43 @@ class GDataTestCase(unittest.TestCase):
     def testGDataQueryOrder(self):
         for user in GAUser.all().order('admin').order('user_name'):
             print user
+
+    def testCreateSharedContact(self):
+        contact = SharedContact.get_by_key_name('Test Contact')
+        if contact:
+            contact.delete()
+        email = ContactEmail(
+            address='test@example.com',
+            primary=True)
+        email.save()
+        contact = SharedContact(
+            name='Test Contact',
+            emails=[email])
+        contact.save()
+
+        contact.delete()
+
+    def testIterSharedContacts(self):
+        for contact in SharedContact.all():
+            print contact
+            self.assertTrue(isinstance(contact, SharedContact))
+
+    def testSharedContactExtendedProperty(self):
+        email = ContactEmail(
+            address='extended@example.com',
+            primary=True)
+        email.save()
+        property = ExtendedProperty(
+            name='some_name',
+            value='some_val',
+        )
+        property.save()
+        contact = SharedContact(
+            name='ExtendedProperty Contact',
+            emails=[email],
+            extended_properties=[property])
+        contact.save()
+
 
 
 class RoleCreationTestCase(unittest.TestCase):
