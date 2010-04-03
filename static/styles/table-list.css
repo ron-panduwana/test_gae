@@ -1,0 +1,33 @@
+table.list {
+	margin-top: 1.5em;
+	border-collapse: collapse;
+}
+
+table.list th {
+	background: url('/static/images/tablebar_bg.png') repeat-x scroll center bottom;
+	border-bottom: 1px solid #ccc;
+}
+
+table.list td {
+	border-bottom: 1px solid lightgray;
+}
+
+table.list th, table.list td {
+	padding: 2px 5px;
+	
+	text-align: left;
+}
+
+table.list tr:hover td {
+	background-color: #ffc;
+	cursor: pointer;
+}
+
+table.list tr.selected td {
+	background-color: #ffc;
+}
+
+table.list th.bar {
+	background: none repeat scroll 0 0 #c2cdd8;
+	padding: 4px;
+}

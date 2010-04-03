@@ -1,4 +1,7 @@
 from __future__ import with_statement
+
+import os
+
 from django import forms
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
@@ -13,6 +16,7 @@ from settings import APPS_DOMAIN, LANGUAGES
 
 # sample data - to be removed in some future
 from crgappspanel.sample_data import get_sample_users, get_sample_groups
+
 
 def _get_status(x):
     suspended, admin = getattr(x, 'suspended'), getattr(x, 'admin')
@@ -38,6 +42,7 @@ _groupId = _groupFields[1]
 _userWidths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
 _groupWidths = ['%d%%' % x for x in (5, 40, 40, 15)]
 
+
 def _get_sortby_asc(request, valid):
     sortby = request.GET.get('sortby', None)
     asc = (request.GET.get('asc', 'true') == 'true')
@@ -45,8 +50,30 @@ def _get_sortby_asc(request, valid):
         sortby = None
     return (sortby, asc)
 
+_password_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+def _get_password_char(n1, n2):
+    return _password_chars[(256 * n1 + n2) % len(_password_chars)]
+
+def _random_password(chars):
+    bts = os.urandom(2 * chars)
+    return ''.join(_get_password_char(ord(b1), ord(b2)) for b1, b2 in zip(bts[:chars], bts[chars:]))
+
+
 def index(request):
     return render_to_response('index.html', dict(pages=['users', 'groups', 'language', 'test']))
+
+
+def ctx(d, section=None, subsection=None, back=False):
+    from crgappspanel.sections import SECTIONS
+    d['domain'] = APPS_DOMAIN
+    d['sections'] = SECTIONS
+    if section is not None:
+        d['sel_section'] = SECTIONS[section - 1]
+        if subsection is not None:
+            d['sel_subsection'] = SECTIONS[section - 1]['subsections'][subsection - 1]
+            d['back_button'] = back
+    return d
+
 
 @admin_required
 def users(request):
@@ -57,9 +84,32 @@ def users(request):
     table = Table(_userFields, _userId, sortby=sortby, asc=asc)
     table.sort(users)
     
-    return render_to_response('users_list.html', {
+    return render_to_response('users_list.html', ctx({
         'table': table.generate(users, widths=_userWidths),
-        'domain': APPS_DOMAIN})
+        'styles': ['table-list'],
+        'scripts': ['table', 'users-list'],
+    }, 2, 1))
+
+
+@admin_required
+def user_create(request):
+    if request.method == 'POST':
+        form = UserForm(request.POST, auto_id=True)
+        if form.is_valid():
+            user = form.create()
+            user.save()
+            return redirect('user-details', name=user.user_name)
+    else:
+        form = UserForm(auto_id=True)
+        form.fields['user_name'].help_text = '@%s' % APPS_DOMAIN
+    
+    temp_password = _random_password(6)
+    
+    return render_to_response('user_create.html', ctx({
+        'form': form,
+        'temp_password': temp_password,
+    }, 2, 1, True))
+
 
 @admin_required
 def user(request, name=None):
@@ -81,6 +131,8 @@ def user(request, name=None):
     else:
         form = UserForm(initial={
             'user_name': user.user_name,
+            'password': '',
+            'change_password': user.change_password,
             'full_name': [user.given_name, user.family_name],
             'admin': user.admin,
             'nicknames': '',
@@ -89,13 +141,17 @@ def user(request, name=None):
     
     fmt = '<b>%s</b>@%s - <a href="%s">Remove</a>'
     def remove_nick_link(x):
-        return reverse('user-action', kwargs=dict(name=user.user_name, action='remove-nickname', arg=str(x)))
+        kwargs=dict(name=user.user_name, action='remove-nickname', arg=str(x))
+        return reverse('user-action', kwargs=kwargs)
     full_nicknames = [fmt % (nick, APPS_DOMAIN, remove_nick_link(nick)) for nick in user.nicknames]
-    return render_to_response('user_details.html', {
-        'domain': APPS_DOMAIN,
+    return render_to_response('user_details.html', ctx({
         'user': user,
         'form': form,
-        'full_nicknames': full_nicknames})
+        'full_nicknames': full_nicknames,
+        'styles': ['table-details', 'user-details'],
+        'scripts': ['expand-field', 'swap-widget', 'user-details'],
+    }, 2, 1, True))
+
 
 @admin_required
 def user_action(request, name=None, action=None, arg=None):
@@ -110,14 +166,18 @@ def user_action(request, name=None, action=None, arg=None):
     elif action == '!suspend':
         user.suspended = False
         user.save()
+    elif action == 'remove':
+        user.delete()
+        return redirect('users')
     elif action == 'remove-nickname':
         if not arg:
             raise ValueError('arg = %s' % arg)
-        nickname = arg
-        # TODO add nickname removal code
+        nickname = GANickname.get_by_key_name(arg)
+        nickname.delete()
     else:
         raise ValueError('Unknown action: %s' % action)
     return redirect('user-details', name=user.user_name)
+
 
 @admin_required
 def groups(request):
@@ -127,9 +187,11 @@ def groups(request):
     table = Table(_groupFields, _groupId, sortby=sortby, asc=asc)
     table.sort(groups)
     
-    return render_to_response('groups_list.html', {
+    return render_to_response('groups_list.html', ctx({
         'table': table.generate(groups, widths=_groupWidths),
-        'domain': APPS_DOMAIN})
+        'styles': ['table-list'],
+        'scripts': ['table'],
+    }, 2, 2))
 
 
 def language(request):
@@ -138,20 +200,6 @@ def language(request):
 
 @admin_required
 def test(request):
-    users = GAUser.all().fetch(100)
-    
-    res = ''
-    for index, user in enumerate(users):
-        res += 'users[%d]:\n' % index
-        for field_name in ['given_name', 'family_name', 'user_name', 'password', 'suspended', 'admin']:
-            field_value = getattr(user, field_name)
-            res += '  %s: %s [%s]\n' % (field_name, field_value, str(type(field_value)))
-        res += '\n'
-    res += '\n'
-    
-    nicknames = GANickname.all().fetch(100)
-    for index, nickname in enumerate(nicknames):
-        res += 'nicknames[%d]: %s\n' % (index, nickname.nickname)
-    res += '\n'
-    
-    return HttpResponse(res, mimetype='text/plain')
+    return render_to_response('test.html', ctx({
+        'scripts': ['test'],
+    }, 2, 4))

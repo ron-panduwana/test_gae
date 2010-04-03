@@ -1,36 +1,53 @@
+<script type="text/javascript">
+cr.table.tables['{{ tableName }}'] = [
+{% for row in rows %}{% if not forloop.first %},{% endif %}'{{ row.id }}'{% endfor %}
+]
+</script>
 <table class="list" width="100%">
 	<!-- column width specifiers -->
 	{% for width in widths %}
-		<col width="{{ width }}"/>
+	<col width="{{ width }}"/>
 	{% empty %}
 	{% endfor %}
 	
-	<!-- table header -->
-	<thead>
+	<tbody>
+		<!-- table top strip -->
+		<tr>
+			<th colspan="{{ columns|length|add:"1" }}" class="bar">
+				<button id="{{ tableName }}_delete_1" type="button" onclick="cr.table.onDeleteClicked(this)" disabled="disabled">Delete users</button>
+			</th>
+		</tr>
+		
+		<!-- table header -->
 		<tr>
 			<th><input type="checkbox" id="{{ tableName }}_select" onchange="cr.table.onSelectAll(this)"/></th>
 			{% for colspec in columns %}
-				<th>
-					<a href="?sortby={{ colspec.name }}{% ifequal colspec.name sortby.name %}{% if asc %}&asc=false{% endif %}{% endifequal %}"
-							{% ifequal colspec.name sortby.name %}
-								class="{% if asc %}asc{% else %}desc{% endif %}"
-							{% endifequal %}>
-						{{ colspec.caption }}
-					</a>
-				</th>
+			<th>
+				<a href="?sortby={{ colspec.name }}{% ifequal colspec.name sortby.name %}{% if asc %}&asc=false{% endif %}{% endifequal %}"
+						{% ifequal colspec.name sortby.name %}
+							class="{% if asc %}asc{% else %}desc{% endif %}"
+						{% endifequal %}>
+					{{ colspec.caption }}
+				</a>
+			</th>
 			{% endfor %}
 		</tr>
-	</thead>
 	
-	<!-- table body -->
-	<tbody>
+		<!-- table body -->
 		{% for row in rows %}
-			<tr id="{{ tableName }}_row_{{ forloop.counter0 }}">
-				<td><input type="checkbox" id="{{ tableName }}_select_{{ forloop.counter0 }}" onchange="cr.table.onSelectRow(this)"/></td>
-				{% for obj in row.data %}
-					<td onclick="cr.table.showDetails('{{ row.id }}')">{{ obj }}</td>
-				{% endfor %}
-			</tr>
+		<tr id="{{ tableName }}_row_{{ forloop.counter0 }}">
+			<td><input type="checkbox" id="{{ tableName }}_select_{{ forloop.counter0 }}" onchange="cr.table.onSelectRow(this)"/></td>
+			{% for obj in row.data %}
+			<td onclick="cr.table.showDetails('{{ row.id }}')">{{ obj }}</td>
+			{% endfor %}
+		</tr>
 		{% endfor %}
+		
+		<!-- table bottom strip -->
+		<tr>
+			<th colspan="{{ columns|length|add:"1" }}" class="bar">
+				<button id="{{ tableName }}_delete_2" type="button" onclick="cr.table.onDeleteClicked(this)" disabled="disabled">Delete users</button>
+			</th>
+		</tr>
 	</tbody>
 </table>

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Test" %}{% endblock %}
+
+{% block content %}
+<script type="text/javascript">
+function showDialog() {
+	var dialog = new goog.ui.Dialog()
+	dialog.setTitle('Sample dialog')
+	dialog.setContent('Sample text inside dialog')
+	dialog.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+	
+	goog.events.listenOnce(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
+		goog.dom.$('dialogLabel').innerHTML = String.format('"{0}"', e.key)
+	})
+	
+	dialog.setVisible(true)
+}
+</script>
+You selected <span id="dialogLabel">[nothing yet]</span><br/>
+<input type="button" onclick="showDialog()" value="show dialog"/>
+{% endblock %}
