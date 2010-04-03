@@ -5,6 +5,7 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 from atom import AtomBase
 from atom.token_store import TokenStore
+from django.conf import settings
 
 
 BadValueError = db.BadValueError
@@ -137,7 +138,10 @@ class StringProperty(db.Property):
         property.
         """
         for attr in self.attrs:
-            atom = getattr(atom, attr)
+            if hasattr(atom, attr):
+                atom = getattr(atom, attr)
+            else:
+                return None
         return atom
 
     def set_value_on_atom(self, atom, value):
@@ -294,7 +298,18 @@ class _ReverseReferenceProperty(db._ReverseReferenceProperty):
         return query.filter(self.__property + ' =', model_instance.key())
 
 
-# TODO: ListProperty
+class ListProperty(StringProperty):
+    def __init__(self, item_type, attr, *args, **kwargs):
+        self.item_type = item_type
+        kwargs.setdefault('default', [])
+        super(ListProperty, self).__init__(attr, *args, **kwargs)
+
+    def set_value_on_atom(self, atom, value):
+        """Set the property value at the given place within the atom object.
+
+        """
+        value = [value._atom for value in value]
+        super(ListProperty, self).set_value_on_atom(atom, value)
 
 
 class _GDataModelMetaclass(db.PropertiedClass):
@@ -307,33 +322,6 @@ class _GDataModelMetaclass(db.PropertiedClass):
         del new_cls.Mapper
 
         return new_cls
-
-
-class EmptyAtom(object):
-    """This class is an atom.AtomBase replacement which allows for simple
-    attribute assignments, e.g.:
-
-    mt = EmptyAtom()
-    mt.attr1.attr2 = 'val'
-    mt.attr3 = 5
-
-    print mt.attr1 => EmptyAtom object
-    print mt.attr1.attr2 => 'val'
-
-    """
-    def __init__(self):
-        self._attrs = {}
-
-    def __setattr__(self, name, value):
-        if name.startswith('_'):
-            self.__dict__[name] = value
-        else:
-            self.__dict__['_attrs'][name] = value
-
-    def __getattr__(self, name):
-        if not self.__dict__['_attrs'].has_key(name):
-            setattr(self, name, EmptyAtom())
-        return self.__dict__['_attrs'][name]
 
 
 class Model(object):
@@ -389,20 +377,28 @@ class Model(object):
         return GDataQuery(cls)
 
     def save(self):
-        atom = self._atom and _clone_atom(self._atom) or EmptyAtom()
+        atom = self._atom and _clone_atom(self._atom) or \
+                self._mapper.empty_atom()
         for prop in self._properties.itervalues():
             prop.set_value_on_atom(atom, getattr(self, prop.name))
         if self.is_saved():
             if not hasattr(self._mapper, 'update'):
                 raise Exception('Mapper %s doesn\'t support model updates.' %
                                 self._mapper)
-            self._atom = self._mapper.update(atom, self._atom)
+            if hasattr(self._mapper, 'update'):
+                self._atom = self._mapper.update(atom, self._atom)
+            else:
+                self._atom = atom
         else:
-            self._atom = self._mapper.create(atom)
+            if hasattr(self._mapper, 'create'):
+                self._atom = self._mapper.create(atom)
+            else:
+                self._atom = atom
     put = save
 
     def delete(self):
         self._mapper.delete(self._atom)
+        del self
 
     def is_saved(self):
         return self._atom is not None
@@ -417,7 +413,7 @@ class Model(object):
             atom = cls._mapper.retrieve(key_name)
         except Exception, e:
             return None
-        return cls._from_atom(atom)
+        return atom and cls._from_atom(atom) or None
 
     @classmethod
     def _atom_to_kwargs(cls, atom):
@@ -458,7 +454,8 @@ class _GDataServiceDescriptor(object):
             if not user:
                 raise users.LoginRequiredError
             service.domain = user.domain()
-            service.SetClientLoginToken(user.client_login_token())
+            service.SetClientLoginToken(
+                user.client_login_token(service.service))
         return instance._service
 
 
@@ -485,7 +482,10 @@ class AtomMapper(object):
     service = _GDataServiceDescriptor()
 
     def __init__(self, *args, **kwargs):
-        self._service = self.create_service(*args, **kwargs)
+        if hasattr(self, 'create_service'):
+            self._service = self.create_service(*args, **kwargs)
+        else:
+            self._service = None
 
 
 class UserEntryMapper(AtomMapper):
@@ -493,6 +493,14 @@ class UserEntryMapper(AtomMapper):
     def create_service(cls):
         from gdata.apps import service
         return service.AppsService()
+
+    def empty_atom(self):
+        from gdata import apps
+        return apps.UserEntry(
+            login=apps.Login(),
+            name=apps.Name(),
+            quota=apps.Quota(),
+        )
 
     def create(self, atom):
         return self.service.CreateUser(
@@ -520,6 +528,13 @@ class UserEntryMapper(AtomMapper):
 class NicknameEntryMapper(AtomMapper):
     create_service = UserEntryMapper.create_service
 
+    def empty_atom(self):
+        from gdata import apps
+        return apps.NicknameEntry(
+            nickname=apps.Nickname(),
+            login=apps.Login(),
+        )
+
     def create(self, atom):
         return self.service.CreateNickname(
             atom.login.user_name, atom.nickname.name)
@@ -542,4 +557,86 @@ class NicknameEntryMapper(AtomMapper):
     #@filter('user')
     #def filter_by_user(self, user_name):
     #    return self.service.RetrieveNicknames(user_name).entry
+
+
+class EmailTypeProperty(StringProperty):
+    from gdata.contacts import REL_WORK, REL_HOME, REL_OTHER
+    _RELS = (
+        (REL_WORK, 'work'),
+        (REL_HOME, 'home'),
+        (REL_OTHER, 'other'),
+    )
+    _ATOM_TO_MODEL = dict(_RELS)
+    _MODEL_TO_ATOM = dict([(x[1], x[0]) for x in _RELS])
+
+    def make_value_from_atom(self, atom):
+        value = super(EmailTypeProperty, self).make_value_from_atom(atom)
+        return self._ATOM_TO_MODEL.get(value, 'work')
+
+    def set_value_on_atom(self, atom, value):
+        value = self._MODEL_TO_ATOM.get(value, self.REL_WORK)
+        super(EmailTypeProperty, self).set_value_on_atom(atom, value)
+
+
+class ContactEmailMapper(AtomMapper):
+    def empty_atom(self):
+        from gdata import contacts
+        return contacts.Email()
+
+    def key(self, atom):
+        return atom.address
+
+
+class ExtendedPropertyMapper(AtomMapper):
+    def empty_atom(self):
+        from gdata import ExtendedProperty
+        return ExtendedProperty()
+
+    def key(self, atom):
+        return atom.name
+
+
+class SharedContactEntryMapper(AtomMapper):
+    @classmethod
+    def create_service(cls):
+        from gdata.contacts import service
+        domain = settings.APPS_DOMAIN
+        service = service.ContactsService()
+        service.contact_list = domain
+        return service
+
+    def empty_atom(self):
+        import atom
+        from gdata import contacts
+        return contacts.ContactEntry(
+            title=atom.Title(),
+            content=atom.Content(),
+        )
+
+    def key(self, atom):
+        return atom.title.text
+
+    def retrieve(self, name):
+        # Shared Contacts API doesn't have any method to directly retrieve
+        # ContactEntry via email or contact name, so we have to retrieve all
+        # contacts and find the one with given email manually
+        #for entry in self.service.GetContactsFeed().entry:
+        #    for entry_email in entry.email:
+        #        if entry_email == email:
+        #            return entry
+        for entry in self.service.GetContactsFeed().entry:
+            if entry.title.text == name:
+                return entry
+
+    def create(self, atom):
+        return self.service.CreateContact(atom)
+
+    def update(self, atom, old_atom):
+        return self.service.UpdateContact(atom.GetEditLink().href, atom)
+
+    def delete(self, atom):
+        self.service.DeleteContact(atom.GetEditLink().href)
+
+    def retrieve_all(self):
+        return self.service.GetContactsFeed().entry
 

@@ -32,8 +32,36 @@ class GANickname(gd.Model):
     user = gd.ReferenceProperty(
         GAUser, 'login.user_name', required=True, collection_name='nicknames')
     
-    def __str__(self):
+    def __unicode__(self):
         return self.nickname
+
+
+class ExtendedProperty(gd.Model):
+    Mapper = gd.ExtendedPropertyMapper()
+
+    name = gd.StringProperty('name', required=True)
+    value = gd.StringProperty('value', required=True)
+
+
+class ContactEmail(gd.Model):
+    Mapper = gd.ContactEmailMapper()
+
+    address = gd.StringProperty('address', required=True)
+    rel = gd.EmailTypeProperty('rel', required=True, default='work')
+    primary = gd.BooleanProperty('primary', default=False)
+
+
+class SharedContact(gd.Model):
+    Mapper = gd.SharedContactEntryMapper()
+
+    name = gd.StringProperty('title.text', required=True)
+    notes = gd.StringProperty('content.text')
+    emails = gd.ListProperty(ContactEmail, 'email', required=True)
+    extended_properties = gd.ListProperty(
+        ExtendedProperty, 'extended_property')
+
+    def __unicode__(self):
+        return u'<SharedContact: %s>' % self.name
 
 
 class TestModel(BaseModel):
