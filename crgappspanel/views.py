@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
 from crgappspanel.forms import UserForm
-from crgappspanel.models import GAUser, GANickname
+from crgappspanel.models import GAUser, GANickname, SharedContact
 from crgappspanel.helpers.tables import Table, Column
 from crlib.users import admin_required
 from settings import APPS_DOMAIN, LANGUAGES
@@ -21,27 +21,6 @@ from crgappspanel.sample_data import get_sample_users, get_sample_groups
 def _get_status(x):
     suspended, admin = getattr(x, 'suspended'), getattr(x, 'admin')
     return _('Suspended') if x.suspended else _('Administrator') if x.admin else ''
-
-_userFields = [
-    Column(_('Name'), 'name', getter=lambda x: x.get_full_name()),
-    Column(_('Username'), 'username', getter=lambda x: '%s@%s' % (getattr(x, 'user_name', ''), APPS_DOMAIN)),
-    Column(_('Status'), 'status', getter=_get_status),
-    Column(_('Email quota'), 'quota', getter=lambda x: getattr(x, 'quota', '')),
-    Column(_('Roles'), 'roles', getter=lambda x: getattr(x, 'roles', '')),
-    Column(_('Last signed in'), 'last_login', getter=lambda x: getattr(x, 'last_login', ''))
-]
-_userId = Column(None, 'user_name')
-
-_groupFields = [
-    Column(_('Name'), 'title'),
-    Column(_('Email address'), 'name'),
-    Column(_('Type'), 'kind'),
-]
-_groupId = _groupFields[1]
-
-_userWidths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
-_groupWidths = ['%d%%' % x for x in (5, 40, 40, 15)]
-
 
 def _get_sortby_asc(request, valid):
     sortby = request.GET.get('sortby', None)
@@ -59,10 +38,6 @@ def _random_password(chars):
     return ''.join(_get_password_char(ord(b1), ord(b2)) for b1, b2 in zip(bts[:chars], bts[chars:]))
 
 
-def index(request):
-    return render_to_response('index.html', dict(pages=['users', 'groups', 'language', 'test']))
-
-
 def ctx(d, section=None, subsection=None, back=False):
     from crgappspanel.sections import SECTIONS
     d['domain'] = APPS_DOMAIN
@@ -75,6 +50,27 @@ def ctx(d, section=None, subsection=None, back=False):
     return d
 
 
+def index(request):
+    return redirect('users')
+
+
+################################################################################
+#                                    USERS                                     #
+################################################################################
+
+
+_userFields = [
+    Column(_('Name'), 'name', getter=lambda x: x.get_full_name()),
+    Column(_('Username'), 'username', getter=lambda x: '%s@%s' % (x.user_name or '', APPS_DOMAIN)),
+    Column(_('Status'), 'status', getter=_get_status),
+    Column(_('Email quota'), 'quota'),
+    Column(_('Roles'), 'roles', getter=lambda x: ''),
+    Column(_('Last signed in'), 'last_login', getter=lambda x: '')
+]
+_userId = Column(None, 'user_name')
+_userWidths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
+
+
 @admin_required
 def users(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _userFields])
@@ -85,7 +81,7 @@ def users(request):
     table.sort(users)
     
     return render_to_response('users_list.html', ctx({
-        'table': table.generate(users, widths=_userWidths),
+        'table': table.generate(users, widths=_userWidths, singular='user'),
         'styles': ['table-list'],
         'scripts': ['table', 'users-list'],
     }, 2, 1))
@@ -179,6 +175,20 @@ def user_action(request, name=None, action=None, arg=None):
     return redirect('user-details', name=user.user_name)
 
 
+################################################################################
+#                                    GROUPS                                    #
+################################################################################
+
+
+_groupFields = [
+    Column(_('Name'), 'title'),
+    Column(_('Email address'), 'name'),
+    Column(_('Type'), 'kind'),
+]
+_groupId = _groupFields[1]
+_groupWidths = ['%d%%' % x for x in (5, 40, 40, 15)]
+
+
 @admin_required
 def groups(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _groupFields])
@@ -188,10 +198,49 @@ def groups(request):
     table.sort(groups)
     
     return render_to_response('groups_list.html', ctx({
-        'table': table.generate(groups, widths=_groupWidths),
+        'table': table.generate(groups, widths=_groupWidths, singular='group'),
         'styles': ['table-list'],
         'scripts': ['table'],
     }, 2, 2))
+
+
+################################################################################
+#                               SHARED CONTACTS                                #
+################################################################################
+
+
+_sharedContactFields = [
+    Column(_('Name'), 'name'),
+    Column(_('Notes'), 'notes', default=''),
+    Column(_('E-mails'), 'emails', getter=lambda x: '\n'.join(y.address for y in x.emails)),
+]
+_sharedContactId = _sharedContactFields[0]
+_sharedContactWidths = ['%d%%' % x for x in (5, 25, 25, 45)]
+
+
+@admin_required
+def shared_contacts(request):
+    sortby, asc = _get_sortby_asc(request, [f.name for f in _sharedContactFields])
+    
+    sharedContacts = SharedContact.all().fetch(100)
+    
+    table = Table(_sharedContactFields, _sharedContactId, sortby=sortby, asc=asc)
+    table.sort(sharedContacts)
+    
+    return render_to_response('shared_contacts_list.html', ctx({
+        'table': table.generate(sharedContacts, widths=_sharedContactWidths, singular='shared contact'),
+        'styles': ['table-list'],
+        'scripts': ['table', 'shared-contacts-list'],
+    }, 2, 5))
+
+
+def shared_contact_add(request):
+    pass
+
+
+################################################################################
+#                                    OTHERS                                    #
+################################################################################
 
 
 def language(request):

@@ -26,6 +26,10 @@ urlpatterns = patterns('',
     url(r'^users/(?P<name>[^/]+)/(?P<action>[^/]+)/(?P<arg>[^/]+)/$', 'crgappspanel.views.user_action', name='user-action'),
     
     url(r'^groups/$', 'crgappspanel.views.groups', name='groups'),
+    
+    url(r'^shared-contacts/$', 'crgappspanel.views.shared_contacts', name='shared-contacts'),
+    url(r'^shared-contacts/add/$', 'crgappspanel.views.shared_contact_add', name='shared-contact-add'),
+    
     url(r'^language/$', 'crgappspanel.views.language', name='language'),
     url(r'^test/$', 'crgappspanel.views.test', name='test'), # TODO remove this test in the future
     

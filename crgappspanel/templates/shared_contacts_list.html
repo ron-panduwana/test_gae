@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Shared contacts" %}{% endblock %}
+
+{% block content %}
+<a href="{% url shared-contact-add %}" class="action-link">Add shared contact</a>
+<script type="text/javascript">
+cr.table.deletes['table'] = function(list, reallyDelete) {
+	var dialogDelete = new goog.ui.Dialog()
+	dialogDelete.setTitle('{% trans "Remove contacts" %}')
+	dialogDelete.setContent('{% trans "Are you sure want to remove selected contacts?" %}')
+	dialogDelete.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+	
+	goog.events.listenOnce(dialogDelete, goog.ui.Dialog.EventType.SELECT, function(e) {
+		if (e.key == 'yes') {
+			reallyDelete()
+			
+			goog.Timer.callOnce(function() {
+				window.open(window.location, '_self')
+			}, 2500)
+		}
+	})
+	dialogDelete.setVisible(true)
+}
+
+goog.events.listen(window, 'unload', function() {
+	goog.events.removeAll()
+})
+</script>
+{{ table }}
+{% endblock %}

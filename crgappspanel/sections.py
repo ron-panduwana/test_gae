@@ -13,6 +13,7 @@ SECTIONS = [
         section('Groups', 'crgappspanel.views.groups'),
         section('Settings', None),
         section('Test', 'crgappspanel.views.test'),
+        section('Shared contacts', 'crgappspanel.views.shared_contacts'),
     ]),
     section('Domain settings', None),
     section('Advanced tools', None),
