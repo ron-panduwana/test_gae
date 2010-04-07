@@ -4,5 +4,8 @@
 # vim swap files
 *.swp
 
+# jEdit marks files
+*.marks
+
 /google_apps.txt
 /index.yaml

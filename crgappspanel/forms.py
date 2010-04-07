@@ -10,8 +10,8 @@ password_1 = widgets.DoubleWidget(forms.HiddenInput(), forms.HiddenInput())
 password_e = 'Enter new password:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 password_2 = widgets.DoubleWidget(forms.PasswordInput(), forms.PasswordInput())
 
-nicknames_c = '<br/>%(widget)s%(link_start)sAdd nickname%(link_end)s'
-nicknames_e = '<br/>Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+nicknames_c = '%(widget)s%(link_start)sAdd nickname%(link_end)s'
+nicknames_e = 'Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 
 
 class UserForm(forms.Form):
@@ -52,3 +52,30 @@ class UserForm(forms.Form):
             return nicknames
         return None
 
+
+emails_c = '%(widget)s%(link_start)sAdd email%(link_end)s'
+emails_e = 'Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+
+
+class SharedContactForm(forms.Form):
+    name = forms.CharField(label='Name')
+    notes = forms.CharField(label='Notes')
+    email = forms.CharField(label='Email')
+    emails = forms.CharField(label='Emails', required=False,
+        widget=widgets.SwapWidget(forms.HiddenInput(), emails_c, forms.TextInput(), emails_e))
+    
+    def create(self):
+        email = models.ContactEmail(
+            address=self.cleaned_data['email'],
+            primary=True)
+        return models.SharedContact(
+            name=self.cleaned_data['name'],
+            notes=self.cleaned_data['notes'],
+            emails=[email])
+    
+    def populate(self, shared_contact):
+        email = self.cleaned_data['emails'].strip()
+        
+        shared_contact.name = self.cleaned_data['name']
+        shared_contact.notes = self.cleaned_data['notes']
+        return [email] if email else []

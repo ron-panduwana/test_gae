@@ -8,8 +8,8 @@ from django.shortcuts import render_to_response, redirect
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
-from crgappspanel.forms import UserForm
-from crgappspanel.models import GAUser, GANickname, SharedContact
+from crgappspanel.forms import UserForm, SharedContactForm
+from crgappspanel.models import GAUser, GANickname, SharedContact, ContactEmail
 from crgappspanel.helpers.tables import Table, Column
 from crlib.users import admin_required
 from settings import APPS_DOMAIN, LANGUAGES
@@ -46,12 +46,41 @@ def ctx(d, section=None, subsection=None, back=False):
         d['sel_section'] = SECTIONS[section - 1]
         if subsection is not None:
             d['sel_subsection'] = SECTIONS[section - 1]['subsections'][subsection - 1]
-            d['back_button'] = back
+        d['back_button'] = back
     return d
 
 
 def index(request):
     return redirect('users')
+
+
+################################################################################
+#                                    GROUPS                                    #
+################################################################################
+
+
+_groupFields = [
+    Column(_('Name'), 'title'),
+    Column(_('Email address'), 'name'),
+    Column(_('Type'), 'kind'),
+]
+_groupId = _groupFields[1]
+_groupWidths = ['%d%%' % x for x in (5, 40, 40, 15)]
+
+
+@admin_required
+def groups(request):
+    sortby, asc = _get_sortby_asc(request, [f.name for f in _groupFields])
+    
+    groups = get_sample_groups()
+    table = Table(_groupFields, _groupId, sortby=sortby, asc=asc)
+    table.sort(groups)
+    
+    return render_to_response('groups_list.html', ctx({
+        'table': table.generate(groups, widths=_groupWidths, singular='group'),
+        'styles': ['table-list'],
+        'scripts': ['table'],
+    }, 2, 1))
 
 
 ################################################################################
@@ -84,7 +113,7 @@ def users(request):
         'table': table.generate(users, widths=_userWidths, singular='user'),
         'styles': ['table-list'],
         'scripts': ['table', 'users-list'],
-    }, 2, 1))
+    }, 2, 2))
 
 
 @admin_required
@@ -104,11 +133,11 @@ def user_create(request):
     return render_to_response('user_create.html', ctx({
         'form': form,
         'temp_password': temp_password,
-    }, 2, 1, True))
+    }, 2, 2, True))
 
 
 @admin_required
-def user(request, name=None):
+def user_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
     
@@ -137,16 +166,16 @@ def user(request, name=None):
     
     fmt = '<b>%s</b>@%s - <a href="%s">Remove</a>'
     def remove_nick_link(x):
-        kwargs=dict(name=user.user_name, action='remove-nickname', arg=str(x))
+        kwargs=dict(name=user.user_name, action='remove-nickname', arg=x.nickname)
         return reverse('user-action', kwargs=kwargs)
-    full_nicknames = [fmt % (nick, APPS_DOMAIN, remove_nick_link(nick)) for nick in user.nicknames]
+    full_nicknames = [fmt % (nick.nickname, APPS_DOMAIN, remove_nick_link(nick)) for nick in user.nicknames]
     return render_to_response('user_details.html', ctx({
         'user': user,
         'form': form,
         'full_nicknames': full_nicknames,
         'styles': ['table-details', 'user-details'],
         'scripts': ['expand-field', 'swap-widget', 'user-details'],
-    }, 2, 1, True))
+    }, 2, 2, True))
 
 
 @admin_required
@@ -176,35 +205,6 @@ def user_action(request, name=None, action=None, arg=None):
 
 
 ################################################################################
-#                                    GROUPS                                    #
-################################################################################
-
-
-_groupFields = [
-    Column(_('Name'), 'title'),
-    Column(_('Email address'), 'name'),
-    Column(_('Type'), 'kind'),
-]
-_groupId = _groupFields[1]
-_groupWidths = ['%d%%' % x for x in (5, 40, 40, 15)]
-
-
-@admin_required
-def groups(request):
-    sortby, asc = _get_sortby_asc(request, [f.name for f in _groupFields])
-    
-    groups = get_sample_groups()
-    table = Table(_groupFields, _groupId, sortby=sortby, asc=asc)
-    table.sort(groups)
-    
-    return render_to_response('groups_list.html', ctx({
-        'table': table.generate(groups, widths=_groupWidths, singular='group'),
-        'styles': ['table-list'],
-        'scripts': ['table'],
-    }, 2, 2))
-
-
-################################################################################
 #                               SHARED CONTACTS                                #
 ################################################################################
 
@@ -231,11 +231,66 @@ def shared_contacts(request):
         'table': table.generate(sharedContacts, widths=_sharedContactWidths, singular='shared contact'),
         'styles': ['table-list'],
         'scripts': ['table', 'shared-contacts-list'],
-    }, 2, 5))
+    }, 3))
 
 
+@admin_required
 def shared_contact_add(request):
-    pass
+    if request.method == 'POST':
+        form = SharedContactForm(request.POST, auto_id=True)
+        if form.is_valid():
+            shared_contact = form.create()
+            for email in shared_contact.emails:
+                email.save()
+            shared_contact.save()
+            return redirect('shared-contact-details', name=shared_contact.name)
+    else:
+        form = SharedContactForm(auto_id=True)
+    
+    return render_to_response('shared_contact_add.html', ctx({
+        'form': form,
+        'styles': ['table-details'],
+    }, 3, None, True))
+
+
+@admin_required
+def shared_contact_details(request, name=None):
+    if not name:
+        raise ValueError('name = %s' % name)
+    
+    shared_contact = SharedContact.get_by_key_name(name)
+    if not shared_contact:
+        return redirect('shared-contacts')
+    
+    if request.method == 'POST':
+        form = SharedContactForm(request.POST, auto_id=True)
+        if form.is_valid():
+            emails = form.populate(shared_contact)
+            for address in emails:
+                email = ContactEmail(
+                    address=address,
+                    primary=False)
+                email.save()
+                shared_contact.emails.append(email)
+            shared_contact.save()
+            return redirect('shared-contact-details', name=shared_contact.name)
+    else:
+        form = SharedContactForm(initial={
+            'name': shared_contact.name,
+            'notes': shared_contact.notes,
+            'emails': '',
+        }, auto_id=True)
+    
+    fmt = '<b>%s</b>@%s - <a href="%s">Remove</a>'
+    def remove_email_link(x):
+        kwargs=dict(name=shared_contact.name, action='remove-email', arg=x.address)
+        return reverse('shared-contact-action', kwargs=kwargs)
+    return render_to_response('shared_contact_details.html', ctx({
+        'shared_contact': shared_contact,
+        'form': form,
+        'styles': ['table-details'],
+        'scripts': ['swap-widget'],
+    }, 3, None, True))
 
 
 ################################################################################

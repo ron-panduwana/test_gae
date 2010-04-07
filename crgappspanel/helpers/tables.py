@@ -33,6 +33,17 @@ class Table(object):
         self.asc = asc if asc != None else True
     
     def generate(self, objs, widths=None, table_name='table', singular='object', plural=None):
+        """Generates table html (using appropriate HTML template).
+        
+        Arguments:
+          obj - list of objects, each object represents a table row
+          widths - list of column widths
+          table_name - html id of the table as well as beginning of id of objects in the table
+          singular - singular name of entity presented in the table (e.g. 'user')
+          plural - plural name of entity presented in the table (e.g. 'users'),
+            if None - it will be created from singular form by appending 's'
+        """
+        
         if widths == None:
             widths = []
         

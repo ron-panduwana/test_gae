@@ -1,12 +1,14 @@
 <tr>
 	<th>{{ field.label_tag }}</th>
 	<td>
-		<p>
+		{% if items %}
+		<div style="margin-bottom: 0.5em">
 			{% for item in items %}
 				{% if not forloop.first %}<br/>{% endif %}{{ item }}
 			{% endfor %}
-		</p>
-		<p>
+		</div>
+		{% endif %}
+		<div style="margin: 0px">
 			{% if field.help_text %}
 				<label for="{{ field.html_name }}">
 			{% endif %}
@@ -21,6 +23,6 @@
 				{% endif %}
 			{% empty %}
 			{% endfor %}
-		</p>
+		</div>
 	</td>
 </tr>
