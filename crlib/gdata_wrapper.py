@@ -447,15 +447,11 @@ class _GDataServiceDescriptor(object):
 
     """
     def __get__(self, instance, owner):
-        if instance._service.GetClientLoginToken() is None:
-            from crlib import users
-            service = instance._service
-            user = users.get_current_user()
-            if not user:
-                raise users.LoginRequiredError
-            service.domain = user.domain()
-            service.SetClientLoginToken(
-                user.client_login_token(service.service))
+        from crlib import users
+        user = users.get_current_user()
+        if not user:
+            raise users.LoginRequiredError()
+        user.client_login(instance._service)
         return instance._service
 
 

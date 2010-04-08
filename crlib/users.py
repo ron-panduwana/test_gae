@@ -7,12 +7,15 @@ from django.shortcuts import render_to_response
 from django import forms
 from google.appengine.api import memcache
 from gdata.service import GDataService, CaptchaRequired, BadAuthentication
+from gdata.client import GDClient, CaptchaChallenge
+from gdata.gauth import ClientLoginToken
 from gdata.apps.service import AppsForYourDomainException
-from settings import APPS_DOMAIN
+from settings import APPS_DOMAIN, CLIENT_LOGIN_SOURCE
 
 
 _SESSION_LOGIN_INFO = '_client_login_info'
-_MEMCACHE_TOKEN_KEY = 'client_login_token:%s:%s'
+_SERVICE_MEMCACHE_TOKEN_KEY = 'service_client_login_token:%s:%s'
+_CLIENT_MEMCACHE_TOKEN_KEY = 'client_client_login_token:%s:%s'
 _ENVIRON_EMAIL = 'CLIENT_LOGIN_EMAIL'
 _ENVIRON_PASWD = 'CLIENT_LOGIN_PASWD'
 
@@ -34,30 +37,59 @@ class User(object):
     def domain(self):
         return self._email.partition('@')[2]
 
-    def client_login_token(self, service_name):
-        memcache_key = _MEMCACHE_TOKEN_KEY % (self._email, service_name)
+    def _client_login_service(self, service):
+        memcache_key = _SERVICE_MEMCACHE_TOKEN_KEY % (
+            self._email, service.service)
         token = memcache.get(memcache_key)
         if not token:
-            service = GDataService(
-                email=self._email,
-                password=self._password,
-                service=service_name)
+            service.email = self._email
+            service.password = self._password
+            service.domain = self.domain()
             try:
                 service.ProgrammaticLogin()
             except CaptchaRequired:
-                client_login_info.update({
-                    'captcha_token': service.captcha_token,
-                    'captcha_url': service.captcha_url,
-                    'captcha_service': service_name,
-                })
-                request.session[_SESSION_LOGIN_INFO] = client_login_info
-                raise LoginRequiredError('CaptchaRequired')
-            except BadAuthentication:
-                request.session.flush()
-                raise LoginRequiredError('BadAuthentication')
+                challenge = CaptchaChallenge('CAPTCHA Required')
+                challenge.captcha_url = service.captcha_url
+                challenge.captcha_token = service.captcha_token
+                challenge.service = service.service
+                challenge.is_old_api = True
+                raise challenge
+            except Exception:
+                raise LoginRequiredError()
             token = service.GetClientLoginToken()
             memcache.set(memcache_key, token, 24 * 60 * 60)
-        return token
+        else:
+            service.SetClientLoginToken(token)
+
+    def _client_login_client(self, client):
+        memcache_key = _CLIENT_MEMCACHE_TOKEN_KEY % (
+            self._email, client.auth_service)
+        token = memcache.get(memcache_key)
+        if not token:
+            try:
+                client.client_login(
+                    self._email, self._password, CLIENT_LOGIN_SOURCE)
+            except CaptchaChallenge, challenge:
+                challenge.service = client.auth_service
+                challenge.is_old_api = False
+                raise challenge
+            except Exception:
+                raise LoginRequiredError()
+            token = client.auth_token.token_string
+            memcache.set(memcache_key, token, 24 * 60 * 60)
+        else:
+            client.auth_token = ClientLoginToken(token)
+
+    def client_login(self, service):
+        if isinstance(service, GDataService):
+            if service.GetClientLoginToken() is None:
+                self._client_login_service(service)
+        elif isinstance(service, GDClient):
+            if service.auth_token is None:
+                self._client_login_client(service)
+        else:
+            raise Exception('Unknown service type: %s' %
+                            service.__class__.__name__)
 
 
 class UsersMiddleware(object):
@@ -70,6 +102,16 @@ class UsersMiddleware(object):
 
     def process_exception(self, request, exception):
         if isinstance(exception, LoginRequiredError):
+            request.session.flush()
+            return HttpResponseRedirect(
+                create_login_url(request.get_full_path()))
+        elif isinstance(exception, CaptchaChallenge):
+            client_login_info = request.session.get(_SESSION_LOGIN_INFO, {})
+            client_login_info['captcha_url'] = exception.captcha_url
+            client_login_info['captcha_token'] = exception.captcha_token
+            client_login_info['service'] = exception.service
+            client_login_info['is_old_api'] = exception.is_old_api
+            request.session[_SESSION_LOGIN_INFO] = client_login_info
             return HttpResponseRedirect(
                 create_login_url(request.get_full_path()))
         elif isinstance(exception, AppsForYourDomainException) and \
@@ -84,7 +126,10 @@ class LoginForm(forms.Form):
     password = forms.CharField(required=True, widget=forms.PasswordInput)
     captcha_token = forms.CharField(required=False, widget=forms.HiddenInput)
     captcha_url = forms.CharField(required=False, widget=forms.HiddenInput)
-    catpcha_service = forms.CharField(required=False, widget=forms.HiddenInput)
+    catpcha_service = forms.CharField(
+        required=False, widget=forms.HiddenInput, initial='apps')
+    is_old_api = forms.BooleanField(
+        required=True, widget=forms.HiddenInput, initial=True)
     captcha = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -96,6 +141,42 @@ class LoginForm(forms.Form):
             raise forms.ValidationError('You have to type captcha')
         return captcha
 
+    def _client_login_service(self, email, service_name):
+        service = GDataService(
+            email=email,
+            password=self.cleaned_data['password'],
+            service=service_name)
+        try:
+            service.ProgrammaticLogin(
+                self.cleaned_data['captcha_token'] or None,
+                self.cleaned_data['captcha'] or None)
+        except CaptchaRequired:
+            self.data = self.data.copy()
+            self.data['captcha_token'] = service.captcha_token
+            self.data['captcha_url'] = service.captcha_url
+            raise forms.ValidationError('Please provide CAPTCHA')
+        except Exception, e:
+            raise forms.ValidationError(e.message)
+
+        memcache.set(_SERVICE_MEMCACHE_TOKEN_KEY % (email, captcha_service),
+                     service.GetClientLoginToken(), 24 * 60 * 60)
+
+    def _client_login_client(self, email, service_name):
+        client = GDClient()
+        try:
+            client.client_login(email, self.cleaned_data['password'],
+                                CLIENT_LOGIN_SOURCE)
+        except CaptchaChallenge, challenge:
+            self.data = self.data.copy()
+            self.data['captcha_token'] = challenge.captcha_token
+            self.data['captcha_url'] = challenge.captcha_url
+            raise forms.ValidationError('Please provide CAPTCHA')
+        except Exception, e:
+            raise forms.ValidationError(e.message)
+
+        memcache.set(_CLIENT_MEMCACHE_TOKEN_KEY % (email, captcha_service),
+                     service.auth_token.token_string, 24 * 60 * 60)
+
     def clean(self):
         if self._errors:
             return self.cleaned_data
@@ -105,25 +186,11 @@ class LoginForm(forms.Form):
             return self.cleaned_data
 
         email='%s@%s' % (self.cleaned_data['user_name'], APPS_DOMAIN)
-        service = GDataService(
-            email=email,
-            password=self.cleaned_data['password'],
-            service=captcha_service)
 
-        try:
-            service.ProgrammaticLogin(
-                self.cleaned_data['captcha_token'] or None,
-                self.cleaned_data['captcha'] or None)
-        except CaptchaRequired:
-            self.data = self.data.copy()
-            self.data['captcha_token'] = service.captcha_token
-            self.data['captcha_url'] = service.captcha_url
-            raise forms.ValidationError('Please provide captcha')
-        except BadAuthentication, e:
-            raise forms.ValidationError(e.message)
-
-        memcache.set(_MEMCACHE_TOKEN_KEY % (email, captcha_service),
-                     service.GetClientLoginToken(), 24 * 60 * 60)
+        if self.cleaned_data['is_old_api']:
+            self._client_login_service(email, captcha_service)
+        else:
+            self._client_login_client(email, captcha_service)
 
         return self.cleaned_data
 
@@ -148,6 +215,8 @@ def generic_login_view(request, template):
                 'user_name': client_login_info['email'].partition('@')[0],
                 'captcha_token': client_login_info.get('captcha_token'),
                 'captcha_url': client_login_info.get('captcha_url'),
+                'captcha_service': client_login_info.get('service', 'apps'),
+                'is_old_api': client_login_info.get('is_old_api', True),
             }
             form = LoginForm(initial=initial)
         else:
