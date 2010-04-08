@@ -210,7 +210,7 @@ def groups(request):
 
 
 _sharedContactFields = [
-    Column(_('Name'), 'name'),
+    Column(_('Name'), 'title'),
     Column(_('Notes'), 'notes', default=''),
     Column(_('E-mails'), 'emails', getter=lambda x: '\n'.join(y.address for y in x.emails)),
 ]
