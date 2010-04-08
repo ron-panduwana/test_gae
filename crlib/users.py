@@ -44,7 +44,6 @@ class User(object):
         if not token:
             service.email = self._email
             service.password = self._password
-            service.domain = self.domain()
             try:
                 service.ProgrammaticLogin()
             except CaptchaRequired:
@@ -114,8 +113,8 @@ class UsersMiddleware(object):
             request.session[_SESSION_LOGIN_INFO] = client_login_info
             return HttpResponseRedirect(
                 create_login_url(request.get_full_path()))
-        elif isinstance(exception, AppsForYourDomainException) and \
-                exception.reason == 'Unauthorized':
+        elif isinstance(exception, AppsForYourDomainException):
+            logging.warning('exception: %s' % str(exception))
             request.session.flush()
             return HttpResponseRedirect(
                 create_login_url(request.get_full_path()))
@@ -129,7 +128,7 @@ class LoginForm(forms.Form):
     catpcha_service = forms.CharField(
         required=False, widget=forms.HiddenInput, initial='apps')
     is_old_api = forms.BooleanField(
-        required=True, widget=forms.HiddenInput, initial=True)
+        required=False, widget=forms.HiddenInput, initial=True)
     captcha = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -208,6 +207,7 @@ def generic_login_view(request, template):
                 'password': form.cleaned_data['password'],
             }
             return HttpResponseRedirect(redirect_to)
+        logging.warning('form: %s' % str(form))
     else:
         client_login_info = request.session.get(_SESSION_LOGIN_INFO)
         if client_login_info:

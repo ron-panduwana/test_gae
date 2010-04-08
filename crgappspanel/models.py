@@ -85,7 +85,7 @@ class Name(gd.Model):
 class SharedContact(gd.Model):
     Mapper = mappers.SharedContactEntryMapper()
 
-    name = gd.EmbeddedModelProperty(Name, 'name', required=True)
+    name = gd.EmbeddedModelProperty(Name, 'name', required=False)
     title = gd.StringProperty('title.text', required=False, read_only=True)
     notes = gd.StringProperty('content.text')
     emails = gd.ListProperty(Email, 'email', required=False)
@@ -97,7 +97,7 @@ class SharedContact(gd.Model):
         ExtendedProperty, 'extended_property', required=False)
 
     def __unicode__(self):
-        return u'<SharedContact: %s>' % self.name
+        return u'<SharedContact: %s>' % self.title
 
 
 class TestModel(BaseModel):

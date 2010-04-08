@@ -311,7 +311,8 @@ class EmbeddedModelProperty(StringProperty):
 
     def make_value_from_atom(self, atom):
         value = super(EmbeddedModelProperty, self).make_value_from_atom(atom)
-        return self.reference_class._from_atom(value)
+        if value is not None:
+            return self.reference_class._from_atom(value)
 
     def set_value_on_atom(self, atom, value):
         super(EmbeddedModelProperty, self).set_value_on_atom(atom, value._atom)

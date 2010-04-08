@@ -1,3 +1,4 @@
+import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from gdata import contacts, data
@@ -45,7 +46,9 @@ class UserEntryMapper(AtomMapper):
     @classmethod
     def create_service(cls):
         from gdata.apps import service
-        return service.AppsService()
+        service = service.AppsService()
+        service.domain = settings.APPS_DOMAIN
+        return service
 
     def empty_atom(self):
         from gdata import apps
@@ -148,9 +151,8 @@ class SharedContactEntryMapper(AtomMapper):
     @classmethod
     def create_service(cls):
         from gdata.contacts import client
-        domain = settings.APPS_DOMAIN
         client = client.ContactsClient()
-        client.contact_list = domain
+        client.contact_list = settings.APPS_DOMAIN
         return client
 
     def empty_atom(self):
