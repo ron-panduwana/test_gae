@@ -7,8 +7,9 @@ from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from gdata.apps.service import AppsForYourDomainException
 from crgappspanel.models import GAUser, GANickname, Role, TestModel, \
-        SharedContact, ContactEmail, ExtendedProperty
+        SharedContact, Email, PhoneNumber, ExtendedProperty, Name
 from crlib.gdata_wrapper import GDataQuery
+from crlib.mappers import MAIN_TYPES, PHONE_TYPES
 from crlib.users import _set_testing_user
 
 
@@ -153,13 +154,26 @@ class GDataTestCase(unittest.TestCase):
         contact = SharedContact.get_by_key_name('Test Contact')
         if contact:
             contact.delete()
-        email = ContactEmail(
+
+        email = Email(
             address='test@example.com',
+            rel=MAIN_TYPES[0][0],
             primary=True)
         email.save()
+
+        phone_number = PhoneNumber(
+            number='555-123-456',
+            rel=PHONE_TYPES[0][0],
+            primary=True)
+        phone_number.save()
+
+        name = Name(full_name='Test Contact')
+        name.save()
+
         contact = SharedContact(
-            name='Test Contact',
-            emails=[email])
+            name=name,
+            emails=[email],
+            phone_numbers=[phone_number])
         contact.save()
 
         contact.delete()
@@ -174,21 +188,27 @@ class GDataTestCase(unittest.TestCase):
             'ExtendedProperty Contact')
         if contact:
             contact.delete()
-        email = ContactEmail(
+
+        email = Email(
             address='extended@example.com',
+            rel=MAIN_TYPES[0][0],
             primary=True)
         email.save()
+
         property = ExtendedProperty(
             name='some_name',
             value='some_val',
         )
         property.save()
+
+        name = Name(full_name='ExtendedProperty Contact')
+        name.save()
+
         contact = SharedContact(
-            name='ExtendedProperty Contact',
+            name=name,
             emails=[email],
             extended_properties=[property])
         contact.save()
-
 
 
 class RoleCreationTestCase(unittest.TestCase):

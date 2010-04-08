@@ -133,6 +133,9 @@ class StringProperty(db.Property):
     def __init__(self, attr, *args, **kwargs):
         self.attrs = attr.split('.')
         self.read_only = kwargs.pop('read_only', False)
+        choices = kwargs.pop('choices', None)
+        if choices is not None:
+            kwargs['choices'] = [x[0] for x in choices]
         super(StringProperty, self).__init__(*args, **kwargs)
 
     def make_value_from_atom(self, atom):
