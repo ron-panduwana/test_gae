@@ -170,6 +170,10 @@ class GDataTestCase(unittest.TestCase):
             self.assertTrue(isinstance(contact, SharedContact))
 
     def testSharedContactExtendedProperty(self):
+        contact = SharedContact.get_by_key_name(
+            'ExtendedProperty Contact')
+        if contact:
+            contact.delete()
         email = ContactEmail(
             address='extended@example.com',
             primary=True)

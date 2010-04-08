@@ -621,10 +621,7 @@ class SharedContactEntryMapper(AtomMapper):
         # ContactEntry via email or contact name, so we have to retrieve all
         # contacts and find the one with given email manually
         #for entry in self.service.GetContactsFeed().entry:
-        #    for entry_email in entry.email:
-        #        if entry_email == email:
-        #            return entry
-        for entry in self.service.GetContactsFeed().entry:
+        for entry in self.retrieve_all():
             if entry.title.text == name:
                 return entry
 
@@ -637,6 +634,12 @@ class SharedContactEntryMapper(AtomMapper):
     def delete(self, atom):
         self.service.DeleteContact(atom.GetEditLink().href)
 
-    def retrieve_all(self):
-        return self.service.GetContactsFeed().entry
+    def retrieve_all(self, limit=100, offset=0):
+        from gdata.contacts.service import ContactsQuery
+        feed_uri = self.service.GetFeedUri()
+        query = ContactsQuery(feed_uri)
+        query.max_results = limit
+        query.start_index = offset + 1
+        feed = self.service.GetContactsFeed(query.ToUri())
+        return feed.entry
 
