@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Shared contact details" %}: {{ shared_contact.name }}{% endblock %}
+{% block title %}{% trans "Add shared contact" %}{% endblock %}
 
 {% block content %}
 <form action="{% url shared-contact-add %}" method="POST" class="details">

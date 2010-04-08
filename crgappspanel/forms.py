@@ -59,23 +59,25 @@ emails_e = 'Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 
 class SharedContactForm(forms.Form):
     name = forms.CharField(label='Name')
-    notes = forms.CharField(label='Notes')
+    notes = forms.CharField(label='Notes', required=False)
     email = forms.CharField(label='Email')
     emails = forms.CharField(label='Emails', required=False,
         widget=widgets.SwapWidget(forms.HiddenInput(), emails_c, forms.TextInput(), emails_e))
     
     def create(self):
-        email = models.ContactEmail(
+        name = models.Name(full_name=self.cleaned_data['name'])
+        email = models.Email(
             address=self.cleaned_data['email'],
+            rel='http://schemas.google.com/g/2005#home',
             primary=True)
         return models.SharedContact(
-            name=self.cleaned_data['name'],
+            name=name,
             notes=self.cleaned_data['notes'],
             emails=[email])
     
     def populate(self, shared_contact):
         email = self.cleaned_data['emails'].strip()
         
-        shared_contact.name = self.cleaned_data['name']
+        shared_contact.name.full_name = self.cleaned_data['name']
         shared_contact.notes = self.cleaned_data['notes']
         return [email] if email else []

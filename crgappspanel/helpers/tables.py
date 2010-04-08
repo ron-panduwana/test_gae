@@ -49,9 +49,10 @@ class Table(object):
         
         rows = []
         for obj in objs:
+            data = [dict(data=col.value(obj), link=col.link) for col in self.columns]
             rows.append({
                 'id': self.id_column.value(obj),
-                'data': [col.value(obj) for col in self.columns],
+                'data': data,
             })
         
         plural = plural or ('%ss' % singular)
@@ -77,11 +78,12 @@ class Table(object):
 
 
 class Column(object):
-    def __init__(self, caption, name, getter=None, default=None):
+    def __init__(self, caption, name, getter=None, default=None, link=False):
         self.caption = caption
         self.name = name
         self.getter = getter
         self.default = default
+        self.link = link
     
     def value(self, obj):
         if self.getter:

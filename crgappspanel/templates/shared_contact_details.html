@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Shared contact details" %}: {{ shared_contact.name }}{% endblock %}
+{% block title %}{% trans "Shared contact details" %}: {{ shared_contact.name.full_name }}{% endblock %}
 
 {% block content %}
-<form action="{% url shared-contact-details shared_contact.name %}" method="POST" class="details">
+<form action="{% url shared-contact-details shared_contact.name.full_name %}" method="POST" class="details">
 	<input type="hidden" name="email" value="_"/>
-	<h1 style="display: inline">{{ shared_contact.name }}</h1>
+	<h1 style="display: inline">{{ shared_contact.name.full_name }}</h1>
 	<br/>
 	<table class="details" width="100%">
 		<tbody>

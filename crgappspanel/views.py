@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
 from crgappspanel.forms import UserForm, SharedContactForm
-from crgappspanel.models import GAUser, GANickname, SharedContact, ContactEmail
+from crgappspanel.models import GAUser, GANickname, SharedContact, Email
 from crgappspanel.helpers.tables import Table, Column
 from crlib.users import admin_required
 from settings import APPS_DOMAIN, LANGUAGES
@@ -60,7 +60,7 @@ def index(request):
 
 
 _groupFields = [
-    Column(_('Name'), 'title'),
+    Column(_('Name'), 'title', link=True),
     Column(_('Email address'), 'name'),
     Column(_('Type'), 'kind'),
 ]
@@ -89,7 +89,7 @@ def groups(request):
 
 
 _userFields = [
-    Column(_('Name'), 'name', getter=lambda x: x.get_full_name()),
+    Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
     Column(_('Username'), 'username', getter=lambda x: '%s@%s' % (x.user_name or '', APPS_DOMAIN)),
     Column(_('Status'), 'status', getter=_get_status),
     Column(_('Email quota'), 'quota'),
@@ -210,7 +210,7 @@ def user_action(request, name=None, action=None, arg=None):
 
 
 _sharedContactFields = [
-    Column(_('Name'), 'title'),
+    Column(_('Name'), 'title', link=True),
     Column(_('Notes'), 'notes', default=''),
     Column(_('E-mails'), 'emails', getter=lambda x: '\n'.join(y.address for y in x.emails)),
 ]
@@ -222,7 +222,7 @@ _sharedContactWidths = ['%d%%' % x for x in (5, 25, 25, 45)]
 def shared_contacts(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _sharedContactFields])
     
-    sharedContacts = SharedContact.all().fetch(100)
+    sharedContacts = SharedContact.all().fetch(1)
     
     table = Table(_sharedContactFields, _sharedContactId, sortby=sortby, asc=asc)
     table.sort(sharedContacts)
@@ -240,6 +240,7 @@ def shared_contact_add(request):
         form = SharedContactForm(request.POST, auto_id=True)
         if form.is_valid():
             shared_contact = form.create()
+            shared_contact.name.save()
             for email in shared_contact.emails:
                 email.save()
             shared_contact.save()
@@ -266,17 +267,18 @@ def shared_contact_details(request, name=None):
         form = SharedContactForm(request.POST, auto_id=True)
         if form.is_valid():
             emails = form.populate(shared_contact)
+            shared_contact.name.save()
             for address in emails:
-                email = ContactEmail(
+                email = Email(
                     address=address,
                     primary=False)
                 email.save()
                 shared_contact.emails.append(email)
             shared_contact.save()
-            return redirect('shared-contact-details', name=shared_contact.name)
+            return redirect('shared-contact-details', name=shared_contact.name.full_name)
     else:
         form = SharedContactForm(initial={
-            'name': shared_contact.name,
+            'name': shared_contact.name.full_name,
             'notes': shared_contact.notes,
             'emails': '',
         }, auto_id=True)
