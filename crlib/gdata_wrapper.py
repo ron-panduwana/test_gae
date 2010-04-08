@@ -1,11 +1,13 @@
 import logging
 import operator
 import re
+from django.conf import settings
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from atom import AtomBase
 from atom.token_store import TokenStore
-from django.conf import settings
+from gdata.client import GDClient
+from gdata.service import GDataService
 
 
 BadValueError = db.BadValueError
@@ -502,158 +504,17 @@ class AtomMapper(object):
             self._service = None
 
 
-class UserEntryMapper(AtomMapper):
-    @classmethod
-    def create_service(cls):
-        from gdata.apps import service
-        return service.AppsService()
-
+def simple_mapper(atom, key):
     def empty_atom(self):
-        from gdata import apps
-        return apps.UserEntry(
-            login=apps.Login(),
-            name=apps.Name(),
-            quota=apps.Quota(),
-        )
+        return atom()
 
-    def create(self, atom):
-        return self.service.CreateUser(
-            atom.login.user_name, atom.name.family_name,
-            atom.name.given_name, atom.login.password,
-            atom.login.suspended, password_hash_function='SHA-1')
+    def _key(self, atom):
+        return getattr(atom, key)
 
-    def update(self, atom, old_atom):
-        atom.login.hash_function_name = 'SHA-1'
-        return self.service.UpdateUser(old_atom.login.user_name, atom)
-
-    def retrieve_all(self):
-        return self.service.RetrieveAllUsers().entry
-
-    def retrieve(self, user_name):
-        return self.service.RetrieveUser(user_name)
-
-    def key(self, atom):
-        return atom.login.user_name
-
-    def delete(self, atom):
-        self.service.DeleteUser(atom.login.user_name)
-
-
-class NicknameEntryMapper(AtomMapper):
-    create_service = UserEntryMapper.create_service
-
-    def empty_atom(self):
-        from gdata import apps
-        return apps.NicknameEntry(
-            nickname=apps.Nickname(),
-            login=apps.Login(),
-        )
-
-    def create(self, atom):
-        return self.service.CreateNickname(
-            atom.login.user_name, atom.nickname.name)
-
-    def retrieve_all(self):
-        return self.service.RetrieveAllNicknames().entry
-
-    def retrieve(self, nickname):
-        return self.service.RetrieveNickname(nickname)
-
-    def key(self, atom):
-        return atom.nickname.name
-
-    def filter_by_user_name(self, user_name):
-        return self.service.RetrieveNicknames(user_name).entry
-
-    def delete(self, atom):
-        self.service.DeleteNickname(atom.nickname.name)
-
-    #@filter('user')
-    #def filter_by_user(self, user_name):
-    #    return self.service.RetrieveNicknames(user_name).entry
-
-
-class EmailTypeProperty(StringProperty):
-    from gdata.contacts import REL_WORK, REL_HOME, REL_OTHER
-    _RELS = (
-        (REL_WORK, 'work'),
-        (REL_HOME, 'home'),
-        (REL_OTHER, 'other'),
-    )
-    _ATOM_TO_MODEL = dict(_RELS)
-    _MODEL_TO_ATOM = dict([(x[1], x[0]) for x in _RELS])
-
-    def make_value_from_atom(self, atom):
-        value = super(EmailTypeProperty, self).make_value_from_atom(atom)
-        return self._ATOM_TO_MODEL.get(value, 'work')
-
-    def set_value_on_atom(self, atom, value):
-        value = self._MODEL_TO_ATOM.get(value, self.REL_WORK)
-        super(EmailTypeProperty, self).set_value_on_atom(atom, value)
-
-
-class ContactEmailMapper(AtomMapper):
-    def empty_atom(self):
-        from gdata import contacts
-        return contacts.Email()
-
-    def key(self, atom):
-        return atom.address
-
-
-class ExtendedPropertyMapper(AtomMapper):
-    def empty_atom(self):
-        from gdata import ExtendedProperty
-        return ExtendedProperty()
-
-    def key(self, atom):
-        return atom.name
-
-
-class SharedContactEntryMapper(AtomMapper):
-    @classmethod
-    def create_service(cls):
-        from gdata.contacts import service
-        domain = settings.APPS_DOMAIN
-        service = service.ContactsService()
-        service.contact_list = domain
-        return service
-
-    def empty_atom(self):
-        import atom
-        from gdata import contacts
-        return contacts.ContactEntry(
-            title=atom.Title(),
-            content=atom.Content(),
-        )
-
-    def key(self, atom):
-        return atom.title.text
-
-    def retrieve(self, name):
-        # Shared Contacts API doesn't have any method to directly retrieve
-        # ContactEntry via email or contact name, so we have to retrieve all
-        # contacts and find the one with given email manually
-        #for entry in self.service.GetContactsFeed().entry:
-        for entry in self.retrieve_all():
-            if entry.title.text == name:
-                return entry
-
-    def create(self, atom):
-        return self.service.CreateContact(atom)
-
-    def update(self, atom, old_atom):
-        return self.service.UpdateContact(atom.GetEditLink().href, atom)
-
-    def delete(self, atom):
-        self.service.DeleteContact(atom.GetEditLink().href)
-
-    def retrieve_all(self, limit=100, offset=0):
-        from gdata.contacts.service import ContactsQuery
-        feed_uri = self.service.GetFeedUri()
-        query = ContactsQuery(feed_uri)
-        query.max_results = limit
-        query.start_index = offset + 1
-        feed = self.service.GetContactsFeed(query.ToUri())
-        return feed.entry
+    return type(
+        '%sMapper' % atom.__class__.__name__,
+        (AtomMapper,), {
+            'empty_atom': empty_atom,
+            'key': _key,
+        })
 
