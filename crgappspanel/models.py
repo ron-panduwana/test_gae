@@ -2,10 +2,11 @@ from __future__ import with_statement
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from crlib import gdata_wrapper as gd
+from crlib import mappers
 
 
 class GAUser(gd.Model):
-    Mapper = gd.UserEntryMapper()
+    Mapper = mappers.UserEntryMapper()
 
     id = gd.StringProperty('id.text', read_only=True)
     title = gd.StringProperty('title.text', read_only=True)
@@ -25,7 +26,7 @@ class GAUser(gd.Model):
 
 
 class GANickname(gd.Model):
-    Mapper = gd.NicknameEntryMapper()
+    Mapper = mappers.NicknameEntryMapper()
 
     nickname = gd.StringProperty('nickname.name', required=True)
     user_name = gd.StringProperty('login.user_name')
@@ -37,31 +38,66 @@ class GANickname(gd.Model):
 
 
 class ExtendedProperty(gd.Model):
-    Mapper = gd.ExtendedPropertyMapper()
+    Mapper = mappers.ExtendedPropertyMapper()
 
     name = gd.StringProperty('name', required=True)
     value = gd.StringProperty('value', required=True)
 
 
-class ContactEmail(gd.Model):
-    Mapper = gd.ContactEmailMapper()
+class Email(gd.Model):
+    Mapper = mappers.EmailMapper()
 
     address = gd.StringProperty('address', required=True)
-    rel = gd.EmailTypeProperty('rel', required=True, default='work')
+    label = gd.StringProperty('label', required=False)
+    rel = mappers.RelProperty()
     primary = gd.BooleanProperty('primary', default=False)
 
 
-class SharedContact(gd.Model):
-    Mapper = gd.SharedContactEntryMapper()
+class PhoneNumber(gd.Model):
+    Mapper = mappers.PhoneNumberMapper()
 
-    name = gd.StringProperty('title.text', required=True)
+    number = gd.StringProperty('text', required=True)
+    label = gd.StringProperty('label', required=False)
+    rel = mappers.RelProperty(mappers.PHONE_TYPES)
+    primary = gd.BooleanProperty('primary', default=False)
+
+
+class PostalAddress(gd.Model):
+    Mapper = mappers.PostalAddressMapper()
+
+    address = gd.StringProperty('text', required=True)
+    label = gd.StringProperty('label', required=False)
+    rel = mappers.RelProperty()
+    primary = gd.BooleanProperty('primary', default=False)
+
+
+class Name(gd.Model):
+    Mapper = mappers.NameMapper()
+
+    given_name = gd.StringProperty('given_name.text')
+    family_name = gd.StringProperty('family_name.text')
+    additional_name = gd.StringProperty('additional_name.text')
+    name_prefix = gd.StringProperty('name_prefix.text')
+    name_suffix = gd.StringProperty('name_suffix.text')
+    full_name = gd.StringProperty('full_name.text')
+
+
+class SharedContact(gd.Model):
+    Mapper = mappers.SharedContactEntryMapper()
+
+    name = gd.EmbeddedModelProperty(Name, 'name', required=False)
+    title = gd.StringProperty('title.text', required=False, read_only=True)
     notes = gd.StringProperty('content.text')
-    emails = gd.ListProperty(ContactEmail, 'email', required=True)
+    emails = gd.ListProperty(Email, 'email', required=False)
+    phone_numbers = gd.ListProperty(
+        PhoneNumber, 'phone_number', required=False)
+    postal_addresses = gd.ListProperty(
+        PostalAddress, 'postal_address', required=False)
     extended_properties = gd.ListProperty(
-        ExtendedProperty, 'extended_property')
+        ExtendedProperty, 'extended_property', required=False)
 
     def __unicode__(self):
-        return u'<SharedContact: %s>' % self.name
+        return u'<SharedContact: %s>' % self.title
 
 
 class TestModel(BaseModel):
