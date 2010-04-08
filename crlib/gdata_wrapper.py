@@ -298,11 +298,29 @@ class _ReverseReferenceProperty(db._ReverseReferenceProperty):
         return query.filter(self.__property + ' =', model_instance.key())
 
 
+class EmbeddedModelProperty(StringProperty):
+    def __init__(self, reference_class, *args, **kwargs):
+        self.reference_class = reference_class
+        args = args or ('',)
+        super(EmbeddedModelProperty, self).__init__(*args, **kwargs)
+
+    def make_value_from_atom(self, atom):
+        value = super(EmbeddedModelProperty, self).make_value_from_atom(atom)
+        return self.reference_class._from_atom(value)
+
+    def set_value_on_atom(self, atom, value):
+        super(EmbeddedModelProperty, self).set_value_on_atom(atom, value._atom)
+
+
 class ListProperty(StringProperty):
     def __init__(self, item_type, attr, *args, **kwargs):
         self.item_type = item_type
         kwargs.setdefault('default', [])
         super(ListProperty, self).__init__(attr, *args, **kwargs)
+
+    def make_value_from_atom(self, atom):
+        values = super(ListProperty, self).make_value_from_atom(atom)
+        return [self.item_type._from_atom(x) for x in values]
 
     def set_value_on_atom(self, atom, value):
         """Set the property value at the given place within the atom object.
