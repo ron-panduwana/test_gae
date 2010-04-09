@@ -5,7 +5,6 @@ from django.conf import settings
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from atom import AtomBase
-from atom.token_store import TokenStore
 from gdata.client import GDClient
 from gdata.service import GDataService
 
@@ -524,7 +523,6 @@ class AtomMapper(object):
 
     """
 
-    token_store = TokenStore()
     service = _GDataServiceDescriptor()
 
     def __init__(self, *args, **kwargs):
