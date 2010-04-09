@@ -15,8 +15,15 @@ BadValueError = db.BadValueError
 
 def _clone_atom(atom):
     """Make a copy of atom object."""
-    from lib.atom import CreateClassFromXMLString
-    return CreateClassFromXMLString(atom.__class__, unicode(atom))
+    from atom.core import XmlElement, parse
+    from atom import CreateClassFromXMLString
+
+    if isinstance(atom, XmlElement):
+        # New version of the API
+        return parse(atom.to_string(), atom.__class__)
+    else:
+        # Old version
+        return CreateClassFromXMLString(atom.__class__, unicode(atom))
 
 
 class GDataQuery(object):
@@ -400,15 +407,34 @@ class Model(object):
     def all(cls):
         return GDataQuery(cls)
 
-    def save(self):
-        atom = self._atom and _clone_atom(self._atom) or \
-                self._mapper.empty_atom()
+    def _get_updated_atom(self):
+        if self._atom:
+            atom = _clone_atom(self._atom)
+        else:
+            atom = self._mapper.empty_atom()
+
+        # Create Atom elements for missing properties
+        if hasattr(self._mapper, 'optional'):
+            for k, v in self._mapper.optional.iteritems():
+                if getattr(atom, k) is None:
+                    setattr(atom, k, v())
+
         for prop in self._properties.itervalues():
             prop.set_value_on_atom(atom, getattr(self, prop.name))
+
+        # Filter out empty properties
+        if hasattr(self._mapper, 'optional'):
+            for prop_name in self._mapper.optional.iterkeys():
+                prop = getattr(atom, prop_name)
+                if prop is None or not prop.text:
+                    setattr(atom, prop_name, None)
+
+        return atom
+
+    def save(self):
+        atom = self._get_updated_atom()
+
         if self.is_saved():
-            if not hasattr(self._mapper, 'update'):
-                raise Exception('Mapper %s doesn\'t support model updates.' %
-                                self._mapper)
             if hasattr(self._mapper, 'update'):
                 self._atom = self._mapper.update(atom, self._atom)
             else:
