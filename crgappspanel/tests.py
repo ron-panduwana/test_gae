@@ -178,6 +178,36 @@ class GDataTestCase(unittest.TestCase):
 
         contact.delete()
 
+    def testUpdateSharedContact(self):
+        contact = SharedContact.get_by_key_name('Updated Name')
+        if contact:
+            logging.warning('Had Updated Name contact')
+            logging.warning('contact: %s' % str(contact))
+            contact.delete()
+
+        email = Email(
+            address='updated@example.com',
+            rel=MAIN_TYPES[0][0],
+            primary=True)
+        email.save()
+
+        name = Name(full_name='Updated Contact')
+        name.save()
+
+        contact = SharedContact(
+            name=name,
+            emails=[email])
+        contact.save()
+
+        contact = SharedContact.get_by_key_name('Updated Contact')
+        self.assertFalse(contact is None)
+
+        contact.name.full_name = 'Updated Name'
+        contact.name.save()
+        contact.save()
+
+        contact.delete()
+
     def testIterSharedContacts(self):
         for contact in SharedContact.all():
             print contact

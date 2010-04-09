@@ -122,26 +122,17 @@ ExtendedPropertyMapper = simple_mapper(data.ExtendedProperty, 'name')
 
 
 class NameMapper(AtomMapper):
-    _optional = (
-        'given_name', 'additional_name',
-        'family_name', 'name_prefix',
-        'name_suffix', 'full_name')
+    optional = {
+        'given_name': data.GivenName,
+        'additional_name': data.AdditionalName,
+        'family_name': data.FamilyName,
+        'name_prefix': data.NamePrefix,
+        'name_suffix': data.NameSuffix,
+        'full_name': data.FullName,
+    }
 
     def empty_atom(self):
-        return data.Name(
-            given_name=data.GivenName(),
-            additional_name=data.AdditionalName(),
-            family_name=data.FamilyName(),
-            name_prefix=data.NamePrefix(),
-            name_suffix=data.NameSuffix(),
-            full_name=data.FullName())
-
-    def create(self, atom):
-        # Filter out empty properties
-        for prop in self._optional:
-            if not getattr(atom, prop).text:
-                setattr(atom, prop, None)
-        return atom
+        return data.Name()
 
     def key(self, atom):
         return atom.full_name.text
