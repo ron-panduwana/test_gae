@@ -9,13 +9,12 @@ def section(name, view, subsections=None):
 SECTIONS = [
     section('Dashboard', None),
     section('Users and groups', 'crgappspanel.views.users', [
-        section('Users', 'crgappspanel.views.users'),
         section('Groups', 'crgappspanel.views.groups'),
+        section('Users', 'crgappspanel.views.users'),
         section('Settings', None),
         section('Test', 'crgappspanel.views.test'),
-        section('Shared contacts', 'crgappspanel.views.shared_contacts'),
     ]),
-    section('Domain settings', None),
-    section('Advanced tools', None),
-    section('Support', None),
+    section('Shared contacts', 'crgappspanel.views.shared_contacts'),
+    section('Additional management', None),
+    section('Preferences', None),
 ]

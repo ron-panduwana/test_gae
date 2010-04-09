@@ -32,10 +32,14 @@
 		</div>
 		{% endif %}
 		
-		{% if sel_subsection %}
-			{% if back_button %}
-				<div class="back"><a href="{{ sel_subsection.view }}">&laquo; {% trans "Back to user list" %}</a></div>
+		{% if back_button %}
+			{% if sel_subsection %}
+				<div class="back"><a href="{{ sel_subsection.view }}">&laquo; {% trans "Back to list" %}</a></div>
 			{% else %}
+				<div class="back"><a href="{{ sel_section.view }}">&laquo; {% trans "Back to list" %}</a></div>
+			{% endif %}
+		{% else %}
+			{% if sel_subsection %}
 				<div id="tabs">
 					<h2 id="section_title">{{ sel_section.name }}</h2>
 					<ul>
