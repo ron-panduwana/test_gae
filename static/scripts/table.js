@@ -2,6 +2,7 @@ goog.provide('cr.table')
 
 goog.require('goog.dom')
 goog.require('goog.net.XhrIo')
+goog.require('goog.ui.Dialog')
 
 cr.table.tables = []
 cr.table.deletes = []
@@ -45,7 +46,7 @@ cr.table.getElementCount = function(tableName) {
 }
 
 cr.table.showDetails = function(obj) {
-	window.open(String.format('{0}/details/', obj), '_self')
+	window.open(String.format('../details/{0}/', obj), '_self')
 }
 
 cr.table.onSelectAll = function(obj) {
@@ -81,17 +82,13 @@ cr.table.onDeleteClicked = function(obj) {
 	var tableName = cr.table.getTableName(obj.id)
 	var count = cr.table.getElementCount(tableName)
 	
-	var list = []
+	var list = ''
 	for (var i = 0 ; i < count ; ++i) {
 		if (cr.table.getCheckbox(tableName, i).checked) {
-			list.push(cr.table.tables[tableName][i])
+			if (list != '') list += '/'
+			list += cr.table.tables[tableName][i]
 		}
 	}
 	
-	cr.table.deletes[tableName](list, function() {
-		for (var i = 0 ; i < list.length ; ++i) {
-			var uri = String.format('{0}/remove/', list[i])
-			goog.net.XhrIo.send(uri)
-		}
-	})
+	cr.table.deletes[tableName](list, String.format('../remove/{0}/', list))
 }

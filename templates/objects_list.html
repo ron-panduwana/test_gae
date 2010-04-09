@@ -40,7 +40,7 @@ cr.table.tables['{{ table_name }}'] = [
 			{% for obj in row.data %}
 			<td onclick="cr.table.showDetails('{{ row.id }}')">
 				{% if obj.link %}
-					<a href="{{ row.id }}/details/">{{ obj.data|linebreaksbr }}</a>
+					<a href="../details/{{ row.id }}/">{{ obj.data|linebreaksbr }}</a>
 				{% else %}
 					{{ obj.data|linebreaksbr }}
 				{% endif %}

@@ -6,19 +6,75 @@
 {% block content %}
 <a href="{% url shared-contact-add %}" class="action-link">Add shared contact</a>
 <script type="text/javascript">
-cr.table.deletes['table'] = function(list, reallyDelete) {
+function toggleSearch() {
+	var f1 = goog.dom.$('shared-contact-search')
+	var f2 = goog.dom.$('shared-contact-advanced-search')
+	
+	var vis = (f1.style.display == 'none')
+	
+	f1.style.display = vis ? 'block' : 'none'
+	f2.style.display = vis ? 'none' : 'block'
+}
+</script>
+<form id="shared-contact-search" action="{% url shared-contacts %}"
+		style="{% if advanced_search %}display: none; {% endif %}margin-top: 2em">
+	<b>search</b>&nbsp;&nbsp;&nbsp;<a href="#" onclick="toggleSearch()">advanced search</a><br/>
+	<table>
+		<col width="60"/>
+		<col width="*"/>
+		<col width="*"/>
+		<tbody>
+			<tr>
+				<td>Query</td>
+				<td><input type="text" name="q" value="{{ query.general }}"/></td>
+				<td><input type="submit" value="go"/></td>
+			</tr>
+		</tbody>
+	</table>
+</form>
+<form id="shared-contact-advanced-search" action="{% url shared-contacts %}"
+		style="{% if not advanced_search %}display: none; {% endif %}margin-top: 2em">
+	<a href="#" onclick="toggleSearch()">search</a>&nbsp;&nbsp;&nbsp;<b>advanced search</b><br/>
+	<table>
+		<col width="60"/>
+		<col width="*"/>
+		<col width="*"/>
+		<tbody>
+			<tr>
+				<td>Name</td>
+				<td><input type="text" name="name" value="{{ query.name }}"/></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Notes</td>
+				<td><input type="text" name="notes" value="{{ query.notes }}"/></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>E-mail</td>
+				<td><input type="text" name="email" value="{{ query.email }}"/></td>
+				<td><input type="submit" value="go"/></td>
+			</tr>
+		</tbody>
+	</table>
+</form>
+{% if filters %}
+<div style="margin-top: 1em">
+	Filters: 
+	{% for filter in filters %}{% if not forloop.first %}, {% endif %}{{ filter }}{% endfor %}<br/>
+	<a href="{% url shared-contacts %}">Remove filters</a>
+</div>
+{% endif %}
+<script type="text/javascript">
+cr.table.deletes['table'] = function(list, removeUrl) {
 	var dialogDelete = new goog.ui.Dialog()
-	dialogDelete.setTitle('{% trans "Remove contacts" %}')
-	dialogDelete.setContent('{% trans "Are you sure want to remove selected contacts?" %}')
+	dialogDelete.setTitle('{% trans "Remove shared contacts" %}')
+	dialogDelete.setContent('{% trans "Are you sure want to remove selected shared contacts?" %}')
 	dialogDelete.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
 	
 	goog.events.listenOnce(dialogDelete, goog.ui.Dialog.EventType.SELECT, function(e) {
 		if (e.key == 'yes') {
-			reallyDelete()
-			
-			goog.Timer.callOnce(function() {
-				window.open(window.location, '_self')
-			}, 2500)
+			window.open(removeUrl, '_self')
 		}
 	})
 	dialogDelete.setVisible(true)

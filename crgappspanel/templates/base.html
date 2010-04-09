@@ -46,7 +46,7 @@
 						{% for subsection in sel_section.subsections %}
 						<li{% ifequal subsection.name sel_subsection.name %} class="selected"{% endifequal %}>
 							{% ifequal subsection.name sel_subsection.name %}
-								{{ subsection.name }}
+								<b>{{ subsection.name }}</b>
 							{% else %}
 								<a href="{{ subsection.view }}">{{ subsection.name }}</a>
 							{% endifequal %}

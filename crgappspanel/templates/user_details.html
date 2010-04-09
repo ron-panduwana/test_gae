@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "User details" %}: {{ user.user_name }}{% endblock %}
+{% block title %}{% trans "User details" %}: {{ user.given_name }} {{ user.family_name }}{% endblock %}
 
 {% block content %}
 <script type="text/javascript">
@@ -12,7 +12,7 @@ dialogSuspend.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
 
 goog.events.listen(dialogSuspend, goog.ui.Dialog.EventType.SELECT, function(e) {
 	if (e.key == 'yes') {
-		open('{% url user-action user.user_name "suspend" %}', '_self')
+		open('{% url user-suspend user.user_name %}', '_self')
 	}
 })
 
@@ -23,7 +23,7 @@ dialogRestore.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
 
 goog.events.listen(dialogRestore, goog.ui.Dialog.EventType.SELECT, function(e) {
 	if (e.key == 'yes') {
-		open('{% url user-action user.user_name "!suspend" %}', '_self')
+		open('{% url user-restore user.user_name %}', '_self')
 	}
 })
 

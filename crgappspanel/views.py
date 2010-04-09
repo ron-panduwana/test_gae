@@ -112,7 +112,7 @@ def users(request):
     return render_to_response('users_list.html', ctx({
         'table': table.generate(users, widths=_userWidths, singular='user'),
         'styles': ['table-list'],
-        'scripts': ['table', 'users-list'],
+        'scripts': ['table'],
     }, 2, 2))
 
 
@@ -166,8 +166,8 @@ def user_details(request, name=None):
     
     fmt = '<b>%s</b>@%s - <a href="%s">Remove</a>'
     def remove_nick_link(x):
-        kwargs=dict(name=user.user_name, action='remove-nickname', arg=x.nickname)
-        return reverse('user-action', kwargs=kwargs)
+        kwargs = dict(name=user.user_name, nickname=x.nickname)
+        return reverse('user-remove-nickname', kwargs=kwargs)
     full_nicknames = [fmt % (nick.nickname, APPS_DOMAIN, remove_nick_link(nick)) for nick in user.nicknames]
     return render_to_response('user_details.html', ctx({
         'user': user,
@@ -178,30 +178,48 @@ def user_details(request, name=None):
     }, 2, 2, True))
 
 
-@admin_required
-def user_action(request, name=None, action=None, arg=None):
-    if not all((name, action)):
-        raise ValueError('name = %s, action = %s' % (name, action))
+def user_suspend_restore(request, name=None, suspend=None):
+    if not name or suspend is None:
+        raise ValueError('name = %s, suspend = %s' % (name, str(suspend)))
     
     user = GAUser.get_by_key_name(name)
+    user.suspended = suspend
+    user.save()
     
-    if action == 'suspend':
-        user.suspended = True
-        user.save()
-    elif action == '!suspend':
-        user.suspended = False
-        user.save()
-    elif action == 'remove':
-        user.delete()
-        return redirect('users')
-    elif action == 'remove-nickname':
-        if not arg:
-            raise ValueError('arg = %s' % arg)
-        nickname = GANickname.get_by_key_name(arg)
-        nickname.delete()
-    else:
-        raise ValueError('Unknown action: %s' % action)
     return redirect('user-details', name=user.user_name)
+
+
+@admin_required
+def user_suspend(request, name=None):
+    return user_suspend_restore(request, name=name, suspend=True)
+
+
+@admin_required
+def user_restore(request, name=None):
+    return user_suspend_restore(request, name=name, suspend=False)
+
+
+@admin_required
+def user_remove(request, names=None):
+    if not names:
+        raise ValueError('names = %s' % names)
+    
+    for name in names.split('/'):
+        user = GAUser.get_by_key_name(name)
+        user.delete()
+    
+    return redirect('users')
+
+
+@admin_required
+def user_remove_nickname(request, name=None, nickname=None):
+    if not all((name, nickname)):
+        raise ValueError('name = %s, nickname = %s' % (name, nickname))
+    
+    nickname = GANickname.get_by_key_name(nickname)
+    nickname.delete()
+    
+    return redirect('user-details', name=name)
 
 
 ################################################################################
@@ -222,13 +240,38 @@ _sharedContactWidths = ['%d%%' % x for x in (5, 25, 25, 45)]
 def shared_contacts(request):
     sortby, asc = _get_sortby_asc(request, [f.name for f in _sharedContactFields])
     
-    sharedContacts = SharedContact.all().fetch(1)
+    query = request.GET.get('q', '')
+    query_name = request.GET.get('name', '')
+    query_notes = request.GET.get('notes', '')
+    query_email = request.GET.get('email', '')
+    
+    if query:
+        sharedContacts = SharedContact.all().fetch(100)
+        advanced_search = False
+        filters = [query]
+    elif any((query_name, query_notes, query_email)):
+        sharedContacts = SharedContact.all().fetch(100)
+        advanced_search = True
+        filters = []
+        if query_name:
+            filters.append('name:%s' % query_name)
+        if query_notes:
+            filters.append('notes:%s' % query_notes)
+        if query_email:
+            filters.append('email:%s' % query_email)
+    else:
+        sharedContacts = SharedContact.all().fetch(100)
+        advanced_search = False
+        filters = None
     
     table = Table(_sharedContactFields, _sharedContactId, sortby=sortby, asc=asc)
     table.sort(sharedContacts)
     
     return render_to_response('shared_contacts_list.html', ctx({
         'table': table.generate(sharedContacts, widths=_sharedContactWidths, singular='shared contact'),
+        'advanced_search': advanced_search,
+        'filters': filters,
+        'query': dict(general=query, name=query_name, notes=query_notes, email=query_email),
         'styles': ['table-list'],
         'scripts': ['table', 'shared-contacts-list'],
     }, 3))
@@ -293,6 +336,18 @@ def shared_contact_details(request, name=None):
         'styles': ['table-details'],
         'scripts': ['swap-widget'],
     }, 3, None, True))
+
+
+@admin_required
+def shared_contact_remove(request, names=None):
+    if not names:
+        raise ValueError('names = %s' % names)
+    
+    for name in names.split('/'):
+        user = SharedContact.get_by_key_name(name)
+        user.delete()
+    
+    return redirect('shared-contacts')
 
 
 ################################################################################
