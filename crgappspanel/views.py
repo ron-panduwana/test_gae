@@ -10,6 +10,7 @@ from django.utils.translation import ugettext as _
 
 from crgappspanel.forms import UserForm, SharedContactForm
 from crgappspanel.models import GAUser, GANickname, SharedContact, Email
+from crgappspanel.helpers.filters import NullFilter, AnyAttributeFilter, AllAttributeFilter
 from crgappspanel.helpers.tables import Table, Column
 from crlib.users import admin_required
 from settings import APPS_DOMAIN, LANGUAGES
@@ -245,30 +246,42 @@ def shared_contacts(request):
     query_notes = request.GET.get('notes', '')
     query_email = request.GET.get('email', '')
     
+    shared_contacts = SharedContact.all().fetch(100)
+    
     if query:
-        sharedContacts = SharedContact.all().fetch(100)
         advanced_search = False
-        filters = [query]
+        filter = AnyAttributeFilter({
+            'name.full_name': query,
+            'notes': query,
+            'emails.address': query,
+        })
+        filters = ['%s:%s' % (_('query'), query)]
     elif any((query_name, query_notes, query_email)):
-        sharedContacts = SharedContact.all().fetch(100)
         advanced_search = True
         filters = []
+        filter_args = dict()
         if query_name:
-            filters.append('name:%s' % query_name)
+            filters.append('%s:%s' % (_('name'), query_name))
+            filter_args['name.full_name'] = query_name
         if query_notes:
-            filters.append('notes:%s' % query_notes)
+            filters.append('%s:%s' % (_('notes'), query_notes))
+            filter_args['notes'] = query_notes
         if query_email:
-            filters.append('email:%s' % query_email)
+            filters.append('%s:%s' % (_('email'), query_email))
+            filter_args['emails.address'] = query_email
+        filter = AllAttributeFilter(filter_args)
     else:
-        sharedContacts = SharedContact.all().fetch(100)
         advanced_search = False
+        filter = NullFilter()
         filters = None
     
+    shared_contacts = [x for x in shared_contacts if filter.match(x)]
+    
     table = Table(_sharedContactFields, _sharedContactId, sortby=sortby, asc=asc)
-    table.sort(sharedContacts)
+    table.sort(shared_contacts)
     
     return render_to_response('shared_contacts_list.html', ctx({
-        'table': table.generate(sharedContacts, widths=_sharedContactWidths, singular='shared contact'),
+        'table': table.generate(shared_contacts, widths=_sharedContactWidths, singular='shared contact'),
         'advanced_search': advanced_search,
         'filters': filters,
         'query': dict(general=query, name=query_name, notes=query_notes, email=query_email),
