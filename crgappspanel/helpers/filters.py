@@ -63,7 +63,7 @@ class AnyAttributeFilter(AttributeFilter):
     def match(self, obj):
         for key, value in self.query.iteritems():
             values = AttributeFilter.get_values(obj, key)
-            ok = any(value in v for v in values)
+            ok = any(value.lower() in v.lower() for v in values)
             if ok:
                 return True
         return False
@@ -73,7 +73,7 @@ class AllAttributeFilter(AttributeFilter):
     def match(self, obj):
         for key, value in self.query.iteritems():
             values = AttributeFilter.get_values(obj, key)
-            ok = any(value in v for v in values)
+            ok = any(value.lower() in v.lower() for v in values)
             if not ok:
                 return False
         return True
