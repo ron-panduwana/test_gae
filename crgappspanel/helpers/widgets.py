@@ -2,10 +2,11 @@ import random
 from django import forms
 from django.utils.safestring import mark_safe
 
-__all__ = ('TextInput2', 'ExpandWidget', 'SwapWidget')
+__all__ = ('DoubleWidget', 'TripleWidget', 'ExpandWidget', 'SwapWidget')
 
 def encode_js(text):
     return text.replace('\\', '\\\\').replace('"', '\\"').replace("'", "\\'")
+
 
 class DoubleWidget(forms.MultiWidget):
     def __init__(self, widget1, widget2):
@@ -19,6 +20,21 @@ class DoubleWidget(forms.MultiWidget):
     
     def format_output(self, rendered_widgets):
         return mark_safe(u' '.join(rendered_widgets))
+
+
+class TripleWidget(forms.MultiWidget):
+    def __init__(self, widget1, widget2, widget3):
+        widgets = (widget1, widget2, widget3)
+        super(TripleWidget, self).__init__(widgets)
+    
+    def decompress(self, value):
+        if value is None:
+            return [None, None, None]
+        return value
+    
+    def format_output(self, rendered_widgets):
+        return mark_safe(u' '.join(rendered_widgets))
+
 
 class ExpandWidget(forms.Widget):
     def __init__(self, widget, collapsed, expanded, *args, **kwargs):
@@ -54,6 +70,7 @@ class ExpandWidget(forms.Widget):
                 %(hidden_html)s
                 %(content)s
             </div>''' % ctx)
+
 
 class SwapWidget(forms.Widget):
     def __init__(self, widget_c, text_c, widget_e, text_e, *args, **kwargs):

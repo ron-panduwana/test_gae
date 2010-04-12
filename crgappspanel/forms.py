@@ -58,14 +58,20 @@ emails_e = 'Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 
 
 class SharedContactForm(forms.Form):
-    name = forms.CharField(label='Name')
-    notes = forms.CharField(label='Notes', required=False)
+    full_name = forms.CharField(label='Name')
+    real_name = fields.RealNameField(label='Real name')
+    notes = forms.CharField(label='Notes', required=False,
+        widget=forms.Textarea(attrs=dict(rows=5, cols=40)))
     email = forms.CharField(label='Email')
     emails = forms.CharField(label='Emails', required=False,
         widget=widgets.SwapWidget(forms.HiddenInput(), emails_c, forms.TextInput(), emails_e))
     
     def create(self):
-        name = models.Name(full_name=self.cleaned_data['name'])
+        name = models.Name(
+            full_name=self.cleaned_data['full_name'],
+            name_prefix=self.cleaned_data['real_name'][0],
+            given_name=self.cleaned_data['real_name'][1],
+            family_name=self.cleaned_data['real_name'][2])
         email = models.Email(
             address=self.cleaned_data['email'],
             rel='http://schemas.google.com/g/2005#home',
@@ -78,6 +84,9 @@ class SharedContactForm(forms.Form):
     def populate(self, shared_contact):
         email = self.cleaned_data['emails'].strip()
         
-        shared_contact.name.full_name = self.cleaned_data['name']
+        shared_contact.name.full_name = self.cleaned_data['full_name']
+        shared_contact.name.name_prefix = self.cleaned_data['real_name'][0]
+        shared_contact.name.given_name = self.cleaned_data['real_name'][1]
+        shared_contact.name.family_name = self.cleaned_data['real_name'][2]
         shared_contact.notes = self.cleaned_data['notes']
         return [email] if email else []

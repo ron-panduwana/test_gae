@@ -10,4 +10,16 @@ class CharField2(forms.MultiValueField):
         super(CharField2, self).__init__((field1, field2), widget=widget, *args, **kwargs)
     
     def compress(self, data_list):
+        print 'compress(', data_list, ')'
+        return data_list
+
+
+class RealNameField(forms.MultiValueField):
+    def __init__(self, *args, **kwargs):
+        choices = ((u'-', u''), (u'mr', u'Mr.'), (u'mrs', u'Mrs.'), (u'miss', 'Miss'), (u'ms', u'Ms.'))
+        widget = widgets.TripleWidget(forms.Select(None, choices), forms.TextInput(), forms.TextInput())
+        fields = tuple(forms.CharField() for x in xrange(3))
+        super(RealNameField, self).__init__(fields, widget=widget, *args, **kwargs)
+    
+    def compress(self, data_list):
         return data_list

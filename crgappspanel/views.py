@@ -8,6 +8,7 @@ from django.shortcuts import render_to_response, redirect
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
+from crgappspanel.consts import EMAIL_RELS
 from crgappspanel.forms import UserForm, SharedContactForm
 from crgappspanel.models import GAUser, GANickname, SharedContact, Email
 from crgappspanel.helpers.filters import NullFilter, AnyAttributeFilter, AllAttributeFilter
@@ -229,12 +230,13 @@ def user_remove_nickname(request, name=None, nickname=None):
 
 
 _sharedContactFields = [
-    Column(_('Name'), 'title', link=True),
-    Column(_('Notes'), 'notes', default=''),
+    Column(_('Name'), 'full_name', getter=lambda x: x.name.full_name, link=True),
+    Column(_('Given name'), 'given_name', getter=lambda x: x.name.given_name),
+    Column(_('Family name'), 'family_name', getter=lambda x: x.name.family_name),
     Column(_('E-mails'), 'emails', getter=lambda x: '\n'.join(y.address for y in x.emails)),
 ]
 _sharedContactId = _sharedContactFields[0]
-_sharedContactWidths = ['%d%%' % x for x in (5, 25, 25, 45)]
+_sharedContactWidths = ['%d%%' % x for x in (5, 20, 20, 20, 35)]
 
 
 @admin_required
@@ -252,6 +254,8 @@ def shared_contacts(request):
         advanced_search = False
         filter = AnyAttributeFilter({
             'name.full_name': query,
+            'name.given_name': query,
+            'name.family_name': query,
             'notes': query,
             'emails.address': query,
         })
@@ -327,14 +331,17 @@ def shared_contact_details(request, name=None):
             for address in emails:
                 email = Email(
                     address=address,
-                    primary=False)
+                    rel=EMAIL_RELS[0])
                 email.save()
                 shared_contact.emails.append(email)
             shared_contact.save()
             return redirect('shared-contact-details', name=shared_contact.name.full_name)
     else:
+        real_name = [shared_contact.name.name_prefix,
+                shared_contact.name.given_name, shared_contact.name.family_name]
         form = SharedContactForm(initial={
-            'name': shared_contact.name.full_name,
+            'full_name': shared_contact.name.full_name,
+            'real_name': real_name,
             'notes': shared_contact.notes,
             'emails': '',
         }, auto_id=True)
@@ -346,6 +353,7 @@ def shared_contact_details(request, name=None):
     return render_to_response('shared_contact_details.html', ctx({
         'shared_contact': shared_contact,
         'form': form,
+        'all_emails': (email.address for email in shared_contact.emails),
         'styles': ['table-details'],
         'scripts': ['swap-widget'],
     }, 3, None, True))
