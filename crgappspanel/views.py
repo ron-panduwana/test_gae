@@ -326,14 +326,17 @@ def shared_contact_details(request, name=None):
     if request.method == 'POST':
         form = SharedContactForm(request.POST, auto_id=True)
         if form.is_valid():
-            emails = form.populate(shared_contact)
+            new_objects = form.populate(shared_contact)
             shared_contact.name.save()
-            for address in emails:
-                email = Email(
-                    address=address,
-                    rel=EMAIL_RELS[0])
+            
+            for email in new_objects['emails']:
                 email.save()
                 shared_contact.emails.append(email)
+            
+            for phone_number in new_objects['phone_numbers']:
+                phone_number.save()
+                shared_contact.phone_numbers.append(phone_number)
+            
             shared_contact.save()
             return redirect('shared-contact-details', name=shared_contact.name.full_name)
     else:
@@ -354,6 +357,7 @@ def shared_contact_details(request, name=None):
         'shared_contact': shared_contact,
         'form': form,
         'all_emails': (email.address for email in shared_contact.emails),
+        'all_phone_numbers': (phone.number for phone in shared_contact.phone_numbers),
         'styles': ['table-details'],
         'scripts': ['swap-widget'],
     }, 3, None, True))

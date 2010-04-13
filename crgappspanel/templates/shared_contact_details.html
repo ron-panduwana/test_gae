@@ -18,6 +18,11 @@
 					{% include "snippets/form_field_with_items.html" %}
 				{% endautoescape %}
 			{% endwith %}{% endwith %}
+			{% with form.phone_numbers as field %}{% with all_phone_numbers as items %}
+				{% autoescape off %}
+					{% include "snippets/form_field_with_items.html" %}
+				{% endautoescape %}
+			{% endwith %}{% endwith %}
 			<tr>
 				<td></td>
 				<td>
