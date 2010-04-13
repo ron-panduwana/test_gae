@@ -39,6 +39,22 @@ def _random_password(chars):
     bts = os.urandom(2 * chars)
     return ''.join(_get_password_char(ord(b1), ord(b2)) for b1, b2 in zip(bts[:chars], bts[chars:]))
 
+def join_attrs(lst, attr, max_len=3, delim='\n', finish='...'):
+    real_len = len(lst)
+    
+    # trimming list if neccessary
+    if real_len > max_len:
+        lst = lst[:max_len - 1]
+        trimmed = True
+    else:
+        trimmed = False
+    
+    s = delim.join([getattr(x, attr) for x in lst])
+    if trimmed:
+        s += delim
+        s += finish
+    return s
+
 
 def ctx(d, section=None, subsection=None, back=False):
     from crgappspanel.sections import SECTIONS
@@ -229,14 +245,30 @@ def user_remove_nickname(request, name=None, nickname=None):
 ################################################################################
 
 
+def _get_company_role(x):
+    company = x.get_extended_property('company')
+    if not company:
+        return ''
+    role = x.get_extended_property('role')
+    if not role:
+        return company
+    return '%s/%s' % (company, role)
+
+
 _sharedContactFields = [
     Column(_('Name'), 'full_name', getter=lambda x: x.name.full_name, link=True),
-    Column(_('Given name'), 'given_name', getter=lambda x: x.name.given_name),
-    Column(_('Family name'), 'family_name', getter=lambda x: x.name.family_name),
-    Column(_('E-mails'), 'emails', getter=lambda x: '\n'.join(y.address for y in x.emails)),
+    Column(_('Real name'), 'real_name',
+        getter=lambda x: '%s %s' % (x.name.given_name or '', x.name.family_name or '')),
+    Column(_('Company/role'), 'company_role', getter=_get_company_role),
+    #Column(_('Given name'), 'given_name', getter=lambda x: x.name.given_name),
+    #Column(_('Family name'), 'family_name', getter=lambda x: x.name.family_name),
+    Column(_('Phone numbers'), 'phone_numbers',
+        getter=lambda x: join_attrs(x.phone_numbers, 'number')),
+    Column(_('E-mails'), 'emails',
+        getter=lambda x: join_attrs(x.emails, 'address')),
 ]
 _sharedContactId = _sharedContactFields[0]
-_sharedContactWidths = ['%d%%' % x for x in (5, 20, 20, 20, 35)]
+_sharedContactWidths = ['%d%%' % x for x in (5, 20, 20, 15, 10, 30)]
 
 
 @admin_required
