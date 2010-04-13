@@ -28,31 +28,29 @@ class UserForm(forms.Form):
         widget=widgets.SwapWidget(nicknames_c, forms.TextInput(), nicknames_e))
     
     def create(self):
-        password = self.cleaned_data['password']
+        data = self.cleaned_data
+        
+        password = data['password']
         if not password or password[0] == '' or password[0] != password[1]:
             return None
         
         return models.GAUser(
-            user_name=self.cleaned_data['user_name'],
+            user_name=data['user_name'],
             password=password,
-            given_name=self.cleaned_data['full_name'][0],
-            family_name=self.cleaned_data['full_name'][1])
+            given_name=data['full_name'][0],
+            family_name=data['full_name'][1])
     
     def populate(self, user):
-        user.user_name = self.cleaned_data['user_name']
-        password = self.cleaned_data['password']
+        data = self.cleaned_data
+        
+        user.user_name = data['user_name']
+        password = data['password']
         if password and password[0] != '' and password[0] == password[1]:
             user.password = password[0]
-        user.change_password = self.cleaned_data['change_password']
-        user.given_name = self.cleaned_data['full_name'][0]
-        user.family_name = self.cleaned_data['full_name'][1]
-        user.admin = self.cleaned_data['admin']
-    
-    def get_nickname(self):
-        nicknames = self.cleaned_data['nicknames'].strip()
-        if nicknames:
-            return nicknames
-        return None
+        user.change_password = data['change_password']
+        user.given_name = data['full_name'][0]
+        user.family_name = data['full_name'][1]
+        user.admin = data['admin']
 
 
 emails_c = '%(link_start)sAdd email%(link_end)s'
@@ -107,8 +105,6 @@ class SharedContactForm(forms.Form):
         
         email = data['emails']
         phone_number = data['phone_numbers']
-        company = data['company']
-        role = data['role']
         
         shared_contact.name.full_name = data['full_name']
         shared_contact.name.name_prefix = data['real_name'][0]
@@ -119,19 +115,15 @@ class SharedContactForm(forms.Form):
         return {
             'emails': [self._email(email)] if email else [],
             'phone_numbers': [self._phone_number(phone_number)] if phone_number else [],
-            'company_str': company or None,
-            'role_str': role or None,
+            'company_str': data['company'],
+            'role_str': data['role'],
         }
     
     def _email(self, email):
-        return models.Email(
-            address=email,
-            rel=EMAIL_RELS[0])
+        return models.Email(address=email, rel=EMAIL_RELS[0])
     
     def _phone_number(self, phone_number):
-        return models.PhoneNumber(
-            number=phone_number,
-            rel=PHONE_RELS[0])
+        return models.PhoneNumber(number=phone_number, rel=PHONE_RELS[0])
     
     def _ext_prop(self, name, value):
         return models.ExtendedProperty(name=name, value=value)
@@ -142,7 +134,7 @@ class SharedContactForm(forms.Form):
         role = data['role']
         
         if not company and role:
-            msg = _(u'Company should be filled if role is.')
+            msg = _(u'Company is required if role is not empty.')
             self._errors['company'] = forms.util.ErrorList([msg])
             
             del data['company']

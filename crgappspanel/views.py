@@ -369,14 +369,14 @@ def shared_contact_details(request, name=None):
                 phone_number.save()
                 shared_contact.phone_numbers.append(phone_number)
             
-            company_str = new_objects.get('company_str', None)
-            if company_str:
-                company = shared_contact.set_extended_property('company', company_str)
+            company_str = new_objects.get('company_str', '')
+            company = shared_contact.set_extended_property('company', company_str, neutral='')
+            if company:
                 company.save()
             
-            role_str = new_objects.get('role_str', None)
-            if role_str:
-                role = shared_contact.set_extended_property('role', role_str)
+            role_str = new_objects.get('role_str', '')
+            role = shared_contact.set_extended_property('role', role_str, neutral='')
+            if role:
                 role.save()
             
             shared_contact.save()
