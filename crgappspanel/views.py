@@ -337,6 +337,16 @@ def shared_contact_details(request, name=None):
                 phone_number.save()
                 shared_contact.phone_numbers.append(phone_number)
             
+            company_str = new_objects.get('company_str', None)
+            if company_str:
+                company = shared_contact.set_extended_property('company', company_str)
+                company.save()
+            
+            role_str = new_objects.get('role_str', None)
+            if role_str:
+                role = shared_contact.set_extended_property('role', role_str)
+                role.save()
+            
             shared_contact.save()
             return redirect('shared-contact-details', name=shared_contact.name.full_name)
     else:
@@ -345,6 +355,8 @@ def shared_contact_details(request, name=None):
         form = SharedContactForm(initial={
             'full_name': shared_contact.name.full_name,
             'real_name': real_name,
+            'company': shared_contact.get_extended_property('company', ''),
+            'role': shared_contact.get_extended_property('role', ''),
             'notes': shared_contact.notes,
             'emails': '',
         }, auto_id=True)

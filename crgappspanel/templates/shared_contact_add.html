@@ -11,6 +11,8 @@
 		<tbody>
 			{% with form.full_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.real_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.company as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.role as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.notes as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.email as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.phone_number as field %}{% include "snippets/form_field.html" %}{% endwith %}

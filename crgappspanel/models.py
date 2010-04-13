@@ -95,6 +95,21 @@ class SharedContact(gd.Model):
         PostalAddress, 'postal_address', required=False)
     extended_properties = gd.ListProperty(
         ExtendedProperty, 'extended_property', required=False)
+    
+    def set_extended_property(self, name, value):
+        for index, ext_prop in enumerate(self.extended_properties):
+            if ext_prop.name == name:
+                del self.extended_properties[index]
+        
+        ext_prop = ExtendedProperty(name=name, value=value)
+        self.extended_properties.append(ext_prop)
+        return ext_prop
+    
+    def get_extended_property(self, name, default=None):
+        for ext_prop in self.extended_properties:
+            if ext_prop.name == name:
+                return ext_prop.value
+        return default
 
     def __unicode__(self):
         return u'<SharedContact: %s>' % self.title

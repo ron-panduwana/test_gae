@@ -78,7 +78,7 @@ class Table(object):
 
 
 class Column(object):
-    def __init__(self, caption, name, getter=None, default=None, link=False):
+    def __init__(self, caption, name, getter=None, default='', link=False):
         self.caption = caption
         self.name = name
         self.getter = getter

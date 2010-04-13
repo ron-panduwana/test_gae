@@ -3,6 +3,7 @@ from django import forms
 from crgappspanel import models
 from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
+from django.utils.translation import ugettext as _
 
 __all__ = ('UserForm')
 
@@ -65,6 +66,8 @@ class SharedContactForm(forms.Form):
     real_name = fields.RealNameField(label='Real name')
     notes = forms.CharField(label='Notes', required=False,
         widget=forms.Textarea(attrs=dict(rows=5, cols=40)))
+    company = forms.CharField(label='Company', required=False)
+    role = forms.CharField(label='Role', required=False)
     
     # email field to show when creating contact
     email = forms.CharField(label='Email', required=False)
@@ -79,50 +82,45 @@ class SharedContactForm(forms.Form):
         widget=widgets.SwapWidget(phone_numbers_c, forms.TextInput(), phone_numbers_e))
     
     def create(self):
+        data = self.cleaned_data
+        
         name = models.Name(
-            full_name=self.cleaned_data['full_name'],
-            name_prefix=self.cleaned_data['real_name'][0],
-            given_name=self.cleaned_data['real_name'][1],
-            family_name=self.cleaned_data['real_name'][2])
+            full_name=data['full_name'], name_prefix=data['real_name'][0],
+            given_name=data['real_name'][1], family_name=data['real_name'][2])
         
-        email = self.cleaned_data['email'].strip()
-        if email:
-            emails = [
-                models.Email(
-                    address=email,
-                    rel=EMAIL_RELS[0])
-            ]
-        else:
-            emails = []
+        email = data['email']
+        emails = [self._email(email)] if email else []
         
-        phone_number = self.cleaned_data['phone_number'].strip()
-        if phone_number:
-            phone_numbers = [
-                models.PhoneNumber(
-                    number=phone_number,
-                    rel=PHONE_RELS[0])
-            ]
-        else:
-            phone_numbers = []
+        phone_number = data['phone_number']
+        phone_numbers = [self._phone_number(phone_number)] if phone_number else []
+        
+        company = self._ext_prop('company', data['company']) if data['company'] else None
+        role = self._ext_prop('role', data['role']) if data['role'] else None
         
         return models.SharedContact(
-            name=name,
-            notes=self.cleaned_data['notes'],
-            emails=emails,
-            phone_numbers=phone_numbers)
+            name=name, notes=data['notes'],
+            emails=emails, phone_numbers=phone_numbers,
+            extended_properties=[x for x in (company, role) if x is not None])
     
     def populate(self, shared_contact):
-        email = self.cleaned_data['emails'].strip()
-        phone_number = self.cleaned_data['phone_numbers'].strip()
+        data = self.cleaned_data
         
-        shared_contact.name.full_name = self.cleaned_data['full_name']
-        shared_contact.name.name_prefix = self.cleaned_data['real_name'][0]
-        shared_contact.name.given_name = self.cleaned_data['real_name'][1]
-        shared_contact.name.family_name = self.cleaned_data['real_name'][2]
-        shared_contact.notes = self.cleaned_data['notes']
+        email = data['emails']
+        phone_number = data['phone_numbers']
+        company = data['company']
+        role = data['role']
+        
+        shared_contact.name.full_name = data['full_name']
+        shared_contact.name.name_prefix = data['real_name'][0]
+        shared_contact.name.given_name = data['real_name'][1]
+        shared_contact.name.family_name = data['real_name'][2]
+        shared_contact.notes = data['notes']
+        
         return {
             'emails': [self._email(email)] if email else [],
             'phone_numbers': [self._phone_number(phone_number)] if phone_number else [],
+            'company_str': company or None,
+            'role_str': role or None,
         }
     
     def _email(self, email):
@@ -134,3 +132,20 @@ class SharedContactForm(forms.Form):
         return models.PhoneNumber(
             number=phone_number,
             rel=PHONE_RELS[0])
+    
+    def _ext_prop(self, name, value):
+        return models.ExtendedProperty(name=name, value=value)
+    
+    def clean(self):
+        data = self.cleaned_data
+        company = data['company']
+        role = data['role']
+        
+        if not company and role:
+            msg = _(u'Company should be filled if role is.')
+            self._errors['company'] = forms.util.ErrorList([msg])
+            
+            del data['company']
+            del data['role']
+        
+        return data
