@@ -51,6 +51,9 @@ class UserForm(forms.Form):
         user.given_name = data['full_name'][0]
         user.family_name = data['full_name'][1]
         user.admin = data['admin']
+    
+    def get_nickname(self):
+        return self.cleaned_data['nicknames']
 
 
 emails_c = '%(link_start)sAdd email%(link_end)s'

@@ -10,7 +10,6 @@ class CharField2(forms.MultiValueField):
         super(CharField2, self).__init__((field1, field2), widget=widget, *args, **kwargs)
     
     def compress(self, data_list):
-        print 'compress(', data_list, ')'
         return data_list
 
 
