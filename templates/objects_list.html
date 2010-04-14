@@ -12,14 +12,24 @@ cr.table.tables['{{ table_name }}'] = [
 	
 	<tbody>
 		<!-- table top strip -->
-		<tr>
-			<th colspan="{{ columns|length|add:"1" }}" class="bar">
-				<button id="{{ table_name }}_delete_1" type="button" onclick="cr.table.onDeleteClicked(this)" disabled="disabled">Delete {{ object_plural }}</button>
+		<tr class="bar">
+			<th colspan="{{ columns|length|add:"1" }}">
+				<table style="margin: 0; padding: 0; width: 100%"><tbody>
+					<tr><td>
+						<button id="{{ table_name }}_delete_1" type="button" onclick="cr.table.onDeleteClicked(this)" disabled="disabled">Delete {{ object_plural }}</button>
+					</td><td style="text-align: right">
+						{% if page %}
+							{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}{{ qs_wo_page }}">&laquo;</a>{% endif %}
+							{{ page.start_index }} &ndash; {{ page.end_index }}
+							{% if page.has_next %}<a href="?page={{ page.next_page_number }}{{ qs_wo_page }}">&raquo;</a>{% endif %}
+						{% endif %}
+					</td></tr>
+				</tbody></table>
 			</th>
 		</tr>
 		
 		<!-- table header -->
-		<tr>
+		<tr class="header">
 			<th><input type="checkbox" id="{{ table_name }}_select" onchange="cr.table.onSelectAll(this)"/></th>
 			{% for colspec in columns %}
 			<th>
@@ -35,7 +45,7 @@ cr.table.tables['{{ table_name }}'] = [
 	
 		<!-- table body -->
 		{% for row in rows %}
-		<tr id="{{ table_name }}_row_{{ forloop.counter0 }}">
+		<tr id="{{ table_name }}_row_{{ forloop.counter0 }}" class="data">
 			<td><input type="checkbox" id="{{ table_name }}_select_{{ forloop.counter0 }}" onchange="cr.table.onSelectRow(this)"/></td>
 			{% for obj in row.data %}
 			<td onclick="cr.table.showDetails('{{ row.id }}')">
@@ -50,9 +60,19 @@ cr.table.tables['{{ table_name }}'] = [
 		{% endfor %}
 		
 		<!-- table bottom strip -->
-		<tr>
-			<th colspan="{{ columns|length|add:"1" }}" class="bar">
-				<button id="{{ table_name }}_delete_2" type="button" onclick="cr.table.onDeleteClicked(this)" disabled="disabled">Delete {{ object_plural }}</button>
+		<tr class="bar">
+			<th colspan="{{ columns|length|add:"1" }}">
+				<table style="margin: 0; padding: 0; width: 100%"><tbody>
+					<tr><td>
+						<button id="{{ table_name }}_delete_2" type="button" onclick="cr.table.onDeleteClicked(this)" disabled="disabled">Delete {{ object_plural }}</button>
+					</td><td style="text-align: right">
+						{% if page %}
+							{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}{{ qs_wo_page }}">&laquo;</a>{% endif %}
+							{{ page.start_index }} &ndash; {{ page.end_index }}
+							{% if page.has_next %}<a href="?page={{ page.next_page_number }}{{ qs_wo_page }}">&raquo;</a>{% endif %}
+						{% endif %}
+					</td></tr>
+				</tbody></table>
 			</th>
 		</tr>
 	</tbody>

@@ -32,7 +32,8 @@ class Table(object):
         # setting sort direction
         self.asc = asc if asc != None else True
     
-    def generate(self, objs, widths=None, table_name='table', singular='object', plural=None):
+    def generate(self, objs, page=None, qs_wo_page=None, widths=None,
+            table_name='table', singular='object', plural=None):
         """Generates table html (using appropriate HTML template).
         
         Arguments:
@@ -63,6 +64,8 @@ class Table(object):
             'sortby': self.sortby,
             'asc': self.asc,
             'widths': widths,
+            'page': page,
+            'qs_wo_page': ('&%s' % qs_wo_page) if qs_wo_page else '',
             'table_name': table_name,
             'object_singular': singular,
             'object_plural': plural,

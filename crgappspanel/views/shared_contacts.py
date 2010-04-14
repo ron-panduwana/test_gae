@@ -2,10 +2,11 @@ from django.shortcuts import render_to_response, redirect
 from django.utils.translation import ugettext as _
 
 from crgappspanel.forms import SharedContactForm
-from crgappspanel.helpers.filters import AnyAttributeFilter, AllAttributeFilter, NullFilter
+from crgappspanel.helpers.filters import SharedContactFilter, AllAttributeFilter, NullFilter
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import SharedContact
-from crgappspanel.views.utils import ctx, get_sortby_asc, join_attrs
+from crgappspanel.views.utils import ctx, get_sortby_asc, join_attrs, \
+        get_page, qs_wo_page, QueryString
 from crlib.users import admin_required
 
 
@@ -39,6 +40,7 @@ _sharedContactWidths = ['%d%%' % x for x in (5, 20, 20, 15, 10, 30)]
 def shared_contacts(request):
     sortby, asc = get_sortby_asc(request, [f.name for f in _sharedContactFields])
     
+    # getting queries
     query = request.GET.get('q', '')
     query_name = request.GET.get('name', '')
     query_notes = request.GET.get('notes', '')
@@ -48,13 +50,7 @@ def shared_contacts(request):
     
     if query:
         advanced_search = False
-        filter = AnyAttributeFilter({
-            'name.full_name': query,
-            'name.given_name': query,
-            'name.family_name': query,
-            'notes': query,
-            'emails.address': query,
-        })
+        filter = SharedContactFilter(query)
         filters = ['%s:%s' % (_('query'), query)]
     elif any((query_name, query_notes, query_email)):
         advanced_search = True
@@ -75,13 +71,20 @@ def shared_contacts(request):
         filter = NullFilter()
         filters = None
     
+    # filtering shared contacts
     shared_contacts = [x for x in shared_contacts if filter.match(x)]
     
+    # instantiating table and sorting shared contacts
     table = Table(_sharedContactFields, _sharedContactId, sortby=sortby, asc=asc)
     table.sort(shared_contacts)
     
+    # selecting particular page
+    page = get_page(request, shared_contacts, 20)
+    
     return render_to_response('shared_contacts_list.html', ctx({
-        'table': table.generate(shared_contacts, widths=_sharedContactWidths, singular='shared contact'),
+        'table': table.generate(
+            page.object_list, page=page, qs_wo_page=qs_wo_page(request),
+            widths=_sharedContactWidths, singular='shared contact'),
         'advanced_search': advanced_search,
         'filters': filters,
         'query': dict(general=query, name=query_name, notes=query_notes, email=query_email),

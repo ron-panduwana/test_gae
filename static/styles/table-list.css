@@ -3,22 +3,22 @@ table.list {
 	border-collapse: collapse;
 }
 
-table.list th {
+table.list tr.header th {
 	background: url('/static/images/tablebar_bg.png') repeat-x scroll center bottom;
 	border-bottom: 1px solid #ccc;
 }
 
-table.list td {
+table.list tr.data td {
 	border-bottom: 1px solid lightgray;
 }
 
-table.list th, table.list td {
+table.list tr.header th, table.list tr.data td {
 	padding: 2px 5px;
 	
 	text-align: left;
 }
 
-table.list tr:hover td {
+table.list tr.data:hover td {
 	background-color: #ffc;
 	cursor: pointer;
 }
@@ -27,7 +27,9 @@ table.list tr.selected td {
 	background-color: #ffc;
 }
 
-table.list th.bar {
+table.list tr.bar th {
 	background: none repeat scroll 0 0 #c2cdd8;
 	padding: 4px;
+	
+	text-align: left;
 }

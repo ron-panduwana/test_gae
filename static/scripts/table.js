@@ -55,7 +55,7 @@ cr.table.onSelectAll = function(obj) {
 	
 	for (var i = 0 ; i < count ; ++i) {
 		cr.table.getCheckbox(tableName, i).checked = obj.checked
-		cr.table.getTableRow(tableName, i).className = (obj.checked) ? 'selected' : ''
+		cr.table.getTableRow(tableName, i).className = (obj.checked) ? 'data selected' : 'data'
 	}
 	
 	cr.table.getDeleteButton(tableName, 1).disabled = !obj.checked
@@ -66,7 +66,7 @@ cr.table.onSelectRow = function(obj) {
 	var tableName = cr.table.getTableName(obj.id)
 	var count = cr.table.getElementCount(tableName)
 	
-	cr.table.getTableRow(tableName, cr.table.getNumber(obj.id)).className = (obj.checked) ? 'selected' : ''
+	cr.table.getTableRow(tableName, cr.table.getNumber(obj.id)).className = (obj.checked) ? 'data selected' : 'data'
 	
 	var selCount = 0
 	for (var i = 0 ; i < count ; ++i) {

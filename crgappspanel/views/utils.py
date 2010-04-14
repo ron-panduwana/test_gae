@@ -1,14 +1,38 @@
 import os
 
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
+
 from settings import APPS_DOMAIN
 
 
-def get_sortby_asc(request, valid):
+def get_sortby_asc(request, valid_sortby):
     sortby = request.GET.get('sortby', None)
     asc = (request.GET.get('asc', 'true') == 'true')
-    if not sortby in valid:
+    if not sortby in valid_sortby:
         sortby = None
     return (sortby, asc)
+
+
+def get_page(request, objs, page_size=30):
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    
+    paginator = Paginator(objs, page_size)
+    
+    try:
+        return paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        return paginator.page(paginator.num_pages)
+
+
+def qs_wo_page(request):
+    qs_obj = request.GET.copy()
+    if 'page' in qs_obj:
+        del qs_obj['page']
+    
+    return qs_obj.urlencode()
 
 
 _password_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -47,3 +71,16 @@ def ctx(d, section=None, subsection=None, back=False):
             d['sel_subsection'] = SECTIONS[section - 1]['subsections'][subsection - 1]
         d['back_button'] = back
     return d
+
+
+class QueryString(object):
+    def __init__(self):
+        self.qs = ''
+    
+    def append(self, key, value):
+        if qs:
+            qs += '&'
+        qs += '%s=%s' % (key, value)
+    
+    def get(self):
+        return ('?%s' % qs) if qs else ''

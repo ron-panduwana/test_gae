@@ -79,23 +79,12 @@ class AllAttributeFilter(AttributeFilter):
         return True
 
 
-class SharedContactFilter(AttributeFilter):
-    def __init__(self, full_name=None, notes=None, email=None):
-        super(ArrtibuteFilter, self).__init__()
-    
-    def match(self, obj):
-        res = []
-        if obj.name is not None:
-            res.append(obj.name.full_name)
-        res.append(obj.notes)
-        for email in obj.emails:
-            res.append(email.address)
-        
-        return any(str(x).find(self.query) != -1 for x in res)
-    
-    def __repr__(self):
-        return 'SharedContactFilter(%s)' % self.query
-    
-    def __unicode__(self):
-        return 'filter:query:%s' % self.query
-                
+class SharedContactFilter(AnyAttributeFilter):
+    def __init__(self, query):
+        super(AnyAttributeFilter, self).__init__({
+            'name.full_name': query,
+            'name.given_name': query,
+            'name.family_name': query,
+            'notes': query,
+            'emails.address': query,
+        })
