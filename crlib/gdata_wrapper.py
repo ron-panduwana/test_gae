@@ -5,6 +5,7 @@ from django.conf import settings
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from atom import AtomBase
+from gdata.data import ExtendedProperty
 from gdata.client import GDClient
 from gdata.service import GDataService
 
@@ -340,6 +341,23 @@ class ListProperty(StringProperty):
         """
         value = [value._atom for value in value]
         super(ListProperty, self).set_value_on_atom(atom, value)
+
+
+class ExtendedPropertyMapping(StringProperty):
+    def make_value_from_atom(self, atom):
+        values = super(ExtendedPropertyMapping, self).make_value_from_atom(atom)
+        mapping = {}
+        for value in values:
+            mapping[value.name] = value.value
+        return mapping
+
+    def set_value_on_atom(self, atom, value):
+        values = []
+        for key, value in value.iteritems():
+            if value:
+                values.append(ExtendedProperty(name=key, value=value))
+
+        super(ExtendedPropertyMapping, self).set_value_on_atom(atom, values)
 
 
 class _GDataModelMetaclass(db.PropertiedClass):

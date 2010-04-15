@@ -225,20 +225,20 @@ class GDataTestCase(unittest.TestCase):
             primary=True)
         email.save()
 
-        property = ExtendedProperty(
-            name='some_name',
-            value='some_val',
-        )
-        property.save()
-
         name = Name(full_name='ExtendedProperty Contact')
         name.save()
 
         contact = SharedContact(
             name=name,
             emails=[email],
-            extended_properties=[property])
+            extended_properties={
+                'some_name': 'some_val',
+            })
         contact.save()
+
+        contact = SharedContact.get_by_key_name(
+            'ExtendedProperty Contact')
+        self.assertEqual(contact.extended_properties['some_name'], 'some_val')
 
 
 class RoleCreationTestCase(unittest.TestCase):

@@ -11,10 +11,10 @@ from crlib.users import admin_required
 
 
 def _get_company_role(x):
-    company = x.get_extended_property('company')
+    company = x.extended_properties.get('company')
     if not company:
         return ''
-    role = x.get_extended_property('role')
+    role = x.extended_properties.get('role')
     if not role:
         return company
     return '%s/%s' % (company, role)
@@ -137,14 +137,10 @@ def shared_contact_details(request, name=None):
                 shared_contact.phone_numbers.append(phone_number)
             
             company_str = new_objects.get('company_str', '')
-            company = shared_contact.set_extended_property('company', company_str, neutral='')
-            if company:
-                company.save()
+            shared_contact.extended_properties['company'] = company_str
             
             role_str = new_objects.get('role_str', '')
-            role = shared_contact.set_extended_property('role', role_str, neutral='')
-            if role:
-                role.save()
+            shared_contact.extended_properties['role'] = role_str
             
             shared_contact.save()
             return redirect('shared-contact-details', name=shared_contact.name.full_name)
@@ -154,8 +150,8 @@ def shared_contact_details(request, name=None):
         form = SharedContactForm(initial={
             'full_name': shared_contact.name.full_name,
             'real_name': real_name,
-            'company': shared_contact.get_extended_property('company', ''),
-            'role': shared_contact.get_extended_property('role', ''),
+            'company': shared_contact.extended_properties.get('company', ''),
+            'role': shared_contact.extended_properties.get('role', ''),
             'notes': shared_contact.notes,
             'emails': '',
         }, auto_id=True)

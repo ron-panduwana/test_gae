@@ -139,6 +139,11 @@ class NameMapper(AtomMapper):
 
 
 class SharedContactEntryMapper(AtomMapper):
+    from atom.data import Content
+    optional = {
+        'content': Content,
+    }
+
     @classmethod
     def create_service(cls):
         from gdata.contacts import client
@@ -147,10 +152,7 @@ class SharedContactEntryMapper(AtomMapper):
         return client
 
     def empty_atom(self):
-        import atom
-        return contacts.data.ContactEntry(
-            content=atom.data.Content(),
-        )
+        return contacts.data.ContactEntry()
 
     def key(self, atom):
         return atom.title.text
