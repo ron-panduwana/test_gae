@@ -1,6 +1,7 @@
 import os
 
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.shortcuts import redirect
 
 from settings import APPS_DOMAIN
 
@@ -71,6 +72,12 @@ def ctx(d, section=None, subsection=None, back=False):
             d['sel_subsection'] = SECTIONS[section - 1]['subsections'][subsection - 1]
         d['back_button'] = back
     return d
+
+
+def redirect_saved(view, *args, **kwargs):
+    response = redirect(view, *args, **kwargs)
+    response['Location'] += '?saved=true'
+    return response
 
 
 class QueryString(object):

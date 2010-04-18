@@ -6,7 +6,7 @@ from crgappspanel.helpers.filters import SharedContactFilter, AllAttributeFilter
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import SharedContact
 from crgappspanel.views.utils import ctx, get_sortby_asc, join_attrs, \
-        get_page, qs_wo_page, QueryString
+        get_page, qs_wo_page, redirect_saved, QueryString
 from crlib.users import admin_required
 
 
@@ -24,7 +24,8 @@ _sharedContactFields = [
     Column(_('Name'), 'full_name', getter=lambda x: x.name.full_name, link=True),
     Column(_('Real name'), 'real_name',
         getter=lambda x: '%s %s' % (x.name.given_name or '', x.name.family_name or '')),
-    Column(_('Company/role'), 'company_role', getter=_get_company_role),
+    Column(_('Company'), 'company', getter=lambda x: x.extended_properties.get('company', '')),
+    #Column(_('Company/role'), 'company_role', getter=_get_company_role),
     #Column(_('Given name'), 'given_name', getter=lambda x: x.name.given_name),
     #Column(_('Family name'), 'family_name', getter=lambda x: x.name.family_name),
     Column(_('Phone numbers'), 'phone_numbers',
@@ -103,7 +104,7 @@ def shared_contact_add(request):
             for email in shared_contact.emails:
                 email.save()
             shared_contact.save()
-            return redirect('shared-contact-details', name=shared_contact.name)
+            return redirect_saved('shared-contact-details', name=shared_contact.name)
     else:
         form = SharedContactForm(auto_id=True)
     
@@ -143,7 +144,7 @@ def shared_contact_details(request, name=None):
             shared_contact.extended_properties['role'] = role_str
             
             shared_contact.save()
-            return redirect('shared-contact-details', name=shared_contact.name.full_name)
+            return redirect_saved('shared-contact-details', name=shared_contact.name.full_name)
     else:
         real_name = [shared_contact.name.name_prefix,
                 shared_contact.name.given_name, shared_contact.name.family_name]
@@ -165,6 +166,7 @@ def shared_contact_details(request, name=None):
         'form': form,
         'all_emails': (email.address for email in shared_contact.emails),
         'all_phone_numbers': (phone.number for phone in shared_contact.phone_numbers),
+        'saved': request.GET.get('saved', None),
         'styles': ['table-details'],
         'scripts': ['swap-widget'],
     }, 3, None, True))

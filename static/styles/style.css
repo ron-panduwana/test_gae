@@ -125,3 +125,14 @@ a.action-link {
 input[type="submit"] {
 	font-weight: bold;
 }
+
+div.warning, div.error {
+	margin: 10px 10px 10px 0;
+	padding: 10px;
+	width: 50%;
+}
+
+div.warning {
+	background-color: #fff4c2;
+	border: 1px solid #ffcc33;
+}
