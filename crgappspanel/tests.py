@@ -1,5 +1,6 @@
 from __future__ import with_statement
 
+import datetime
 import logging
 import os
 import unittest
@@ -7,9 +8,10 @@ from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from gdata.apps.service import AppsForYourDomainException
 from crgappspanel.models import GAUser, GANickname, Role, TestModel, \
-        SharedContact, Email, PhoneNumber, Name, Organization
+        SharedContact, Email, PhoneNumber, Name, Organization, Website
 from crlib.gdata_wrapper import GDataQuery
-from crlib.mappers import MAIN_TYPES, PHONE_TYPES, ORGANIZATION_TYPES
+from crlib.mappers import MAIN_TYPES, PHONE_TYPES, ORGANIZATION_TYPES, \
+        WEBSITE_TYPES
 from crlib.users import _set_testing_user
 
 
@@ -180,10 +182,18 @@ class SharedContactsAPITestCase(BaseGDataTestCase):
             primary=True)
         organization.save()
 
+        website = Website(
+            href='http://www.cloudreach.co.uk/',
+            primary=True,
+            rel=WEBSITE_TYPES[0][0])
+        website.save()
+
         contact = SharedContact(
             name=name,
+            birthday=datetime.date(1990, 10, 10),
             emails=[email],
             phone_numbers=[phone_number],
+            websites=[website],
             organization=organization)
         contact.save()
 

@@ -2,6 +2,7 @@ import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from gdata import contacts, data
+from gdata.contacts import data as contacts_data
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
 
 
@@ -17,6 +18,17 @@ MAIN_TYPES = (
 ORGANIZATION_TYPES = (
     (contacts.REL_WORK, _('Work')),
     (contacts.REL_OTHER, _('Other')),
+)
+
+
+WEBSITE_TYPES = (
+    ('home-page', _('Home Page')),
+    ('blog', _('Blog')),
+    ('profile', _('Profile')),
+    ('home', _('Home Page')),
+    ('work', _('Work')),
+    ('other', _('Other')),
+    ('ftp', _('FTP')),
 )
 
 
@@ -125,6 +137,8 @@ PhoneNumberMapper = simple_mapper(data.PhoneNumber, 'text')
 EmailMapper = simple_mapper(data.Email, 'address')
 PostalAddressMapper = simple_mapper(data.PostalAddress, 'text')
 ExtendedPropertyMapper = simple_mapper(data.ExtendedProperty, 'name')
+WebsiteMapper = simple_mapper(contacts_data.Website, 'href')
+BirthdayMapper = simple_mapper(contacts_data.Birthday, 'when')
 
 
 class OrganizationMapper(AtomMapper):
@@ -166,6 +180,7 @@ class SharedContactEntryMapper(AtomMapper):
     from atom.data import Content
     optional = {
         'content': Content,
+        'birthday': contacts_data.Birthday,
     }
 
     @classmethod

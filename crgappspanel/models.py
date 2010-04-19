@@ -88,12 +88,22 @@ class Organization(gd.Model):
     symbol = gd.StringProperty('symbol.text', required=False)
 
 
+class Website(gd.Model):
+    Mapper = mappers.WebsiteMapper()
+
+    href = gd.StringProperty('href')
+    rel = mappers.RelProperty(mappers.WEBSITE_TYPES)
+    label = gd.StringProperty('label', required=False)
+    primary = gd.BooleanProperty('primary', default=False)
+
+
 class SharedContact(gd.Model):
     Mapper = mappers.SharedContactEntryMapper()
 
     name = gd.EmbeddedModelProperty(Name, 'name', required=False)
     title = gd.StringProperty('title.text', required=False, read_only=True)
     notes = gd.StringProperty('content.text')
+    birthday = gd.DateProperty('birthday.when', required=False)
     emails = gd.ListProperty(Email, 'email', required=False)
     phone_numbers = gd.ListProperty(
         PhoneNumber, 'phone_number', required=False)
@@ -101,6 +111,7 @@ class SharedContact(gd.Model):
         PostalAddress, 'postal_address', required=False)
     organization = gd.EmbeddedModelProperty(
         Organization, 'organization', required=False)
+    websites = gd.ListProperty(Website, 'website', required=False)
     extended_properties = gd.ExtendedPropertyMapping(
         'extended_property', required=False)
     

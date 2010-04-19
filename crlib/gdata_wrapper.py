@@ -1,3 +1,4 @@
+import datetime
 import logging
 import operator
 import re
@@ -181,6 +182,20 @@ class PasswordProperty(StringProperty):
         import hashlib
         hashed = hashlib.sha1(unicode(value).encode('utf8')).hexdigest()
         super(PasswordProperty, self).set_value_on_atom(atom, hashed)
+
+
+class DateProperty(StringProperty):
+    DATE_FORMAT = '%Y-%m-%d'
+
+    def make_value_from_atom(self, atom):
+        value = super(DateProperty, self).make_value_from_atom(atom)
+        if value:
+            return datetime.datetime.strptime(value, self.DATE_FORMAT).date()
+
+    def set_value_on_atom(self, atom, value):
+        if value:
+            value = value.strftime(self.DATE_FORMAT)
+            super(DateProperty, self).set_value_on_atom(atom, value)
 
 
 class BooleanProperty(StringProperty):
