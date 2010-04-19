@@ -119,7 +119,7 @@ def shared_contact_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
     
-    shared_contact = SharedContact.get_by_key_name(name)
+    shared_contact = SharedContact.all().filter('title', name).get()
     if not shared_contact:
         return redirect('shared-contacts')
     
@@ -178,7 +178,7 @@ def shared_contact_remove(request, names=None):
         raise ValueError('names = %s' % names)
     
     for name in names.split('/'):
-        user = SharedContact.get_by_key_name(name)
+        user = SharedContact.all().filter('title', name).get()
         user.delete()
     
     return redirect('shared-contacts')

@@ -26,9 +26,9 @@ _set_testing_user(*credentials)
 
 
 class BaseGDataTestCase(unittest.TestCase):
-    USER_NAME = 'test'
-    USER_GIVEN_NAME = 'Test'
-    USER_FAMILY_NAME = 'Account'
+    USER_NAME = 'sdfsdf'
+    USER_GIVEN_NAME = 'afdfs'
+    USER_FAMILY_NAME = 'dfsdf'
     NUMBER_OF_USERS = 5
 
 
@@ -155,7 +155,7 @@ class ProvisioningAPITestCase(BaseGDataTestCase):
 
 class SharedContactsAPITestCase(BaseGDataTestCase):
     def testCreateSharedContact(self):
-        contact = SharedContact.get_by_key_name('Test Contact')
+        contact = SharedContact.all().filter('title', 'Test Contact').get()
         if contact:
             contact.delete()
 
@@ -190,7 +190,7 @@ class SharedContactsAPITestCase(BaseGDataTestCase):
         contact.delete()
 
     def testUpdateSharedContact(self):
-        contact = SharedContact.get_by_key_name('Updated Name')
+        contact = SharedContact.all().filter('title', 'Updated Name').get()
         if contact:
             logging.warning('Had Updated Name contact')
             logging.warning('contact: %s' % str(contact))
@@ -210,7 +210,7 @@ class SharedContactsAPITestCase(BaseGDataTestCase):
             emails=[email])
         contact.save()
 
-        contact = SharedContact.get_by_key_name('Updated Contact')
+        contact = SharedContact.all().filter('title', 'Updated Contact').get()
         self.assertFalse(contact is None)
 
         contact.name.full_name = 'Updated Name'
@@ -225,8 +225,8 @@ class SharedContactsAPITestCase(BaseGDataTestCase):
             self.assertTrue(isinstance(contact, SharedContact))
 
     def testSharedContactExtendedProperty(self):
-        contact = SharedContact.get_by_key_name(
-            'ExtendedProperty Contact')
+        contact = SharedContact.all().filter(
+            'title', 'ExtendedProperty Contact').get()
         if contact:
             contact.delete()
 
@@ -247,8 +247,8 @@ class SharedContactsAPITestCase(BaseGDataTestCase):
             })
         contact.save()
 
-        contact = SharedContact.get_by_key_name(
-            'ExtendedProperty Contact')
+        contact = SharedContact.all().filter(
+            'title', 'ExtendedProperty Contact').get()
         self.assertEqual(contact.extended_properties['some_name'], 'some_val')
 
 

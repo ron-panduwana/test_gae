@@ -179,16 +179,7 @@ class SharedContactEntryMapper(AtomMapper):
         return contacts.data.ContactEntry()
 
     def key(self, atom):
-        return atom.title.text
-
-    def retrieve(self, name):
-        # Shared Contacts API doesn't have any method to directly retrieve
-        # ContactEntry via email or contact name, so we have to retrieve all
-        # contacts and find the one with given email manually
-        #for entry in self.service.GetContactsFeed().entry:
-        for entry in self.retrieve_all():
-            if entry.title.text == name:
-                return entry
+        return atom.find_self_link()
 
     def create(self, atom):
         return self.service.create_contact(atom)
@@ -199,7 +190,14 @@ class SharedContactEntryMapper(AtomMapper):
     def delete(self, atom):
         self.service.delete(atom)
 
-    def retrieve_all(self, limit=100, offset=0):
+    def retrieve(self, key):
+        return self.service.get_entry(
+            key, desired_class=contacts.data.ContactEntry)
+
+    def retrieve_all(self):
+        return self.retrieve_subset()
+
+    def retrieve_subset(self, limit=1000, offset=0):
         from gdata.contacts.client import ContactsQuery
         query = ContactsQuery()
         query.max_results = limit

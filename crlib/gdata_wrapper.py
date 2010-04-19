@@ -76,42 +76,48 @@ class GDataQuery(object):
             return value.key()
         return value
 
-    def _retrieve_ordered(self):
+    def _retrieve_ordered(self, limit=1000, offset=0):
+        can_retrieve_subset = not self._filters and \
+                hasattr(self._model._mapper, 'retrieve_subset')
         if self._filters and \
            hasattr(self._model._mapper, 'filter_by_%s' % self._filters[0][0]):
             retriever = getattr(
                 self._model._mapper, 'filter_by_%s' % self._filters[0][0])
             retriever = retriever(self._filters[0][2])
+        elif can_retrieve_subset:
+            retriever = self._model._mapper.retrieve_subset(limit, offset)
         else:
             retriever = self._model._mapper.retrieve_all()
         gen = (self._model._from_atom(item) for item in retriever)
         if not self._orders:
             return gen
-        items = list(gen)
-        items.sort(cmp=self._cmp_items)
+        items = sorted(gen, cmp=self._cmp_items)
+        if not can_retrieve_subset:
+            items = items[offset:offset+limit]
         return items
 
-    def __iter__(self):
-        for item in self._retrieve_ordered():
-            for property, operator, value in self._filters:
-                item_value = getattr(item, property)
-                item_value = self._normalize_parameter(item_value)
-                if not self._FUNCS[operator](item_value, value):
-                    break
-            else:
+    def _matches_filter(self, item):
+        for property, operator, value in self._filters:
+            item_value = getattr(item, property)
+            item_value = self._normalize_parameter(item_value)
+            if not self._FUNCS[operator](item_value, value):
+                return False
+        else:
+            return True
+
+    def _retrieve_filtered(self, limit=1000, offset=0):
+        for item in self._retrieve_ordered(limit, offset):
+            if self._matches_filter(item):
                 yield item
+
+    __iter__ = _retrieve_filtered
 
     def fetch(self, limit, offset=0):
         """Fetch given number of elements from a feed provided by
         AtomMapper.retrieve_all().
 
         """
-        items = []
-        limit = max(0, limit)
-        for i, item in enumerate(self):
-            if i < limit:
-                items.append(item)
-        return items
+        return list(self._retrieve_filtered(limit, offset))
 
 
 class StringProperty(db.Property):
@@ -346,6 +352,8 @@ class ListProperty(StringProperty):
 
 
 class ExtendedPropertyMapping(StringProperty):
+    MAX_EXTENDED_PROPERTIES = 10
+
     def make_value_from_atom(self, atom):
         values = super(ExtendedPropertyMapping, self).make_value_from_atom(atom)
         mapping = {}
@@ -361,6 +369,10 @@ class ExtendedPropertyMapping(StringProperty):
         for key, value in value.iteritems():
             if value:
                 values.append(ExtendedProperty(name=key, value=value))
+
+        if len(values) > self.MAX_EXTENDED_PROPERTIES:
+            raise BadValueError('There may be up to %d extended properties.' %
+                                self.MAX_EXTENDED_PROPERTIES)
 
         super(ExtendedPropertyMapping, self).set_value_on_atom(atom, values)
 
