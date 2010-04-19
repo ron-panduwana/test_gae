@@ -14,6 +14,12 @@ MAIN_TYPES = (
 )
 
 
+ORGANIZATION_TYPES = (
+    (contacts.REL_WORK, _('Work')),
+    (contacts.REL_OTHER, _('Other')),
+)
+
+
 PHONE_TYPES = (
     (contacts.PHONE_CAR, _('Car')),
     (contacts.PHONE_FAX, _('Fax')),
@@ -119,6 +125,24 @@ PhoneNumberMapper = simple_mapper(data.PhoneNumber, 'text')
 EmailMapper = simple_mapper(data.Email, 'address')
 PostalAddressMapper = simple_mapper(data.PostalAddress, 'text')
 ExtendedPropertyMapper = simple_mapper(data.ExtendedProperty, 'name')
+
+
+class OrganizationMapper(AtomMapper):
+    optional = {
+        'name': data.OrgName,
+        'title': data.OrgTitle,
+        'job_description': data.OrgJobDescription,
+        'department': data.OrgDepartment,
+        'symbol': data.OrgSymbol,
+    }
+
+    def empty_atom(self):
+        return data.Organization()
+
+    def key(self, atom):
+        if atom.org_name is not None:
+            return atom.org_name.text
+        return 'unnamed_organization'
 
 
 class NameMapper(AtomMapper):

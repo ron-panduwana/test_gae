@@ -322,7 +322,9 @@ class EmbeddedModelProperty(StringProperty):
             return self.reference_class._from_atom(value)
 
     def set_value_on_atom(self, atom, value):
-        super(EmbeddedModelProperty, self).set_value_on_atom(atom, value._atom)
+        if value is not None:
+            super(EmbeddedModelProperty, self).set_value_on_atom(
+                atom, value._atom)
 
 
 class ListProperty(StringProperty):
@@ -332,7 +334,7 @@ class ListProperty(StringProperty):
         super(ListProperty, self).__init__(attr, *args, **kwargs)
 
     def make_value_from_atom(self, atom):
-        values = super(ListProperty, self).make_value_from_atom(atom)
+        values = super(ListProperty, self).make_value_from_atom(atom) or []
         return [self.item_type._from_atom(x) for x in values]
 
     def set_value_on_atom(self, atom, value):
@@ -352,6 +354,9 @@ class ExtendedPropertyMapping(StringProperty):
         return mapping
 
     def set_value_on_atom(self, atom, value):
+        if not value:
+            return
+
         values = []
         for key, value in value.iteritems():
             if value:

@@ -37,13 +37,6 @@ class GANickname(gd.Model):
         return self.nickname
 
 
-class ExtendedProperty(gd.Model):
-    Mapper = mappers.ExtendedPropertyMapper()
-
-    name = gd.StringProperty('name', required=True)
-    value = gd.StringProperty('value', required=True)
-
-
 class Email(gd.Model):
     Mapper = mappers.EmailMapper()
 
@@ -82,6 +75,19 @@ class Name(gd.Model):
     full_name = gd.StringProperty('full_name.text')
 
 
+class Organization(gd.Model):
+    Mapper = mappers.OrganizationMapper()
+
+    name = gd.StringProperty('name.text', required=False)
+    rel = mappers.RelProperty(mappers.ORGANIZATION_TYPES)
+    primary = gd.BooleanProperty('primary', default=False)
+    title = gd.StringProperty('title.text', required=False)
+    job_description = gd.StringProperty(
+        'job_description.text', required=False)
+    department = gd.StringProperty('department.text', required=False)
+    symbol = gd.StringProperty('symbol.text', required=False)
+
+
 class SharedContact(gd.Model):
     Mapper = mappers.SharedContactEntryMapper()
 
@@ -93,6 +99,8 @@ class SharedContact(gd.Model):
         PhoneNumber, 'phone_number', required=False)
     postal_addresses = gd.ListProperty(
         PostalAddress, 'postal_address', required=False)
+    organization = gd.EmbeddedModelProperty(
+        Organization, 'organization', required=False)
     extended_properties = gd.ExtendedPropertyMapping(
         'extended_property', required=False)
     

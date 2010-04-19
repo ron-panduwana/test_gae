@@ -7,9 +7,9 @@ from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from gdata.apps.service import AppsForYourDomainException
 from crgappspanel.models import GAUser, GANickname, Role, TestModel, \
-        SharedContact, Email, PhoneNumber, ExtendedProperty, Name
+        SharedContact, Email, PhoneNumber, Name, Organization
 from crlib.gdata_wrapper import GDataQuery
-from crlib.mappers import MAIN_TYPES, PHONE_TYPES
+from crlib.mappers import MAIN_TYPES, PHONE_TYPES, ORGANIZATION_TYPES
 from crlib.users import _set_testing_user
 
 
@@ -25,12 +25,14 @@ credentials = [line.strip() for line in lines[:2]]
 _set_testing_user(*credentials)
 
 
-class GDataTestCase(unittest.TestCase):
+class BaseGDataTestCase(unittest.TestCase):
     USER_NAME = 'test'
     USER_GIVEN_NAME = 'Test'
     USER_FAMILY_NAME = 'Account'
     NUMBER_OF_USERS = 5
 
+
+class ProvisioningAPITestCase(BaseGDataTestCase):
     def testGetAllUsers(self):
         for user in GAUser.all().fetch(100):
             print user
@@ -150,6 +152,8 @@ class GDataTestCase(unittest.TestCase):
         for user in GAUser.all().order('admin').order('user_name'):
             print user
 
+
+class SharedContactsAPITestCase(BaseGDataTestCase):
     def testCreateSharedContact(self):
         contact = SharedContact.get_by_key_name('Test Contact')
         if contact:
@@ -170,10 +174,17 @@ class GDataTestCase(unittest.TestCase):
         name = Name(full_name='Test Contact')
         name.save()
 
+        organization = Organization(
+            name='Some Test Organization',
+            rel=ORGANIZATION_TYPES[0][0],
+            primary=True)
+        organization.save()
+
         contact = SharedContact(
             name=name,
             emails=[email],
-            phone_numbers=[phone_number])
+            phone_numbers=[phone_number],
+            organization=organization)
         contact.save()
 
         contact.delete()
