@@ -20,12 +20,12 @@
 			{% with form.company as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.role as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.notes as field %}{% include "snippets/form_field.html" %}{% endwith %}
-			{% with form.emails as field %}{% with all_emails as items %}
+			{% with form.emails as field %}{% with full_emails as items %}
 				{% autoescape off %}
 					{% include "snippets/form_field_with_items.html" %}
 				{% endautoescape %}
 			{% endwith %}{% endwith %}
-			{% with form.phone_numbers as field %}{% with all_phone_numbers as items %}
+			{% with form.phone_numbers as field %}{% with full_phones as items %}
 				{% autoescape off %}
 					{% include "snippets/form_field_with_items.html" %}
 				{% endautoescape %}
