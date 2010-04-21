@@ -19,7 +19,8 @@ class GAUser(gd.Model):
     agreed_to_terms = gd.BooleanProperty(
         'login.agreed_to_terms', read_only=True)
     quota = gd.IntegerProperty('quota.limit')
-    change_password= gd.BooleanProperty('login.change_password', default=False)
+    change_password = gd.BooleanProperty('login.change_password', default=False)
+    email_settings = mappers.EmailSettingsProperty()
     
     def get_full_name(self):
         return '%s %s' % (self.given_name, self.family_name)

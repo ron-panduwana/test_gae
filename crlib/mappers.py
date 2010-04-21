@@ -225,3 +225,52 @@ class RelProperty(StringProperty):
     def __init__(self, choices=MAIN_TYPES):
         super(RelProperty, self).__init__('rel', required=False, choices=choices)
 
+
+class _EmailSettingsWrapper(object):
+    _OPERATIONS = {
+        'create_label': 'CreateLabel',
+        'create_filter': 'CreateFilter',
+        'create_send_as_alias': 'CreateSendAsAlias',
+        'update_web_clip_settings': 'UpdateWebClipSettings',
+        'update_forwarding': 'UpdateForwarding',
+        'update_pop': 'UpdatePop',
+        'update_imap': 'UpdateImap',
+        'update_vacation': 'UpdateVacation',
+        'update_signature': 'UpdateSignature',
+        'update_language': 'UpdateLanguage',
+        'update_general': 'UpdateGeneral',
+    }
+    KEEP = 'KEEP'
+    ARCHIVE = 'ARCHIVE'
+    DELETE = 'DELETE'
+    ALL_MAIL = 'ALL_MAIL'
+    MAIL_FROM_NOW_ON = 'MAIL_FROM_NOW_ON'
+
+    def __init__(self, user_name):
+        from crlib import users
+        from gdata.apps.emailsettings.service import EmailSettingsService
+
+        self._user_name = user_name
+        user = users.get_current_user()
+        self._service = EmailSettingsService()
+        self._service.domain = settings.APPS_DOMAIN
+        user.client_login(self._service)
+
+    def __getattr__(self, name):
+        if name in self._OPERATIONS:
+            def fun(*args, **kwargs):
+                _orig_fun = getattr(self._service, self._OPERATIONS[name])
+                return _orig_fun(self._user_name, *args, **kwargs)
+            fun.__name__ = name
+            return fun
+        raise AttributeError
+
+
+class EmailSettingsProperty(object):
+    def __get__(self, model_instance, model_class):
+        if model_instance is None or not hasattr(model_instance, 'user_name'):
+            raise Exception(
+                'EmailSettingsProperty may only be used with model instances '
+                'defining user_name property.')
+        return _EmailSettingsWrapper(model_instance.user_name)
+

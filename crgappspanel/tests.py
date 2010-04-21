@@ -262,6 +262,22 @@ class SharedContactsAPITestCase(BaseGDataTestCase):
         self.assertEqual(contact.extended_properties['some_name'], 'some_val')
 
 
+class EmailSettingsAPITestCase(BaseGDataTestCase):
+    def testCreateLabel(self):
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        self.assertNotEqual(user, None)
+
+        response = user.email_settings.create_label('test_label')
+        self.assertEqual(response, {'label': 'test_label'})
+
+    def testDisableWebClip(self):
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        self.assertNotEqual(user, None)
+
+        response = user.email_settings.update_web_clip_settings(False)
+        self.assertEqual(response, {'enable': 'false'})
+
+
 class RoleCreationTestCase(unittest.TestCase):
     def setUp(self):
         db.delete(Role.all().fetch(100))
