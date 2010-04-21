@@ -8,7 +8,8 @@ from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from gdata.apps.service import AppsForYourDomainException
 from crgappspanel.models import GAUser, GANickname, Role, TestModel, \
-        SharedContact, Email, PhoneNumber, Name, Organization, Website
+        SharedContact, Email, PhoneNumber, Name, Organization, Website, \
+        GAGroup, GAGroupMember, GAGroupOwner
 from crlib.gdata_wrapper import GDataQuery
 from crlib.mappers import MAIN_TYPES, PHONE_TYPES, ORGANIZATION_TYPES, \
         WEBSITE_TYPES
@@ -153,6 +154,89 @@ class ProvisioningAPITestCase(BaseGDataTestCase):
     def testGDataQueryOrder(self):
         for user in GAUser.all().order('admin').order('user_name'):
             print user
+
+
+class ProvisioningAPIGroupsTestCase(BaseGDataTestCase):
+    def testCreateGroup(self):
+        existing = GAGroup.all().filter(
+            'id', 'some_group@moroccanholidayrental.com').get()
+        if existing is not None:
+            existing.delete()
+        group = GAGroup(
+            id='some_group',
+            name='some group',
+            description='this is some group',
+            email_permission='Owner')
+        group.save()
+
+    def testRetrieveAll(self):
+        for group in GAGroup.all():
+            print group
+
+    def testRetrieveMembers(self):
+        group = GAGroup.all().get()
+        for member in group.members:
+            print member.id
+
+    def testRetrieveGroupsByMember(self):
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        member = GAGroupMember.from_user(user)
+        groups = GAGroup.all().filter('members', member).fetch(100)
+        for group in groups:
+            print group
+
+    def testUpdateGroup(self):
+        group = GAGroup.all().filter(
+            'id', 'some_group@moroccanholidayrental.com').get()
+        if group is None:
+            group = GAGroup(
+                id='some_group',
+                name='some group',
+                description='this is some group',
+                email_permission='Owner').save()
+        group.name = 'new name'
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        member = GAGroupMember.from_user(user)
+        group.members.append(member)
+        group.save()
+
+        group = GAGroup.all().filter(
+            'id', 'some_group@moroccanholidayrental.com').get()
+        self.assertEqual(group.name, 'new name')
+        self.assertTrue(member in group.members)
+
+        group.name = 'some group'
+        group.members = []
+        group.save()
+
+        group = GAGroup.all().filter(
+            'id', 'some_group@moroccanholidayrental.com').get()
+        self.assertEqual(len(group.members), 0)
+
+    def testOwners(self):
+        group = GAGroup.all().filter(
+            'id', 'some_group@moroccanholidayrental.com').get()
+        if group is None:
+            group = GAGroup(
+                id='some_group',
+                name='some group',
+                description='this is some group',
+                email_permission='Owner').save()
+
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        owner = GAGroupOwner.from_user(user)
+        group.owners.append(owner)
+        group.save()
+
+        group = GAGroup.all().filter(
+            'id', 'some_group@moroccanholidayrental.com').get()
+        self.assertTrue(owner in group.owners)
+        group.owners = []
+        group.save()
+
+        group = GAGroup.all().filter(
+            'id', 'some_group@moroccanholidayrental.com').get()
+        self.assertEqual(len(group.owners), 0)
 
 
 class SharedContactsAPITestCase(BaseGDataTestCase):

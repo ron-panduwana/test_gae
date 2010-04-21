@@ -3,6 +3,8 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 from gdata import contacts, data
 from gdata.contacts import data as contacts_data
+from gdata.apps import PropertyEntry
+from atom import AtomBase
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
 
 
@@ -97,6 +99,146 @@ class UserEntryMapper(AtomMapper):
 
     def delete(self, atom):
         self.service.DeleteUser(atom.login.user_name)
+
+
+class _DictAtom(dict):
+    """Helper class making a dictionary act as an Atom object.
+
+    Which basically means obj['key'] is equivalent to obj.key.
+
+    """
+
+    def __hash__(self):
+        return hash(unicode(self))
+
+    def __getattr__(self, key):
+        if self.has_key(key):
+            return self[key]
+        raise AttributeError
+
+    def __setattr__(self, key, value):
+        if value is not None and value != '':
+            self[key] = value
+
+
+class MemberEntry(_DictAtom):
+    def __hash__(self):
+        return hash(self.memberId)
+
+
+class MemberEntryMapper(AtomMapper):
+    def key(self, atom):
+        return atom.memberId
+
+    def empty_atom(self):
+        return MemberEntry()
+
+    def clone_atom(self, atom):
+        return MemberEntry(atom)
+
+
+class OwnerEntry(_DictAtom):
+    def __hash__(self):
+        return hash(self.email)
+
+
+class OwnerEntryMapper(AtomMapper):
+    def key(self, atom):
+        return atom.email
+
+    def empty_atom(self):
+        return OwnerEntry()
+
+    def clone_atom(self, atom):
+        return OwnerEntry(atom)
+
+
+class GroupEntry(_DictAtom):
+    def __init__(self, mapper, *args, **kwargs):
+        self._mapper = mapper
+        super(GroupEntry, self).__init__(*args, **kwargs)
+
+    @property
+    def members(self):
+        if self.has_key('members'):
+            return self['members']
+        _members = self._mapper.service.RetrieveAllMembers(self.groupId)
+        self['members'] = [MemberEntry(member) for member in _members]
+        return self['members']
+
+    @property
+    def owners(self):
+        if self.has_key('owners'):
+            return self['owners']
+        _owners = self._mapper.service.RetrieveAllOwners(self.groupId)
+        self['owners'] = [OwnerEntry(owner) for owner in _owners]
+        return self['owners']
+
+
+class GroupEntryMapper(AtomMapper):
+    def key(self, atom):
+        return atom.groupId
+
+    def create_service(self):
+        from gdata.apps.groups import service
+        service = service.GroupsService()
+        service.domain = settings.APPS_DOMAIN
+        return service
+
+    def empty_atom(self):
+        return GroupEntry(self)
+
+    def clone_atom(self, atom):
+        return GroupEntry(self, atom)
+
+    def create(self, atom):
+        new_group = self.service.CreateGroup(
+            atom.groupId, atom.groupName, atom.description,
+            atom.emailPermission)
+        return GroupEntry(self, new_group)
+
+    def _update_members(self, atom, old_atom):
+        old_members = set(old_atom.members)
+        new_members = set(atom.members)
+
+        for member in old_members - new_members:
+            self.service.RemoveMemberFromGroup(member.memberId, atom.groupId)
+
+        for member in new_members - old_members:
+            self.service.AddMemberToGroup(member.memberId, atom.groupId)
+
+    def _update_owners(self, atom, old_atom):
+        old_owners = set(old_atom.owners)
+        new_owners = set(atom.owners)
+
+        for owner in old_owners - new_owners:
+            self.service.RemoveOwnerFromGroup(owner.email, atom.groupId)
+
+        for owner in new_owners - old_owners:
+            self.service.AddOwnerToGroup(owner.email, atom.groupId)
+
+    def update(self, atom, old_atom):
+        self._update_members(atom, old_atom)
+        self._update_owners(atom, old_atom)
+
+        if atom != old_atom:
+            updated_group = self.service.UpdateGroup(
+                atom.groupId, atom.groupName, atom.description,
+                atom.emailPermission)
+            return GroupEntry(self, updated_group)
+        else:
+            return atom
+
+    def delete(self, atom):
+        self.service.DeleteGroup(atom.groupId)
+
+    def retrieve_all(self):
+        groups = self.service.RetrieveAllGroups()
+        return [GroupEntry(self, entry) for entry in groups]
+
+    def filter_by_members(self, member):
+        groups = self.service.RetrieveGroups(member, 'false')
+        return [GroupEntry(self, entry) for entry in groups]
 
 
 class NicknameEntryMapper(AtomMapper):

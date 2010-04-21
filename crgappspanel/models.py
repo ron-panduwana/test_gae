@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from django.conf import settings
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from crlib import gdata_wrapper as gd
@@ -24,6 +25,48 @@ class GAUser(gd.Model):
     
     def get_full_name(self):
         return '%s %s' % (self.given_name, self.family_name)
+
+
+class GAGroupMember(gd.Model):
+    Mapper = mappers.MemberEntryMapper()
+
+    id = gd.StringProperty('memberId', required=True)
+    direct_member = gd.BooleanProperty('directMember')
+    type = gd.StringProperty('memberType')
+
+    @classmethod
+    def from_user(cls, user):
+        return GAGroupMember(
+            id='%s@%s' % (user.user_name, settings.APPS_DOMAIN)).save()
+
+    def __unicode__(self):
+        return self.id
+
+
+class GAGroupOwner(gd.Model):
+    Mapper = mappers.OwnerEntryMapper()
+
+    email = gd.StringProperty('email', required=True)
+    type = gd.StringProperty('type')
+
+    @classmethod
+    def from_user(cls, user):
+        return GAGroupOwner(
+            email='%s@%s' % (user.user_name, settings.APPS_DOMAIN)).save()
+
+
+class GAGroup(gd.Model):
+    Mapper = mappers.GroupEntryMapper()
+
+    id = gd.StringProperty('groupId', required=True)
+    name = gd.StringProperty('groupName', required=True)
+    description = gd.StringProperty('description')
+    email_permission = gd.StringProperty('emailPermission', required=True)
+    members = gd.ListProperty(GAGroupMember, 'members')
+    owners = gd.ListProperty(GAGroupOwner, 'owners')
+
+    def __unicode__(self):
+        return self.name
 
 
 class GANickname(gd.Model):

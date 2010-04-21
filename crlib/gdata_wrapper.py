@@ -456,14 +456,14 @@ class Model(object):
 
     def _get_updated_atom(self):
         if self._atom:
-            atom = _clone_atom(self._atom)
+            atom = self._mapper.clone_atom(self._atom)
         else:
             atom = self._mapper.empty_atom()
 
         # Create Atom elements for missing properties
         if hasattr(self._mapper, 'optional'):
             for k, v in self._mapper.optional.iteritems():
-                if getattr(atom, k) is None:
+                if not hasattr(atom, k) or getattr(atom, k) is None:
                     setattr(atom, k, v())
 
         for prop in self._properties.itervalues():
@@ -491,6 +491,8 @@ class Model(object):
                 self._atom = self._mapper.create(atom)
             else:
                 self._atom = atom
+
+        return self
     put = save
 
     def delete(self):
