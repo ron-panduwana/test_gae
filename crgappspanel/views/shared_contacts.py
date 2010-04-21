@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, redirect
 from django.utils.translation import ugettext as _
 
@@ -157,15 +158,34 @@ def shared_contact_details(request, name=None):
             'emails': '',
         }, auto_id=True)
     
-    fmt = '<b>%s</b>@%s - <a href="%s">Remove</a>'
     def remove_email_link(x):
-        kwargs=dict(name=shared_contact.name, action='remove-email', arg=x.address)
-        return reverse('shared-contact-action', kwargs=kwargs)
+        kwargs = dict(name=shared_contact.title, email=x.address)
+        return reverse('shared-contact-remove-email', kwargs=kwargs)
+    full_emails = []
+    for email in shared_contact.emails:
+        idx = email.address.find('@')
+        if idx != -1:
+            fmt = '<b>%s</b>@%s &ndash; <a href="%s">Remove</a>'
+            user_part = email.address[:idx]
+            domain_part = email.address[idx+1:]
+            full_emails.append(fmt % (user_part, domain_part, remove_email_link(email)))
+        else:
+            fmt = '%s &ndash; <a href="%s">Remove</a>'
+            full_emails.append(fmt % (email.address, remove_email_link(email)))
+    
+    def remove_phone_link(x):
+        kwargs = dict(name=shared_contact.title, phone=x.number)
+        return reverse('shared-contact-remove-phone', kwargs=kwargs)
+    full_phones = []
+    for phone in shared_contact.phone_numbers:
+        fmt = '%s &ndash; <a href="%s">Remove</a>'
+        full_phones.append(fmt % (phone.number, remove_phone_link(phone)))
+    
     return render_to_response('shared_contact_details.html', ctx({
         'shared_contact': shared_contact,
         'form': form,
-        'all_emails': (email.address for email in shared_contact.emails),
-        'all_phone_numbers': (phone.number for phone in shared_contact.phone_numbers),
+        'full_emails': full_emails,
+        'full_phones': full_phones,
         'saved': request.GET.get('saved', None),
         'styles': ['table-details'],
         'scripts': ['swap-widget'],
@@ -182,3 +202,39 @@ def shared_contact_remove(request, names=None):
         user.delete()
     
     return redirect('shared-contacts')
+
+
+@admin_required
+def shared_contact_remove_email(request, name=None, email=None):
+    if not all((name, email)):
+        raise ValueError('name = %s, email = %s' % (name, email))
+    
+    shared_contact = SharedContact.all().filter('title', name).get()
+    if not shared_contact:
+        return redirect('shared-contacts')
+    
+    for index, elem in enumerate(shared_contact.emails):
+        if elem.address == email:
+            del shared_contact.emails[index]
+            break
+    shared_contact.save()
+    
+    return redirect_saved('shared-contact-details', name=name)
+
+
+@admin_required
+def shared_contact_remove_phone(request, name=None, phone=None):
+    if not all((name, phone)):
+        raise ValueError('name = %s, phone = %s' % (name, phone))
+    
+    shared_contact = SharedContact.all().filter('title', name).get()
+    if not shared_contact:
+        return redirect('shared-contacts')
+    
+    for index, elem in enumerate(shared_contact.phone_numbers):
+        if elem.number == phone:
+            del shared_contact.phone_numbers[index]
+            break
+    shared_contact.save()
+    
+    return redirect_saved('shared-contact-details', name=name)
