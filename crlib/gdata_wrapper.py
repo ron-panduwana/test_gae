@@ -84,7 +84,8 @@ class GDataQuery(object):
            hasattr(self._model._mapper, 'filter_by_%s' % self._filters[0][0]):
             retriever = getattr(
                 self._model._mapper, 'filter_by_%s' % self._filters[0][0])
-            retriever = retriever(self._filters[0][2])
+            retriever = retriever(
+                self._normalize_parameter(self._filters[0][2]))
         elif can_retrieve_subset:
             retriever = self._model._mapper.retrieve_subset(limit, offset)
         else:
@@ -101,6 +102,8 @@ class GDataQuery(object):
         for property, operator, value in self._filters:
             item_value = getattr(item, property)
             item_value = self._normalize_parameter(item_value)
+            if hasattr(item_value, '__iter__') and operator in ('=', 'in'):
+                return value in item_value
             if not self._FUNCS[operator](item_value, value):
                 return False
         else:
