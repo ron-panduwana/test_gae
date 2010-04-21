@@ -357,9 +357,17 @@ class ListProperty(StringProperty):
         kwargs.setdefault('default', [])
         super(ListProperty, self).__init__(attr, *args, **kwargs)
 
+    def __get__(self, model_instance, model_class):
+        values = getattr(model_instance, self._attr_name())
+        if values == 'NOT_RESOLVED':
+            values = super(ListProperty, self).make_value_from_atom(
+                model_instance._atom) or []
+            values = [self.item_type._from_atom(x) for x in values]
+            setattr(model_instance, self._attr_name(), values)
+        return values
+
     def make_value_from_atom(self, atom):
-        values = super(ListProperty, self).make_value_from_atom(atom) or []
-        return [self.item_type._from_atom(x) for x in values]
+        return 'NOT_RESOLVED'
 
     def set_value_on_atom(self, atom, value):
         """Set the property value at the given place within the atom object.
