@@ -14,19 +14,6 @@ from gdata.service import GDataService
 BadValueError = db.BadValueError
 
 
-def _clone_atom(atom):
-    """Make a copy of atom object."""
-    from atom.core import XmlElement, parse
-    from atom import CreateClassFromXMLString
-
-    if isinstance(atom, XmlElement):
-        # New version of the API
-        return parse(atom.to_string(), atom.__class__)
-    else:
-        # Old version
-        return CreateClassFromXMLString(atom.__class__, unicode(atom))
-
-
 class GDataQuery(object):
     """db.Query equivalent."""
 
@@ -591,6 +578,18 @@ class AtomMapper(object):
             self._service = self.create_service(*args, **kwargs)
         else:
             self._service = None
+
+    def clone_atom(self, atom):
+        """Make a copy of atom object."""
+        from atom.core import XmlElement, parse
+        from atom import CreateClassFromXMLString
+
+        if isinstance(atom, XmlElement):
+            # New version of the API
+            return parse(atom.to_string(), atom.__class__)
+        else:
+            # Old version
+            return CreateClassFromXMLString(atom.__class__, unicode(atom))
 
 
 def simple_mapper(atom, key):
