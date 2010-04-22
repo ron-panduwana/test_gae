@@ -3,11 +3,12 @@ from django.shortcuts import render_to_response, redirect
 from django.utils.translation import ugettext as _
 
 from crgappspanel.forms import SharedContactForm
-from crgappspanel.helpers.filters import SharedContactFilter, AllAttributeFilter, NullFilter
+from crgappspanel.helpers.filters import SharedContactFilter, \
+        SharedContactAdvancedFilter, NullFilter
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import SharedContact
 from crgappspanel.views.utils import ctx, get_sortby_asc, join_attrs, \
-        get_page, qs_wo_page, redirect_saved, QueryString
+        get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch
 from crlib.users import admin_required
 
 
@@ -44,30 +45,25 @@ def shared_contacts(request):
     
     # getting queries
     query = request.GET.get('q', '')
-    query_name = request.GET.get('name', '')
-    query_notes = request.GET.get('notes', '')
-    query_email = request.GET.get('email', '')
+    query_adv = QuerySearch()
+    query_adv.add(request, 'name', 'name.full_name')
+    query_adv.add(request, 'notes', 'notes')
+    query_adv.add(request, 'email', 'emails.address')
+    query_adv.add(request, 'phone', 'phone_numbers.number')
+    query_adv.add(request, 'company', None)
+    query_adv.add(request, 'role', None)
     
-    shared_contacts = SharedContact.all().fetch(100)
+    shared_contacts = SharedContact.all().fetch(1000000)
     
     if query:
         advanced_search = False
         filter = SharedContactFilter(query)
         filters = ['%s:%s' % (_('query'), query)]
-    elif any((query_name, query_notes, query_email)):
+    elif not query_adv.is_empty():
         advanced_search = True
-        filters = []
-        filter_args = dict()
-        if query_name:
-            filters.append('%s:%s' % (_('name'), query_name))
-            filter_args['name.full_name'] = query_name
-        if query_notes:
-            filters.append('%s:%s' % (_('notes'), query_notes))
-            filter_args['notes'] = query_notes
-        if query_email:
-            filters.append('%s:%s' % (_('email'), query_email))
-            filter_args['emails.address'] = query_email
-        filter = AllAttributeFilter(filter_args)
+        filter = SharedContactAdvancedFilter(query_adv.filter_attrs,
+            query_adv.search_by.get('company', ''), query_adv.search_by.get('role', ''))
+        filters = ['%s:%s' % (_(key), value) for key, value in query_adv.search_by.iteritems()]
     else:
         advanced_search = False
         filter = NullFilter()
@@ -89,7 +85,7 @@ def shared_contacts(request):
             widths=_sharedContactWidths, singular='shared contact'),
         'advanced_search': advanced_search,
         'filters': filters,
-        'query': dict(general=query, name=query_name, notes=query_notes, email=query_email),
+        'query': dict(general=query, advanced=query_adv.search_by),
         'styles': ['table-list'],
         'scripts': ['table', 'shared-contacts-list'],
     }, 3))
@@ -104,6 +100,8 @@ def shared_contact_add(request):
             shared_contact.name.save()
             for email in shared_contact.emails:
                 email.save()
+            for phone in shared_contact.phone_numbers:
+                phone.save()
             shared_contact.save()
             return redirect_saved('shared-contact-details', name=shared_contact.name)
     else:

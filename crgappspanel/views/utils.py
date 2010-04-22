@@ -91,3 +91,20 @@ class QueryString(object):
     
     def get(self):
         return ('?%s' % qs) if qs else ''
+
+
+class QuerySearch(object):
+    def __init__(self):
+        self.search_by = dict()
+        self.filter_attrs = dict()
+    
+    def add(self, request, query_key, filter_attr):
+        value = request.GET.get(query_key, None)
+        if value:
+            if query_key:
+                self.search_by[query_key] = value
+            if filter_attr:
+                self.filter_attrs[filter_attr] = value
+    
+    def is_empty(self):
+        return len(self.search_by) == 0 and len(self.filter_attrs) == 0

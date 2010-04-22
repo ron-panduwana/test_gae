@@ -44,17 +44,32 @@ function toggleSearch() {
 		<tbody>
 			<tr>
 				<td>{% trans "Name" %}</td>
-				<td><input type="text" name="name" value="{{ query.name }}"/></td>
+				<td><input type="text" name="name" value="{{ query.advanced.name }}"/></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>{% trans "Company" %}</td>
+				<td><input type="text" name="company" value="{{ query.advanced.company }}"/></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>{% trans "Role" %}</td>
+				<td><input type="text" name="role" value="{{ query.advanced.role }}"/></td>
 				<td></td>
 			</tr>
 			<tr>
 				<td>{% trans "Notes" %}</td>
-				<td><input type="text" name="notes" value="{{ query.notes }}"/></td>
+				<td><input type="text" name="notes" value="{{ query.advanced.notes }}"/></td>
 				<td></td>
 			</tr>
 			<tr>
 				<td>{% trans "E-mail" %}</td>
-				<td><input type="text" name="email" value="{{ query.email }}"/></td>
+				<td><input type="text" name="email" value="{{ query.advanced.email }}"/></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>{% trans "Phone" %}</td>
+				<td><input type="text" name="phone" value="{{ query.advanced.phone }}"/></td>
 				<td><input type="submit" value="{% trans "go" %}"/></td>
 			</tr>
 		</tbody>
