@@ -64,7 +64,7 @@ phone_numbers_e = 'Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link
 
 class SharedContactForm(forms.Form):
     full_name = forms.CharField(label='Name')
-    real_name = fields.RealNameField(label='Real name')
+    real_name = fields.RealNameField(label='Real name', required=False)
     notes = forms.CharField(label='Notes', required=False,
         widget=forms.Textarea(attrs=dict(rows=5, cols=40)))
     company = forms.CharField(label='Company', required=False)
