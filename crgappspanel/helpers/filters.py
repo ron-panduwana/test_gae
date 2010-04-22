@@ -85,6 +85,17 @@ class SharedContactFilter(AnyAttributeFilter):
             'emails.address': query,
             'phone_numbers.number': query,
         })
+        self.query_text = query
+    
+    def match(self, obj):
+        if AnyAttributeFilter.match(self, obj):
+            return True
+        
+        for ep_name in ('company', 'role'):
+            value = obj.extended_properties.get(ep_name, '')
+            if self.query_text.lower() in value.lower():
+                return True
+        return False
 
 
 class SharedContactAdvancedFilter(AllAttributeFilter):
