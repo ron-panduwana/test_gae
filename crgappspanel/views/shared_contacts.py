@@ -110,7 +110,7 @@ def shared_contact_add(request):
     return render_to_response('shared_contact_add.html', ctx({
         'form': form,
         'styles': ['table-details'],
-    }, 3, None, True))
+    }, 3, back_link=True))
 
 
 @admin_required
@@ -187,7 +187,7 @@ def shared_contact_details(request, name=None):
         'saved': request.GET.get('saved', None),
         'styles': ['table-details'],
         'scripts': ['swap-widget'],
-    }, 3, None, True))
+    }, 3, back_link=True))
 
 
 @admin_required

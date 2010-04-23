@@ -32,10 +32,27 @@
 		
 		{% if back_link %}
 			<div class="back"><a href="{{ back_link.view }}">&laquo; {% trans "Back to list" %}</a></div>
+			{% if sel_subsection.subsections %}
+				<div id="tabs">
+					<h2 id="tabs_title">{{ sel_subsection.name }}</h2>
+					<ul>
+						{% for subsubsection in sel_subsection.subsections %}
+						<li{% if subsubsection.selected %} class="selected"{% endif %}>
+							{% if subsubsection.selected %}
+								<b>{{ subsubsection.name }}</b>
+							{% else %}
+								<a href="{{ subsubsection.view }}">{{ subsubsection.name }}</a>
+							{% endif %}
+						</li>
+						{% endfor %}
+					</ul>
+					<div style="clear: both"></div>
+				</div>
+			{% endif %}
 		{% else %}
 			{% if sel_section.subsections %}
 				<div id="tabs">
-					<h2 id="section_title">{{ sel_section.name }}</h2>
+					<h2 id="tabs_title">{{ sel_section.name }}</h2>
 					<ul>
 						{% for subsection in sel_section.subsections %}
 						<li{% if subsection.selected %} class="selected"{% endif %}>

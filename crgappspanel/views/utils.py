@@ -60,11 +60,11 @@ def join_attrs(lst, attr, max_len=3, delim='\n', finish='...'):
     return s
 
 
-def ctx(d, section=None, subsection=None, back_link=False):
+def ctx(d, section=None, subsection=None, subsubsection=None, back_link=False, sections_args=None):
     from crgappspanel.sections import get_sections
     from settings import APPS_DOMAIN
     
-    sections = get_sections()
+    sections = get_sections(**(sections_args or {}))
     
     if section is not None:
         section = sections[section - 1]
@@ -72,7 +72,14 @@ def ctx(d, section=None, subsection=None, back_link=False):
         if subsection is not None:
             subsection = section.subsections[subsection - 1]
             subsection.selected = True
+            if subsubsection is not None:
+                subsubsection = subsection.subsections[subsubsection - 1]
+                subsubsection.selected = True
+        else:
+            assert not subsubsection
     else:
+        assert not subsection
+        assert not subsubsection
         assert not back_link, 'back link must not be set if section is not set'
     
     if back_link:

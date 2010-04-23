@@ -3,15 +3,15 @@ from django.core.urlresolvers import reverse
 __all__ = ('get_sections')
 
 class Section(object):
-    def __init__(self, name, view, subsections=None):
+    def __init__(self, name, view, subsections=None, kwargs=None):
         self.name = name
-        self.view = reverse(view) if view else None
+        self.view = reverse(view, kwargs=kwargs) if view else None
         self.subsections = subsections
         self.selected = False
         
 
-def get_sections():
-    return [
+def get_sections(user=False):
+    sections = [
         Section('Dashboard', None),
         Section('Users and groups', 'crgappspanel.views.users.users', [
             Section('Groups', 'crgappspanel.views.groups.groups'),
@@ -23,3 +23,8 @@ def get_sections():
         Section('Additional management', None),
         Section('Preferences', None),
     ]
+    if user:
+        sections[1].subsections[1].subsections = [
+            Section('General', 'crgappspanel.views.users.user_details', kwargs=dict(name=user)),
+        ]
+    return sections

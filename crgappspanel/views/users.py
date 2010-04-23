@@ -59,7 +59,7 @@ def user_create(request):
     return render_to_response('user_create.html', ctx({
         'form': form,
         'temp_password': temp_password,
-    }, 2, 2, True))
+    }, 2, 2, back_link=True))
 
 
 @admin_required
@@ -101,7 +101,7 @@ def user_details(request, name=None):
         'full_nicknames': full_nicknames,
         'styles': ['table-details', 'user-details'],
         'scripts': ['expand-field', 'swap-widget', 'user-details'],
-    }, 2, 2, True))
+    }, 2, 2, 1, back_link=True, sections_args=dict(user=True)))
 
 
 def user_suspend_restore(request, name=None, suspend=None):
