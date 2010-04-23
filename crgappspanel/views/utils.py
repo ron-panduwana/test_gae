@@ -3,8 +3,6 @@ import os
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import redirect
 
-from settings import APPS_DOMAIN
-
 
 def get_sortby_asc(request, valid_sortby):
     sortby = request.GET.get('sortby', None)
@@ -63,12 +61,13 @@ def join_attrs(lst, attr, max_len=3, delim='\n', finish='...'):
 
 
 def ctx(d, section=None, subsection=None, back_link=False):
-    from crgappspanel.sections import SECTIONS
-    d['domain'] = APPS_DOMAIN
-    d['sections'] = SECTIONS
+    from crgappspanel.sections import get_sections
+    from settings import APPS_DOMAIN
+    
+    sections = get_sections()
     
     if section is not None:
-        section = SECTIONS[section - 1]
+        section = sections[section - 1]
         section.selected = True
         if subsection is not None:
             subsection = section.subsections[subsection - 1]
@@ -79,6 +78,8 @@ def ctx(d, section=None, subsection=None, back_link=False):
     if back_link:
         back_link = dict(view=(subsection or section).view)
     
+    d['domain'] = APPS_DOMAIN
+    d['sections'] = sections
     d['sel_section'] = section
     d['sel_subsection'] = subsection
     d['back_link'] = back_link
