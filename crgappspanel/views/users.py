@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 from crgappspanel.forms import UserForm
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname
-from crgappspanel.views.utils import ctx, get_sortby_asc, random_password
+from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, redirect_saved
 from crlib.users import admin_required
 from settings import APPS_DOMAIN
 
@@ -78,7 +78,7 @@ def user_details(request, name=None):
             user.save()
             if form.get_nickname():
                 GANickname(user=user, nickname=form.get_nickname()).save()
-            return redirect('user-details', name=user.user_name)
+            return redirect_saved('user-details', name=user.user_name)
     else:
         form = UserForm(initial={
             'user_name': user.user_name,
@@ -101,7 +101,35 @@ def user_details(request, name=None):
         'full_nicknames': full_nicknames,
         'styles': ['table-details', 'user-details'],
         'scripts': ['expand-field', 'swap-widget', 'user-details'],
-    }, 2, 2, 1, back_link=True, sections_args=dict(user=True)))
+    }, 2, 2, 1, back_link=True, sections_args=dict(user=name)))
+
+
+@admin_required
+def user_settings(request, name=None):
+    if not name:
+        raise ValueError('name = %s' % name)
+    
+    user = GAUser.get_by_key_name(name)
+    if not user:
+        return redirect('users')
+    
+    if request.method == 'POST':
+        if request.POST.get('enable_pop', None):
+            user.email_settings.update_pop(True)
+        elif request.POST.get('disable_pop', None):
+            user.email_settings.update_pop(False)
+        elif request.POST.get('enable_imap', None):
+            user.email_settings.update_imap(True)
+        elif request.POST.get('disable_imap', None):
+            user.email_settings.update_imap(False)
+        else:
+            raise ValueError('POST request does not contain any relevant changes.')
+        return redirect_saved('user-settings', name=user.user_name)
+    
+    return render_to_response('user_settings.html', ctx({
+        'user': user,
+        'saved': request.GET.get('saved', None),
+    }, 2, 2, 2, back_link=True, sections_args=dict(user=name)))
 
 
 def user_suspend_restore(request, name=None, suspend=None):

@@ -24,7 +24,9 @@ def get_sections(user=False):
         Section('Preferences', None),
     ]
     if user:
+        sections[1].subsections[1].name = user
         sections[1].subsections[1].subsections = [
             Section('General', 'crgappspanel.views.users.user_details', kwargs=dict(name=user)),
+            Section('Settings', 'crgappspanel.views.users.user_settings', kwargs=dict(name=user)),
         ]
     return sections
