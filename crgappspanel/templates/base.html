@@ -17,39 +17,33 @@
 		{% endfor %}
 	</head>
 	<body style="margin: 0px; padding: 20px">
-		{% if sel_section %}
 		<div id="menu">
 			<ul>
 				{% for section in sections %}
-				<li{% ifequal section.name sel_section.name %} class="selected"{% endifequal %}>
-					<a href="{{ section.view|default_if_none:"#" }}">
-						{{ section.name }}
-					</a>
-				</li>
+					<li{% if section.selected %} class="selected"{% endif %}>
+						<a href="{{ section.view|default_if_none:"#" }}">
+							{{ section.name }}
+						</a>
+					</li>
 				{% endfor %}
 			</ul>
 			<div style="clear: both"></div>
 		</div>
-		{% endif %}
 		
-		{% if back_button %}
-			{% if sel_subsection %}
-				<div class="back"><a href="{{ sel_subsection.view }}">&laquo; {% trans "Back to list" %}</a></div>
-			{% else %}
-				<div class="back"><a href="{{ sel_section.view }}">&laquo; {% trans "Back to list" %}</a></div>
-			{% endif %}
+		{% if back_link %}
+			<div class="back"><a href="{{ back_link.view }}">&laquo; {% trans "Back to list" %}</a></div>
 		{% else %}
-			{% if sel_subsection %}
+			{% if sel_section.subsections %}
 				<div id="tabs">
 					<h2 id="section_title">{{ sel_section.name }}</h2>
 					<ul>
 						{% for subsection in sel_section.subsections %}
-						<li{% ifequal subsection.name sel_subsection.name %} class="selected"{% endifequal %}>
-							{% ifequal subsection.name sel_subsection.name %}
+						<li{% if subsection.selected %} class="selected"{% endif %}>
+							{% if subsection.selected %}
 								<b>{{ subsection.name }}</b>
 							{% else %}
 								<a href="{{ subsection.view }}">{{ subsection.name }}</a>
-							{% endifequal %}
+							{% endif %}
 						</li>
 						{% endfor %}
 					</ul>

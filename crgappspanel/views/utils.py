@@ -62,15 +62,27 @@ def join_attrs(lst, attr, max_len=3, delim='\n', finish='...'):
     return s
 
 
-def ctx(d, section=None, subsection=None, back=False):
+def ctx(d, section=None, subsection=None, back_link=False):
     from crgappspanel.sections import SECTIONS
     d['domain'] = APPS_DOMAIN
     d['sections'] = SECTIONS
+    
     if section is not None:
-        d['sel_section'] = SECTIONS[section - 1]
+        section = SECTIONS[section - 1]
+        section.selected = True
         if subsection is not None:
-            d['sel_subsection'] = SECTIONS[section - 1]['subsections'][subsection - 1]
-        d['back_button'] = back
+            subsection = section.subsections[subsection - 1]
+            subsection.selected = True
+    else:
+        assert not back_link, 'back link must not be set if section is not set'
+    
+    if back_link:
+        back_link = dict(view=(subsection or section).view)
+    
+    d['sel_section'] = section
+    d['sel_subsection'] = subsection
+    d['back_link'] = back_link
+    
     return d
 
 
