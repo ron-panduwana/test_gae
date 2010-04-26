@@ -104,7 +104,8 @@ def user_details(request, name=None):
         'user': user,
         'form': form,
         'full_nicknames': full_nicknames,
-        'styles': ['table-details', 'user-details'],
+        'saved': request.GET.get('saved', None),
+        'styles': ['table-details'],
         'scripts': ['expand-field', 'swap-widget', 'user-details'],
     }, 2, 2, 1, back_link=True, sections_args=dict(user=name)))
 

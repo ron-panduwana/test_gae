@@ -5,6 +5,9 @@
 
 {% block content %}
 <script type="text/javascript">
+goog.require('goog.ui.Dialog')
+</script>
+<script type="text/javascript">
 var dialogSuspend = new goog.ui.Dialog()
 dialogSuspend.setTitle('{% trans "Suspend user" %}')
 dialogSuspend.setContent('{% trans "Are you sure want to suspend selected user?" %}')
