@@ -41,7 +41,7 @@
 							{% if subsubsection.selected %}
 								<b>{{ subsubsection.name }}</b>
 							{% else %}
-								<a href="{{ subsubsection.view }}">{{ subsubsection.name }}</a>
+								<a href="{{ subsubsection.view|default_if_none:"#" }}">{{ subsubsection.name }}</a>
 							{% endif %}
 						</li>
 						{% endfor %}
@@ -59,7 +59,7 @@
 							{% if subsection.selected %}
 								<b>{{ subsection.name }}</b>
 							{% else %}
-								<a href="{{ subsection.view }}">{{ subsection.name }}</a>
+								<a href="{{ subsection.view|default_if_none:"#" }}">{{ subsection.name }}</a>
 							{% endif %}
 						</li>
 						{% endfor %}
