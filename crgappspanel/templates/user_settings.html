@@ -11,18 +11,13 @@
 	<br/>
 	<table class="details" width="100%">
 		<tbody>
+			{% with form.enable_pop as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.enable_imap as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			<tr>
-				<td>POP3</td>
+				<td></td>
 				<td>
-					<input type="submit" name="enable_pop" value="Enable"/>
-					<input type="submit" name="disable_pop" value="Disable"/>
-				</td>
-			</tr>
-			<tr>
-				<td>IMAP</td>
-				<td>
-					<input type="submit" name="enable_imap" value="Enable"/>
-					<input type="submit" name="disable_imap" value="Disable"/>
+					<input type="submit" value="save" class="default"/>
+					<input type="reset" value="reset"/>
 				</td>
 			</tr>
 		</tbody>

@@ -2,12 +2,17 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, redirect
 from django.utils.translation import ugettext as _
 
-from crgappspanel.forms import UserForm
+from crgappspanel.forms import UserForm, UserEmailSettingsForm
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname
 from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, redirect_saved
 from crlib.users import admin_required
 from settings import APPS_DOMAIN
+
+
+EMAIL_ENABLE_FOR_ALL_MAIL = 'ALL_MAIL'
+EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON = 'MAIL_FROM_NOW_ON'
+EMAIL_ACTION_KEEP = 'KEEP'
 
 
 def _get_status(x):
@@ -114,21 +119,35 @@ def user_settings(request, name=None):
         return redirect('users')
     
     if request.method == 'POST':
-        if request.POST.get('enable_pop', None):
-            user.email_settings.update_pop(True)
-        elif request.POST.get('disable_pop', None):
-            user.email_settings.update_pop(False)
-        elif request.POST.get('enable_imap', None):
-            user.email_settings.update_imap(True)
-        elif request.POST.get('disable_imap', None):
-            user.email_settings.update_imap(False)
-        else:
-            raise ValueError('POST request does not contain any relevant changes.')
-        return redirect_saved('user-settings', name=user.user_name)
+        form = UserEmailSettingsForm(request.POST, auto_id=True)
+        if form.is_valid():
+            enable_pop = form.cleaned_data['enable_pop']
+            if enable_pop == 'ea':
+                user.email_settings.update_pop(True,
+                    enable_for=EMAIL_ENABLE_FOR_ALL_MAIL,
+                    action=EMAIL_ACTION_KEEP)
+            elif enable_pop == 'en':
+                user.email_settings.update_pop(True,
+                    enable_for=EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON,
+                    action=EMAIL_ACTION_KEEP)
+            elif enable_pop == 'd':
+                user.email_settings.update_pop(False)
+            
+            enable_imap = form.cleaned_data['enable_imap']
+            if enable_imap == 'e':
+                user.email_settings.update_imap(True)
+            elif enable_imap == 'd':
+                user.email_settings.update_imap(False)
+            
+            return redirect_saved('user-settings', name=user.user_name)
+    else:
+        form = UserEmailSettingsForm(initial={}, auto_id=True)
     
     return render_to_response('user_settings.html', ctx({
         'user': user,
+        'form': form,
         'saved': request.GET.get('saved', None),
+        'styles': ['table-details'],
     }, 2, 2, 2, back_link=True, sections_args=dict(user=name)))
 
 
