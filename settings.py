@@ -23,6 +23,10 @@ sys.path.insert(1, os.path.join(sys.path[0], 'lib'))
 APPS_DOMAIN = 'moroccanholidayrental.com'
 CLIENT_LOGIN_SOURCE = 'cloudreach-powerpanel-v1'
 
+OAUTH_CONSUMER = ''
+OAUTH_SECRET = ''
+OAUTH_REQUESTOR_ID = ''
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 

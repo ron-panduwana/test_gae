@@ -1,6 +1,7 @@
 import logging
 import os
 import urllib
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -8,7 +9,7 @@ from django import forms
 from google.appengine.api import memcache
 from gdata.service import GDataService, CaptchaRequired, BadAuthentication
 from gdata.client import GDClient, CaptchaChallenge
-from gdata.gauth import ClientLoginToken
+from gdata.gauth import ClientLoginToken, TwoLeggedOAuthHmacToken
 from gdata.apps.service import AppsForYourDomainException
 from settings import APPS_DOMAIN, CLIENT_LOGIN_SOURCE
 
@@ -89,6 +90,13 @@ class User(object):
         else:
             raise Exception('Unknown service type: %s' %
                             service.__class__.__name__)
+
+    def oauth_login(self, client):
+        if client.auth_token is None:
+            client.auth_token = TwoLeggedOAuthHmacToken(
+                settings.OAUTH_CONSUMER,
+                settings.OAUTH_SECRET,
+                settings.OAUTH_REQUESTOR_ID)
 
 
 class UsersMiddleware(object):

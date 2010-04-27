@@ -576,7 +576,11 @@ class _GDataServiceDescriptor(object):
         user = users.get_current_user()
         if not user:
             raise users.LoginRequiredError()
-        user.client_login(instance._service)
+        auth_method = getattr(instance, 'auth_method', 'client_login')
+        if auth_method == 'oauth':
+            user.oauth_login(instance._service)
+        else:
+            user.client_login(instance._service)
         return instance._service
 
 
