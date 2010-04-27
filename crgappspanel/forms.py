@@ -56,6 +56,25 @@ class UserForm(forms.Form):
         return self.cleaned_data['nicknames']
 
 
+ON_OFF_KEEP = (
+    (u'', u'Don\'t change'),
+    (u'e', u'Enable'),
+    (u'd', u'Disable'),
+)
+
+POP_CHOICES = (
+    (u'', u'Don\'t change'),
+    (u'ea', u'Enable for all emails'),
+    (u'en', u'Enable for emails for now on'),
+    (u'd', u'Disable'),
+)
+
+
+class UserEmailSettingsForm(forms.Form):
+    enable_pop = forms.ChoiceField(label='Enable POP3', choices=POP_CHOICES, required=False)
+    enable_imap = forms.ChoiceField(label='Enable IMAP', choices=ON_OFF_KEEP, required=False)
+
+
 emails_c = '%(link_start)sAdd email%(link_end)s'
 emails_e = 'Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 phone_numbers_c = '%(link_start)sAdd phone number%(link_end)s'
@@ -64,7 +83,7 @@ phone_numbers_e = 'Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link
 
 class SharedContactForm(forms.Form):
     full_name = forms.CharField(label='Name')
-    real_name = fields.RealNameField(label='Real name')
+    real_name = fields.RealNameField(label='Real name', required=False)
     notes = forms.CharField(label='Notes', required=False,
         widget=forms.Textarea(attrs=dict(rows=5, cols=40)))
     company = forms.CharField(label='Company', required=False)

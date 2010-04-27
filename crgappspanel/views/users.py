@@ -2,12 +2,17 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, redirect
 from django.utils.translation import ugettext as _
 
-from crgappspanel.forms import UserForm
+from crgappspanel.forms import UserForm, UserEmailSettingsForm
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname
-from crgappspanel.views.utils import ctx, get_sortby_asc, random_password
+from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, redirect_saved
 from crlib.users import admin_required
 from settings import APPS_DOMAIN
+
+
+EMAIL_ENABLE_FOR_ALL_MAIL = 'ALL_MAIL'
+EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON = 'MAIL_FROM_NOW_ON'
+EMAIL_ACTION_KEEP = 'KEEP'
 
 
 def _get_status(x):
@@ -59,7 +64,7 @@ def user_create(request):
     return render_to_response('user_create.html', ctx({
         'form': form,
         'temp_password': temp_password,
-    }, 2, 2, True))
+    }, 2, 2, back_link=True))
 
 
 @admin_required
@@ -78,7 +83,7 @@ def user_details(request, name=None):
             user.save()
             if form.get_nickname():
                 GANickname(user=user, nickname=form.get_nickname()).save()
-            return redirect('user-details', name=user.user_name)
+            return redirect_saved('user-details', name=user.user_name)
     else:
         form = UserForm(initial={
             'user_name': user.user_name,
@@ -99,9 +104,52 @@ def user_details(request, name=None):
         'user': user,
         'form': form,
         'full_nicknames': full_nicknames,
-        'styles': ['table-details', 'user-details'],
+        'saved': request.GET.get('saved', None),
+        'styles': ['table-details'],
         'scripts': ['expand-field', 'swap-widget', 'user-details'],
-    }, 2, 2, True))
+    }, 2, 2, 1, back_link=True, sections_args=dict(user=name)))
+
+
+@admin_required
+def user_settings(request, name=None):
+    if not name:
+        raise ValueError('name = %s' % name)
+    
+    user = GAUser.get_by_key_name(name)
+    if not user:
+        return redirect('users')
+    
+    if request.method == 'POST':
+        form = UserEmailSettingsForm(request.POST, auto_id=True)
+        if form.is_valid():
+            enable_pop = form.cleaned_data['enable_pop']
+            if enable_pop == 'ea':
+                user.email_settings.update_pop(True,
+                    enable_for=EMAIL_ENABLE_FOR_ALL_MAIL,
+                    action=EMAIL_ACTION_KEEP)
+            elif enable_pop == 'en':
+                user.email_settings.update_pop(True,
+                    enable_for=EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON,
+                    action=EMAIL_ACTION_KEEP)
+            elif enable_pop == 'd':
+                user.email_settings.update_pop(False)
+            
+            enable_imap = form.cleaned_data['enable_imap']
+            if enable_imap == 'e':
+                user.email_settings.update_imap(True)
+            elif enable_imap == 'd':
+                user.email_settings.update_imap(False)
+            
+            return redirect_saved('user-settings', name=user.user_name)
+    else:
+        form = UserEmailSettingsForm(initial={}, auto_id=True)
+    
+    return render_to_response('user_settings.html', ctx({
+        'user': user,
+        'form': form,
+        'saved': request.GET.get('saved', None),
+        'styles': ['table-details'],
+    }, 2, 2, 2, back_link=True, sections_args=dict(user=name)))
 
 
 def user_suspend_restore(request, name=None, suspend=None):

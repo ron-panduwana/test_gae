@@ -5,6 +5,9 @@
 
 {% block content %}
 <script type="text/javascript">
+goog.require('goog.ui.Dialog')
+</script>
+<script type="text/javascript">
 var dialogSuspend = new goog.ui.Dialog()
 dialogSuspend.setTitle('{% trans "Suspend user" %}')
 dialogSuspend.setContent('{% trans "Are you sure want to suspend selected user?" %}')
@@ -36,6 +39,7 @@ function showDialog(dialog) {
 }
 </script>
 
+{% include "snippets/saved_warning.html" %}
 <form action="{% url user-details user.user_name %}" method="POST" class="details">
 	<h1 style="display: inline">{{ user.given_name }} {{ user.family_name }}</h1>
 	{% if user.admin %}<span class="admin-label">{% trans "Administrator" %}</span>{% endif %}

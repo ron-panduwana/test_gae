@@ -16,6 +16,11 @@ class AttributeFilter(object):
     def __init__(self, query):
         self.query = query
     
+    def generate(self, obj):
+        for key, value in self.query.iteritems():
+            values = AttributeFilter.get_values(obj, key)
+            yield any(value.lower() in v.lower() for v in values)
+    
     @staticmethod
     def get_values(obj, attr):
         # attribute is None
@@ -53,7 +58,8 @@ class AttributeFilter(object):
             return []
     
     def __repr__(self):
-        return 'AttributeFilter([%s], %s)' % (', '.join(self.attrs), self.query)
+        entries = ('%s:%s' % (key, value) for key, value in self.query.iteritems())
+        return 'AttributeFilter([%s])' % ', '.join(entries)
     
     def __unicode__(self):
         return 'filter[%s]:%s' % (','.join(self.attrs), self.query)
@@ -61,22 +67,12 @@ class AttributeFilter(object):
 
 class AnyAttributeFilter(AttributeFilter):
     def match(self, obj):
-        for key, value in self.query.iteritems():
-            values = AttributeFilter.get_values(obj, key)
-            ok = any(value.lower() in v.lower() for v in values)
-            if ok:
-                return True
-        return False
+        return any(self.generate(obj))
 
 
 class AllAttributeFilter(AttributeFilter):
     def match(self, obj):
-        for key, value in self.query.iteritems():
-            values = AttributeFilter.get_values(obj, key)
-            ok = any(value.lower() in v.lower() for v in values)
-            if not ok:
-                return False
-        return True
+        return all(self.generate(obj))
 
 
 class SharedContactFilter(AnyAttributeFilter):
@@ -87,4 +83,34 @@ class SharedContactFilter(AnyAttributeFilter):
             'name.family_name': query,
             'notes': query,
             'emails.address': query,
+            'phone_numbers.number': query,
         })
+        self.query_text = query
+    
+    def match(self, obj):
+        if AnyAttributeFilter.match(self, obj):
+            return True
+        
+        for ep_name in ('company', 'role'):
+            value = obj.extended_properties.get(ep_name, '')
+            if self.query_text.lower() in value.lower():
+                return True
+        return False
+
+
+class SharedContactAdvancedFilter(AllAttributeFilter):
+    def __init__(self, attrs, query_company, query_role):
+        super(AllAttributeFilter, self).__init__(attrs)
+        self.query_company = query_company
+        self.query_role = query_role
+    
+    def match(self, obj):
+        if not AllAttributeFilter.match(self, obj):
+            return False
+        
+        for ep_name, ep_search in (('company', self.query_company), ('role', self.query_role)):
+            if ep_search:
+                value = obj.extended_properties.get(ep_name, '')
+                if not ep_search.lower() in value.lower():
+                    return False
+        return True

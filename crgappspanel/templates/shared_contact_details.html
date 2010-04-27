@@ -4,11 +4,7 @@
 {% block title %}{% trans "Shared contact details" %}: {{ shared_contact.name.full_name }}{% endblock %}
 
 {% block content %}
-{% if saved %}
-<div class="warning">
-	Changes were saved, although it may take up to 24 hours for new data to propagate through Google services.
-</div>
-{% endif %}
+{% include "snippets/saved_warning.html" %}
 <form action="{% url shared-contact-details shared_contact.name.full_name %}" method="POST" class="details">
 	<input type="hidden" name="email" value="_"/>
 	<h1 style="display: inline">{{ shared_contact.name.full_name }}</h1>

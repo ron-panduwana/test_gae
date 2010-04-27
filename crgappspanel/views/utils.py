@@ -3,8 +3,6 @@ import os
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import redirect
 
-from settings import APPS_DOMAIN
-
 
 def get_sortby_asc(request, valid_sortby):
     sortby = request.GET.get('sortby', None)
@@ -62,15 +60,37 @@ def join_attrs(lst, attr, max_len=3, delim='\n', finish='...'):
     return s
 
 
-def ctx(d, section=None, subsection=None, back=False):
-    from crgappspanel.sections import SECTIONS
-    d['domain'] = APPS_DOMAIN
-    d['sections'] = SECTIONS
+def ctx(d, section=None, subsection=None, subsubsection=None, back_link=False, sections_args=None):
+    from crgappspanel.sections import get_sections
+    from settings import APPS_DOMAIN
+    
+    sections = get_sections(**(sections_args or {}))
+    
     if section is not None:
-        d['sel_section'] = SECTIONS[section - 1]
+        section = sections[section - 1]
+        section.selected = True
         if subsection is not None:
-            d['sel_subsection'] = SECTIONS[section - 1]['subsections'][subsection - 1]
-        d['back_button'] = back
+            subsection = section.subsections[subsection - 1]
+            subsection.selected = True
+            if subsubsection is not None:
+                subsubsection = subsection.subsections[subsubsection - 1]
+                subsubsection.selected = True
+        else:
+            assert not subsubsection
+    else:
+        assert not subsection
+        assert not subsubsection
+        assert not back_link, 'back link must not be set if section is not set'
+    
+    if back_link:
+        back_link = dict(view=(subsection or section).view)
+    
+    d['domain'] = APPS_DOMAIN
+    d['sections'] = sections
+    d['sel_section'] = section
+    d['sel_subsection'] = subsection
+    d['back_link'] = back_link
+    
     return d
 
 
@@ -91,3 +111,20 @@ class QueryString(object):
     
     def get(self):
         return ('?%s' % qs) if qs else ''
+
+
+class QuerySearch(object):
+    def __init__(self):
+        self.search_by = dict()
+        self.filter_attrs = dict()
+    
+    def add(self, request, query_key, filter_attr):
+        value = request.GET.get(query_key, None)
+        if value:
+            if query_key:
+                self.search_by[query_key] = value
+            if filter_attr:
+                self.filter_attrs[filter_attr] = value
+    
+    def is_empty(self):
+        return len(self.search_by) == 0 and len(self.filter_attrs) == 0

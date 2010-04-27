@@ -81,7 +81,7 @@ div#tabs {
 	/*display: block;*/
 }
 
-#section_title {
+#tabs_title {
 	margin: 5px 5px 5px 0;
 }
 
@@ -122,7 +122,7 @@ a.action-link {
 	font-weight: bold;
 }
 
-input[type="submit"] {
+input[type="submit"].default {
 	font-weight: bold;
 }
 
