@@ -115,9 +115,7 @@ class UsersMiddleware(object):
                 create_login_url(request.get_full_path()))
         elif isinstance(exception, AppsForYourDomainException):
             logging.warning('exception: %s' % str(exception))
-            request.session.flush()
-            return HttpResponseRedirect(
-                create_login_url(request.get_full_path()))
+            return None
 
 
 class LoginForm(forms.Form):
