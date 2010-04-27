@@ -76,7 +76,10 @@ class GDataQuery(object):
         elif can_retrieve_subset:
             retriever = self._model._mapper.retrieve_subset(limit, offset)
         else:
-            retriever = self._model._mapper.retrieve_all()
+            retriever = self._model._cache['retrieve_all']
+            if retriever is None:
+                retriever = self._model._mapper.retrieve_all()
+                self._model._cache['retrieve_all'] = retriever
         gen = (self._model._from_atom(item) for item in retriever)
         if not self._orders:
             return gen
@@ -390,6 +393,21 @@ class ExtendedPropertyMapping(StringProperty):
         super(ExtendedPropertyMapping, self).set_value_on_atom(atom, values)
 
 
+class _MemcacheDict(object):
+    def __init__(self, namespace, time=0):
+        self.namespace = namespace
+        self.time = time
+
+    def __getitem__(self, key):
+        return memcache.get(key, namespace=self.namespace)
+
+    def __setitem__(self, key, value):
+        memcache.set(key, value, namespace=self.namespace, time=self.time)
+
+    def __delitem__(self, key):
+        memcache.delete(key, namespace=self.namespace)
+
+
 class _GDataModelMetaclass(db.PropertiedClass):
     def __new__(cls, name, bases, attrs):
         new_cls = super(_GDataModelMetaclass, cls).__new__(cls, name, bases, attrs)
@@ -398,6 +416,7 @@ class _GDataModelMetaclass(db.PropertiedClass):
 
         new_cls._mapper = new_cls.Mapper
         del new_cls.Mapper
+        new_cls._cache = _MemcacheDict(name, 60 * 60)
 
         return new_cls
 
@@ -492,11 +511,15 @@ class Model(object):
             else:
                 self._atom = atom
 
+        del self._cache['item:%s' % self.key()]
+        del self._cache['retrieve_all']
         return self
     put = save
 
     def delete(self):
         self._mapper.delete(self._atom)
+        del self._cache['item:%s' % self.key()]
+        del self._cache['retrieve_all']
         del self
 
     def is_saved(self):
@@ -508,10 +531,13 @@ class Model(object):
 
     @classmethod
     def get_by_key_name(cls, key_name):
-        try:
-            atom = cls._mapper.retrieve(key_name)
-        except Exception, e:
-            return None
+        atom = cls._cache['item:%s' % key_name]
+        if atom is None:
+            try:
+                atom = cls._mapper.retrieve(key_name)
+                cls._cache['item:%s' % key_name] = atom
+            except Exception, e:
+                return None
         return atom and cls._from_atom(atom) or None
 
     @classmethod
