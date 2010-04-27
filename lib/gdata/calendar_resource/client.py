@@ -119,7 +119,7 @@ class CalendarResourceClient(gdata.client.GDClient):
     """
 
     if uri is None:
-      uri = self.MakeResourceUri(resource_id)
+      uri = self.MakeResourceFeedUri(resource_id)
     return self.get_entry(uri,
       desired_class=gdata.calendar_resource.data.CalendarResourceEntry,
       **kwargs)
@@ -164,8 +164,10 @@ class CalendarResourceClient(gdata.client.GDClient):
     new_resource = gdata.calendar_resource.data.CalendarResourceEntry(
       resource_id=resource_id, resource_common_name=resource_common_name,
       resource_description=resource_description, resource_type=resource_type)
-    return self.update(new_resource,
-      self.MakeResourceFeedUri(resource_id), **kwargs)
+    uri = 'https://%s%s' % (self.host, self.MakeResourceFeedUri(resource_id))
+    new_resource.link.append(
+        atom.data.Link(rel='edit', href=uri))
+    return self.update(new_resource)
 
   UpdateResource = update_resource
 
