@@ -3,6 +3,7 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 from gdata import contacts, data
 from gdata.contacts import data as contacts_data
+from gdata.calendar_resource import data as calendar_resource
 from gdata.apps import PropertyEntry
 from gdata.apps.groups import service as groups
 from atom import AtomBase
@@ -427,4 +428,45 @@ class EmailSettingsProperty(object):
                 'EmailSettingsProperty may only be used with model instances '
                 'defining user_name property.')
         return _EmailSettingsWrapper(model_instance.user_name)
+
+
+class CalendarResourceEntryMapper(AtomMapper):
+    @classmethod
+    def create_service(cls):
+        from gdata.calendar_resource import client
+        client = client.CalendarResourceClient(domain=settings.APPS_DOMAIN)
+        client.ssl = True
+        return client
+
+    def empty_atom(self):
+        return calendar_resource.CalendarResourceEntry()
+
+    def key(self, atom):
+        return atom.resource_id
+
+    def create(self, atom):
+        return self.service.create_resource(
+            atom.resource_id, atom.resource_common_name,
+            atom.resource_description, atom.resource_type,
+        )
+
+    def update(self, atom, old_atom):
+        return self.service.update_resource(
+            old_atom.resource_id, atom.resource_common_name,
+            atom.resource_description, resource_type=atom.resource_type)
+
+    def delete(self, atom):
+        self.service.delete_resource(atom.resource_id)
+
+    def retrieve(self, resource_id):
+        try:
+            return self.service.get_resource(resource_id=resource_id)
+        except Exception, e:
+            if not 'EntityDoesNotExist' in e.body:
+                logging.exception('CalendarResourceEntryMapper.resource')
+            return None
+
+    def retrieve_all(self):
+        return self.service.get_resource_feed().entry
+
 

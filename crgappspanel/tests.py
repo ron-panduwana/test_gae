@@ -7,9 +7,7 @@ import unittest
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from gdata.apps.service import AppsForYourDomainException
-from crgappspanel.models import GAUser, GANickname, Role, TestModel, \
-        SharedContact, Email, PhoneNumber, Name, Organization, Website, \
-        GAGroup, GAGroupMember, GAGroupOwner
+from crgappspanel.models import *
 from crlib.gdata_wrapper import GDataQuery
 from crlib.mappers import MAIN_TYPES, PHONE_TYPES, ORGANIZATION_TYPES, \
         WEBSITE_TYPES
@@ -374,6 +372,54 @@ class EmailSettingsAPITestCase(BaseGDataTestCase):
 
         response = user.email_settings.update_web_clip_settings(False)
         self.assertEqual(response, {'enable': 'false'})
+
+
+class CalendarResourceAPITestCase(BaseGDataTestCase):
+    def testGetAllResources(self):
+        resources = CalendarResource.all().fetch(100)
+        for resource in resources:
+            print resource
+            print resource.id
+            print resource.description
+            print resource.common_name
+            print resource.type
+
+    def testCreateResource(self):
+        resource = CalendarResource.get_by_key_name('TEST_RESOURCE')
+        if resource is not None:
+            resource.delete()
+
+        resource = CalendarResource(
+            id='TEST_RESOURCE',
+            common_name='Test Resource',
+            type='Meeting Room',
+            description='',
+        ).save()
+
+        resource = CalendarResource.get_by_key_name('TEST_RESOURCE')
+        self.assertNotEqual(resource, None)
+        resource.delete()
+        resource = CalendarResource.get_by_key_name('TEST_RESOURCE')
+        self.assertEqual(resource, None)
+
+    def testUpdateResource(self):
+        resource = CalendarResource.get_by_key_name('TEST_RESOURCE')
+        if resource is None:
+            resource = CalendarResource(
+                id='TEST_RESOURCE',
+                common_name='Test Resource',
+                type='Meeting Room',
+                description='',
+            ).save()
+
+        resource.common_name = 'NEW_COMMON_NAME'
+        resource.description = 'NEW_DESCRIPTION'
+        resource.save()
+
+        resource = CalendarResource.get_by_key_name('TEST_RESOURCE')
+        self.assertEqual(resource.common_name, 'NEW_COMMON_NAME')
+        self.assertEqual(resource.description, 'NEW_DESCRIPTION')
+        resource.delete()
 
 
 class RoleCreationTestCase(unittest.TestCase):

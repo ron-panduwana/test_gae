@@ -198,6 +198,15 @@ class SharedContact(gd.Model):
         return u'<SharedContact: %s>' % self.title
 
 
+class CalendarResource(gd.Model):
+    Mapper = mappers.CalendarResourceEntryMapper()
+
+    id = gd.StringProperty('resource_id', required=True)
+    common_name = gd.StringProperty('resource_common_name')
+    description = gd.StringProperty('resource_description')
+    type = gd.StringProperty('resource_type')
+
+
 class TestModel(BaseModel):
     user = gd.ReferenceProperty(GAUser)
 
