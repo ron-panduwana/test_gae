@@ -4,6 +4,7 @@ from django.conf import settings
 from gdata import contacts, data
 from gdata.contacts import data as contacts_data
 from gdata.apps import PropertyEntry
+from gdata.apps.groups import service as groups
 from atom import AtomBase
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
 
@@ -59,6 +60,14 @@ PHONE_TYPES = (
     (contacts.PHONE_RADIO, _('Radio')),
     (contacts.PHONE_TELEX, _('Telex')),
     (contacts.PHONE_TTY_TDD, _('TTY TDD')),
+)
+
+
+GROUP_EMAIL_PERMISSIONS = (
+    (groups.PERMISSION_OWNER, _('Owner')),
+    (groups.PERMISSION_MEMBER, _('Member')),
+    (groups.PERMISSION_DOMAIN, _('Domain')),
+    (groups.PERMISSION_ANYONE, _('Anyone')),
 )
 
 
@@ -236,6 +245,9 @@ class GroupEntryMapper(AtomMapper):
         groups = self.service.RetrieveAllGroups()
         return [GroupEntry(self, entry) for entry in groups]
 
+    def retrieve(self, group_id):
+        return GroupEntry(self, self.service.RetrieveGroup(group_id))
+
     def filter_by_members(self, member):
         groups = self.service.RetrieveGroups(member, 'false')
         return [GroupEntry(self, entry) for entry in groups]
@@ -296,7 +308,7 @@ class OrganizationMapper(AtomMapper):
         return data.Organization()
 
     def key(self, atom):
-        if atom.org_name is not None:
+        if hasattr(atom, 'org_name') and atom.org_name is not None:
             return atom.org_name.text
         return 'unnamed_organization'
 

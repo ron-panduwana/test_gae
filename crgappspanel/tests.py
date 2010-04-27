@@ -166,8 +166,7 @@ class ProvisioningAPIGroupsTestCase(BaseGDataTestCase):
             id='some_group',
             name='some group',
             description='this is some group',
-            email_permission='Owner')
-        group.save()
+            email_permission='Owner').save()
 
     def testRetrieveAll(self):
         for group in GAGroup.all():
@@ -175,8 +174,23 @@ class ProvisioningAPIGroupsTestCase(BaseGDataTestCase):
 
     def testRetrieveMembers(self):
         group = GAGroup.all().get()
+        print group.key()
         for member in group.members:
-            print member.id
+            print member
+            print member.to_user()
+            print member.is_group()
+
+    def testAddUserToGroups(self):
+        user = GAUser.get_by_key_name(self.USER_NAME)
+        group_ids = (
+            'agent.pt@moroccanholidayrental.com',
+            'all.polish.speakers@moroccanholidayrental.com',
+        )
+        GAGroup.add_user_to_groups(user, group_ids)
+        member = GAGroupMember.from_user(user)
+        for group_id in group_ids:
+            group = GAGroup.get_by_key_name(group_id)
+            self.assertTrue(member in group.members)
 
     def testRetrieveGroupsByMember(self):
         user = GAUser.get_by_key_name(self.USER_NAME)

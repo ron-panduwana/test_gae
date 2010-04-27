@@ -1,4 +1,3 @@
-from __future__ import with_statement
 from django.conf import settings
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
@@ -42,6 +41,19 @@ class GAGroupMember(gd.Model):
     def __unicode__(self):
         return self.id
 
+    def is_user(self):
+        return self.to_user() is not None
+
+    def to_user(self):
+        user_name = self.id.partition('@')[0]
+        return GAUser.get_by_key_name(user_name)
+
+    def is_group(self):
+        return self.to_group() is not None
+
+    def to_group(self):
+        return GAGroup.get_by_key_name(self.id)
+
 
 class GAGroupOwner(gd.Model):
     Mapper = mappers.OwnerEntryMapper()
@@ -54,6 +66,13 @@ class GAGroupOwner(gd.Model):
         return GAGroupOwner(
             email='%s@%s' % (user.user_name, settings.APPS_DOMAIN)).save()
 
+    def is_user(self):
+        return self.to_user() is not None
+
+    def to_user(self):
+        user_name = self.email.partition('@')[0]
+        return GAUser.get_by_key_name(user_name)
+
 
 class GAGroup(gd.Model):
     Mapper = mappers.GroupEntryMapper()
@@ -61,12 +80,28 @@ class GAGroup(gd.Model):
     id = gd.StringProperty('groupId', required=True)
     name = gd.StringProperty('groupName', required=True)
     description = gd.StringProperty('description')
-    email_permission = gd.StringProperty('emailPermission', required=True)
+    email_permission = gd.StringProperty(
+        'emailPermission', required=True,
+        choices=mappers.GROUP_EMAIL_PERMISSIONS)
     members = gd.ListProperty(GAGroupMember, 'members')
     owners = gd.ListProperty(GAGroupOwner, 'owners')
 
     def __unicode__(self):
         return self.name
+
+    def is_user_member(self, user):
+        # TODO: We could use IsMember() GData call, but I don't know how to
+        # handle it yet
+        return GAGroupMember.from_user(user) in self.members
+
+    @classmethod
+    def add_user_to_groups(cls, user, group_ids):
+        groups = GAGroup.all().fetch(1000)
+        member = GAGroupMember.from_user(user)
+        for group in groups:
+            if group.id in group_ids and not member in group.members:
+                group.members.append(member)
+                group.save()
 
 
 class GANickname(gd.Model):
