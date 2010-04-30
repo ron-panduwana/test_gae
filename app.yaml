@@ -7,6 +7,10 @@ handlers:
 - url: /static
   static_dir: static
 
+- url: /openid/__cron_check_licenses/
+  script: main.py
+  login: admin
+
 - url: /login/.*
   script: main.py
   secure: always
@@ -25,4 +29,5 @@ skip_files:
 - ^(.*/)?.*/RCS/.*
 - ^(.*/)?\..*
 - ^(.*/)?django/.*
+- ^(.*/)?marketplace/.*
 - ^(.*/)*tests.py
