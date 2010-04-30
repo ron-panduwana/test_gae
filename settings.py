@@ -20,12 +20,15 @@ import logging
 
 sys.path.insert(1, os.path.join(sys.path[0], 'lib'))
 
+REDIRECT_FIELD_NAME = 'next'
+SESSION_LOGIN_INFO_KEY = '_client_login_info'
+LOGIN_REDIRECT_URL = '/users/list/'
 APPS_DOMAIN = 'moroccanholidayrental.com'
 CLIENT_LOGIN_SOURCE = 'cloudreach-powerpanel-v1'
 
-OAUTH_CONSUMER = ''
-OAUTH_SECRET = ''
-OAUTH_REQUESTOR_ID = ''
+OAUTH_APP_ID = '285282688156'
+OAUTH_CONSUMER = '285282688156.apps.googleusercontent.com'
+OAUTH_SECRET = '4lWcvnOC8jnj2KbBI6REl6JN'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -100,7 +103,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'crlib.users.UsersMiddleware',
+    'auth.users.UsersMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 #    'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'django.middleware.doc.XViewMiddleware',
@@ -110,6 +113,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 #   'django.core.context_processors.auth',
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
+    'auth.context_processors.users',
 #    'django.core.context_processors.media',  # 0.97 only.
 #    'django.core.context_processors.request',
 )
@@ -125,6 +129,7 @@ TEMPLATE_DIRS = (
 INSTALLED_APPS = (
     'appengine_django',
     'crgappspanel',
+    'auth',
 #    'django.contrib.auth',
 #    'django.contrib.contenttypes',
 #    'django.contrib.sessions',

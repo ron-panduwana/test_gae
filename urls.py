@@ -47,7 +47,9 @@ urlpatterns += patterns('crgappspanel.views',
     url(r'^test/$', 'general.test', name='test'), # TODO remove this test in the future
 )
 
-urlpatterns += patterns('crlib.users',
-    url(r'^login/$', 'generic_login_view', {'template': 'login.html'}),
-    url(r'^logout/$', 'generic_logout_view', name='logout'),
+
+urlpatterns += patterns(
+    '',
+    url(r'^openid/', include('auth.urls')),
 )
+

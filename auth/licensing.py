@@ -44,6 +44,10 @@ class State(atom.data.Text):
     _qname = atom.data.ATOM_TEMPLATE % 'state'
 
 
+class Enabled(atom.data.Text):
+    _qname = atom.data.ATOM_TEMPLATE % 'enabled'
+
+
 class Entity(atom.core.XmlElement):
     _qname = atom.data.ATOM_TEMPLATE % 'entity'
     id = Id
@@ -52,6 +56,7 @@ class Entity(atom.core.XmlElement):
     tos_acceptance_time = TOSAcceptanceTime
     last_change_time = LastChangeTime
     state = State
+    enabled = Enabled
 
 
 class Content(atom.core.XmlElement):

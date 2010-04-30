@@ -5,7 +5,7 @@ from google.appengine.api import memcache
 from openid.association import Association as xAssociation
 from openid.store import nonce
 from openid.store.interface import OpenIDStore
-from auth.models import Association, Nonce
+from auth.models import Association
 
 
 class DatastoreStore(OpenIDStore):
@@ -38,7 +38,7 @@ class DatastoreStore(OpenIDStore):
 
         anonce = str((str(server_url), int(timestamp), str(salt)))
         result = memcache.get(anonce)
-        if not result:
+        if result:
             return False
 
         memcache.set(anonce, True, nonce.SKEW)
