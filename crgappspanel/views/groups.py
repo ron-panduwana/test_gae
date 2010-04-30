@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.sample_data import get_sample_groups
 from crgappspanel.views.utils import ctx, get_sortby_asc
-from crlib.users import admin_required
+from auth.users import admin_required
 
 
 _groupFields = [
