@@ -5,7 +5,21 @@ from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
 from django.utils.translation import ugettext as _
 
-__all__ = ('UserForm')
+__all__ = ('UserForm', 'UserEmailSettingsForm', 'SharedContactForm')
+
+
+def create_on_off_keep(on_text, off_text):
+    return (
+        ('', u'Don\'t change'),
+        ('e', on_text),
+        ('d', off_text),
+    )
+
+def create_exact_keep(*values):
+    ret = [('', u'Don\'t change')]
+    ret.extend((v, v) for v in values)
+    return ret
+
 
 password_c = '%(widget)s%(link_start)sChange password%(link_end)s WARNING: dangerous, without confirmation yet!'
 password_1 = widgets.DoubleWidget(forms.HiddenInput(), forms.HiddenInput())
@@ -56,23 +70,36 @@ class UserForm(forms.Form):
         return self.cleaned_data['nicknames']
 
 
-ON_OFF_KEEP = (
-    (u'', u'Don\'t change'),
-    (u'e', u'Enable'),
-    (u'd', u'Disable'),
+ENABLE_DISABLE_KEEP = create_on_off_keep(u'Enable', u'Disable')
+
+POP3_CHOICES = (
+    ('', u'Don\'t change'),
+    ('ea', u'Enable for all emails'),
+    ('en', u'Enable for emails for now on'),
+    ('d', u'Disable'),
 )
 
-POP_CHOICES = (
-    (u'', u'Don\'t change'),
-    (u'ea', u'Enable for all emails'),
-    (u'en', u'Enable for emails for now on'),
-    (u'd', u'Disable'),
-)
+MESSAGES_PER_PAGE_CHOICES = create_exact_keep(u'25', u'50', u'100')
+UNICODE_CHOICES = create_on_off_keep(u'Use Unicode (UTF-8)', u'Use default text encoding')
 
 
 class UserEmailSettingsForm(forms.Form):
-    enable_pop = forms.ChoiceField(label='Enable POP3', choices=POP_CHOICES, required=False)
-    enable_imap = forms.ChoiceField(label='Enable IMAP', choices=ON_OFF_KEEP, required=False)
+    pop3 = forms.ChoiceField(label='POP3',
+        choices=POP3_CHOICES, required=False)
+    imap = forms.ChoiceField(label='IMAP',
+        choices=ENABLE_DISABLE_KEEP, required=False)
+    messages_per_page = forms.ChoiceField(label='Messages per page',
+        choices=MESSAGES_PER_PAGE_CHOICES, required=False)
+    web_clips = forms.ChoiceField(label='Web Clips',
+        choices=ENABLE_DISABLE_KEEP, required=False)
+    snippets = forms.ChoiceField(label='Snippets',
+        choices=ENABLE_DISABLE_KEEP, required=False)
+    shortcuts = forms.ChoiceField(label='Keyboard shortcuts',
+        choices=ENABLE_DISABLE_KEEP, required=False)
+    arrows = forms.ChoiceField(label='Personal level indicators',
+        choices=ENABLE_DISABLE_KEEP, required=False)
+    unicode = forms.ChoiceField(label='Outgoing mail encoding',
+        choices=UNICODE_CHOICES, required=False)
 
 
 emails_c = '%(link_start)sAdd email%(link_end)s'

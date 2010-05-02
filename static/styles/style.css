@@ -136,3 +136,7 @@ div.warning {
 	background-color: #fff4c2;
 	border: 1px solid #ffcc33;
 }
+
+.admin-label {
+	color: green;
+}

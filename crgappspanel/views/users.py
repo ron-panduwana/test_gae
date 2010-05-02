@@ -14,6 +14,10 @@ EMAIL_ENABLE_FOR_ALL_MAIL = 'ALL_MAIL'
 EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON = 'MAIL_FROM_NOW_ON'
 EMAIL_ACTION_KEEP = 'KEEP'
 
+ON = 'e'
+OFF = 'd'
+ON_OFF = (ON, OFF)
+
 
 def _get_status(x):
     suspended, admin = getattr(x, 'suspended'), getattr(x, 'admin')
@@ -111,7 +115,7 @@ def user_details(request, name=None):
 
 
 @admin_required
-def user_settings(request, name=None):
+def user_email_settings(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
     
@@ -122,33 +126,61 @@ def user_settings(request, name=None):
     if request.method == 'POST':
         form = UserEmailSettingsForm(request.POST, auto_id=True)
         if form.is_valid():
-            enable_pop = form.cleaned_data['enable_pop']
-            if enable_pop == 'ea':
+            data = form.cleaned_data
+            general = {}
+            
+            pop3 = data['pop3']
+            if pop3 == 'ea':
                 user.email_settings.update_pop(True,
                     enable_for=EMAIL_ENABLE_FOR_ALL_MAIL,
                     action=EMAIL_ACTION_KEEP)
-            elif enable_pop == 'en':
+            elif pop3 == 'en':
                 user.email_settings.update_pop(True,
                     enable_for=EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON,
                     action=EMAIL_ACTION_KEEP)
-            elif enable_pop == 'd':
+            elif pop3 == 'd':
                 user.email_settings.update_pop(False)
             
-            enable_imap = form.cleaned_data['enable_imap']
-            if enable_imap == 'e':
-                user.email_settings.update_imap(True)
-            elif enable_imap == 'd':
-                user.email_settings.update_imap(False)
+            imap = data['imap']
+            if imap in ON_OFF:
+                user.email_settings.update_imap(imap == ON)
             
-            return redirect_saved('user-settings', name=user.user_name)
+            messages_per_page = data['messages_per_page']
+            if messages_per_page in ('25', '50', '100'):
+                general['page_size'] = int(messages_per_page)
+            
+            web_clips = data['web_clips']
+            if web_clips in ON_OFF:
+                user.email_settings.update_web_clip_settings(web_clips == ON)
+            
+            snippets = data['snippets']
+            if snippets in ON_OFF:
+                general['snippets'] = (snippets == ON)
+            
+            shortcuts = data['shortcuts']
+            if shortcuts in ON_OFF:
+                general['shortcuts'] = (shortcuts == ON)
+            
+            arrows = data['arrows']
+            if arrows in ON_OFF:
+                general['arrows'] = (arrows == ON)
+            
+            unicode = data['unicode']
+            if unicode in ON_OFF:
+                general['unicode'] = (unicode == ON)
+            
+            if len(general) > 0:
+                user.email_settings.update_general(**general)
+            
+            return redirect_saved('user-email-settings', name=user.user_name)
     else:
         form = UserEmailSettingsForm(initial={}, auto_id=True)
     
-    return render_to_response('user_settings.html', ctx({
+    return render_to_response('user_email_settings.html', ctx({
         'user': user,
         'form': form,
         'saved': request.GET.get('saved', None),
-        'styles': ['table-details'],
+        'styles': ['table-details', 'user-email-settings'],
     }, 2, 2, 2, back_link=True, sections_args=dict(user=name)))
 
 

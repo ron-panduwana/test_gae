@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "User settings" %}: {{ user.given_name }} {{ user.family_name }}{% endblock %}
+
+{% block content %}
+{% include "snippets/saved_warning.html" %}
+<form action="{% url user-email-settings user.user_name %}" method="POST" class="details">
+	<h1 style="display: inline">{{ user.given_name }} {{ user.family_name }}</h1>
+	{% if user.admin %}<span class="admin-label">{% trans "Administrator" %}</span>{% endif %}
+	<br/>
+	<table class="details" width="100%">
+		<tbody>
+			{% with form.pop3 as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.imap as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.messages_per_page as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.web_clips as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.snippets as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.shortcuts as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.arrows as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.unicode as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			<tr>
+				<td></td>
+				<td>
+					<input type="submit" value="save" class="default"/>
+					<input type="reset" value="reset"/>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</form>
+{% endblock %}
