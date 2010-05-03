@@ -10,9 +10,12 @@ from crlib.users import admin_required
 from settings import APPS_DOMAIN
 
 
+EMAIL_ACTION_KEEP = 'KEEP'
+EMAIL_ACTION_ARCHIVE='ARCHIVE'
+EMAIL_ACTION_DELETE='DELETE'
+
 EMAIL_ENABLE_FOR_ALL_MAIL = 'ALL_MAIL'
 EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON = 'MAIL_FROM_NOW_ON'
-EMAIL_ACTION_KEEP = 'KEEP'
 
 ON = 'e'
 OFF = 'd'
@@ -128,6 +131,22 @@ def user_email_settings(request, name=None):
         if form.is_valid():
             data = form.cleaned_data
             general = {}
+            
+            forward = data['forward']
+            forward_to = data['forward_to']
+            forward_action = None
+            if forward == 'ek':
+                forward_action = EMAIL_ACTION_KEEP
+            elif forward == 'ea':
+                forward_action = EMAIL_ACTION_ARCHIVE
+            elif forward == 'ed':
+                forward_action = EMAIL_ACTION_DELETE
+            
+            if forward_action is not None:
+                user.email_settings.update_forwarding(True,
+                    forward_to=forward_to, action=forward_action)
+            elif forward == 'd':
+                user.email_settings.update_forwarding(False)
             
             pop3 = data['pop3']
             if pop3 == 'ea':

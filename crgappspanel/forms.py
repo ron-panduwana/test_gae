@@ -72,6 +72,14 @@ class UserForm(forms.Form):
 
 ENABLE_DISABLE_KEEP = create_on_off_keep(u'Enable', u'Disable')
 
+FORWARD_CHOICES = (
+    ('', u'Don\'t change'),
+    ('ek', u'Forward and keep'),
+    ('ea', u'Forward and archive'),
+    ('ed', u'Forward and delete'),
+    ('d', u'Don\'t forward'),
+)
+
 POP3_CHOICES = (
     ('', u'Don\'t change'),
     ('ea', u'Enable for all emails'),
@@ -82,8 +90,14 @@ POP3_CHOICES = (
 MESSAGES_PER_PAGE_CHOICES = create_exact_keep(u'25', u'50', u'100')
 UNICODE_CHOICES = create_on_off_keep(u'Use Unicode (UTF-8)', u'Use default text encoding')
 
+#forward_c = '%(link_start)sEnable forwarding%(link_end)s'
+#forward_e = 'Forward to: %(widget)s %(link_start)sCancel%(link_end)s'
+
 
 class UserEmailSettingsForm(forms.Form):
+    forward = forms.ChoiceField(label='Forwarding',
+        choices=FORWARD_CHOICES, required=False)
+    forward_to = forms.EmailField(label='Forward to', required=False)
     pop3 = forms.ChoiceField(label='POP3',
         choices=POP3_CHOICES, required=False)
     imap = forms.ChoiceField(label='IMAP',
@@ -100,6 +114,21 @@ class UserEmailSettingsForm(forms.Form):
         choices=ENABLE_DISABLE_KEEP, required=False)
     unicode = forms.ChoiceField(label='Outgoing mail encoding',
         choices=UNICODE_CHOICES, required=False)
+    
+    def clean(self):
+        data = self.cleaned_data
+        forward = data.get('forward', None)
+        forward_to = data.get('forward_to', None)
+        
+        if forward not in ('ek', 'ea', 'ed') and forward_to:
+            msg = _(u'This field must be empty when not enabling forwarding.')
+            self._errors['forward_to'] = forms.util.ErrorList([msg])
+            
+            if forward is not None:
+                del data['forward']
+            if forward_to is not None:
+                del data['forward_to']
+        return data
 
 
 emails_c = '%(link_start)sAdd email%(link_end)s'
@@ -179,14 +208,15 @@ class SharedContactForm(forms.Form):
     
     def clean(self):
         data = self.cleaned_data
-        company = data['company']
-        role = data['role']
+        company = data.get('company', None)
+        role = data.get('role', None)
         
         if not company and role:
             msg = _(u'Company is required if role is not empty.')
             self._errors['company'] = forms.util.ErrorList([msg])
             
-            del data['company']
-            del data['role']
-        
+            if company is not None:
+                del data['company']
+            if role is not None:
+                del data['role']
         return data
