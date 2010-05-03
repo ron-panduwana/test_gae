@@ -1,0 +1,9 @@
+{% spaceless %}
+{% if form.non_field_errors|length %}
+<div class="error">
+	{% for error in form.non_field_errors %}
+		{{ error }}{% if not forloop.last %}<br/>{% endif %}
+	{% endfor %}
+</div>
+{% endif %}
+{% endspaceless %}

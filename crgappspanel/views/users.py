@@ -2,7 +2,8 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, redirect
 from django.utils.translation import ugettext as _
 
-from crgappspanel.forms import UserForm, UserEmailSettingsForm
+from crgappspanel.forms import UserForm, UserEmailSettingsForm, \
+    UserEmailFiltersForm
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname
 from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, redirect_saved
@@ -194,8 +195,23 @@ def user_email_filters(request, name=None):
     if not user:
         return redirect('users')
     
+    if request.method == 'POST':
+        form = UserEmailFiltersForm(request.POST, auto_id=True)
+        if form.is_valid():
+            data = dict((key, value) for key, value in form.cleaned_data.iteritems() if value)
+            
+            has_attachment = data.get('has_attachment')
+            if has_attachment == 'e':
+                data['has_attachment'] = True
+            
+            user.email_settings.create_filter(**data)
+            return redirect_saved('user-email-filters', name=user.user_name)
+    else:
+        form = UserEmailFiltersForm(initial={}, auto_id=True)
+    
     return render_to_response('user_email_filters.html', ctx({
         'user': user,
+        'form': form,
         'saved': request.GET.get('saved'),
         'styles': ['table-details'],
     }, 2, 2, 3, back_link=True, sections_args=dict(user=name)))

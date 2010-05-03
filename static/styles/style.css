@@ -137,6 +137,11 @@ div.warning {
 	border: 1px solid #ffcc33;
 }
 
+div.error {
+	background-color: #ffdbdb;
+	border: 1px solid #ff8080;
+}
+
 .admin-label {
 	color: green;
 }

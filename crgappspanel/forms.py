@@ -6,7 +6,8 @@ from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
 from django.utils.translation import ugettext as _
 
-__all__ = ('UserForm', 'UserEmailSettingsForm', 'SharedContactForm')
+__all__ = ('UserForm', 'UserEmailSettingsForm', 'UserEmailFiltersForm',
+    'SharedContactForm')
 
 
 ENABLE = 'e'
@@ -175,6 +176,60 @@ class UserEmailSettingsForm(forms.Form):
             data.pop('signature_new')
         
         return data
+
+
+HAS_ATTACHMENT_CHOICES = (
+    ('', u'Doesn\'t matter'),
+    ('e', u'Must have'),
+)
+
+
+class UserEmailFiltersForm(forms.Form):
+    from_ = forms.EmailField(label='From', required=False)
+    to = forms.EmailField(label='To', required=False)
+    subject = forms.CharField(label='Subject', required=False)
+    has_the_word = forms.CharField(label='Has the words', required=False)
+    does_not_have_the_word = forms.CharField(label='Doesn\'t have', required=False)
+    has_attachment = forms.ChoiceField(label='Has attachment',
+        choices=HAS_ATTACHMENT_CHOICES, required=False)
+    label = forms.CharField(label='Apply label', required=False)
+    should_mark_as_read = forms.BooleanField(label='Mark as read', required=False)
+    should_archive = forms.BooleanField(label='Archive', required=False)
+    
+    def clean_subject(self):
+        return self.verify_illegal_chars('subject')
+    
+    def clean_has_the_word(self):
+        return self.verify_illegal_chars('has_the_word')
+    
+    def clean_does_not_have_the_word(self):
+        return self.verify_illegal_chars('does_not_have_the_word')
+    
+    def clean(self):
+        data = self.cleaned_data
+        filter_fields = ('from_', 'to', 'subject', 'has_the_word',
+            'does_not_have_the_word', 'has_attachment')
+        action_fields = ('label', 'should_mark_as_read', 'should_archive')
+        
+        if not any(data.get(key) for key in filter_fields):
+            msg = _(u'At least one of fields: from, to, subject, has words, '
+                'doesn\'t have, has attachment must be filled.')
+            raise forms.ValidationError(msg)
+        
+        if not any(data.get(key) for key in action_fields):
+            msg = _(u'At least one of fields apply label, mark as read, '
+                'archive must be filled.')
+            raise forms.ValidationError(msg)
+        
+        return data
+    
+    def verify_illegal_chars(self, key):
+        illegal_chars = '[]()$&*'
+        value = self.cleaned_data[key]
+        if any(c in value for c in illegal_chars):
+            msg = _(u'Characters %(illegal_chars)s are all illegal.') % dict(illegal_chars=illegal_chars)
+            raise forms.ValidationError(msg)
+        return value
 
 
 emails_c = '%(link_start)sAdd email%(link_end)s'

@@ -5,10 +5,20 @@
 
 {% block content %}
 {% include "snippets/saved_warning.html" %}
+{% include "snippets/form_errors.html" %}
 <form action="{% url user-email-filters user.user_name %}" method="POST" class="details">
 	{% include "snippets/user_header.html" %}
 	<table class="details" width="100%">
 		<tbody>
+			{% with form.from_ as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.to as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
+			{% with form.subject as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
+			{% with form.has_the_word as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
+			{% with form.does_not_have_the_word as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
+			{% with form.has_attachment as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
+			{% with form.label as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.should_mark_as_read as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
+			{% with form.should_archive as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
 			{% include "snippets/form_save_reset.html" %}
 		</tbody>
 	</table>
