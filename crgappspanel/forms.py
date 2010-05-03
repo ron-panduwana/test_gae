@@ -8,6 +8,11 @@ from django.utils.translation import ugettext as _
 __all__ = ('UserForm', 'UserEmailSettingsForm', 'SharedContactForm')
 
 
+ENABLE = 'e'
+DISABLE = 'd'
+ENABLE_DISABLE = (ENABLE, DISABLE)
+
+
 def create_on_off_keep(on_text, off_text):
     return (
         ('', u'Don\'t change'),
@@ -114,6 +119,12 @@ class UserEmailSettingsForm(forms.Form):
         choices=ENABLE_DISABLE_KEEP, required=False)
     unicode = forms.ChoiceField(label='Outgoing mail encoding',
         choices=UNICODE_CHOICES, required=False)
+    
+    def get_boolean(self, key):
+        value = self.cleaned_data[key]
+        if value in ENABLE_DISABLE:
+            return value == ENABLE
+        return None
     
     def clean(self):
         data = self.cleaned_data

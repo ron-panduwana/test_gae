@@ -13,20 +13,23 @@ class Section(object):
 def get_sections(user=False):
     sections = [
         Section('Dashboard', None),
-        Section('Users and groups', 'crgappspanel.views.users.users', [
-            Section('Groups', 'crgappspanel.views.groups.groups'),
-            Section('Users', 'crgappspanel.views.users.users'),
+        Section('Users and groups', 'users', [
+            Section('Groups', 'groups'),
+            Section('Users', 'users'),
             Section('Settings', None),
-            Section('Test', 'crgappspanel.views.general.test'),
+            Section('Test', 'test'),
         ]),
-        Section('Shared contacts', 'crgappspanel.views.shared_contacts.shared_contacts'),
+        Section('Shared contacts', 'shared-contacts'),
         Section('Additional management', None),
         Section('Preferences', None),
     ]
     if user:
+        kwargs = dict(name=user)
         sections[1].subsections[1].name = user
         sections[1].subsections[1].subsections = [
-            Section('General', 'crgappspanel.views.users.user_details', kwargs=dict(name=user)),
-            Section('Email settings', 'crgappspanel.views.users.user_email_settings', kwargs=dict(name=user)),
+            Section('General', 'user-details', kwargs=kwargs),
+            Section('Settings', 'user-email-settings', kwargs=kwargs),
+            Section('Filters', 'user-email-filters', kwargs=kwargs),
+            Section('Aliases', 'user-email-aliases', kwargs=kwargs),
         ]
     return sections

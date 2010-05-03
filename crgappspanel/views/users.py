@@ -11,15 +11,14 @@ from settings import APPS_DOMAIN
 
 
 EMAIL_ACTION_KEEP = 'KEEP'
-EMAIL_ACTION_ARCHIVE='ARCHIVE'
-EMAIL_ACTION_DELETE='DELETE'
+EMAIL_ACTION_ARCHIVE = 'ARCHIVE'
+EMAIL_ACTION_DELETE = 'DELETE'
 
 EMAIL_ENABLE_FOR_ALL_MAIL = 'ALL_MAIL'
 EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON = 'MAIL_FROM_NOW_ON'
 
-ON = 'e'
-OFF = 'd'
-ON_OFF = (ON, OFF)
+FORWARD_ACTIONS = dict(ek=EMAIL_ACTION_KEEP, ea=EMAIL_ACTION_ARCHIVE, ed=EMAIL_ACTION_DELETE)
+POP3_ENABLE_FORS = dict(ea=EMAIL_ENABLE_FOR_ALL_MAIL, en=EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON)
 
 
 def _get_status(x):
@@ -130,18 +129,10 @@ def user_email_settings(request, name=None):
         form = UserEmailSettingsForm(request.POST, auto_id=True)
         if form.is_valid():
             data = form.cleaned_data
-            general = {}
             
             forward = data['forward']
             forward_to = data['forward_to']
-            forward_action = None
-            if forward == 'ek':
-                forward_action = EMAIL_ACTION_KEEP
-            elif forward == 'ea':
-                forward_action = EMAIL_ACTION_ARCHIVE
-            elif forward == 'ed':
-                forward_action = EMAIL_ACTION_DELETE
-            
+            forward_action = FORWARD_ACTIONS.get(forward, None)
             if forward_action is not None:
                 user.email_settings.update_forwarding(True,
                     forward_to=forward_to, action=forward_action)
@@ -149,44 +140,31 @@ def user_email_settings(request, name=None):
                 user.email_settings.update_forwarding(False)
             
             pop3 = data['pop3']
-            if pop3 == 'ea':
+            pop3_enable_for = POP3_ENABLE_FORS.get(pop3, None)
+            if pop3_enable_for is not None:
                 user.email_settings.update_pop(True,
-                    enable_for=EMAIL_ENABLE_FOR_ALL_MAIL,
-                    action=EMAIL_ACTION_KEEP)
-            elif pop3 == 'en':
-                user.email_settings.update_pop(True,
-                    enable_for=EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON,
-                    action=EMAIL_ACTION_KEEP)
+                    enable_for=pop3_enable_for, action=EMAIL_ACTION_KEEP)
             elif pop3 == 'd':
                 user.email_settings.update_pop(False)
             
-            imap = data['imap']
-            if imap in ON_OFF:
-                user.email_settings.update_imap(imap == ON)
+            imap = form.get_boolean('imap')
+            if imap is not None:
+                user.email_settings.update_imap(imap)
             
             messages_per_page = data['messages_per_page']
             if messages_per_page in ('25', '50', '100'):
                 general['page_size'] = int(messages_per_page)
             
-            web_clips = data['web_clips']
-            if web_clips in ON_OFF:
-                user.email_settings.update_web_clip_settings(web_clips == ON)
+            web_clips = form.get_boolean('web_clips')
+            if web_clips is not None:
+                user.email_settings.update_web_clip_settings(web_clips)
             
-            snippets = data['snippets']
-            if snippets in ON_OFF:
-                general['snippets'] = (snippets == ON)
-            
-            shortcuts = data['shortcuts']
-            if shortcuts in ON_OFF:
-                general['shortcuts'] = (shortcuts == ON)
-            
-            arrows = data['arrows']
-            if arrows in ON_OFF:
-                general['arrows'] = (arrows == ON)
-            
-            unicode = data['unicode']
-            if unicode in ON_OFF:
-                general['unicode'] = (unicode == ON)
+            general = {}
+            general['snippets'] = form.get_boolean('snippets')
+            general['shortcuts'] = form.get_boolean('shortcuts')
+            general['arrows'] = form.get_boolean('arrows')
+            general['unicode'] = form.get_boolean('unicode')
+            general = dict((key, value) for key, value in general.iteritems() if value is not None)
             
             if len(general) > 0:
                 user.email_settings.update_general(**general)
@@ -201,6 +179,14 @@ def user_email_settings(request, name=None):
         'saved': request.GET.get('saved', None),
         'styles': ['table-details', 'user-email-settings'],
     }, 2, 2, 2, back_link=True, sections_args=dict(user=name)))
+
+
+def user_email_filters(request, name=None):
+    raise StandardError()
+
+
+def user_email_aliases(request, name=None):
+    raise StandardError()
 
 
 def user_suspend_restore(request, name=None, suspend=None):
