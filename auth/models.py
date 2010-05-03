@@ -4,12 +4,6 @@ from google.appengine.api import memcache
 from auth.licensing import LICENSE_STATES, STATE_ACTIVE
 
 
-DASHBOARD_URL = 'https://www.google.com/a/cpanel/%s/Dashboard'
-INBOX_URL = 'https://mail.google.com/a/%s'
-CALENDAR_URL = 'https://www.google.com/calendar/hosted/%s'
-HELP_URL = 'http://www.google.com/support/a'
-
-
 class Association(db.Model):
     url = db.LinkProperty()
     handle = db.StringProperty()
@@ -25,15 +19,6 @@ class AppsDomain(BaseModel):
     admin_password = db.StringProperty()
     is_superadmin = db.BooleanProperty(default=False)
     license_state = db.StringProperty(choices=LICENSE_STATES)
-
-    def dashboard_url(self):
-        return DASHBOARD_URL % self.domain
-
-    def inbox_url(self):
-        return INBOX_URL % self.domain
-
-    def calendar_url(self):
-        return CALENDAR_URL % self.domain
 
     def is_active(self):
         return self.license_state == STATE_ACTIVE
