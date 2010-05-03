@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.util import ErrorList
 
 from crgappspanel import models
 from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
@@ -84,6 +85,8 @@ FORWARD_CHOICES = (
     ('ed', u'Forward and delete'),
     ('d', u'Don\'t forward'),
 )
+FORWARD_ENABLES = ('ek', 'ea', 'ed')
+FORWARD_DISABLES = ('d')
 
 POP3_CHOICES = (
     ('', u'Don\'t change'),
@@ -91,6 +94,8 @@ POP3_CHOICES = (
     ('en', u'Enable for emails for now on'),
     ('d', u'Disable'),
 )
+POP3_ENABLES = ('ea', 'en')
+POP3_DISABLES = ('d')
 
 MESSAGES_PER_PAGE_CHOICES = create_exact_keep(u'25', u'50', u'100')
 UNICODE_CHOICES = create_on_off_keep(u'Use Unicode (UTF-8)', u'Use default text encoding')
@@ -128,17 +133,25 @@ class UserEmailSettingsForm(forms.Form):
     
     def clean(self):
         data = self.cleaned_data
-        forward = data.get('forward', None)
-        forward_to = data.get('forward_to', None)
+        forward = data.get('forward')
+        forward_to = data.get('forward_to')
         
-        if forward not in ('ek', 'ea', 'ed') and forward_to:
-            msg = _(u'This field must be empty when not enabling forwarding.')
-            self._errors['forward_to'] = forms.util.ErrorList([msg])
+        # enabling forwarding => forward_to must be filled
+        if forward in FORWARD_ENABLES and not forward_to:
+            msg = _(u'This field must contain email address when enabling forwarding.')
+            self._errors['forward_to'] = ErrorList([msg])
             
-            if forward is not None:
-                del data['forward']
-            if forward_to is not None:
-                del data['forward_to']
+            data.pop('forward', None)
+            data.pop('forward_to', None)
+        
+        # not enabling forwarding => forward_to must not be filled
+        if forward not in FORWARD_ENABLES and forward_to:
+            msg = _(u'This field must be empty when not enabling forwarding.')
+            self._errors['forward_to'] = ErrorList([msg])
+            
+            data.pop('forward', None)
+            data.pop('forward_to', None)
+        
         return data
 
 
@@ -222,12 +235,12 @@ class SharedContactForm(forms.Form):
         company = data.get('company', None)
         role = data.get('role', None)
         
+        # role filled => company must be filled
         if not company and role:
             msg = _(u'Company is required if role is not empty.')
-            self._errors['company'] = forms.util.ErrorList([msg])
+            self._errors['company'] = forms.ErrorList([msg])
             
-            if company is not None:
-                del data['company']
-            if role is not None:
-                del data['role']
+            data.pop('company', None)
+            data.pop('role', None)
+        
         return data
