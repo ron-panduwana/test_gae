@@ -169,6 +169,11 @@ def user_email_settings(request, name=None):
             if len(general) > 0:
                 user.email_settings.update_general(**general)
             
+            signature = form.get_boolean('signature')
+            signature_new = data['signature_new']
+            if signature is not None:
+                user.email_settings.update_signature(signature_new if signature else '')
+            
             return redirect_saved('user-email-settings', name=user.user_name)
     else:
         form = UserEmailSettingsForm(initial={}, auto_id=True)
@@ -176,17 +181,39 @@ def user_email_settings(request, name=None):
     return render_to_response('user_email_settings.html', ctx({
         'user': user,
         'form': form,
-        'saved': request.GET.get('saved', None),
+        'saved': request.GET.get('saved'),
         'styles': ['table-details', 'user-email-settings'],
     }, 2, 2, 2, back_link=True, sections_args=dict(user=name)))
 
 
 def user_email_filters(request, name=None):
-    raise StandardError()
+    if not name:
+        raise ValueError('name = %s' % name)
+    
+    user = GAUser.get_by_key_name(name)
+    if not user:
+        return redirect('users')
+    
+    return render_to_response('user_email_filters.html', ctx({
+        'user': user,
+        'saved': request.GET.get('saved'),
+        'styles': ['table-details'],
+    }, 2, 2, 3, back_link=True, sections_args=dict(user=name)))
 
 
 def user_email_aliases(request, name=None):
-    raise StandardError()
+    if not name:
+        raise ValueError('name = %s' % name)
+    
+    user = GAUser.get_by_key_name(name)
+    if not user:
+        return redirect('users')
+    
+    return render_to_response('user_email_aliases.html', ctx({
+        'user': user,
+        'saved': request.GET.get('saved'),
+        'styles': ['table-details'],
+    }, 2, 2, 4, back_link=True, sections_args=dict(user=name)))
 
 
 def user_suspend_restore(request, name=None, suspend=None):

@@ -6,9 +6,7 @@
 {% block content %}
 {% include "snippets/saved_warning.html" %}
 <form action="{% url user-email-settings user.user_name %}" method="POST" class="details">
-	<h1 style="display: inline">{{ user.given_name }} {{ user.family_name }}</h1>
-	{% if user.admin %}<span class="admin-label">{% trans "Administrator" %}</span>{% endif %}
-	<br/>
+	{% include "snippets/user_header.html" %}
 	<table class="details" width="100%">
 		<tbody>
 			{% with form.forward as field %}{% include "snippets/form_field.html" %}{% endwith %}
@@ -21,6 +19,8 @@
 			{% with form.shortcuts as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
 			{% with form.arrows as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
 			{% with form.unicode as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
+			{% with form.signature as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.signature_new as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
 			{% include "snippets/form_save_reset.html" %}
 		</tbody>
 	</table>

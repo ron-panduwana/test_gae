@@ -124,6 +124,10 @@ class UserEmailSettingsForm(forms.Form):
         choices=ENABLE_DISABLE_KEEP, required=False)
     unicode = forms.ChoiceField(label='Outgoing mail encoding',
         choices=UNICODE_CHOICES, required=False)
+    signature = forms.ChoiceField(label='Signature',
+        choices=ENABLE_DISABLE_KEEP, required=False)
+    signature_new = forms.CharField(label='', required=False,
+        widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
     
     def get_boolean(self, key):
         value = self.cleaned_data[key]
@@ -135,22 +139,40 @@ class UserEmailSettingsForm(forms.Form):
         data = self.cleaned_data
         forward = data.get('forward')
         forward_to = data.get('forward_to')
+        signature = data.get('signature')
+        signature_new = data.get('signature_new')
         
         # enabling forwarding => forward_to must be filled
         if forward in FORWARD_ENABLES and not forward_to:
-            msg = _(u'This field must contain email address when enabling forwarding.')
+            msg = _(u'Forwarding address must be specified when enabling forwarding.')
             self._errors['forward_to'] = ErrorList([msg])
             
             data.pop('forward', None)
             data.pop('forward_to', None)
         
-        # not enabling forwarding => forward_to must not be filled
+        # not enabling forwarding => forward_to must be empty
         if forward not in FORWARD_ENABLES and forward_to:
-            msg = _(u'This field must be empty when not enabling forwarding.')
+            msg = _(u'Forwarding address must not be specified when not enabling forwarding.')
             self._errors['forward_to'] = ErrorList([msg])
             
             data.pop('forward', None)
             data.pop('forward_to', None)
+        
+        # enabling signature => signature_new must be filled
+        if signature == ENABLE and not signature_new:
+            msg = _(u'Signature must be specified when enabling signature.')
+            self._errors['signature_new'] = ErrorList([msg])
+            
+            data.pop('signature')
+            data.pop('signature_new')
+        
+        # not enabling signature => signature_new must be empty
+        if signature != ENABLE and signature_new:
+            msg = _(u'Signature must not be specified when not enabling signature.')
+            self._errors['signature_new'] = ErrorList([msg])
+            
+            data.pop('signature')
+            data.pop('signature_new')
         
         return data
 
@@ -165,7 +187,7 @@ class SharedContactForm(forms.Form):
     full_name = forms.CharField(label='Name')
     real_name = fields.RealNameField(label='Real name', required=False)
     notes = forms.CharField(label='Notes', required=False,
-        widget=forms.Textarea(attrs=dict(rows=5, cols=40)))
+        widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
     company = forms.CharField(label='Company', required=False)
     role = forms.CharField(label='Role', required=False)
     
