@@ -28,7 +28,7 @@ def _get_status(x):
 
 _userFields = [
     Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
-    Column(_('Username'), 'username', getter=lambda x: '%s@%s' % (x.user_name or '', APPS_DOMAIN)),
+    Column(_('Username'), 'username', getter=lambda x: '%s@%s' % (x.user_name or '', APPS_DOMAIN), email=True),
     Column(_('Status'), 'status', getter=_get_status),
     Column(_('Email quota'), 'quota'),
     Column(_('Roles'), 'roles', getter=lambda x: ''),

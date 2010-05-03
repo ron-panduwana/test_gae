@@ -7,7 +7,7 @@ from crgappspanel.helpers.filters import SharedContactFilter, \
         SharedContactAdvancedFilter, NullFilter
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import SharedContact
-from crgappspanel.views.utils import ctx, get_sortby_asc, join_attrs, \
+from crgappspanel.views.utils import ctx, get_sortby_asc, list_attrs, \
         get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch
 from crlib.users import admin_required
 
@@ -31,9 +31,9 @@ _sharedContactFields = [
     #Column(_('Given name'), 'given_name', getter=lambda x: x.name.given_name),
     #Column(_('Family name'), 'family_name', getter=lambda x: x.name.family_name),
     Column(_('Phone numbers'), 'phone_numbers',
-        getter=lambda x: join_attrs(x.phone_numbers, 'number')),
+        getter=lambda x: list_attrs(x.phone_numbers, 'number')),
     Column(_('E-mails'), 'emails',
-        getter=lambda x: join_attrs(x.emails, 'address')),
+        getter=lambda x: list_attrs(x.emails, 'address'), email=True),
 ]
 _sharedContactId = _sharedContactFields[0]
 _sharedContactWidths = ['%d%%' % x for x in (5, 20, 20, 15, 10, 30)]
@@ -163,7 +163,7 @@ def shared_contact_details(request, name=None):
     for email in shared_contact.emails:
         idx = email.address.find('@')
         if idx != -1:
-            fmt = '<b>%s</b>@%s &ndash; <a href="%s">Remove</a>'
+            fmt = '<span class="email-username">%s</span><span class="email-domain">@%s</span> &ndash; <a href="%s">Remove</a>'
             user_part = email.address[:idx]
             domain_part = email.address[idx+1:]
             full_emails.append(fmt % (user_part, domain_part, remove_email_link(email)))

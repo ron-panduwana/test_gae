@@ -49,11 +49,7 @@ cr.table.tables['{{ table_name }}'] = [
 			<td><input type="checkbox" id="{{ table_name }}_select_{{ forloop.counter0 }}" onchange="cr.table.onSelectRow(this)"/></td>
 			{% for obj in row.data %}
 			<td onclick="cr.table.showDetails('{{ row.id }}')">
-				{% if obj.link %}
-					<a href="../details/{{ row.id }}/">{{ obj.data|linebreaksbr }}</a>
-				{% else %}
-					{{ obj.data|linebreaksbr }}
-				{% endif %}
+				{% include "snippets/objects_table_object.html" %}
 			</td>
 			{% endfor %}
 		</tr>

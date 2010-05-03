@@ -140,3 +140,11 @@ div.warning {
 .admin-label {
 	color: green;
 }
+
+.email-username {
+	color: black;
+}
+
+.email-domain {
+	color: gray;
+}

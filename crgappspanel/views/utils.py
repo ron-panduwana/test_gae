@@ -43,7 +43,7 @@ def random_password(chars):
     return ''.join(get_password_char(ord(b1), ord(b2)) for b1, b2 in zip(bts[:chars], bts[chars:]))
 
 
-def join_attrs(lst, attr, max_len=3, delim='\n', finish='...'):
+def list_attrs(lst, attr, max_len=3, finish='...'):
     real_len = len(lst)
     
     # trimming list if neccessary
@@ -53,11 +53,10 @@ def join_attrs(lst, attr, max_len=3, delim='\n', finish='...'):
     else:
         trimmed = False
     
-    s = delim.join([getattr(x, attr) for x in lst])
+    lst = [getattr(x, attr) for x in lst]
     if trimmed:
-        s += delim
-        s += finish
-    return s
+        lst.append(finish)
+    return lst
 
 
 def ctx(d, section=None, subsection=None, subsubsection=None, back_link=False, sections_args=None):

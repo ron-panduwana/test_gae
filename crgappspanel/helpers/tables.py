@@ -50,7 +50,7 @@ class Table(object):
         
         rows = []
         for obj in objs:
-            data = [dict(data=col.value(obj), link=col.link) for col in self.columns]
+            data = [dict(data=col.value(obj), link=col.link, email=col.email) for col in self.columns]
             rows.append({
                 'id': self.id_column.value(obj),
                 'data': data,
@@ -58,7 +58,7 @@ class Table(object):
         
         plural = plural or ('%ss' % singular)
         
-        return render_to_string('objects_list.html', {
+        return render_to_string('snippets/objects_table.html', {
             'columns': self.columns,
             'rows': rows,
             'sortby': self.sortby,
@@ -81,12 +81,13 @@ class Table(object):
 
 
 class Column(object):
-    def __init__(self, caption, name, getter=None, default='', link=False):
+    def __init__(self, caption, name, getter=None, default='', link=False, email=False):
         self.caption = caption
         self.name = name
         self.getter = getter
         self.default = default
         self.link = link
+        self.email = email
     
     def value(self, obj):
         if self.getter:
@@ -95,4 +96,5 @@ class Column(object):
             value = obj[self.name]
         else:
             value = getattr(obj, self.name)
+        
         return value if value is not None else self.default
