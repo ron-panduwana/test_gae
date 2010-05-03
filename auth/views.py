@@ -4,8 +4,11 @@ import datetime
 import hashlib
 import logging
 import math
+import os
 import re
+import sys
 import urllib
+from xml.dom.minidom import parseString
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
@@ -33,27 +36,10 @@ AX_ATTRS = (
     ('namePerson/last', 'lastname'),
 )
 
-
-# TODO: below should be automated
-# Certificate data
-# Steps required to get this value:
-# - get the value of result.content variable from _fetch_xrds
-# - extract the value of ds:X509Certificate xml tag
-# - split this value to 64-lenght lines
-# - enclose it with -----BEGIN CERTIFICATE----- and -----END CERTIFICATE-----
-# - save it to a file cert
-# - run:
-#   openssl x509 -modulus -noout < cert | sed s/Modulus=//
-# - or certificate data can also be shown by:
-#   openssl x509 -text -in cert
-CERT_MODULUS = int(''.join("""
-    B0E43C286A80AD5AA3EAF4808106D812FEB67381D3339D11AA53C33A3494230
-    EF98101E31472734DAAE07F7673A75D4A476EEC5DB9DCD3D064DA8AE9E6DDA5
-    33B6DF69A49DC92F47AC975A44CBA0D501FE6166D4FD2C49A26EDEC34705C1A
-    D637EEC9F47F47DDDE7288D3953F56EBBA5BCCBCE8DD549C5A13C8D4A70DEA5
-    CEFB
-""".split()), 16)
-CERT_EXPONENT = 65537
+DS_NS = 'http://www.w3.org/2000/09/xmldsig#'
+GOOGLE_CA_FILE = 'auth/GoogleInternetAuthority.crt'
+CERT_START = '-----BEGIN CERTIFICATE-----'
+CERT_END = '-----END CERTIFICATE-----'
 
 
 store = DatastoreStore()
@@ -77,12 +63,46 @@ def _fetch_host_meta(domain):
     return match.group(1)
 
 
-def _verify_signature(message, signature):
-    from gdata.tlslite.utils import PyCrypto_RSAKey
-    key = PyCrypto_RSAKey.PyCrypto_RSAKey(CERT_MODULUS, CERT_EXPONENT)
-    decoded_sig = base64.b64decode(signature)
-    sig_bytes = array.array('B', decoded_sig)
-    return key.hashAndVerify(sig_bytes, message)
+def _get_asn1_length(p):
+    first_length = p.get(1)
+    if first_length > 127:
+        length_length = first_length & 0x7f
+        return p.get(length_length)
+    else:
+        return first_length
+
+
+def _get_bytes_to_sign(bytes):
+    from gdata.tlslite.utils.codec import Parser
+    to_sign = array.array('B')
+    p = Parser(bytes)
+    p.get(1)
+    _get_asn1_length(p)
+    to_sign.append(p.get(1))
+    index_start = p.index
+    length = _get_asn1_length(p)
+    index_end = p.index
+    to_sign.extend(bytes[index_start:index_end])
+    to_sign.extend(bytes[index_end:index_end+length])
+    return to_sign
+
+
+def _cert_pub_key(cert):
+    from gdata.tlslite.X509 import X509
+    from gdata.tlslite.utils.ASN1Parser import ASN1Parser
+    if not cert.startswith(CERT_START):
+        cert = '\n'.join((CERT_START, cert, CERT_END))
+    cert = X509().parse(cert)
+    ca_file = os.path.join(sys.path[0], GOOGLE_CA_FILE)
+    with open(ca_file) as f:
+        ca_cert = X509().parse(f.read())
+    p = ASN1Parser(cert.bytes)
+    signature = p.getChild(2).value
+    to_sign = _get_bytes_to_sign(cert.bytes)
+    if ca_cert.publicKey.hashAndVerify(signature, to_sign):
+        return cert.publicKey
+    else:
+        return None
 
 
 def _fetch_xrds(domain, url):
@@ -95,8 +115,19 @@ def _fetch_xrds(domain, url):
     if result.status_code not in (200, 206):
         return None
 
-    signature = result.headers.get('signature', '')
-    if not _verify_signature(result.content, signature):
+    try:
+        cert = parseString(result.content).getElementsByTagNameNS(
+            DS_NS, 'X509Certificate')[0].childNodes[0].data.strip()
+    except Exception:
+        return None
+
+    pub_key = _cert_pub_key(cert)
+    if pub_key is None:
+        return None
+
+    signature = base64.b64decode(result.headers.get('signature', ''))
+    sig_bytes = array.array('B', signature)
+    if not pub_key.hashAndVerify(sig_bytes, result.content):
         return None
 
     memcache.set(key, result.content)
