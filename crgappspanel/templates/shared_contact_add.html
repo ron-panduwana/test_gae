@@ -16,13 +16,7 @@
 			{% with form.notes as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.email as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.phone_number as field %}{% include "snippets/form_field.html" %}{% endwith %}
-			<tr>
-				<td></td>
-				<td>
-					<input type="submit" value="save"/>
-					<input type="reset" value="reset"/>
-				</td>
-			</tr>
+			{% include "snippets/form_save_reset.html" %}
 		</tbody>
 	</table>
 </form>

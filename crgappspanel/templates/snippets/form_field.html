@@ -1,4 +1,4 @@
-<tr>
+<tr{% if noline %} class="noline"{% endif %}>
 	<th>{{ field.label_tag }}</th>
 	<td>
 		{% if field.help_text %}

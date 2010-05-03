@@ -12,22 +12,16 @@
 	<table class="details" width="100%">
 		<tbody>
 			{% with form.forward as field %}{% include "snippets/form_field.html" %}{% endwith %}
-			{% with form.forward_to as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.forward_to as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
 			{% with form.pop3 as field %}{% include "snippets/form_field.html" %}{% endwith %}
-			{% with form.imap as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.imap as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
 			{% with form.messages_per_page as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.web_clips as field %}{% include "snippets/form_field.html" %}{% endwith %}
-			{% with form.snippets as field %}{% include "snippets/form_field.html" %}{% endwith %}
-			{% with form.shortcuts as field %}{% include "snippets/form_field.html" %}{% endwith %}
-			{% with form.arrows as field %}{% include "snippets/form_field.html" %}{% endwith %}
-			{% with form.unicode as field %}{% include "snippets/form_field.html" %}{% endwith %}
-			<tr>
-				<td></td>
-				<td>
-					<input type="submit" value="save" class="default"/>
-					<input type="reset" value="reset"/>
-				</td>
-			</tr>
+			{% with form.snippets as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
+			{% with form.shortcuts as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
+			{% with form.arrows as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
+			{% with form.unicode as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
+			{% include "snippets/form_save_reset.html" %}
 		</tbody>
 	</table>
 </form>

@@ -1,33 +1,33 @@
-table.list {
+table.objects_table {
 	margin-top: 1.5em;
 	border-collapse: collapse;
 }
 
-table.list tr.header th {
+table.objects_table tr.header th {
 	background: url('/static/images/tablebar_bg.png') repeat-x scroll center bottom;
 	border-bottom: 1px solid #ccc;
 }
 
-table.list tr.data td {
+table.objects_table tr.data td {
 	border-bottom: 1px solid lightgray;
 }
 
-table.list tr.header th, table.list tr.data td {
+table.objects_table tr.header th, table.objects_table tr.data td {
 	padding: 2px 5px;
 	
 	text-align: left;
 }
 
-table.list tr.data:hover td {
+table.objects_table tr.data:hover td {
 	background-color: #ffc;
 	cursor: pointer;
 }
 
-table.list tr.selected td {
+table.objects_table tr.selected td {
 	background-color: #ffc;
 }
 
-table.list tr.bar th {
+table.objects_table tr.bar th {
 	background: none repeat scroll 0 0 #c2cdd8;
 	padding: 4px;
 	

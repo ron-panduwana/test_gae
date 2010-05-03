@@ -61,13 +61,7 @@ function showDialog(dialog) {
 					{% include "snippets/form_field_with_items.html" %}
 				{% endautoescape %}
 			{% endwith %}{% endwith %}
-			<tr>
-				<td></td>
-				<td>
-					<input type="submit" value="save"/>
-					<input type="reset" value="reset"/>
-				</td>
-			</tr>
+			{% include "snippets/form_save_reset.html" %}
 		</tbody>
 	</table>
 </form>

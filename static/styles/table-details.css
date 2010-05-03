@@ -13,8 +13,9 @@ table.details th, table.details td {
 	padding: 10px 0 15px 0;
 }
 
-table.details tr.first th, table.details tr.first td {
+table.details tr.noline th, table.details tr.noline td {
 	border-top-style: none;
+	padding-top: 0px;
 }
 
 table.details th {
