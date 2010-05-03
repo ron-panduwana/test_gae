@@ -86,8 +86,7 @@ def shared_contacts(request):
         'advanced_search': advanced_search,
         'filters': filters,
         'query': dict(general=query, advanced=query_adv.search_by),
-        'styles': ['table-list'],
-        'scripts': ['table', 'shared-contacts-list'],
+        'scripts': ['table'],
     }, 3))
 
 
@@ -109,7 +108,6 @@ def shared_contact_add(request):
     
     return render_to_response('shared_contact_add.html', ctx({
         'form': form,
-        'styles': ['table-details'],
     }, 3, back_link=True))
 
 
@@ -185,7 +183,6 @@ def shared_contact_details(request, name=None):
         'full_emails': full_emails,
         'full_phones': full_phones,
         'saved': request.GET.get('saved', None),
-        'styles': ['table-details'],
         'scripts': ['swap-widget'],
     }, 3, back_link=True))
 

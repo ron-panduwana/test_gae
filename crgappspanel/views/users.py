@@ -49,7 +49,6 @@ def users(request):
     
     return render_to_response('users_list.html', ctx({
         'table': table.generate(users, widths=_userWidths, singular='user'),
-        'styles': ['table-list'],
         'scripts': ['table'],
     }, 2, 2))
 
@@ -112,7 +111,6 @@ def user_details(request, name=None):
         'form': form,
         'full_nicknames': full_nicknames,
         'saved': request.GET.get('saved', None),
-        'styles': ['table-details'],
         'scripts': ['expand-field', 'swap-widget', 'user-details'],
     }, 2, 2, 1, back_link=True, sections_args=dict(user=name)))
 
@@ -183,7 +181,6 @@ def user_email_settings(request, name=None):
         'user': user,
         'form': form,
         'saved': request.GET.get('saved'),
-        'styles': ['table-details', 'user-email-settings'],
     }, 2, 2, 2, back_link=True, sections_args=dict(user=name)))
 
 
@@ -213,7 +210,6 @@ def user_email_filters(request, name=None):
         'user': user,
         'form': form,
         'saved': request.GET.get('saved'),
-        'styles': ['table-details'],
     }, 2, 2, 3, back_link=True, sections_args=dict(user=name)))
 
 
@@ -228,7 +224,6 @@ def user_email_aliases(request, name=None):
     return render_to_response('user_email_aliases.html', ctx({
         'user': user,
         'saved': request.GET.get('saved'),
-        'styles': ['table-details'],
     }, 2, 2, 4, back_link=True, sections_args=dict(user=name)))
 
 

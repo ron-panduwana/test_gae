@@ -1,4 +1,4 @@
 {% load i18n %}
 <h1 style="display: inline">{{ user.given_name }} {{ user.family_name }}</h1>
-{% if user.admin %}<span class="admin-label">{% trans "Administrator" %}</span>{% endif %}
+{% if user.admin %}&nbsp;<span class="admin-label">{% trans "Administrator" %}</span>{% endif %}
 <br/>

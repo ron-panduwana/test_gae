@@ -26,6 +26,5 @@ def groups(request):
     
     return render_to_response('groups_list.html', ctx({
         'table': table.generate(groups, widths=_groupWidths, singular='group'),
-        'styles': ['table-list'],
         'scripts': ['table'],
     }, 2, 1))
