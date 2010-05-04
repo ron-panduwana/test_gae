@@ -6,12 +6,15 @@
 <h1>Captcha Required</h1>
 
 <form action="" method="POST">
+        {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
         <p>
-        <img src="{{ url }}">
+        <img src="{{ form.captcha_url }}">
         </p>
-        <input name="response">
-        <input type="hidden" name="token" value="{{ token }}">
-        <input type="hidden" name="email" value="{{ email }}">
+        <input type="hidden" name="captcha_url" value="{{ form.captcha_url }}">
+        {{ form.captcha }}
+        {{ form.captcha_token }}
         <p>
         <input type="submit" value="Send">
         </p>

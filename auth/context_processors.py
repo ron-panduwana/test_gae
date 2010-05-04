@@ -20,5 +20,5 @@ def users(request):
         'dashboard_url': DASHBOARD_URL % domain,
         'inbox_url': INBOX_URL % domain,
         'calendar_url': CALENDAR_URL % domain,
-        'help_url': HELP_URL % domain,
+        'help_url': HELP_URL,
     }

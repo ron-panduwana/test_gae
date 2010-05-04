@@ -14,7 +14,7 @@ from openid.store.memstore import MemoryStore
 from openid.extensions import ax
 from auth.models import AppsDomain
 from auth.store import DatastoreStore
-from auth.forms import CaptchaForm, DomainSetupForm
+from auth.forms import DomainNameForm, CaptchaForm, DomainSetupForm
 from auth.ga_openid import discover_google_apps
 from auth import users
 
@@ -29,8 +29,19 @@ AX_ATTRS = (
 store = DatastoreStore()
 
 
-def openid_get_domain(request):
-    pass
+def openid_get_domain(request, template='get_domain.html'):
+    if request.method == 'POST':
+        form = DomainNameForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect(
+                reverse('openid_start', args=(form.cleaned_data['domain'],)))
+    else:
+        form = DomainNameForm()
+    ctx = {
+        'form': form,
+    }
+    return render_to_response(
+        template, ctx, context_instance=RequestContext(request))
 
 
 def openid_start(request, domain=None):
@@ -38,11 +49,9 @@ def openid_start(request, domain=None):
     redirect_to = request.GET.get(settings.REDIRECT_FIELD_NAME, '')
 
     if not domain:
-        # We currently only support auth via link from Google Apps
-        raise Http404
+        return HttpResponseRedirect(reverse('openid_get_domain'))
 
-    is_domain_active = AppsDomain.is_arbitrary_domain_active(domain)
-    if not is_domain_active:
+    if not AppsDomain.is_arbitrary_domain_active(domain):
         return render_to_response('domain_unlicensed.html', {
             'domain': domain})
 
@@ -54,6 +63,8 @@ def openid_start(request, domain=None):
 
     consumer = Consumer(request.session, store)
     service = discover_google_apps(domain)
+    if service is None:
+        raise Http404
     auth_req = consumer.beginWithoutDiscovery(service)
 
     ax_req = ax.FetchRequest()
@@ -73,7 +84,7 @@ def openid_start(request, domain=None):
         })
     proto = request.is_secure() and 'https' or 'http'
     redirect_url = auth_req.redirectURL(
-        '%s://%s/' % (proto, request.get_host()), return_to, True)
+        '%s://%s/' % (proto, request.get_host()), return_to, False)
 
     return HttpResponseRedirect(redirect_url)
 
@@ -97,7 +108,7 @@ def openid_return(request):
 
     session_info = request.session[settings.SESSION_LOGIN_INFO_KEY]
 
-    # Get user email and name
+    # Request information about user email and name
     ax_resp = ax.FetchResponse.fromSuccessResponse(info)
     for uri, alias in AX_ATTRS:
         value = ax_resp.data['%s%s' % (AX_PREFIX, uri)]
@@ -123,6 +134,7 @@ def openid_logout(request):
 
 
 def domain_setup(request, domain, template='domain_setup.html'):
+    from gdata.apps.service import AppsService
     user = users.get_current_user()
     if user is None:
         return HttpResponseRedirect(
@@ -130,27 +142,16 @@ def domain_setup(request, domain, template='domain_setup.html'):
                 settings.REDIRECT_FIELD_NAME: request.get_full_path(),
                 'from': 'google',
             }))
-    user_domain = user.email().rpartition('@')[2]
-    if user_domain != domain:
-        return HttpResponseRedirect(
-            reverse('domain_setup', args=(user_domain,)))
+    if not users.is_current_user_admin():
+        return HttpResponseRedirect(reverse('admin_required'))
+    service = AppsService(domain=domain)
     if request.method == 'POST':
         data = request.POST.copy()
         data['domain'] = domain
         if not 'account' in data:
             data['account'] = user.email().rpartition('@')[0]
-        form = DomainSetupForm(data)
+        form = DomainSetupForm(user, service, data)
         if form.is_valid():
-            apps_domain = AppsDomain.get_by_key_name(domain)
-            if apps_domain is None:
-                apps_domain = AppsDomain(
-                    key_name=domain,
-                    domain=domain,
-                )
-            apps_domain.admin_email = '%s@%s' % (
-                form.cleaned_data['account'], domain)
-            apps_domain.admin_password = form.cleaned_data['password']
-            apps_domain.put()
             redirect_to = form.cleaned_data['callback']
             if not redirect_to:
                 redirect_to = settings.LOGIN_REDIRECT_URL
@@ -158,7 +159,7 @@ def domain_setup(request, domain, template='domain_setup.html'):
         else:
             form.data['captcha'] = form.data['password'] = ''
     else:
-        form = DomainSetupForm(initial={
+        form = DomainSetupForm(user, service, initial={
             'callback': request.GET.get('callback', ''),
         })
     ctx = {
@@ -171,27 +172,27 @@ def domain_setup(request, domain, template='domain_setup.html'):
         template, ctx, context_instance=RequestContext(request))
 
 
-def handle_captcha_challenge(request):
+def handle_captcha_challenge(request, template='captcha.html'):
     redirect_to = request.GET.get(settings.REDIRECT_FIELD_NAME, '')
     if request.method == 'POST':
+        import pickle
+        client_login_info = request.session.get(
+            settings.SESSION_LOGIN_INFO_KEY)
+        service = pickle.loads(client_login_info['service'])
         user = users.get_current_user()
-        form = CaptchaForm(request.POST)
+        form = CaptchaForm(user, service, request.POST)
         if form.is_valid():
-            pass
+            if not redirect_to or '//' in redirect_to or ' ' in redirect_to:
+                redirect_to = settings.LOGIN_REDIRECT_URL
+            return HttpResponseRedirect(redirect_to)
     else:
         client_login_info = request.session.get(
             settings.SESSION_LOGIN_INFO_KEY)
-        if client_login_info:
-            initial = {
-                'captcha_token': client_login_info.get('captcha_token'),
-                'captcha_url': client_login_info.get('captcha_url'),
-                'captcha_service': client_login_info.get('service', 'apps'),
-                'is_old_api': client_login_info.get('is_old_api', True),
-            }
-            form = CaptchaForm(initial=initial)
-        else:
-            form = CaptchaForm()
-
+        initial = {
+            'captcha_token': client_login_info.get('captcha_token'),
+            'captcha_url': client_login_info.get('captcha_url'),
+        }
+        form = CaptchaForm(initial=initial)
     ctx = {
         'form': form,
     }

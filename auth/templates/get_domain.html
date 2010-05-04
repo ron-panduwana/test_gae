@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Enter your Google Apps domain name{% endblock %}
+
+{% block content %}
+<form method="POST" action="">
+        <p>Enter your Google Apps domain name:</p>
+        {% for error in form.domain.errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+        <p>{{ form.domain.label_tag }} {{ form.domain }}</p>
+        <p><input type="submit" value="Login"></p>
+</form>
+{% endblock %}

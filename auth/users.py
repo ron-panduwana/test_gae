@@ -1,5 +1,6 @@
 import logging
 import os
+import pickle
 import urllib
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -54,8 +55,7 @@ class User(object):
                 challenge = CaptchaChallenge('CAPTCHA Required')
                 challenge.captcha_url = service.captcha_url
                 challenge.captcha_token = service.captcha_token
-                challenge.service = service.service
-                challenge.is_old_api = True
+                challenge.service = service
                 raise challenge
             except Exception:
                 raise SetupRequiredError()
@@ -79,8 +79,7 @@ class User(object):
                     email, password, settings.CLIENT_LOGIN_SOURCE,
                     captcha_token=captcha_token, captcha_response=captcha)
             except CaptchaChallenge, challenge:
-                challenge.service = client.auth_service
-                challenge.is_old_api = False
+                challenge.service = client
                 raise challenge
             except Exception:
                 raise SetupRequiredError()
@@ -123,142 +122,38 @@ class UsersMiddleware(object):
             return HttpResponseRedirect(
                 create_login_url(request.get_full_path()))
         elif isinstance(exception, CaptchaChallenge):
+            import pickle
             client_login_info = request.session.get(
                 settings.SESSION_LOGIN_INFO_KEY, {})
             client_login_info['captcha_url'] = exception.captcha_url
             client_login_info['captcha_token'] = exception.captcha_token
-            client_login_info['service'] = exception.service
-            client_login_info['is_old_api'] = exception.is_old_api
+            client_login_info['service'] = pickle.dumps(
+                exception.service, pickle.HIGHEST_PROTOCOL)
             request.session[settings.SESSION_LOGIN_INFO_KEY] = client_login_info
             return HttpResponseRedirect(
                 reverse('captcha') + '?%s' % urllib.urlencode({
                     settings.REDIRECT_FIELD_NAME: request.get_full_path(),
                 }))
-        elif isinstance(exception, AppsForYourDomainException):
-            logging.warning('exception: %s' % str(exception))
-            return None
-
-
-#class LoginForm(forms.Form):
-#    user_name = forms.CharField(required=True)
-#    password = forms.CharField(required=True, widget=forms.PasswordInput)
-#    captcha_token = forms.CharField(required=False, widget=forms.HiddenInput)
-#    captcha_url = forms.CharField(required=False, widget=forms.HiddenInput)
-#    catpcha_service = forms.CharField(
-#        required=False, widget=forms.HiddenInput, initial='apps')
-#    is_old_api = forms.BooleanField(
-#        required=False, widget=forms.HiddenInput, initial=True)
-#    captcha = forms.CharField(required=False)
-#
-#    def __init__(self, *args, **kwargs):
-#        super(LoginForm, self).__init__(*args, **kwargs)
-#
-#    def clean_captcha(self):
-#        captcha = self.cleaned_data['captcha']
-#        if self.cleaned_data['captcha_token'] and not captcha:
-#            raise forms.ValidationError('You have to type captcha')
-#        return captcha
-#
-#    def _client_login_service(self, email, service_name):
-#        service = GDataService(
-#            email=email,
-#            password=self.cleaned_data['password'],
-#            service=service_name)
-#        try:
-#            service.ProgrammaticLogin(
-#                self.cleaned_data['captcha_token'] or None,
-#                self.cleaned_data['captcha'] or None)
-#        except CaptchaRequired:
-#            self.data = self.data.copy()
-#            self.data['captcha_token'] = service.captcha_token
-#            self.data['captcha_url'] = service.captcha_url
-#            raise forms.ValidationError('Please provide CAPTCHA')
-#        except Exception, e:
-#            raise forms.ValidationError(e.message)
-#
-#        memcache.set(_SERVICE_MEMCACHE_TOKEN_KEY % (email, captcha_service),
-#                     service.GetClientLoginToken(), 24 * 60 * 60)
-#
-#    def _client_login_client(self, email, service_name):
-#        client = GDClient()
-#        try:
-#            client.client_login(email, self.cleaned_data['password'],
-#                                CLIENT_LOGIN_SOURCE)
-#        except CaptchaChallenge, challenge:
-#            self.data = self.data.copy()
-#            self.data['captcha_token'] = challenge.captcha_token
-#            self.data['captcha_url'] = challenge.captcha_url
-#            raise forms.ValidationError('Please provide CAPTCHA')
-#        except Exception, e:
-#            raise forms.ValidationError(e.message)
-#
-#        memcache.set(_CLIENT_MEMCACHE_TOKEN_KEY % (email, captcha_service),
-#                     service.auth_token.token_string, 24 * 60 * 60)
-#
-#    def clean(self):
-#        if self._errors:
-#            return self.cleaned_data
-#
-#        captcha_service = self.cleaned_data.get('captcha_service')
-#        if not captcha_service:
-#            return self.cleaned_data
-#
-#        email='%s@%s' % (self.cleaned_data['user_name'], APPS_DOMAIN)
-#
-#        if self.cleaned_data['is_old_api']:
-#            self._client_login_service(email, captcha_service)
-#        else:
-#            self._client_login_client(email, captcha_service)
-#
-#        return self.cleaned_data
-#
-#
-#def generic_login_view(request, template):
-#    redirect_to = request.GET.get(
-#        'redirect_to', request.META.get('HTTP_REFERER', '/'))
-#    if request.method == 'POST':
-#        form = LoginForm(request.POST)
-#        if form.is_valid():
-#            email = '%s@%s' % (form.cleaned_data['user_name'], APPS_DOMAIN)
-#            request.session[SESSION_LOGIN_INFO_KEY] = {
-#                'domain': APPS_DOMAIN,
-#                'email': email,
-#                'password': form.cleaned_data['password'],
-#            }
-#            return HttpResponseRedirect(redirect_to)
-#        logging.warning('form: %s' % str(form))
-#    else:
-#        client_login_info = request.session.get(SESSION_LOGIN_INFO_KEY)
-#        if client_login_info:
-#            initial = {
-#                'user_name': client_login_info['email'].partition('@')[0],
-#                'captcha_token': client_login_info.get('captcha_token'),
-#                'captcha_url': client_login_info.get('captcha_url'),
-#                'captcha_service': client_login_info.get('service', 'apps'),
-#                'is_old_api': client_login_info.get('is_old_api', True),
-#            }
-#            form = LoginForm(initial=initial)
-#        else:
-#            form = LoginForm()
-#    ctx = {
-#        'form': form,
-#        'domain': APPS_DOMAIN,
-#    }
-#    return render_to_response(template, ctx)
-#
-#
+        elif isinstance(
+            exception, (SetupRequiredError, AppsForYourDomainException)):
+            if not is_current_user_admin():
+                return HttpResponseRedirect(reverse('setup_required'))
+            else:
+                user = get_current_user()
+                return HttpResponseRedirect(
+                    reverse('domain_setup', args=(user.domain().domain,)))
 
 
 def admin_required(func):
     """Decorator. Makes sure current user is logged in and is administrator.
     
-    Redirects to login page otherwise.
+    Redirects to admin_required page otherwise.
 
     """
     def new(request, *args, **kwargs):
         if is_current_user_admin():
             return func(request, *args, **kwargs)
-        return HttpResponseRedirect(create_login_url(request.get_full_path()))
+        return HttpResponseRedirect(reverse('admin_required'))
     new.__name__ = func.__name__
     new.__doc__ = func.__doc__
     return new
@@ -300,8 +195,25 @@ def get_current_user():
 
 
 def is_current_user_admin():
-    #return os.environ.has_key(_ENVIRON_PASWD)
-    return True
+    from gdata.apps.service import AppsService
+    from gdata.auth import OAuthSignatureMethod
+    user = get_current_user()
+    if user is None:
+        return False
+    is_admin = memcache.get(user.email(), namespace='is_current_user_admin')
+    if is_admin is not None:
+        return is_admin
+    service = AppsService(domain=user.domain().domain)
+    service.SetOAuthInputParameters(
+        OAuthSignatureMethod.HMAC_SHA1,
+        settings.OAUTH_CONSUMER, settings.OAUTH_SECRET,
+        two_legged_oauth=True)
+    service.debug = True
+    apps_user = service.RetrieveUser(user.email().rpartition('@')[0])
+    is_admin = apps_user is not None and apps_user.login.admin == 'true'
+    memcache.set(user.email(), is_admin, 60 * 60,
+                 namespace='is_current_user_admin')
+    return is_admin
 
 
 def _set_testing_user(email, domain):

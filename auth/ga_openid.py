@@ -155,11 +155,11 @@ def discover_google_apps(domain):
     """
     url = _fetch_host_meta(domain)
     if url is None:
-        raise Http404
+        return None
 
     xrds = _fetch_xrds(domain, url)
     if xrds is None:
-        raise Http404
+        return None
 
     return OpenIDServiceEndpoint.fromXRDS(domain, xrds)[0]
 
