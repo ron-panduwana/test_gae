@@ -3,8 +3,12 @@
 	<td>
 		{% if items %}
 		<div style="margin-bottom: 0.5em">
-			{% for item in items %}
-				{% if not forloop.first %}<br/>{% endif %}{{ item }}
+			{% for value in items %}
+				{% include "snippets/value.html" %}
+				{% if value.remove_link %}
+					&ndash; <a href="{{ value.remove_link }}">Remove</a>
+				{% endif %}
+				{% if not forloop.last %}<br/>{% endif %}
 			{% endfor %}
 		</div>
 		{% endif %}

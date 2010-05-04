@@ -5,6 +5,7 @@ from django.utils.translation import ugettext as _
 from crgappspanel import consts
 from crgappspanel.forms import UserForm, UserEmailSettingsForm, \
     UserEmailFiltersForm, UserEmailAliasesForm
+from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname
 from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, redirect_saved
@@ -27,7 +28,7 @@ def _get_status(x):
 
 _userFields = [
     Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
-    Column(_('Username'), 'username', getter=lambda x: '%s@%s' % (x.user_name or '', APPS_DOMAIN), email=True),
+    Column(_('Username'), 'username', getter=lambda x: '%s@%s' % (x.user_name or '', APPS_DOMAIN)),
     Column(_('Status'), 'status', getter=_get_status),
     Column(_('Email quota'), 'quota'),
     Column(_('Roles'), 'roles', getter=lambda x: ''),
@@ -100,16 +101,18 @@ def user_details(request, name=None):
         }, auto_id=True)
         form.fields['user_name'].help_text = '@%s' % APPS_DOMAIN
     
-    fmt = '<b>%s</b>@%s - <a href="%s">Remove</a>'
+    def get_email(x):
+        return '%s@%s' % (x, APPS_DOMAIN)
     def remove_nick_link(x):
         kwargs = dict(name=user.user_name, nickname=x.nickname)
         return reverse('user-remove-nickname', kwargs=kwargs)
-    full_nicknames = [fmt % (nick.nickname, APPS_DOMAIN, remove_nick_link(nick)) for nick in user.nicknames]
+    full_nicknames = [ValueWithRemoveLink(get_email(nick.nickname), remove_nick_link(nick)) for nick in user.nicknames]
+    #full_nicknames = ['abc', 'def']
     return render_to_response('user_details.html', ctx({
         'user': user,
         'form': form,
         'full_nicknames': full_nicknames,
-        'saved': request.GET.get('saved', None),
+        'saved': request.GET.get('saved'),
         'scripts': ['expand-field', 'swap-widget', 'user-details'],
     }, 2, 2, 1, back_link=True, sections_args=dict(user=name)))
 
@@ -137,7 +140,7 @@ def user_email_settings(request, name=None):
             
             forward = data['forward']
             forward_to = data['forward_to']
-            forward_action = FORWARD_ACTIONS.get(forward, None)
+            forward_action = FORWARD_ACTIONS.get(forward)
             if forward_action is not None:
                 user.email_settings.update_forwarding(True,
                     forward_to=forward_to, action=forward_action)
@@ -145,7 +148,7 @@ def user_email_settings(request, name=None):
                 user.email_settings.update_forwarding(False)
             
             pop3 = data['pop3']
-            pop3_enable_for = POP3_ENABLE_FORS.get(pop3, None)
+            pop3_enable_for = POP3_ENABLE_FORS.get(pop3)
             if pop3_enable_for is not None:
                 user.email_settings.update_pop(True,
                     enable_for=pop3_enable_for, action=consts.EMAIL_ACTION_KEEP)

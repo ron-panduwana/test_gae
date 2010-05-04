@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Group details" %}: {{ group.name }}{% endblock %}
+
+{% block content %}
+{% include "snippets/saved_warning.html" %}
+<form action="{% url group-details group.id %}" method="POST" class="details">
+	{% include "snippets/group_header.html" %}
+	<table class="details" width="100%">
+		<tbody>
+			{% with form.id_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% include "snippets/form_save_reset.html" %}
+		</tbody>
+	</table>
+</form>
+{% endblock %}

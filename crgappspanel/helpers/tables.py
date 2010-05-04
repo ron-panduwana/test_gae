@@ -50,7 +50,7 @@ class Table(object):
         
         rows = []
         for obj in objs:
-            data = [dict(data=col.value(obj), link=col.link, email=col.email) for col in self.columns]
+            data = [dict(data=col.value(obj), link=col.link) for col in self.columns]
             rows.append({
                 'id': self.id_column.value(obj),
                 'data': data,
@@ -81,13 +81,12 @@ class Table(object):
 
 
 class Column(object):
-    def __init__(self, caption, name, getter=None, default='', link=False, email=False):
+    def __init__(self, caption, name, getter=None, default='', link=False):
         self.caption = caption
         self.name = name
         self.getter = getter
         self.default = default
         self.link = link
-        self.email = email
     
     def value(self, obj):
         if self.getter:

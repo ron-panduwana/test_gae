@@ -55,9 +55,7 @@ function showDialog(dialog) {
 			{% with form.full_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.admin as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.nicknames as field %}{% with full_nicknames as items %}
-				{% autoescape off %}
-					{% include "snippets/form_field_with_items.html" %}
-				{% endautoescape %}
+				{% include "snippets/form_field_with_items.html" %}
 			{% endwith %}{% endwith %}
 			{% include "snippets/form_save_reset.html" %}
 		</tbody>

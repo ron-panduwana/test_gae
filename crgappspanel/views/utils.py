@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 
 
 def get_sortby_asc(request, valid_sortby):
-    sortby = request.GET.get('sortby', None)
+    sortby = request.GET.get('sortby')
     asc = (request.GET.get('asc', 'true') == 'true')
     if not sortby in valid_sortby:
         sortby = None
@@ -118,7 +118,7 @@ class QuerySearch(object):
         self.filter_attrs = dict()
     
     def add(self, request, query_key, filter_attr):
-        value = request.GET.get(query_key, None)
+        value = request.GET.get(query_key)
         if value:
             if query_key:
                 self.search_by[query_key] = value

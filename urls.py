@@ -20,7 +20,10 @@ urlpatterns = patterns('',
 
 urlpatterns += patterns('crgappspanel.views',
     url(r'^$', 'general.index', name='index'),
+    
     url(r'^groups/list/$', 'groups.groups', name='groups'),
+    url(r'^groups/details/(?P<name>[^/]+)/$', 'groups.group_details', name='group-details'),
+    url(r'^groups/members/(?P<name>[^/]+)/$', 'groups.group_members', name='group-members'),
     
     url(r'^users/list/$', 'users.users', name='users'),
     url(r'^users/create/$', 'users.user_create', name='user-create'),

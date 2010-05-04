@@ -10,7 +10,7 @@ class Section(object):
         self.selected = False
         
 
-def get_sections(user=False):
+def get_sections(user=None, group=None):
     sections = [
         Section('Dashboard', None),
         Section('Users and groups', 'users', [
@@ -23,6 +23,7 @@ def get_sections(user=False):
         Section('Additional management', None),
         Section('Preferences', None),
     ]
+    
     if user:
         kwargs = dict(name=user)
         sections[1].subsections[1].name = user
@@ -32,4 +33,13 @@ def get_sections(user=False):
             Section('Filters', 'user-email-filters', kwargs=kwargs),
             Section('Aliases', 'user-email-aliases', kwargs=kwargs),
         ]
+    
+    if group:
+        kwargs = dict(name=group)
+        sections[1].subsections[0].name = group
+        sections[1].subsections[0].subsections = [
+            Section('General', 'group-details', kwargs=kwargs),
+            Section('Members', 'group-members', kwargs=kwargs),
+        ]
+    
     return sections

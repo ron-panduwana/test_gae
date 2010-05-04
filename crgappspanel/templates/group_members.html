@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Group members" %}: {{ group.name }}{% endblock %}
+
+{% block content %}
+{% include "snippets/saved_warning.html" %}
+<form action="{% url group-details group.id %}" method="POST" class="details">
+	{% include "snippets/group_header.html" %}
+	<table class="details" width="100%">
+		<tbody>
+			<tr>
+				<th>Owners</th>
+				<td>
+					{% for owner in group.owners|dictsort:"email" %}
+					{% with owner.email as value %}
+						{% include "snippets/value.html" %}
+						{% if not forloop.last %}<br/>{% endif %}
+					{% endwith %}
+					{% endfor %}
+				</td>
+			</tr>
+			<tr>
+				<th>Members</th>
+				<td>
+					{% for member in group.members|dictsort:"id" %}
+					{% with member.id as value %}
+						{% include "snippets/value.html" %}
+						{% if not forloop.last %}<br/>{% endif %}
+					{% endwith %}
+					{% endfor %}
+				</td>
+			</tr>
+			{% include "snippets/form_save_reset.html" %}
+		</tbody>
+	</table>
+</form>
+{% endblock %}
