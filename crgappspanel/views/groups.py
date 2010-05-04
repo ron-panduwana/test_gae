@@ -6,7 +6,7 @@ from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAGroup
 #from crgappspanel.sample_data import get_sample_groups
 from crgappspanel.views.utils import ctx, get_sortby_asc
-from crlib.users import admin_required
+from auth.users import admin_required
 from settings import APPS_DOMAIN
 
 

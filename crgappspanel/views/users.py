@@ -9,7 +9,7 @@ from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname
 from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, redirect_saved
-from crlib.users import admin_required
+from auth.users import admin_required
 from settings import APPS_DOMAIN
 
 

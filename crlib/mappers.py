@@ -74,10 +74,10 @@ GROUP_EMAIL_PERMISSIONS = (
 
 class UserEntryMapper(AtomMapper):
     @classmethod
-    def create_service(cls):
+    def create_service(cls, domain):
         from gdata.apps import service
         service = service.AppsService()
-        service.domain = settings.APPS_DOMAIN
+        service.domain = domain
         return service
 
     def empty_atom(self):
@@ -189,10 +189,10 @@ class GroupEntryMapper(AtomMapper):
     def key(self, atom):
         return atom.groupId
 
-    def create_service(self):
+    def create_service(self, domain):
         from gdata.apps.groups import service
         service = service.GroupsService()
-        service.domain = settings.APPS_DOMAIN
+        service.domain = domain
         return service
 
     def empty_atom(self):
@@ -339,10 +339,10 @@ class SharedContactEntryMapper(AtomMapper):
     }
 
     @classmethod
-    def create_service(cls):
+    def create_service(cls, domain):
         from gdata.contacts import client
         client = client.ContactsClient()
-        client.contact_list = settings.APPS_DOMAIN
+        client.contact_list = domain
         return client
 
     def empty_atom(self):
@@ -432,9 +432,9 @@ class EmailSettingsProperty(object):
 
 class CalendarResourceEntryMapper(AtomMapper):
     @classmethod
-    def create_service(cls):
+    def create_service(cls, domain):
         from gdata.calendar_resource import client
-        client = client.CalendarResourceClient(domain=settings.APPS_DOMAIN)
+        client = client.CalendarResourceClient(domain=domain)
         client.ssl = True
         return client
 
