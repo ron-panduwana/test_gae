@@ -1,7 +1,8 @@
+from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 
 from crgappspanel.views.utils import ctx
-from crlib.users import admin_required
+from auth.users import admin_required
 
 
 def index(request):

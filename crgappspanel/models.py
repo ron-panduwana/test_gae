@@ -207,10 +207,6 @@ class CalendarResource(gd.Model):
     type = gd.StringProperty('resource_type')
 
 
-class TestModel(BaseModel):
-    user = gd.ReferenceProperty(GAUser)
-
-
 class Role(BaseModel):
     name = db.StringProperty()
     description = db.StringProperty()

@@ -9,7 +9,7 @@ from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import SharedContact
 from crgappspanel.views.utils import ctx, get_sortby_asc, list_attrs, \
         get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch
-from crlib.users import admin_required
+from auth.users import admin_required
 
 
 def _get_company_role(x):

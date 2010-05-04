@@ -561,29 +561,6 @@ class Model(object):
         return cls(**props)
 
 
-class _GDataServiceDescriptor(object):
-    """This object makes sure that ProgrammaticLogin() is called before the
-    gdata.GDataService objects is used for the first time and it makes sure that
-    it's called only once.
-
-    It's a Python descriptor:
-
-    http://docs.python.org/reference/datamodel.html#implementing-descriptors
-
-    """
-    def __get__(self, instance, owner):
-        from crlib import users
-        user = users.get_current_user()
-        if not user:
-            raise users.LoginRequiredError()
-        auth_method = getattr(instance, 'auth_method', 'client_login')
-        if auth_method == 'oauth':
-            user.oauth_login(instance._service)
-        else:
-            user.client_login(instance._service)
-        return instance._service
-
-
 class AtomMapper(object):
     """Subclasses of this class implement actual interaction with GData APIs.
 
@@ -602,14 +579,32 @@ class AtomMapper(object):
         called by Model.get_by_key_name().
 
     """
+    def __init__(self):
+        self._service = None
 
-    service = _GDataServiceDescriptor()
+    @property
+    def service(self):
+        if self._service is not None:
+            return self._service
 
-    def __init__(self, *args, **kwargs):
-        if hasattr(self, 'create_service'):
-            self._service = self.create_service(*args, **kwargs)
+        if not hasattr(self, 'create_service'):
+            return None
+
+        from auth import users
+        user = users.get_current_user()
+        if not user:
+            raise users.LoginRequiredError()
+
+        domain = user.domain().domain
+        service = self.create_service(domain)
+        auth_method = getattr(self, 'auth_method', 'client_login')
+        if auth_method == 'oauth':
+            user.oauth_login(service)
         else:
-            self._service = None
+            user.client_login(service)
+
+        self._service = service
+        return service
 
     def clone_atom(self, atom):
         """Make a copy of atom object."""
