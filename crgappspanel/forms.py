@@ -232,6 +232,18 @@ class UserEmailFiltersForm(forms.Form):
         return value
 
 
+reply_to_c = 'Set %(link_start)sanother%(link_end)s reply to address'
+reply_to_e = '%(widget)s %(link_start)sCancel%(link_end)s'
+
+
+class UserEmailAliasesForm(forms.Form):
+    name = forms.CharField(label='Name')
+    address = forms.EmailField(label='Email address')
+    reply_to = forms.EmailField(label='Reply to', required=False,
+        widget=widgets.SwapWidget(reply_to_c, forms.TextInput(), reply_to_e))
+    make_default = forms.BooleanField(label='Make default', required=False)
+
+
 emails_c = '%(link_start)sAdd email%(link_end)s'
 emails_e = 'Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 phone_numbers_c = '%(link_start)sAdd phone number%(link_end)s'

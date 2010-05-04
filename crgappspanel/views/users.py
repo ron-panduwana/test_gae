@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response, redirect
 from django.utils.translation import ugettext as _
 
 from crgappspanel.forms import UserForm, UserEmailSettingsForm, \
-    UserEmailFiltersForm
+    UserEmailFiltersForm, UserEmailAliasesForm
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname
 from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, redirect_saved
@@ -221,9 +221,21 @@ def user_email_aliases(request, name=None):
     if not user:
         return redirect('users')
     
+    if request.method == 'POST':
+        form = UserEmailAliasesForm(request.POST, auto_id=True)
+        if form.is_valid():
+            data = dict((key, value) for key, value in form.cleaned_data.iteritems() if value)
+            
+            user.email_settings.create_send_as_alias(**data)
+            return redirect_saved('user-email-aliases', name=user.user_name)
+    else:
+        form = UserEmailAliasesForm(initial={}, auto_id=True)
+    
     return render_to_response('user_email_aliases.html', ctx({
         'user': user,
+        'form': form,
         'saved': request.GET.get('saved'),
+        'scripts': ['swap-widget']
     }, 2, 2, 4, back_link=True, sections_args=dict(user=name)))
 
 
