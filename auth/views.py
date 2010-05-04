@@ -1,33 +1,23 @@
-import array
-import base64
 import datetime
 import hashlib
 import logging
-import math
-import os
-import re
-import sys
 import urllib
-from xml.dom.minidom import parseString
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.conf import settings
 from django.template import RequestContext
 from google.appengine.ext import db
-from google.appengine.api import memcache, urlfetch
-from openid.consumer.discover import OpenIDServiceEndpoint
+from google.appengine.api import memcache
 from openid.consumer.consumer import Consumer, SUCCESS
 from openid.store.memstore import MemoryStore
 from openid.extensions import ax
 from auth.models import AppsDomain
 from auth.store import DatastoreStore
 from auth.forms import CaptchaForm, DomainSetupForm
+from auth.ga_openid import discover_google_apps
 from auth import users
 
-
-HOST_META_URL = 'https://www.google.com/accounts/o8/.well-known/host-meta?%s'
-RE_LINK = re.compile(r'Link: <(.*)>')
 
 AX_PREFIX = 'http://axschema.org/'
 AX_ATTRS = (
@@ -36,102 +26,7 @@ AX_ATTRS = (
     ('namePerson/last', 'lastname'),
 )
 
-DS_NS = 'http://www.w3.org/2000/09/xmldsig#'
-GOOGLE_CA_FILE = 'auth/GoogleInternetAuthority.crt'
-CERT_START = '-----BEGIN CERTIFICATE-----'
-CERT_END = '-----END CERTIFICATE-----'
-
-
 store = DatastoreStore()
-
-
-def _fetch_host_meta(domain):
-    key = 'HOST_META:%s' % domain
-    cached_value = memcache.get(key)
-    if cached_value is not None:
-        return cached_value
-
-    host_meta_url = HOST_META_URL % urllib.urlencode({'hd': domain})
-    result = urlfetch.fetch(host_meta_url)
-    if result.status_code not in (200, 206):
-        return None
-    match = RE_LINK.match(result.content)
-    if match is None:
-        return None
-
-    memcache.set(key, match.group(1))
-    return match.group(1)
-
-
-def _get_asn1_length(p):
-    first_length = p.get(1)
-    if first_length > 127:
-        length_length = first_length & 0x7f
-        return p.get(length_length)
-    else:
-        return first_length
-
-
-def _get_bytes_to_sign(bytes):
-    from gdata.tlslite.utils.codec import Parser
-    to_sign = array.array('B')
-    p = Parser(bytes)
-    p.get(1)
-    _get_asn1_length(p)
-    to_sign.append(p.get(1))
-    index_start = p.index
-    length = _get_asn1_length(p)
-    index_end = p.index
-    to_sign.extend(bytes[index_start:index_end])
-    to_sign.extend(bytes[index_end:index_end+length])
-    return to_sign
-
-
-def _cert_pub_key(cert):
-    from gdata.tlslite.X509 import X509
-    from gdata.tlslite.utils.ASN1Parser import ASN1Parser
-    if not cert.startswith(CERT_START):
-        cert = '\n'.join((CERT_START, cert, CERT_END))
-    cert = X509().parse(cert)
-    ca_file = os.path.join(sys.path[0], GOOGLE_CA_FILE)
-    with open(ca_file) as f:
-        ca_cert = X509().parse(f.read())
-    p = ASN1Parser(cert.bytes)
-    signature = p.getChild(2).value
-    to_sign = _get_bytes_to_sign(cert.bytes)
-    if ca_cert.publicKey.hashAndVerify(signature, to_sign):
-        return cert.publicKey
-    else:
-        return None
-
-
-def _fetch_xrds(domain, url):
-    key = 'XRDS:%s' % url
-    cached_xrds = memcache.get(key)
-    if cached_xrds is not None:
-        return cached_xrds
-
-    result = urlfetch.fetch(url)
-    if result.status_code not in (200, 206):
-        return None
-
-    try:
-        cert = parseString(result.content).getElementsByTagNameNS(
-            DS_NS, 'X509Certificate')[0].childNodes[0].data.strip()
-    except Exception:
-        return None
-
-    pub_key = _cert_pub_key(cert)
-    if pub_key is None:
-        return None
-
-    signature = base64.b64decode(result.headers.get('signature', ''))
-    sig_bytes = array.array('B', signature)
-    if not pub_key.hashAndVerify(sig_bytes, result.content):
-        return None
-
-    memcache.set(key, result.content)
-    return result.content
 
 
 def openid_get_domain(request):
@@ -151,25 +46,15 @@ def openid_start(request, domain=None):
         return render_to_response('domain_unlicensed.html', {
             'domain': domain})
 
-    # Perform Google Apps-specific OpenID discovery
-    url = _fetch_host_meta(domain)
-    if url is None:
-        raise Http404
-
-    xrds = _fetch_xrds(domain, url)
-    if xrds is None:
-        raise Http404
-
-    endpoints = OpenIDServiceEndpoint.fromXRDS(domain, xrds)
-
     request.session.set_test_cookie()
 
     request.session[settings.SESSION_LOGIN_INFO_KEY] = {
         'domain': domain,
     }
-    consumer = Consumer(request.session, store)
 
-    auth_req = consumer.beginWithoutDiscovery(endpoints[0])
+    consumer = Consumer(request.session, store)
+    service = discover_google_apps(domain)
+    auth_req = consumer.beginWithoutDiscovery(service)
 
     ax_req = ax.FetchRequest()
     for uri, alias in AX_ATTRS:
