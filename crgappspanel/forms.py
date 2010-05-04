@@ -1,10 +1,10 @@
 from django import forms
 from django.forms.util import ErrorList
+from django.utils.translation import ugettext as _
 
-from crgappspanel import models
+from crgappspanel import consts, models
 from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
-from django.utils.translation import ugettext as _
 
 __all__ = ('UserForm', 'UserEmailSettingsForm', 'UserEmailFiltersForm',
     'SharedContactForm')
@@ -79,6 +79,9 @@ class UserForm(forms.Form):
 
 ENABLE_DISABLE_KEEP = create_on_off_keep(u'Enable', u'Disable')
 
+LANGUAGE_CHOICES = [('', u'Don\'t change')]
+LANGUAGE_CHOICES.extend(consts.LANGUAGES)
+
 FORWARD_CHOICES = (
     ('', u'Don\'t change'),
     ('ek', u'Forward and keep'),
@@ -106,6 +109,8 @@ UNICODE_CHOICES = create_on_off_keep(u'Use Unicode (UTF-8)', u'Use default text 
 
 
 class UserEmailSettingsForm(forms.Form):
+    language = forms.ChoiceField(label='Language',
+        choices=LANGUAGE_CHOICES, required=False)
     forward = forms.ChoiceField(label='Forwarding',
         choices=FORWARD_CHOICES, required=False)
     forward_to = forms.EmailField(label='Forward to', required=False)

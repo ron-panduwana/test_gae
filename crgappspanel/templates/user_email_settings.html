@@ -9,6 +9,7 @@
 	{% include "snippets/user_header.html" %}
 	<table class="details" width="100%">
 		<tbody>
+			{% with form.language as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.forward as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.forward_to as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
 			{% with form.pop3 as field %}{% include "snippets/form_field.html" %}{% endwith %}

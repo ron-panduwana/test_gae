@@ -129,6 +129,12 @@ def user_email_settings(request, name=None):
         if form.is_valid():
             data = form.cleaned_data
             
+            language = data['language']
+            if language:
+                ret = user.email_settings.update_language(language)
+                import django
+                return django.http.HttpResponse('updated language to %s with ret = %s' % (language, ret), mimetype='text/plain')
+            
             forward = data['forward']
             forward_to = data['forward_to']
             forward_action = FORWARD_ACTIONS.get(forward, None)
