@@ -2,11 +2,12 @@ EMAIL_REL_HOME = 'http://schemas.google.com/g/2005#home'
 EMAIL_REL_WORK = 'http://schemas.google.com/g/2005#work'
 EMAIL_REL_OTHER = 'http://schemas.google.com/g/2005#other'
 
-EMAIL_RELS =[
+EMAIL_RELS = (
     EMAIL_REL_HOME,
     EMAIL_REL_WORK,
     EMAIL_REL_OTHER,
-]
+)
+
 
 PHONE_REL_HOME = 'http://schemas.google.com/g/2005#home'
 PHONE_REL_HOME_FAX = 'http://schemas.google.com/g/2005#home_fax'
@@ -17,7 +18,7 @@ PHONE_REL_PAGER = 'http://schemas.google.com/g/2005#pager'
 PHONE_REL_FAX = 'http://schemas.google.com/g/2005#fax'
 PHONE_REL_OTHER = 'http://schemas.google.com/g/2005#other'
 
-PHONE_RELS = [
+PHONE_RELS = (
     PHONE_REL_HOME,
     PHONE_REL_HOME_FAX,
     PHONE_REL_WORK,
@@ -26,9 +27,30 @@ PHONE_RELS = [
     PHONE_REL_PAGER,
     PHONE_REL_FAX,
     PHONE_REL_OTHER,
-]
+)
 
-LANGUAGES = [
+
+EMAIL_ACTION_KEEP = 'KEEP'
+EMAIL_ACTION_ARCHIVE = 'ARCHIVE'
+EMAIL_ACTION_DELETE = 'DELETE'
+
+EMAIL_ACTIONS = (
+    EMAIL_ACTION_KEEP,
+    EMAIL_ACTION_ARCHIVE,
+    EMAIL_ACTION_DELETE,
+)
+
+
+EMAIL_ENABLE_FOR_ALL_MAIL = 'ALL_MAIL'
+EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON = 'MAIL_FROM_NOW_ON'
+
+EMAIL_ENABLE_FORS = (
+    EMAIL_ENABLE_FOR_ALL_MAIL,
+    EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON,
+)
+
+
+LANGUAGES = (
     ('in', u'Bahasa Indonesia'),
     ('ms', u'Bahasa Melayu'),
     ('ca', u'Catal\u00e0'),
@@ -83,4 +105,4 @@ LANGUAGES = [
     ('ja', u'\u65e5\u672c\u8a9e'), # Japanese
     ('ko', u'\ud55c\uad6d\uc5b4'), # Korean
     ('fa', u'\u0641\u0627\u0631\u0633\u06cc'), # Persian - not in GMail
-]
+)

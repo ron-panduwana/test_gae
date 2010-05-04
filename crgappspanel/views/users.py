@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, redirect
 from django.utils.translation import ugettext as _
 
+from crgappspanel import consts
 from crgappspanel.forms import UserForm, UserEmailSettingsForm, \
     UserEmailFiltersForm, UserEmailAliasesForm
 from crgappspanel.helpers.tables import Table, Column
@@ -11,15 +12,13 @@ from crlib.users import admin_required
 from settings import APPS_DOMAIN
 
 
-EMAIL_ACTION_KEEP = 'KEEP'
-EMAIL_ACTION_ARCHIVE = 'ARCHIVE'
-EMAIL_ACTION_DELETE = 'DELETE'
-
-EMAIL_ENABLE_FOR_ALL_MAIL = 'ALL_MAIL'
-EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON = 'MAIL_FROM_NOW_ON'
-
-FORWARD_ACTIONS = dict(ek=EMAIL_ACTION_KEEP, ea=EMAIL_ACTION_ARCHIVE, ed=EMAIL_ACTION_DELETE)
-POP3_ENABLE_FORS = dict(ea=EMAIL_ENABLE_FOR_ALL_MAIL, en=EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON)
+FORWARD_ACTIONS = dict(
+    ek=consts.EMAIL_ACTION_KEEP,
+    ea=consts.EMAIL_ACTION_ARCHIVE,
+    ed=consts.EMAIL_ACTION_DELETE)
+POP3_ENABLE_FORS = dict(
+    ea=consts.EMAIL_ENABLE_FOR_ALL_MAIL,
+    en=consts.EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON)
 
 
 def _get_status(x):
@@ -128,6 +127,7 @@ def user_email_settings(request, name=None):
         form = UserEmailSettingsForm(request.POST, auto_id=True)
         if form.is_valid():
             data = form.cleaned_data
+            general = {}
             
             language = data['language']
             if language:
@@ -148,7 +148,7 @@ def user_email_settings(request, name=None):
             pop3_enable_for = POP3_ENABLE_FORS.get(pop3, None)
             if pop3_enable_for is not None:
                 user.email_settings.update_pop(True,
-                    enable_for=pop3_enable_for, action=EMAIL_ACTION_KEEP)
+                    enable_for=pop3_enable_for, action=consts.EMAIL_ACTION_KEEP)
             elif pop3 == 'd':
                 user.email_settings.update_pop(False)
             
@@ -164,7 +164,6 @@ def user_email_settings(request, name=None):
             if web_clips is not None:
                 user.email_settings.update_web_clip_settings(web_clips)
             
-            general = {}
             general['snippets'] = form.get_boolean('snippets')
             general['shortcuts'] = form.get_boolean('shortcuts')
             general['arrows'] = form.get_boolean('arrows')
