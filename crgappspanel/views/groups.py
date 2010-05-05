@@ -32,7 +32,7 @@ def groups(request):
     }, 2, 1))
 
 
-@admin_required
+@login_required
 def group_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -56,7 +56,7 @@ def group_details(request, name=None):
     }, 2, 1, 1, back_link=True, sections_args=dict(group=name)))
 
 
-@admin_required
+@login_required
 def group_members(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
