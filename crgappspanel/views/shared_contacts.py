@@ -33,7 +33,7 @@ _sharedContactFields = [
     Column(_('Phone numbers'), 'phone_numbers',
         getter=lambda x: list_attrs(x.phone_numbers, 'number')),
     Column(_('E-mails'), 'emails',
-        getter=lambda x: list_attrs(x.emails, 'address'), email=True),
+        getter=lambda x: list_attrs(x.emails, 'address')),
 ]
 _sharedContactId = _sharedContactFields[0]
 _sharedContactWidths = ['%d%%' % x for x in (5, 20, 20, 15, 10, 30)]
@@ -182,7 +182,7 @@ def shared_contact_details(request, name=None):
         'form': form,
         'full_emails': full_emails,
         'full_phones': full_phones,
-        'saved': request.GET.get('saved', None),
+        'saved': request.GET.get('saved'),
         'scripts': ['swap-widget'],
     }, 3, back_link=True))
 

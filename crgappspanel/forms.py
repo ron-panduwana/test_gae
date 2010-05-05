@@ -28,6 +28,11 @@ def create_exact_keep(*values):
     return ret
 
 
+################################################################################
+#                                    USERS                                     #
+################################################################################
+
+
 password_c = '%(widget)s%(link_start)sChange password%(link_end)s WARNING: dangerous, without confirmation yet!'
 password_1 = widgets.DoubleWidget(forms.HiddenInput(), forms.HiddenInput())
 password_e = 'Enter new password:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
@@ -249,6 +254,21 @@ class UserEmailAliasesForm(forms.Form):
     make_default = forms.BooleanField(label='Make default', required=False)
 
 
+################################################################################
+#                                    GROUPS                                    #
+################################################################################
+
+
+class GroupForm(forms.Form):
+    id_name = forms.CharField(label='Email address')
+    name = forms.CharField(label='Name')
+
+
+################################################################################
+#                               SHARED CONTACTS                                #
+################################################################################
+
+
 emails_c = '%(link_start)sAdd email%(link_end)s'
 emails_e = 'Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 phone_numbers_c = '%(link_start)sAdd phone number%(link_end)s'
@@ -326,8 +346,8 @@ class SharedContactForm(forms.Form):
     
     def clean(self):
         data = self.cleaned_data
-        company = data.get('company', None)
-        role = data.get('role', None)
+        company = data.get('company')
+        role = data.get('role')
         
         # role filled => company must be filled
         if not company and role:

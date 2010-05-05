@@ -1,0 +1,11 @@
+{% load tags_filters %}
+{% spaceless %}
+{% with value|email_partition as email %}
+	{% if email %}
+		<span class="email-username">{{ email.username }}</span>
+		<span class="email-domain">{{ email.at }}{{ email.domain }}</span>
+	{% else %}
+		{{ value }}
+	{% endif %}
+{% endwith %}
+{% endspaceless %}

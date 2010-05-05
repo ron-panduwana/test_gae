@@ -14,7 +14,7 @@ def iterable(value):
 @register.filter
 @stringfilter
 def email_partition(value):
-    idx = value.find('@')
-    if idx == -1:
+    parts = value.partition('@')
+    if any(not part or ' ' in part or ',' in part for part in parts):
         return None
-    return dict(username=value[:idx], at=value[idx], domain=value[idx+1:])
+    return dict(username=parts[0], at=parts[1], domain=parts[2])
