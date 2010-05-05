@@ -50,7 +50,10 @@ def group_details(request, name=None):
         form = GroupForm(initial={
             'id': group.id.partition('@')[0],
             'name': group.name,
+            'description': group.description,
+            'email_permission': group.email_permission,
         }, auto_id=True)
+        form.fields['id'].help_text = '@%s' % APPS_DOMAIN
     
     return render(request, 'group_details.html', ctx({
         'group': group,

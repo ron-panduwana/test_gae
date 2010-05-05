@@ -1,3 +1,8 @@
+from django.utils.translation import ugettext as _
+
+from gdata.apps.groups import service as groups
+
+
 EMAIL_REL_HOME = 'http://schemas.google.com/g/2005#home'
 EMAIL_REL_WORK = 'http://schemas.google.com/g/2005#work'
 EMAIL_REL_OTHER = 'http://schemas.google.com/g/2005#other'
@@ -47,6 +52,19 @@ EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON = 'MAIL_FROM_NOW_ON'
 EMAIL_ENABLE_FORS = (
     EMAIL_ENABLE_FOR_ALL_MAIL,
     EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON,
+)
+
+
+GROUP_EMAIL_PERMISSION_OWNER = groups.PERMISSION_OWNER
+GROUP_EMAIL_PERMISSION_MEMBER = groups.PERMISSION_MEMBER
+GROUP_EMAIL_PERMISSION_DOMAIN = groups.PERMISSION_DOMAIN
+GROUP_EMAIL_PERMISSION_ANYONE = groups.PERMISSION_ANYONE
+
+GROUP_EMAIL_PERMISSION_CHOICES = (
+    (GROUP_EMAIL_PERMISSION_OWNER, _('Owner')),
+    (GROUP_EMAIL_PERMISSION_MEMBER, _('Member')),
+    (GROUP_EMAIL_PERMISSION_DOMAIN, _('Domain')),
+    (GROUP_EMAIL_PERMISSION_ANYONE, _('Anyone')),
 )
 
 

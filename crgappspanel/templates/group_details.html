@@ -11,6 +11,8 @@
 		<tbody>
 			{% with form.id as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.description as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.email_permission as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% include "snippets/form_save_reset.html" %}
 		</tbody>
 	</table>
