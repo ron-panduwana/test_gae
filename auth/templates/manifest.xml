@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ApplicationManifest xmlns="http://schemas.google.com/ApplicationManifest/2009">
+  <Name>{{ name }}</Name>
+  <Description>{{ description }}</Description>
+
+  <!-- Administrators and users will be sent to this URL for application support -->
+  <Support>
+    {% if support_link %}
+    <Link rel="support" href="{{ support_link }}"/>
+    {% endif %}
+    <Link rel="setup" href="{{ setup_url }}"/>
+  </Support>
+
+  <!-- Show this link in Google's universal navigation for all users -->
+  <Extension id="navLink" type="link">
+    <Name>{{ link_title }}</Name>
+    <Url>{{ login_url }}?from=google</Url>
+    <Scope ref="provisioningAPI"/>
+  </Extension>
+
+  <!-- Declare our OpenID realm so our app is white listed -->
+  <Extension id="realm" type="openIdRealm">
+    <Url>{{ realm }}</Url>
+  </Extension>
+
+  <!-- Need access to the Calendar API -->
+  <Scope id="provisioningAPI">
+    <Url>https://apps-apis.google.com/a/feeds/user/#readonly</Url>
+    <Reason>This app manages domain user accounts.</Reason>
+  </Scope>
+</ApplicationManifest>

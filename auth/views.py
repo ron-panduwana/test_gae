@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.conf import settings
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from openid.consumer.consumer import Consumer, SUCCESS
@@ -225,4 +226,19 @@ def handle_license_updates(request):
         apps_domains.append(apps_domain)
     db.put(apps_domains)
     return HttpResponse(str(len(apps_domains)))
+
+
+def generate_manifest(request):
+    abs = lambda x: urllib.unquote(request.build_absolute_uri(x))
+    setup_url = reverse('domain_setup', args=('example.com',)).replace(
+        'example.com', '${DOMAIN}')
+    login_url = reverse('openid_start', args=('example.com',)).replace(
+        'example.com', '${DOMAIN}')
+    ctx = {
+        'setup_url': abs(setup_url),
+        'login_url': abs(login_url),
+        'realm': abs('/'),
+    }
+    manifest = render_to_string('manifest.xml', ctx)
+    return HttpResponse(manifest, mimetype='text/plain')
 

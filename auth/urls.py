@@ -14,6 +14,7 @@ urlpatterns = patterns(
     url(r'setup/%s/$' % DOMAIN, 'domain_setup', name='domain_setup'),
     url(r'captcha/$', 'handle_captcha_challenge', name='captcha'),
     url(r'__cron_check_licenses/$', 'handle_license_updates'),
+    url(r'__manifest/$', 'generate_manifest'),
 )
 
 

@@ -112,6 +112,10 @@ class UsersMiddleware(object):
         client_login_info = request.session.get(settings.SESSION_LOGIN_INFO_KEY)
         if not client_login_info or \
            not client_login_info.has_key('email'):
+            if os.environ.has_key(_ENVIRON_EMAIL):
+                del os.environ[_ENVIRON_EMAIL]
+            if os.environ.has_key(_ENVIRON_DOMAIN):
+                del os.environ[_ENVIRON_DOMAIN]
             return
         os.environ[_ENVIRON_EMAIL] = client_login_info['email']
         os.environ[_ENVIRON_DOMAIN] = client_login_info['domain']
