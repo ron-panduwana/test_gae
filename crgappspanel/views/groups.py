@@ -49,7 +49,7 @@ def group_details(request, name=None):
     else:
         form = GroupForm(initial={}, auto_id=True)
     
-    return render_to_response('group_details.html', ctx({
+    return render(request, 'group_details.html', ctx({
         'group': group,
         'form': form,
         'saved': request.GET.get('saved'),
@@ -68,7 +68,7 @@ def group_members(request, name=None):
     owners = ('[email=%s, type=%s]' % (owner.email, owner.type) for owner in group.owners)
     members = ('[id=%s, direct_member=%s, type=%s]' % (member.id, member.direct_member, member.type) for member in group.members)
     
-    return render_to_response('group_members.html', ctx({
+    return render(request, 'group_members.html', ctx({
         'group': group,
         'owners': owners,
         'members': members,
