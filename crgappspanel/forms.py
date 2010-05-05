@@ -262,10 +262,28 @@ class UserEmailAliasesForm(forms.Form):
 class GroupForm(forms.Form):
     id = forms.CharField(label='Identifier')
     name = forms.CharField(label='Name')
-    description = forms.CharField(label='Description', required=False,
-        widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
     email_permission = forms.ChoiceField(label='Email permission',
         choices=consts.GROUP_EMAIL_PERMISSION_CHOICES)
+    description = forms.CharField(label='Description', required=False,
+        widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
+    
+    def create(self):
+        data = self.cleaned_data
+        
+        return models.GAGroup(
+            id=data['id'],
+            name=data['name'],
+            email_permission=data['email_permission'],
+            description='')
+    
+    def populate(self, group):
+        data = self.cleaned_data
+        
+        group.name = data['name']
+        group.email_permission = data['email_permission']
+        group.description = data['description']
+        
+        return data['id']
 
 
 ################################################################################

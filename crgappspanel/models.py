@@ -102,6 +102,9 @@ class GAGroup(gd.Model):
             if group.id in group_ids and not member in group.members:
                 group.members.append(member)
                 group.save()
+    
+    def get_pure_id(self):
+        return self.id.partition('@')[0]
 
 
 class GANickname(gd.Model):

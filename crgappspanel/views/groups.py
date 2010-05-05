@@ -5,7 +5,7 @@ from auth.decorators import login_required
 from crgappspanel.forms import GroupForm
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAGroup
-from crgappspanel.views.utils import ctx, get_sortby_asc, render
+from crgappspanel.views.utils import ctx, get_sortby_asc, render, redirect_saved
 
 _groupFields = [
     Column(_('Name'), 'name', link=True),
@@ -32,7 +32,14 @@ def groups(request):
 
 @login_required
 def group_create(request):
-    form = GroupForm(auto_id=True)
+    if request.method == 'POST':
+        form = GroupForm(request.POST, auto_id=True)
+        if form.is_valid():
+            group = form.create()
+            group.save()
+            return redirect_saved('group-details', name=group.get_pure_id())
+    else:
+        form = GroupForm(auto_id=True)
     
     return render(request, 'group_create.html', ctx({
         'form': form,
@@ -52,11 +59,12 @@ def group_details(request, name=None):
     if request.method == 'POST':
         form = GroupForm(request.POST, auto_id=True)
         if form.is_valid():
-            # TODO do sth
-            pass
+            form.populate(group)
+            group.save()
+            return redirect_saved('group-details', name=group.get_pure_id())
     else:
         form = GroupForm(initial={
-            'id': group.id.partition('@')[0],
+            'id': group.get_pure_id(),
             'name': group.name,
             'description': group.description,
             'email_permission': group.email_permission,

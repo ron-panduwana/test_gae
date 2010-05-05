@@ -6,10 +6,6 @@
 	{{ field.help_text }}</label>
 {% endif %}
 
-{# TODO remove loop #}
-{% for error in field.errors %}
-	{% if forloop.first %}
-		<span style="color: red">{{ error }}</span>
-	{% endif %}
-{% empty %}
-{% endfor %}
+{% if field.errors|length %}
+	<span style="color: red">{{ field.errors|first }}</span>
+{% endif %}
