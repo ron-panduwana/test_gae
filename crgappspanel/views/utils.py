@@ -67,7 +67,6 @@ def render(request, template, ctx):
 
 def ctx(d, section=None, subsection=None, subsubsection=None, back_link=False, sections_args=None):
     from crgappspanel.sections import get_sections
-    from settings import APPS_DOMAIN
     
     sections = get_sections(**(sections_args or {}))
     

@@ -1,13 +1,11 @@
 from django.utils.translation import ugettext as _
 
+from auth import users
+from auth.decorators import login_required
 from crgappspanel.forms import GroupForm
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAGroup
-#from crgappspanel.sample_data import get_sample_groups
 from crgappspanel.views.utils import ctx, get_sortby_asc, render
-from auth.decorators import login_required
-from settings import APPS_DOMAIN
-
 
 _groupFields = [
     Column(_('Name'), 'name', link=True),
@@ -46,7 +44,8 @@ def group_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
     
-    group = GAGroup.all().filter('id', '%s@%s' % (name, APPS_DOMAIN)).get()
+    domain = users.get_current_user().domain().domain
+    group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
     if not group:
         return redirect('groups')
     
@@ -62,7 +61,7 @@ def group_details(request, name=None):
             'description': group.description,
             'email_permission': group.email_permission,
         }, auto_id=True)
-        form.fields['id'].help_text = '@%s' % APPS_DOMAIN
+        form.fields['id'].help_text = '@%s' % domain
     
     return render(request, 'group_details.html', ctx({
         'group': group,
@@ -76,7 +75,8 @@ def group_members(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
     
-    group = GAGroup.all().filter('id', '%s@%s' % (name, APPS_DOMAIN)).get()
+    domain = users.get_current_user().domain().domain
+    group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
     if not group:
         return redirect('groups')
     

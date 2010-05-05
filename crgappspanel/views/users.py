@@ -2,6 +2,8 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
+import auth
+from auth.decorators import login_required
 from crgappspanel import consts
 from crgappspanel.forms import UserForm, UserEmailSettingsForm, \
     UserEmailFiltersForm, UserEmailAliasesForm
@@ -10,8 +12,6 @@ from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname
 from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, \
         redirect_saved, render
-from auth.decorators import login_required
-from settings import APPS_DOMAIN
 
 
 FORWARD_ACTIONS = dict(
@@ -27,20 +27,23 @@ def _get_status(x):
     suspended, admin = getattr(x, 'suspended'), getattr(x, 'admin')
     return _('Suspended') if x.suspended else _('Administrator') if x.admin else ''
 
-_userFields = [
-    Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
-    Column(_('Username'), 'username', getter=lambda x: '%s@%s' % (x.user_name or '', APPS_DOMAIN)),
-    Column(_('Status'), 'status', getter=_get_status),
-    Column(_('Email quota'), 'quota'),
-    Column(_('Roles'), 'roles', getter=lambda x: ''),
-    Column(_('Last signed in'), 'last_login', getter=lambda x: '')
-]
+def _userFieldsGen(domain):
+    return [
+        Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
+        Column(_('Username'), 'username', getter=lambda x: '%s@%s' % (x.user_name or '', domain)),
+        Column(_('Status'), 'status', getter=_get_status),
+        Column(_('Email quota'), 'quota'),
+        Column(_('Roles'), 'roles', getter=lambda x: ''),
+        Column(_('Last signed in'), 'last_login', getter=lambda x: '')
+    ]
 _userId = Column(None, 'user_name')
 _userWidths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
 
 
 @login_required
 def users(request):
+    domain = auth.users.get_current_user().domain().domain
+    _userFields = _userFieldsGen(domain)
     sortby, asc = get_sortby_asc(request, [f.name for f in _userFields])
     
     users = GAUser.all().fetch(100)
@@ -56,6 +59,8 @@ def users(request):
 
 @login_required
 def user_create(request):
+    domain = auth.users.get_current_user().domain().domain
+    
     if request.method == 'POST':
         form = UserForm(request.POST, auto_id=True)
         if form.is_valid():
@@ -64,7 +69,7 @@ def user_create(request):
             return redirect('user-details', name=user.user_name)
     else:
         form = UserForm(auto_id=True)
-        form.fields['user_name'].help_text = '@%s' % APPS_DOMAIN
+        form.fields['user_name'].help_text = '@%s' % domain
     
     temp_password = random_password(6)
     
@@ -79,6 +84,7 @@ def user_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
     
+    domain = auth.users.get_current_user().domain().domain
     user = GAUser.get_by_key_name(name)
     if not user:
         return redirect('users')
@@ -100,10 +106,10 @@ def user_details(request, name=None):
             'admin': user.admin,
             'nicknames': '',
         }, auto_id=True)
-        form.fields['user_name'].help_text = '@%s' % APPS_DOMAIN
+        form.fields['user_name'].help_text = '@%s' % domain
     
     def get_email(x):
-        return '%s@%s' % (x, APPS_DOMAIN)
+        return '%s@%s' % (x, domain)
     def remove_nick_link(x):
         kwargs = dict(name=user.user_name, nickname=x.nickname)
         return reverse('user-remove-nickname', kwargs=kwargs)
