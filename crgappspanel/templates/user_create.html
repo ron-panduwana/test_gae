@@ -5,26 +5,15 @@
 
 {% block content %}
 <form action="{% url user-create %}" method="POST" class="create">
+	{# TODO I18n #}
 	<h1>Create a new user</h1>
 	
-	First and Last name<br/>
-	{{ form.full_name }}
-	{% for error in form.full_name.errors %}
-		{% if forloop.first %}
-			<span style="color: red">{{ error }}</span>
-		{% endif %}
-	{% empty %}
-	{% endfor %}
+	<label for="user_name">Username</label><br/>
+	{% with form.user_name as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
 	
 	<br/><br/>
-	Username<br/>
-	{{ form.user_name }} {{ form.user_name.help_text }}
-	{% for error in form.user_name.errors %}
-		{% if forloop.first %}
-			<span style="color: red">{{ error }}</span>
-		{% endif %}
-	{% empty %}
-	{% endfor %}
+	<label for="full_name_0">First and Last name</label><br/>
+	{% with form.full_name as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
 	
 	<br/><br/>
 	Temporary password:
@@ -33,7 +22,7 @@
 	<span style="color: gray">{{ temp_password }}</span>
 	
 	<br/><br/>
-	<input type="submit" value="create"/>
+	<input type="submit" value="create" class="default"/>
 	<input type="button" onclick="window.open('{% url users %}', '_self')" value="cancel"/>
 </form>
 {% endblock %}

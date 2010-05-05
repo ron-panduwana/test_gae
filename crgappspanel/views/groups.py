@@ -33,6 +33,15 @@ def groups(request):
 
 
 @login_required
+def group_create(request):
+    form = GroupForm(auto_id=True)
+    
+    return render(request, 'group_create.html', ctx({
+        'form': form,
+    }, 2, 1, back_link=True))
+
+
+@login_required
 def group_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)

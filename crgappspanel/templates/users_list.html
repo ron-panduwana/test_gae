@@ -4,7 +4,7 @@
 {% block title %}{% trans "Users list" %}{% endblock %}
 
 {% block content %}
-<a href="{% url user-create %}" class="action-link">Create a new user</a>
+	<a href="{% url user-create %}" class="action-link">Create new user</a>
 <script type="text/javascript">
 cr.table.deletes['table'] = function(list, removeUrl) {
 	var dialogDelete = new goog.ui.Dialog()
@@ -24,5 +24,5 @@ goog.events.listen(window, 'unload', function() {
 	goog.events.removeAll()
 })
 </script>
-{{ table }}
+	{{ table }}
 {% endblock %}

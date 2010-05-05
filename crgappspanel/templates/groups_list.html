@@ -4,5 +4,6 @@
 {% block title %}{% trans "Groups list" %}{% endblock %}
 
 {% block content %}
+	<a href="{% url group-create %}" class="action-link">Create new group</a>
 	{{ table }}
 {% endblock %}

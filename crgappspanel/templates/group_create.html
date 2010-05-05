@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create group" %}{% endblock %}
+
+{% block content %}
+<form action="{% url group-create %}" method="POST" class="details">
+	{# TODO I18n #}
+	<h1>Create a new group</h1>
+	
+	<label for="id">Identifier</label><br/>
+	{% with form.id as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
+	
+	<br/><br/>
+	<label for="name">Name</label><br/>
+	{% with form.name as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
+	
+	<br/><br/>
+	<label for="email_permission">Email permission</label><br/>
+	{% with form.email_permission as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
+	
+	<br/><br/>
+	<input type="submit" value="create" class="default"/>
+	<input type="button" onclick="window.open('{% url groups %}', '_self')" value="cancel"/>
+</form>
+{% endblock %}
