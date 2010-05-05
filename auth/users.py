@@ -144,37 +144,6 @@ class UsersMiddleware(object):
                     reverse('domain_setup', args=(user.domain().domain,)))
 
 
-def admin_required(func):
-    """Decorator. Makes sure current user is logged in and is administrator.
-    
-    Redirects to admin_required page otherwise.
-
-    """
-    def new(request, *args, **kwargs):
-        if is_current_user_admin():
-            return func(request, *args, **kwargs)
-        return HttpResponseRedirect(reverse('admin_required'))
-    new.__name__ = func.__name__
-    new.__doc__ = func.__doc__
-    return new
-
-
-def user_required(func):
-    """Decorator. Makes sure current user is logged.
-    
-    Redirects to login page otherwise.
-
-    """
-    def new(request, *args, **kwargs):
-        # TODO: check if user is licensed to use the application
-        if get_current_user() is not None:
-            return func(request, *args, **kwargs)
-        return HttpResponseRedirect(create_login_url(request.get_full_path()))
-    new.__name__ = func.__name__
-    new.__doc__ = func.__doc__
-    return new
-
-
 def create_login_url(dest_url):
     return reverse('openid_get_domain') + '?%s' % urllib.urlencode({
         'redirect_to': dest_url})

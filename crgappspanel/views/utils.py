@@ -1,7 +1,8 @@
 import os
 
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render_to_response
+from django.template import RequestContext
 
 
 def get_sortby_asc(request, valid_sortby):
@@ -59,6 +60,11 @@ def list_attrs(lst, attr, max_len=3, finish='...'):
     return lst
 
 
+def render(request, template, ctx):
+    return render_to_response(
+        template, ctx, context_instance=RequestContext(request))
+
+
 def ctx(d, section=None, subsection=None, subsubsection=None, back_link=False, sections_args=None):
     from crgappspanel.sections import get_sections
     from settings import APPS_DOMAIN
@@ -84,7 +90,6 @@ def ctx(d, section=None, subsection=None, subsubsection=None, back_link=False, s
     if back_link:
         back_link = dict(view=(subsection or section).view)
     
-    d['domain'] = APPS_DOMAIN
     d['sections'] = sections
     d['sel_section'] = section
     d['sel_subsection'] = subsection

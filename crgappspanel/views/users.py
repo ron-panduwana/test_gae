@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
 from crgappspanel import consts
@@ -7,8 +7,9 @@ from crgappspanel.forms import UserForm, UserEmailSettingsForm, \
     UserEmailFiltersForm, UserEmailAliasesForm
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname
-from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, redirect_saved
-from auth.users import admin_required
+from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, \
+        redirect_saved, render
+from auth.decorators import login_required
 from settings import APPS_DOMAIN
 
 
@@ -37,7 +38,7 @@ _userId = Column(None, 'user_name')
 _userWidths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
 
 
-@admin_required
+@login_required
 def users(request):
     sortby, asc = get_sortby_asc(request, [f.name for f in _userFields])
     
@@ -46,13 +47,13 @@ def users(request):
     table = Table(_userFields, _userId, sortby=sortby, asc=asc)
     table.sort(users)
     
-    return render_to_response('users_list.html', ctx({
+    return render(request, 'users_list.html', ctx({
         'table': table.generate(users, widths=_userWidths, singular='user'),
         'scripts': ['table'],
     }, 2, 2))
 
 
-@admin_required
+@login_required
 def user_create(request):
     if request.method == 'POST':
         form = UserForm(request.POST, auto_id=True)
@@ -66,13 +67,13 @@ def user_create(request):
     
     temp_password = random_password(6)
     
-    return render_to_response('user_create.html', ctx({
+    return render(request, 'user_create.html', ctx({
         'form': form,
         'temp_password': temp_password,
     }, 2, 2, back_link=True))
 
 
-@admin_required
+@login_required
 def user_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -105,7 +106,7 @@ def user_details(request, name=None):
         kwargs = dict(name=user.user_name, nickname=x.nickname)
         return reverse('user-remove-nickname', kwargs=kwargs)
     full_nicknames = [fmt % (nick.nickname, APPS_DOMAIN, remove_nick_link(nick)) for nick in user.nicknames]
-    return render_to_response('user_details.html', ctx({
+    return render(request, 'user_details.html', ctx({
         'user': user,
         'form': form,
         'full_nicknames': full_nicknames,
@@ -114,7 +115,7 @@ def user_details(request, name=None):
     }, 2, 2, 1, back_link=True, sections_args=dict(user=name)))
 
 
-@admin_required
+@login_required
 def user_email_settings(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -182,7 +183,7 @@ def user_email_settings(request, name=None):
     else:
         form = UserEmailSettingsForm(initial={}, auto_id=True)
     
-    return render_to_response('user_email_settings.html', ctx({
+    return render(request, 'user_email_settings.html', ctx({
         'user': user,
         'form': form,
         'saved': request.GET.get('saved'),
@@ -211,7 +212,7 @@ def user_email_filters(request, name=None):
     else:
         form = UserEmailFiltersForm(initial={}, auto_id=True)
     
-    return render_to_response('user_email_filters.html', ctx({
+    return render(request, 'user_email_filters.html', ctx({
         'user': user,
         'form': form,
         'saved': request.GET.get('saved'),
@@ -236,7 +237,7 @@ def user_email_aliases(request, name=None):
     else:
         form = UserEmailAliasesForm(initial={}, auto_id=True)
     
-    return render_to_response('user_email_aliases.html', ctx({
+    return render(request, 'user_email_aliases.html', ctx({
         'user': user,
         'form': form,
         'saved': request.GET.get('saved'),
@@ -255,17 +256,17 @@ def user_suspend_restore(request, name=None, suspend=None):
     return redirect('user-details', name=user.user_name)
 
 
-@admin_required
+@login_required
 def user_suspend(request, name=None):
     return user_suspend_restore(request, name=name, suspend=True)
 
 
-@admin_required
+@login_required
 def user_restore(request, name=None):
     return user_suspend_restore(request, name=name, suspend=False)
 
 
-@admin_required
+@login_required
 def user_remove(request, names=None):
     if not names:
         raise ValueError('names = %s' % names)
@@ -277,7 +278,7 @@ def user_remove(request, names=None):
     return redirect('users')
 
 
-@admin_required
+@login_required
 def user_remove_nickname(request, name=None, nickname=None):
     if not all((name, nickname)):
         raise ValueError('name = %s, nickname = %s' % (name, nickname))

@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
 from crgappspanel.forms import SharedContactForm
@@ -8,8 +8,8 @@ from crgappspanel.helpers.filters import SharedContactFilter, \
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import SharedContact
 from crgappspanel.views.utils import ctx, get_sortby_asc, list_attrs, \
-        get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch
-from auth.users import admin_required
+        get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch, render
+from auth.decorators import login_required
 
 
 def _get_company_role(x):
@@ -39,7 +39,7 @@ _sharedContactId = _sharedContactFields[0]
 _sharedContactWidths = ['%d%%' % x for x in (5, 20, 20, 15, 10, 30)]
 
 
-@admin_required
+@login_required
 def shared_contacts(request):
     sortby, asc = get_sortby_asc(request, [f.name for f in _sharedContactFields])
     
@@ -79,7 +79,7 @@ def shared_contacts(request):
     # selecting particular page
     page = get_page(request, shared_contacts, 20)
     
-    return render_to_response('shared_contacts_list.html', ctx({
+    return render(request, 'shared_contacts_list.html', ctx({
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
             widths=_sharedContactWidths, singular='shared contact'),
@@ -90,7 +90,7 @@ def shared_contacts(request):
     }, 3))
 
 
-@admin_required
+@login_required
 def shared_contact_add(request):
     if request.method == 'POST':
         form = SharedContactForm(request.POST, auto_id=True)
@@ -106,12 +106,12 @@ def shared_contact_add(request):
     else:
         form = SharedContactForm(auto_id=True)
     
-    return render_to_response('shared_contact_add.html', ctx({
+    return render(request, 'shared_contact_add.html', ctx({
         'form': form,
     }, 3, back_link=True))
 
 
-@admin_required
+@login_required
 def shared_contact_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -177,7 +177,7 @@ def shared_contact_details(request, name=None):
         fmt = '%s &ndash; <a href="%s">Remove</a>'
         full_phones.append(fmt % (phone.number, remove_phone_link(phone)))
     
-    return render_to_response('shared_contact_details.html', ctx({
+    return render(request, 'shared_contact_details.html', ctx({
         'shared_contact': shared_contact,
         'form': form,
         'full_emails': full_emails,
@@ -187,7 +187,7 @@ def shared_contact_details(request, name=None):
     }, 3, back_link=True))
 
 
-@admin_required
+@login_required
 def shared_contact_remove(request, names=None):
     if not names:
         raise ValueError('names = %s' % names)
@@ -199,7 +199,7 @@ def shared_contact_remove(request, names=None):
     return redirect('shared-contacts')
 
 
-@admin_required
+@login_required
 def shared_contact_remove_email(request, name=None, email=None):
     if not all((name, email)):
         raise ValueError('name = %s, email = %s' % (name, email))
@@ -217,7 +217,7 @@ def shared_contact_remove_email(request, name=None, email=None):
     return redirect_saved('shared-contact-details', name=name)
 
 
-@admin_required
+@login_required
 def shared_contact_remove_phone(request, name=None, phone=None):
     if not all((name, phone)):
         raise ValueError('name = %s, phone = %s' % (name, phone))

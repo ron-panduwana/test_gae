@@ -1,8 +1,8 @@
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import redirect
 
-from crgappspanel.views.utils import ctx
-from auth.users import admin_required
+from crgappspanel.views.utils import ctx, render
+from auth.decorators import login_required
 
 
 def index(request):
@@ -10,11 +10,11 @@ def index(request):
 
 
 def language(request):
-    return render_to_response('language.html', {'LANGUAGES': LANGUAGES})
+    return render(request, 'language.html', {'LANGUAGES': LANGUAGES})
 
 
-@admin_required
+@login_required
 def test(request):
-    return render_to_response('test.html', ctx({
+    return render(request, 'test.html', ctx({
         'scripts': ['test'],
     }, 2, 4))
