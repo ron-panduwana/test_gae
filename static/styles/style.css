@@ -44,6 +44,27 @@ a.desc {
 *                                  NAVIGATION                                  *
 *******************************************************************************/
 
+div#header {
+        margin: 0;
+        padding: 0;
+        min-height: 30px;
+}
+
+div#header ul {
+        float: right;
+        list-style: none outside none;
+}
+
+div#header ul li {
+        display: inline;
+        padding-left: 6px;
+}
+
+
+/*******************************************************************************
+*                                  NAVIGATION                                  *
+*******************************************************************************/
+
 div#menu ul {
 	clear: both;
 	float: left;

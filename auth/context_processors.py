@@ -15,10 +15,13 @@ def users(request):
         }
     domain = user.domain().domain
     return {
-        'user': user,
-        'logout_url': _users.create_logout_url(DASHBOARD_URL % domain),
-        'dashboard_url': DASHBOARD_URL % domain,
-        'inbox_url': INBOX_URL % domain,
-        'calendar_url': CALENDAR_URL % domain,
-        'help_url': HELP_URL,
+        'auth': {
+            'user': user,
+            'domain': domain,
+            'logout_url': _users.create_logout_url(DASHBOARD_URL % domain),
+            'dashboard_url': DASHBOARD_URL % domain,
+            'inbox_url': INBOX_URL % domain,
+            'calendar_url': CALENDAR_URL % domain,
+            'help_url': HELP_URL,
+        }
     }

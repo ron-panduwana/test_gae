@@ -15,6 +15,19 @@
 		{% endfor %}
 	</head>
 	<body style="margin: 0px; padding: 20px">
+        <div id="header">
+                <ul>
+                {% if auth %}
+                        <li><strong>{{ auth.user.email }}</strong></li>
+                        <li><a href="{{ auth.inbox_url }}" target="_blank">Inbox</a></li>
+                        <li><a href="{{ auth.calendar_url }}" target="_blank">Calendar</a></li>
+                        <li><a href="{{ auth.help_url }}" target="_blank">Help</a></li>
+                        <li><a href="{{ auth.ogout_url }}">Sign out</a></li>
+                {% else %}
+                        <li><a href="{{ login_url }}">Sign in</a></li>
+                {% endif %}
+                </ul>
+        </div>
 		{% spaceless %}
 		<div id="menu">
 			<ul>

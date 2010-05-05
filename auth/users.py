@@ -146,12 +146,12 @@ class UsersMiddleware(object):
 
 def create_login_url(dest_url):
     return reverse('openid_get_domain') + '?%s' % urllib.urlencode({
-        'redirect_to': dest_url})
+        settings.REDIRECT_FIELD_NAME: dest_url})
 
 
 def create_logout_url(dest_url):
     return reverse('openid_logout') + '?%s' % urllib.urlencode({
-        'redirect_to': dest_url})
+        settings.REDIRECT_FIELD_NAME: dest_url})
 
 
 def get_current_user():
