@@ -11,10 +11,10 @@ from settings import APPS_DOMAIN
 
 _groupFields = [
     Column(_('Name'), 'name', link=True),
-    Column(_('Email address'), 'id'),
+    Column(_('Email address'), 'email', getter=lambda x: x.id),
     Column(_('Email permission'), 'email_permission'),
 ]
-_groupId = Column(None, 'id_name', getter=lambda x: x.id.partition('@')[0])
+_groupId = Column(None, 'id', getter=lambda x: x.id.partition('@')[0])
 _groupWidths = ['%d%%' % x for x in (5, 40, 40, 15)]
 
 
@@ -47,7 +47,10 @@ def group_details(request, name=None):
             # TODO do sth
             pass
     else:
-        form = GroupForm(initial={}, auto_id=True)
+        form = GroupForm(initial={
+            'id': group.id.partition('@')[0],
+            'name': group.name,
+        }, auto_id=True)
     
     return render(request, 'group_details.html', ctx({
         'group': group,

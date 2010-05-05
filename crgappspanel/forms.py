@@ -260,7 +260,7 @@ class UserEmailAliasesForm(forms.Form):
 
 
 class GroupForm(forms.Form):
-    id_name = forms.CharField(label='Email address')
+    id = forms.CharField(label='Identifier')
     name = forms.CharField(label='Name')
 
 
