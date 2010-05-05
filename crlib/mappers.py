@@ -402,7 +402,7 @@ class _EmailSettingsWrapper(object):
     MAIL_FROM_NOW_ON = 'MAIL_FROM_NOW_ON'
 
     def __init__(self, user_name):
-        from crlib import users
+        from auth import users
         from gdata.apps.emailsettings.service import EmailSettingsService
 
         self._user_name = user_name
