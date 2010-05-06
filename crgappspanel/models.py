@@ -3,6 +3,7 @@ from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from crlib import gdata_wrapper as gd
 from crlib import mappers
+from auth import users
 
 
 class GAUser(gd.Model):
@@ -35,8 +36,9 @@ class GAGroupMember(gd.Model):
 
     @classmethod
     def from_user(cls, user):
+        domain = users.get_current_user().domain().domain
         return GAGroupMember(
-            id='%s@%s' % (user.user_name, settings.APPS_DOMAIN)).save()
+            id='%s@%s' % (user.user_name, domain)).save()
 
     def __unicode__(self):
         return self.id
@@ -63,8 +65,9 @@ class GAGroupOwner(gd.Model):
 
     @classmethod
     def from_user(cls, user):
+        domain = users.get_current_user().domain().domain
         return GAGroupOwner(
-            email='%s@%s' % (user.user_name, settings.APPS_DOMAIN)).save()
+            email='%s@%s' % (user.user_name, domain)).save()
 
     def is_user(self):
         return self.to_user() is not None

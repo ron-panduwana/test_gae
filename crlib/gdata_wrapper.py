@@ -402,7 +402,10 @@ class _MemcacheDict(object):
         return memcache.get(key, namespace=self.namespace)
 
     def __setitem__(self, key, value):
-        memcache.set(key, value, namespace=self.namespace, time=self.time)
+        try:
+            memcache.set(key, value, namespace=self.namespace, time=self.time)
+        except TypeError:
+            logging.warning('Couldn\'t store a value in memcache.')
 
     def __delitem__(self, key):
         memcache.delete(key, namespace=self.namespace)

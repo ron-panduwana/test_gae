@@ -127,8 +127,7 @@ class _DictAtom(dict):
         raise AttributeError
 
     def __setattr__(self, key, value):
-        if value is not None and value != '':
-            self[key] = value
+        self[key] = value
 
 
 class MemberEntry(_DictAtom):
