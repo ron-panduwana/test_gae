@@ -140,6 +140,7 @@ class UsersMiddleware(object):
                 }))
         elif isinstance(
             exception, (SetupRequiredError, AppsForYourDomainException)):
+            logging.warning('exception: %s' % str(exception))
             if not is_current_user_admin():
                 return HttpResponseRedirect(reverse('setup_required'))
             else:
@@ -189,7 +190,7 @@ def is_current_user_admin():
     return is_admin
 
 
-def _set_testing_user(email, domain):
+def _set_testing_user(email, password, domain):
     os.environ[_ENVIRON_EMAIL] = email
     os.environ[_ENVIRON_DOMAIN] = domain
 

@@ -1,5 +1,4 @@
 from __future__ import with_statement
-
 import datetime
 import logging
 import os
@@ -11,7 +10,7 @@ from crgappspanel.models import *
 from crlib.gdata_wrapper import GDataQuery
 from crlib.mappers import MAIN_TYPES, PHONE_TYPES, ORGANIZATION_TYPES, \
         WEBSITE_TYPES
-from crlib.users import _set_testing_user
+from auth.users import _set_testing_user
 
 
 os.environ['SERVER_NAME'] = 'localhost'
@@ -22,15 +21,23 @@ os.environ['USER_IS_ADMIN'] = '1'
 
 with open('google_apps.txt') as f:
     lines = f.readlines()
-credentials = [line.strip() for line in lines[:2]]
-_set_testing_user(*credentials)
+email, password, domain = [line.strip() for line in lines]
+_set_testing_user(email, password, domain)
 
 
 class BaseGDataTestCase(unittest.TestCase):
-    USER_NAME = 'sdfsdf'
-    USER_GIVEN_NAME = 'afdfs'
-    USER_FAMILY_NAME = 'dfsdf'
+    USER_NAME = 'test_account'
+    USER_GIVEN_NAME = 'Test'
+    USER_FAMILY_NAME = 'Account'
     NUMBER_OF_USERS = 5
+
+    def setUp(self):
+        from auth.models import AppsDomain
+        AppsDomain.get_or_insert(
+            key_name=domain,
+            domain=domain,
+            admin_email=email,
+            admin_password=password)
 
 
 class ProvisioningAPITestCase(BaseGDataTestCase):
@@ -164,6 +171,17 @@ class ProvisioningAPIGroupsTestCase(BaseGDataTestCase):
             id='some_group',
             name='some group',
             description='this is some group',
+            email_permission='Owner').save()
+
+    def testCreateGroupWithMissingProperties(self):
+        existing = GAGroup.all().filter(
+            'id', 'some_group@moroccanholidayrental.com').get()
+        if existing is not None:
+            existing.delete()
+        group = GAGroup(
+            id='some_group',
+            name='some group',
+            description='',
             email_permission='Owner').save()
 
     def testRetrieveAll(self):
