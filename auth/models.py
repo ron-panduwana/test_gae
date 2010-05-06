@@ -30,8 +30,10 @@ class AppsDomain(BaseModel):
         apps_domain = AppsDomain.get_by_key_name(domain)
         if apps_domain is not None and apps_domain.is_active():
             return True
-        apps_domain = AppsDomain(key_name=domain, domain=domain)
-        apps_domain.put()
+        AppsDomain.get_or_insert(
+            key_name=domain,
+            domain=domain,
+        )
         client = LicensingClient()
         result = client.get_domain_info(domain).entry[0]
         return result.content.entity.state.text == STATE_ACTIVE

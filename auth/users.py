@@ -58,6 +58,7 @@ class User(object):
                 challenge.service = service
                 raise challenge
             except Exception:
+                logging.exception('ClientLogin Error')
                 raise SetupRequiredError()
             token = service.GetClientLoginToken()
             memcache.set(memcache_key, token, 24 * 60 * 60)
@@ -140,7 +141,6 @@ class UsersMiddleware(object):
                 }))
         elif isinstance(
             exception, (SetupRequiredError, AppsForYourDomainException)):
-            logging.warning('exception: %s' % str(exception))
             if not is_current_user_admin():
                 return HttpResponseRedirect(reverse('setup_required'))
             else:
@@ -160,7 +160,7 @@ def create_logout_url(dest_url):
 
 
 def get_current_user():
-    if os.environ.has_key(_ENVIRON_EMAIL):
+    if os.environ.get(_ENVIRON_EMAIL) and os.environ.get(_ENVIRON_DOMAIN):
         return User(
             os.environ[_ENVIRON_EMAIL],
             os.environ[_ENVIRON_DOMAIN])
