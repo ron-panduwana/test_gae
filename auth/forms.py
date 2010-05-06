@@ -14,7 +14,7 @@ class VerbatimWidget(forms.Widget):
 
 class DomainNameForm(forms.Form):
     domain = forms.RegexField(
-        required=True, regex=r'[-\w]+\.[a-z]{2,6}', label='www.',
+        required=True, regex=r'(?:[-\w]+\.)+[a-z]{2,6}$', label='www.',
         error_messages={'invalid': _('Please enter valid domain name')})
 
 
