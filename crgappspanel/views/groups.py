@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
@@ -115,11 +116,17 @@ def group_members(request, name=None):
     else:
         form = GroupMembersForm(initial={}, auto_id=True)
     
-    # TODO create remove links
+    def remove_owner_link(group, owner):
+        kwargs = dict(name=group.get_pure_id(), owner=owner)
+        return reverse('group-remove-owner', kwargs=kwargs)
+    def remove_member_link(group, member):
+        kwargs = dict(name=group.get_pure_id(), member=member)
+        return reverse('group-remove-member', kwargs=kwargs)
+    
     owner_emails = [owner.email for owner in group.owners]
     member_emails = [member.id for member in group.members]
-    owners = [ValueWithRemoveLink(owner, 'None') for owner in owner_emails]
-    members = [ValueWithRemoveLink(member, 'None') for member in member_emails]# if member not in owner_emails]
+    owners = [ValueWithRemoveLink(owner, remove_owner_link(group, owner)) for owner in owner_emails]
+    members = [ValueWithRemoveLink(member, remove_member_link(group, member)) for member in member_emails]
     
     return render(request, 'group_members.html', ctx({
         'form': form,
@@ -129,3 +136,40 @@ def group_members(request, name=None):
         'saved': request.GET.get('saved'),
         'scripts': ['swap-widget'],
     }, 2, 1, 2, back_link=True, sections_args=dict(group=name)))
+
+
+@login_required
+def group_remove(request, name=None):
+    pass
+
+
+@login_required
+def group_remove_owner(request, name=None, owner=None):
+    if not all((name, owner)):
+        raise ValueError('name = %s, owner = %s' % (name, owner))
+    
+    domain = users.get_current_user().domain().domain
+    group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
+    if not group:
+        return redirect('groups')
+    
+    group.owners = [own for own in group.owners if own.email != owner]
+    group.save()
+    
+    return redirect('group-members', name=group.get_pure_id())
+
+
+@login_required
+def group_remove_member(request, name=None, member=None):
+    if not all((name, member)):
+        raise ValueError('name = %s, member = %s' % (name, member))
+    
+    domain = users.get_current_user().domain().domain
+    group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
+    if not group:
+        return redirect('groups')
+    
+    group.members = [mem for mem in group.members if mem.id != member]
+    group.save()
+    
+    return redirect('group-members', name=group.get_pure_id())
