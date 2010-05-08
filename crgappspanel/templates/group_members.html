@@ -5,7 +5,7 @@
 
 {% block content %}
 {% include "snippets/saved_warning.html" %}
-<form action="{% url group-details group.id %}" method="POST" class="details">
+<form action="{% url group-members group.get_pure_id %}" method="POST" class="details">
 	{% include "snippets/group_header.html" %}
 	<table class="details" width="100%">
 		<tbody>

@@ -6,7 +6,7 @@ from auth.decorators import login_required
 from crgappspanel.forms import GroupForm, GroupMembersForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
-from crgappspanel.models import GAGroup
+from crgappspanel.models import GAGroup, GAGroupOwner, GAGroupMember
 from crgappspanel.views.utils import ctx, get_sortby_asc, render, redirect_saved
 
 _groupFields = [
@@ -93,8 +93,25 @@ def group_members(request, name=None):
     if request.method == 'POST':
         form = GroupMembersForm(request.POST, auto_id=True)
         if form.is_valid():
-            # TODO add logic here
-            pass
+            modified = False
+            
+            owner = form.cleaned_data['owner']
+            if owner:
+                owner = GAGroupOwner(email=owner).save()
+                group.owners.append(owner)
+                modified = True
+            
+            member = form.cleaned_data['member']
+            if member:
+                member = GAGroupMember(id=member).save()
+                group.members.append(member)
+                modified = True
+            
+            if modified:
+                group.save()
+                return redirect_saved('group-members', name=group.get_pure_id())
+            else:
+                return redirect('group-members', name=group.get_pure_id())
     else:
         form = GroupMembersForm(initial={}, auto_id=True)
     
@@ -102,12 +119,13 @@ def group_members(request, name=None):
     owner_emails = [owner.email for owner in group.owners]
     member_emails = [member.id for member in group.members]
     owners = [ValueWithRemoveLink(owner, 'None') for owner in owner_emails]
-    members = [ValueWithRemoveLink(member, 'None') for member in member_emails if member not in owner_emails]
+    members = [ValueWithRemoveLink(member, 'None') for member in member_emails]# if member not in owner_emails]
     
     return render(request, 'group_members.html', ctx({
         'form': form,
         'group': group,
         'owners': owners,
         'members': members,
+        'saved': request.GET.get('saved'),
         'scripts': ['swap-widget'],
     }, 2, 1, 2, back_link=True, sections_args=dict(group=name)))
