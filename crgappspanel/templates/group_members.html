@@ -9,11 +9,17 @@
 	{% include "snippets/group_header.html" %}
 	<table class="details" width="100%">
 		<tbody>
-			<tr>
+			{% with form.owner as field %}{% with owners|dictsort:"value" as items %}
+				{% include "snippets/form_field_with_items.html" %}
+			{% endwith %}{% endwith %}
+			{% with form.member as field %}{% with members|dictsort:"value" as items %}
+				{% include "snippets/form_field_with_items.html" %}
+			{% endwith %}{% endwith %}
+			{% comment %}<tr>
 				<th>Owners</th>
 				<td>
-					{% for owner in group.owners|dictsort:"email" %}
-					{% with owner.email as value %}
+					{% for owner in owners|dictsort:"value" %}
+					{% with owner as value %}
 						{% include "snippets/value.html" %}
 						{% if not forloop.last %}<br/>{% endif %}
 					{% endwith %}
@@ -23,14 +29,14 @@
 			<tr>
 				<th>Members</th>
 				<td>
-					{% for member in group.members|dictsort:"id" %}
-					{% with member.id as value %}
+					{% for member in members|dictsort:"value" %}
+					{% with member as value %}
 						{% include "snippets/value.html" %}
 						{% if not forloop.last %}<br/>{% endif %}
 					{% endwith %}
 					{% endfor %}
 				</td>
-			</tr>
+			</tr>{% endcomment %}
 			{% include "snippets/form_save_reset.html" %}
 		</tbody>
 	</table>

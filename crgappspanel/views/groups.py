@@ -1,8 +1,10 @@
+from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
 from auth import users
 from auth.decorators import login_required
-from crgappspanel.forms import GroupForm
+from crgappspanel.forms import GroupForm, GroupMembersForm
+from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAGroup
 from crgappspanel.views.utils import ctx, get_sortby_asc, render, redirect_saved
@@ -88,11 +90,24 @@ def group_members(request, name=None):
     if not group:
         return redirect('groups')
     
-    owners = ('[email=%s, type=%s]' % (owner.email, owner.type) for owner in group.owners)
-    members = ('[id=%s, direct_member=%s, type=%s]' % (member.id, member.direct_member, member.type) for member in group.members)
+    if request.method == 'POST':
+        form = GroupMembersForm(request.POST, auto_id=True)
+        if form.is_valid():
+            # TODO add logic here
+            pass
+    else:
+        form = GroupMembersForm(initial={}, auto_id=True)
+    
+    # TODO create remove links
+    owner_emails = [owner.email for owner in group.owners]
+    member_emails = [member.id for member in group.members]
+    owners = [ValueWithRemoveLink(owner, 'None') for owner in owner_emails]
+    members = [ValueWithRemoveLink(member, 'None') for member in member_emails if member not in owner_emails]
     
     return render(request, 'group_members.html', ctx({
+        'form': form,
         'group': group,
         'owners': owners,
         'members': members,
+        'scripts': ['swap-widget'],
     }, 2, 1, 2, back_link=True, sections_args=dict(group=name)))

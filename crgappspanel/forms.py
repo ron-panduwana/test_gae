@@ -286,6 +286,19 @@ class GroupForm(forms.Form):
         return data['id']
 
 
+owner_c = '%(link_start)sAdd%(link_end)s another owner'
+owner_e = '%(widget)s %(link_start)sCancel%(link_end)s'
+member_c = '%(link_start)sAdd%(link_end)s another member'
+member_e = '%(widget)s %(link_start)sCancel%(link_end)s'
+
+
+class GroupMembersForm(forms.Form):
+    owner = forms.EmailField(label='Owner', required=False,
+        widget=widgets.SwapWidget(owner_c, forms.TextInput(), owner_e))
+    member = forms.EmailField(label='Members', required=False,
+        widget=widgets.SwapWidget(member_c, forms.TextInput(), member_e))
+
+
 ################################################################################
 #                               SHARED CONTACTS                                #
 ################################################################################
