@@ -159,7 +159,7 @@ def group_remove_owner(request, name=None, owner=None):
     group.members = [mbm for mbm in group.members if mbm.id != owner]
     group.save()
     
-    return redirect('group-members', name=group.get_pure_id())
+    return redirect_saved('group-members', request, name=group.get_pure_id())
 
 
 @login_required
@@ -175,4 +175,4 @@ def group_remove_member(request, name=None, member=None):
     group.members = [mem for mem in group.members if mem.id != member]
     group.save()
     
-    return redirect('group-members', name=group.get_pure_id())
+    return redirect_saved('group-members', request, name=group.get_pure_id())
