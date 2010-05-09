@@ -17,13 +17,13 @@ ENABLE_DISABLE = (ENABLE, DISABLE)
 
 def create_on_off_keep(on_text, off_text):
     return (
-        ('', u'Don\'t change'),
-        ('e', on_text),
-        ('d', off_text),
+        ('', _('Don\'t change')),
+        ('e', _(on_text)),
+        ('d', _(off_text)),
     )
 
 def create_exact_keep(*values):
-    ret = [('', u'Don\'t change')]
+    ret = [('', _('Don\'t change'))]
     ret.extend((v, v) for v in values)
     return ret
 
@@ -43,14 +43,14 @@ nicknames_e = 'Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 
 
 class UserForm(forms.Form):
-    user_name = forms.CharField(label='Username')
-    password = fields.CharField2(label='Password', required=False, widget=password_2)
-    change_password = forms.BooleanField(label='Password', required=False,
+    user_name = forms.CharField(label=_('Username'))
+    password = fields.CharField2(label=_('Password'), required=False, widget=password_2)
+    change_password = forms.BooleanField(label=_('Password'), required=False,
         help_text='Require a change of password in the next sign in')
-    full_name = fields.CharField2(label='Full name')
-    admin = forms.BooleanField(label='Privileges', required=False,
+    full_name = fields.CharField2(label=_('Full name'))
+    admin = forms.BooleanField(label=_('Privileges'), required=False,
         help_text='Administrators can manage all users and settings for this domain')
-    nicknames = forms.CharField(label='Nicknames', required=False,
+    nicknames = forms.CharField(label=_('Nicknames'), required=False,
         widget=widgets.SwapWidget(nicknames_c, forms.TextInput(), nicknames_e))
     
     def create(self):
@@ -86,65 +86,64 @@ ADD_AS_CHOICES = (('owner', _('Owner')), ('member', _('Member')))
 
 
 class UserGroupsForm(forms.Form):
-    groups = forms.MultipleChoiceField(label='Groups', choices=())
-    add_as = forms.ChoiceField(label='Add as', choices=ADD_AS_CHOICES)
+    groups = forms.MultipleChoiceField(label=_('Add to groups'), choices=())
+    add_as = forms.ChoiceField(label=_('Add as'), choices=ADD_AS_CHOICES)
 
 
-# TODO I18n
-ENABLE_DISABLE_KEEP = create_on_off_keep(u'Enable', u'Disable')
+ENABLE_DISABLE_KEEP = create_on_off_keep(_('Enable'), _('Disable'))
 
-LANGUAGE_CHOICES = [('', u'Don\'t change')]
+LANGUAGE_CHOICES = [('', _('Don\'t change'))]
 LANGUAGE_CHOICES.extend(consts.LANGUAGES)
 
 FORWARD_CHOICES = (
-    ('', u'Don\'t change'),
-    ('ek', u'Forward and keep'),
-    ('ea', u'Forward and archive'),
-    ('ed', u'Forward and delete'),
-    ('d', u'Don\'t forward'),
+    ('', _('Don\'t change')),
+    ('ek', _('Forward and keep')),
+    ('ea', _('Forward and archive')),
+    ('ed', _('Forward and delete')),
+    ('d', _('Don\'t forward')),
 )
 FORWARD_ENABLES = ('ek', 'ea', 'ed')
 FORWARD_DISABLES = ('d')
 
 POP3_CHOICES = (
-    ('', u'Don\'t change'),
-    ('ea', u'Enable for all emails'),
-    ('en', u'Enable for emails for now on'),
-    ('d', u'Disable'),
+    ('', _('Don\'t change')),
+    ('ea', _('Enable for all emails')),
+    ('en', _('Enable for emails for now on')),
+    ('d', _('Disable')),
 )
 POP3_ENABLES = ('ea', 'en')
 POP3_DISABLES = ('d')
 
 MESSAGES_PER_PAGE_CHOICES = create_exact_keep(u'25', u'50', u'100')
-UNICODE_CHOICES = create_on_off_keep(u'Use Unicode (UTF-8)', u'Use default text encoding')
+UNICODE_CHOICES = create_on_off_keep(_('Use Unicode (UTF-8)'), _('Use default text encoding'))
 
 #forward_c = '%(link_start)sEnable forwarding%(link_end)s'
 #forward_e = 'Forward to: %(widget)s %(link_start)sCancel%(link_end)s'
 
 
 class UserEmailSettingsForm(forms.Form):
-    language = forms.ChoiceField(label='Language',
+    language = forms.ChoiceField(label=_('Language'),
         choices=LANGUAGE_CHOICES, required=False)
-    forward = forms.ChoiceField(label='Forwarding',
+    forward = forms.ChoiceField(label=_('Forwarding'),
         choices=FORWARD_CHOICES, required=False)
-    forward_to = forms.EmailField(label='Forward to', required=False)
-    pop3 = forms.ChoiceField(label='POP3',
+    forward_to = forms.EmailField(label=_('Forward to'), required=False)
+    pop3 = forms.ChoiceField(label=_('POP3'),
         choices=POP3_CHOICES, required=False)
-    imap = forms.ChoiceField(label='IMAP',
+    imap = forms.ChoiceField(label=_('IMAP'),
         choices=ENABLE_DISABLE_KEEP, required=False)
-    messages_per_page = forms.ChoiceField(label='Messages per page',
+    messages_per_page = forms.ChoiceField(label=_('Messages per page'),
         choices=MESSAGES_PER_PAGE_CHOICES, required=False)
-    web_clips = forms.ChoiceField(label='Web Clips',
+    web_clips = forms.ChoiceField(label=_('Web Clips'),
         choices=ENABLE_DISABLE_KEEP, required=False)
-    snippets = forms.ChoiceField(label='Snippets',
+    snippets = forms.ChoiceField(label=_('Snippets'),
         choices=ENABLE_DISABLE_KEEP, required=False)
-    shortcuts = forms.ChoiceField(label='Keyboard shortcuts',
+    shortcuts = forms.ChoiceField(label=_('Keyboard shortcuts'),
         choices=ENABLE_DISABLE_KEEP, required=False)
-    arrows = forms.ChoiceField(label='Personal level indicators',
+    arrows = forms.ChoiceField(label=_('Personal level indicators'),
         choices=ENABLE_DISABLE_KEEP, required=False)
-    unicode = forms.ChoiceField(label='Outgoing mail encoding',
+    unicode = forms.ChoiceField(label=_('Outgoing mail encoding'),
         choices=UNICODE_CHOICES, required=False)
-    signature = forms.ChoiceField(label='Signature',
+    signature = forms.ChoiceField(label=_('Signature'),
         choices=ENABLE_DISABLE_KEEP, required=False)
     signature_new = forms.CharField(label='', required=False,
         widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
@@ -164,7 +163,7 @@ class UserEmailSettingsForm(forms.Form):
         
         # enabling forwarding => forward_to must be filled
         if forward in FORWARD_ENABLES and not forward_to:
-            msg = _(u'Forwarding address must be specified when enabling forwarding.')
+            msg = _('Forwarding address must be specified when enabling forwarding.')
             self._errors['forward_to'] = ErrorList([msg])
             
             data.pop('forward', None)
@@ -172,7 +171,7 @@ class UserEmailSettingsForm(forms.Form):
         
         # not enabling forwarding => forward_to must be empty
         if forward not in FORWARD_ENABLES and forward_to:
-            msg = _(u'Forwarding address must not be specified when not enabling forwarding.')
+            msg = _('Forwarding address must not be specified when not enabling forwarding.')
             self._errors['forward_to'] = ErrorList([msg])
             
             data.pop('forward', None)
@@ -180,7 +179,7 @@ class UserEmailSettingsForm(forms.Form):
         
         # enabling signature => signature_new must be filled
         if signature == ENABLE and not signature_new:
-            msg = _(u'Signature must be specified when enabling signature.')
+            msg = _('Signature must be specified when enabling signature.')
             self._errors['signature_new'] = ErrorList([msg])
             
             data.pop('signature')
@@ -188,7 +187,7 @@ class UserEmailSettingsForm(forms.Form):
         
         # not enabling signature => signature_new must be empty
         if signature != ENABLE and signature_new:
-            msg = _(u'Signature must not be specified when not enabling signature.')
+            msg = _('Signature must not be specified when not enabling signature.')
             self._errors['signature_new'] = ErrorList([msg])
             
             data.pop('signature')
@@ -198,22 +197,22 @@ class UserEmailSettingsForm(forms.Form):
 
 
 HAS_ATTACHMENT_CHOICES = (
-    ('', u'Doesn\'t matter'),
-    ('e', u'Must have'),
+    ('', _('Doesn\'t matter')),
+    ('e', _('Must have')),
 )
 
 
 class UserEmailFiltersForm(forms.Form):
-    from_ = forms.EmailField(label='From', required=False)
-    to = forms.EmailField(label='To', required=False)
-    subject = forms.CharField(label='Subject', required=False)
-    has_the_word = forms.CharField(label='Has the words', required=False)
-    does_not_have_the_word = forms.CharField(label='Doesn\'t have', required=False)
-    has_attachment = forms.ChoiceField(label='Has attachment',
+    from_ = forms.EmailField(label=_('From'), required=False)
+    to = forms.EmailField(label=_('To'), required=False)
+    subject = forms.CharField(label=_('Subject'), required=False)
+    has_the_word = forms.CharField(label=_('Has the words'), required=False)
+    does_not_have_the_word = forms.CharField(label=_('Doesn\'t have'), required=False)
+    has_attachment = forms.ChoiceField(label=_('Has attachment'),
         choices=HAS_ATTACHMENT_CHOICES, required=False)
-    label = forms.CharField(label='Apply label', required=False)
-    should_mark_as_read = forms.BooleanField(label='Mark as read', required=False)
-    should_archive = forms.BooleanField(label='Archive', required=False)
+    label = forms.CharField(label=_('Apply label'), required=False)
+    should_mark_as_read = forms.BooleanField(label=_('Mark as read'), required=False)
+    should_archive = forms.BooleanField(label=_('Archive'), required=False)
     
     def clean_subject(self):
         return self.verify_illegal_chars('subject')
@@ -256,11 +255,11 @@ reply_to_e = '%(widget)s %(link_start)sCancel%(link_end)s'
 
 
 class UserEmailAliasesForm(forms.Form):
-    name = forms.CharField(label='Name')
-    address = forms.EmailField(label='Email address')
-    reply_to = forms.EmailField(label='Reply to', required=False,
+    name = forms.CharField(label=_('Name'))
+    address = forms.EmailField(label=_('Email address'))
+    reply_to = forms.EmailField(label=_('Reply to'), required=False,
         widget=widgets.SwapWidget(reply_to_c, forms.TextInput(), reply_to_e))
-    make_default = forms.BooleanField(label='Make default', required=False)
+    make_default = forms.BooleanField(label=_('Make default'), required=False)
 
 
 ################################################################################
@@ -269,11 +268,11 @@ class UserEmailAliasesForm(forms.Form):
 
 
 class GroupForm(forms.Form):
-    id = forms.CharField(label='Identifier')
-    name = forms.CharField(label='Name')
-    email_permission = forms.ChoiceField(label='Email permission',
+    id = forms.CharField(label=_('Identifier'))
+    name = forms.CharField(label=_('Name'))
+    email_permission = forms.ChoiceField(label=_('Email permission'),
         choices=consts.GROUP_EMAIL_PERMISSION_CHOICES)
-    description = forms.CharField(label='Description', required=False,
+    description = forms.CharField(label=_('Description'), required=False,
         widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
     
     def create(self):
@@ -302,9 +301,9 @@ member_e = '%(widget)s %(link_start)sCancel%(link_end)s'
 
 
 class GroupMembersForm(forms.Form):
-    owner = forms.EmailField(label='Owners', required=False,
+    owner = forms.EmailField(label=_('Owners'), required=False,
         widget=widgets.SwapWidget(owner_c, forms.TextInput(), owner_e))
-    member = forms.EmailField(label='Members', required=False,
+    member = forms.EmailField(label=_('Members'), required=False,
         widget=widgets.SwapWidget(member_c, forms.TextInput(), member_e))
 
 
@@ -320,23 +319,23 @@ phone_numbers_e = 'Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link
 
 
 class SharedContactForm(forms.Form):
-    full_name = forms.CharField(label='Name')
-    real_name = fields.RealNameField(label='Real name', required=False)
-    notes = forms.CharField(label='Notes', required=False,
+    full_name = forms.CharField(label=_('Name'))
+    real_name = fields.RealNameField(label=_('Real name'), required=False)
+    notes = forms.CharField(label=_('Notes'), required=False,
         widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
-    company = forms.CharField(label='Company', required=False)
-    role = forms.CharField(label='Role', required=False)
+    company = forms.CharField(label=_('Company'), required=False)
+    role = forms.CharField(label=_('Role'), required=False)
     
     # email field to show when creating contact
-    email = forms.CharField(label='Email', required=False)
+    email = forms.CharField(label=_('Email'), required=False)
     # emails filed to show when editing contact
-    emails = forms.CharField(label='Emails', required=False,
+    emails = forms.CharField(label=_('Emails'), required=False,
         widget=widgets.SwapWidget(emails_c, forms.TextInput(), emails_e))
     
     # phone number field to show when creating contact
-    phone_number = forms.CharField(label='Phone number', required=False)
+    phone_number = forms.CharField(label=_('Phone number'), required=False)
     # phone numbers field to show when editing contact
-    phone_numbers = forms.CharField(label='Phone numbers', required=False,
+    phone_numbers = forms.CharField(label=_('Phone numbers'), required=False,
         widget=widgets.SwapWidget(phone_numbers_c, forms.TextInput(), phone_numbers_e))
     
     def create(self):
@@ -395,7 +394,7 @@ class SharedContactForm(forms.Form):
         
         # role filled => company must be filled
         if not company and role:
-            msg = _(u'Company is required if role is not empty.')
+            msg = _('Company is required if role is not empty.')
             self._errors['company'] = forms.ErrorList([msg])
             
             data.pop('company', None)

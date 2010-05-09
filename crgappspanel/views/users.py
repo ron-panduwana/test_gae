@@ -148,13 +148,15 @@ def user_groups(request, name=None):
             data = form.cleaned_data
             
             as_owner = (data['add_as'] == 'owner')
+            group_owner = GAGroupOwner.from_user(user)
+            group_member = GAGroupMember.from_user(user)
             
             for group_id in data['groups']:
                 group = [group for group in groups if group.id == group_id]
                 if group and user not in group[0].members:
                     if as_owner:
-                        group[0].owners.append(GAGroupOwner.from_user(user))
-                    group[0].members.append(GAGroupMember.from_user(user))
+                        group[0].owners.append(group_owner)
+                    group[0].members.append(group_member)
                     group[0].save()
             
             return redirect_saved('user_groups',

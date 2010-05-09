@@ -8,9 +8,31 @@
 <form action="{% url user-groups user.user_name %}" method="POST" class="details">
 	{% include "snippets/user_header.html" %}
 	<table class="details" width="100%">
-		<tbody>
+		<tbody>{% comment %}
+			<tr>
+				<th>Owner of</th>
+				<td>
+					{% for group in owner_of %}
+						{% with group as value %}
+							{% include "snippets/value.html" %}
+						{% endwith %}
+						{% if not forloop.last %}<br/>{% endif %}
+					{% endfor %}
+				</td>
+			</tr>
+			<tr>
+				<th>Member of</th>
+				<td>
+					{% for group in member_of %}
+						{% with group as value %}
+							{% include "snippets/value.html" %}
+						{% endwith %}
+						{% if not forloop.last %}<br/>{% endif %}
+					{% endfor %}
+				</td>
+			</tr>{% endcomment %}
 			{% with form.groups as field %}{% include "snippets/form_field.html" %}{% endwith %}
-			{% with form.add_as as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.add_as as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
 			{% include "snippets/form_save_reset.html" %}
 		</tbody>
 	</table>
