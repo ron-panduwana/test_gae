@@ -29,6 +29,7 @@ def groups(request):
     
     return render(request, 'groups_list.html', ctx({
         'table': table.generate(groups, widths=_groupWidths, singular='group'),
+        'saved': request.session.pop('saved', False),
         'scripts': ['table'],
     }, 2, 1))
 
@@ -141,8 +142,17 @@ def group_members(request, name=None):
 
 
 @login_required
-def group_remove(request, name=None):
-    pass
+def group_remove(request, names=None):
+    if not names:
+        ValueError('names = %s' % names)
+    
+    domain = users.get_current_user().domain().domain
+    for name in names.split('/'):
+        group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
+        if group:
+            group.delete()
+    
+    return redirect_saved('groups', request)
 
 
 @login_required

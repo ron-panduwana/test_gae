@@ -53,6 +53,7 @@ def users(request):
     
     return render(request, 'users_list.html', ctx({
         'table': table.generate(users, widths=_userWidths, singular='user'),
+        'saved': request.session.pop('saved', False),
         'scripts': ['table'],
     }, 2, 2))
 
@@ -285,7 +286,7 @@ def user_remove(request, names=None):
         user = GAUser.get_by_key_name(name)
         user.delete()
     
-    return redirect('users')
+    return redirect_saved('users', request)
 
 
 @login_required
