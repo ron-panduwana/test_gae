@@ -102,7 +102,8 @@ def shared_contact_add(request):
             for phone in shared_contact.phone_numbers:
                 phone.save()
             shared_contact.save()
-            return redirect_saved('shared-contact-details', name=shared_contact.name)
+            return redirect_saved('shared-contact-details',
+                request, name=shared_contact.name)
     else:
         form = SharedContactForm(auto_id=True)
     
@@ -141,7 +142,8 @@ def shared_contact_details(request, name=None):
             shared_contact.extended_properties['role'] = role_str
             
             shared_contact.save()
-            return redirect_saved('shared-contact-details', name=shared_contact.name.full_name)
+            return redirect_saved('shared-contact-details',
+                request, name=shared_contact.name.full_name)
     else:
         real_name = [shared_contact.name.name_prefix,
                 shared_contact.name.given_name, shared_contact.name.family_name]
@@ -182,7 +184,7 @@ def shared_contact_details(request, name=None):
         'form': form,
         'full_emails': full_emails,
         'full_phones': full_phones,
-        'saved': request.GET.get('saved'),
+        'saved': request.session.pop('saved', False),
         'scripts': ['swap-widget'],
     }, 3, back_link=True))
 
@@ -214,7 +216,7 @@ def shared_contact_remove_email(request, name=None, email=None):
             break
     shared_contact.save()
     
-    return redirect_saved('shared-contact-details', name=name)
+    return redirect_saved('shared-contact-details', request, name=name)
 
 
 @login_required
@@ -232,4 +234,4 @@ def shared_contact_remove_phone(request, name=None, phone=None):
             break
     shared_contact.save()
     
-    return redirect_saved('shared-contact-details', name=name)
+    return redirect_saved('shared-contact-details', request, name=name)

@@ -40,7 +40,8 @@ def group_create(request):
         if form.is_valid():
             group = form.create()
             group.save()
-            return redirect_saved('group-details', name=group.get_pure_id())
+            return redirect_saved('group-details',
+                request, name=group.get_pure_id())
     else:
         form = GroupForm(auto_id=True)
     
@@ -64,7 +65,8 @@ def group_details(request, name=None):
         if form.is_valid():
             form.populate(group)
             group.save()
-            return redirect_saved('group-details', name=group.get_pure_id())
+            return redirect_saved('group-details',
+                request, name=group.get_pure_id())
     else:
         form = GroupForm(initial={
             'id': group.get_pure_id(),
@@ -77,7 +79,7 @@ def group_details(request, name=None):
     return render(request, 'group_details.html', ctx({
         'group': group,
         'form': form,
-        'saved': request.GET.get('saved'),
+        'saved': request.session.pop('saved', False),
     }, 2, 1, 1, back_link=True, sections_args=dict(group=name)))
 
 
@@ -98,19 +100,19 @@ def group_members(request, name=None):
             
             owner = form.cleaned_data['owner']
             if owner:
-                owner = GAGroupOwner(email=owner).save()
-                group.owners.append(owner)
+                group.owners.append(GAGroupOwner(email=owner).save())
+                group.members.append(GAGroupMember(id=owner).save())
                 modified = True
             
             member = form.cleaned_data['member']
             if member:
-                member = GAGroupMember(id=member).save()
-                group.members.append(member)
+                group.members.append(GAGroupMember(id=member).save())
                 modified = True
             
             if modified:
                 group.save()
-                return redirect_saved('group-members', name=group.get_pure_id())
+                return redirect_saved('group-members',
+                    request, name=group.get_pure_id())
             else:
                 return redirect('group-members', name=group.get_pure_id())
     else:
@@ -126,14 +128,14 @@ def group_members(request, name=None):
     owner_emails = [owner.email for owner in group.owners]
     member_emails = [member.id for member in group.members]
     owners = [ValueWithRemoveLink(owner, remove_owner_link(group, owner)) for owner in owner_emails]
-    members = [ValueWithRemoveLink(member, remove_member_link(group, member)) for member in member_emails]
+    members = [ValueWithRemoveLink(member, remove_member_link(group, member)) for member in member_emails if member not in owner_emails]
     
     return render(request, 'group_members.html', ctx({
         'form': form,
         'group': group,
         'owners': owners,
         'members': members,
-        'saved': request.GET.get('saved'),
+        'saved': request.session.pop('saved', False),
         'scripts': ['swap-widget'],
     }, 2, 1, 2, back_link=True, sections_args=dict(group=name)))
 
@@ -154,6 +156,7 @@ def group_remove_owner(request, name=None, owner=None):
         return redirect('groups')
     
     group.owners = [own for own in group.owners if own.email != owner]
+    group.members = [mbm for mbm in group.members if mbm.id != owner]
     group.save()
     
     return redirect('group-members', name=group.get_pure_id())

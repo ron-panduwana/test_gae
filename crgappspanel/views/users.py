@@ -96,7 +96,7 @@ def user_details(request, name=None):
             user.save()
             if form.get_nickname():
                 GANickname(user=user, nickname=form.get_nickname()).save()
-            return redirect_saved('user-details', name=user.user_name)
+            return redirect_saved('user-details', request, name=user.user_name)
     else:
         form = UserForm(initial={
             'user_name': user.user_name,
@@ -119,7 +119,7 @@ def user_details(request, name=None):
         'user': user,
         'form': form,
         'full_nicknames': full_nicknames,
-        'saved': request.GET.get('saved'),
+        'saved': request.session.pop('saved', False),
         'scripts': ['expand-field', 'swap-widget', 'user-details'],
     }, 2, 2, 1, back_link=True, sections_args=dict(user=name)))
 
@@ -184,16 +184,17 @@ def user_email_settings(request, name=None):
             signature = form.get_boolean('signature')
             signature_new = data['signature_new']
             if signature is not None:
-                user.email_settings.update_signature(signature_new if signature else '')
+                user.email_settings.update_signature(signature_new or '')
             
-            return redirect_saved('user-email-settings', name=user.user_name)
+            return redirect_saved('user-email-settings',
+                request, name=user.user_name)
     else:
         form = UserEmailSettingsForm(initial={}, auto_id=True)
     
     return render(request, 'user_email_settings.html', ctx({
         'user': user,
         'form': form,
-        'saved': request.GET.get('saved'),
+        'saved': request.session.pop('saved', False),
     }, 2, 2, 2, back_link=True, sections_args=dict(user=name)))
 
 
@@ -215,14 +216,15 @@ def user_email_filters(request, name=None):
                 data['has_attachment'] = True
             
             user.email_settings.create_filter(**data)
-            return redirect_saved('user-email-filters', name=user.user_name)
+            return redirect_saved('user-email-filters',
+                request, name=user.user_name)
     else:
         form = UserEmailFiltersForm(initial={}, auto_id=True)
     
     return render(request, 'user_email_filters.html', ctx({
         'user': user,
         'form': form,
-        'saved': request.GET.get('saved'),
+        'saved': request.session.pop('saved', False),
     }, 2, 2, 3, back_link=True, sections_args=dict(user=name)))
 
 
@@ -240,14 +242,15 @@ def user_email_aliases(request, name=None):
             data = dict((key, value) for key, value in form.cleaned_data.iteritems() if value)
             
             user.email_settings.create_send_as_alias(**data)
-            return redirect_saved('user-email-aliases', name=user.user_name)
+            return redirect_saved('user-email-aliases',
+                request, name=user.user_name)
     else:
         form = UserEmailAliasesForm(initial={}, auto_id=True)
     
     return render(request, 'user_email_aliases.html', ctx({
         'user': user,
         'form': form,
-        'saved': request.GET.get('saved'),
+        'saved': request.session.pop('saved', False),
         'scripts': ['swap-widget']
     }, 2, 2, 4, back_link=True, sections_args=dict(user=name)))
 

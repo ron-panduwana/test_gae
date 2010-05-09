@@ -97,9 +97,9 @@ def ctx(d, section=None, subsection=None, subsubsection=None, back_link=False, s
     return d
 
 
-def redirect_saved(view, *args, **kwargs):
+def redirect_saved(view, request, *args, **kwargs):
     response = redirect(view, *args, **kwargs)
-    response['Location'] += '?saved=true'
+    request.session['saved'] = True
     return response
 
 

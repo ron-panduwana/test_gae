@@ -16,9 +16,10 @@ def language(request):
 
 @login_required
 def test(request):
-    groups = GAGroup.all()
-    groups = ('[id=%s, name=%s, email_permission=%s]' % (group.id, group.name, group.email_permission) for group in groups)
+    sth = []
+    for key, value in request.session.iteritems():
+        sth.append('%s = %s (%s)' % (key, value, type(value)))
     return render(request, 'test.html', ctx({
-        'something': groups,
+        'something': sth,
         'scripts': ['test'],
     }, 2, 4))
