@@ -29,6 +29,7 @@ def get_sections(user=None, group=None):
         sections[1].subsections[1].name = user
         sections[1].subsections[1].subsections = [
             Section('General', 'user-details', kwargs=kwargs),
+            Section('Groups', 'user-groups', kwargs=kwargs),
             Section('Settings', 'user-email-settings', kwargs=kwargs),
             Section('Filters', 'user-email-filters', kwargs=kwargs),
             Section('Aliases', 'user-email-aliases', kwargs=kwargs),

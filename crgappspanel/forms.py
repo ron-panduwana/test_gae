@@ -82,6 +82,15 @@ class UserForm(forms.Form):
         return self.cleaned_data['nicknames']
 
 
+ADD_AS_CHOICES = (('owner', _('Owner')), ('member', _('Member')))
+
+
+class UserGroupsForm(forms.Form):
+    groups = forms.MultipleChoiceField(label='Groups', choices=())
+    add_as = forms.ChoiceField(label='Add as', choices=ADD_AS_CHOICES)
+
+
+# TODO I18n
 ENABLE_DISABLE_KEEP = create_on_off_keep(u'Enable', u'Disable')
 
 LANGUAGE_CHOICES = [('', u'Don\'t change')]

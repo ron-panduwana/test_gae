@@ -5,11 +5,11 @@ from django.utils.translation import ugettext as _
 import auth
 from auth.decorators import login_required
 from crgappspanel import consts
-from crgappspanel.forms import UserForm, UserEmailSettingsForm, \
-    UserEmailFiltersForm, UserEmailAliasesForm
+from crgappspanel.forms import UserForm, UserGroupsForm, \
+    UserEmailSettingsForm, UserEmailFiltersForm, UserEmailAliasesForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
-from crgappspanel.models import GAUser, GANickname
+from crgappspanel.models import GAUser, GANickname, GAGroup, GAGroupOwner, GAGroupMember
 from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, \
         redirect_saved, render
 
@@ -25,12 +25,17 @@ POP3_ENABLE_FORS = dict(
 
 def _get_status(x):
     suspended, admin = getattr(x, 'suspended'), getattr(x, 'admin')
-    return _('Suspended') if x.suspended else _('Administrator') if x.admin else ''
+    if x.suspended:
+        return _('Suspended')
+    if x.admin:
+        return _('Administrator')
+    return ''
 
 def _userFieldsGen(domain):
     return [
         Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
-        Column(_('Username'), 'username', getter=lambda x: '%s@%s' % (x.user_name or '', domain)),
+        Column(_('Username'), 'username',
+            getter=lambda x: '%s@%s' % (x.user_name or '', domain)),
         Column(_('Status'), 'status', getter=_get_status),
         Column(_('Email quota'), 'quota'),
         Column(_('Roles'), 'roles', getter=lambda x: ''),
@@ -46,7 +51,7 @@ def users(request):
     _userFields = _userFieldsGen(domain)
     sortby, asc = get_sortby_asc(request, [f.name for f in _userFields])
     
-    users = GAUser.all().fetch(100)
+    users = GAUser.all().fetch(1000000)
     
     table = Table(_userFields, _userId, sortby=sortby, asc=asc)
     table.sort(users)
@@ -114,8 +119,8 @@ def user_details(request, name=None):
     def remove_nick_link(x):
         kwargs = dict(name=user.user_name, nickname=x.nickname)
         return reverse('user-remove-nickname', kwargs=kwargs)
-    full_nicknames = [ValueWithRemoveLink(get_email(nick.nickname), remove_nick_link(nick)) for nick in user.nicknames]
-    #full_nicknames = ['abc', 'def']
+    full_nicknames = [ValueWithRemoveLink(get_email(nick.nickname),
+            remove_nick_link(nick)) for nick in user.nicknames]
     return render(request, 'user_details.html', ctx({
         'user': user,
         'form': form,
@@ -123,6 +128,46 @@ def user_details(request, name=None):
         'saved': request.session.pop('saved', False),
         'scripts': ['expand-field', 'swap-widget', 'user-details'],
     }, 2, 2, 1, back_link=True, sections_args=dict(user=name)))
+
+
+@login_required
+def user_groups(request, name=None):
+    if not name:
+        raise ValueError('name = %s' % name)
+    
+    user = GAUser.get_by_key_name(name)
+    if not user:
+        return redirect('users')
+    
+    groups = GAGroup.all().fetch(1000000)
+    if request.method == 'POST':
+        form = UserGroupsForm(request.POST, auto_id=True)
+        form.fields['groups'].choices = [(group.id, group.name) for group in groups]
+        
+        if form.is_valid():
+            data = form.cleaned_data
+            
+            as_owner = (data['add_as'] == 'owner')
+            
+            for group_id in data['groups']:
+                group = [group for group in groups if group.id == group_id]
+                if group and user not in group[0].members:
+                    if as_owner:
+                        group[0].owners.append(GAGroupOwner.from_user(user))
+                    group[0].members.append(GAGroupMember.from_user(user))
+                    group[0].save()
+            
+            return redirect_saved('user_groups',
+                request, name=user.user_name)
+    else:
+        form = UserGroupsForm(auto_id=True)
+        form.fields['groups'].choices = [(group.id, group.name) for group in groups]
+    
+    return render(request, 'user_groups.html', ctx({
+        'user': user,
+        'form': form,
+        'saved': request.session.pop('saved', False),
+    }, 2, 2, 2, back_link=True, sections_args=dict(user=name)))
 
 
 @login_required
@@ -190,13 +235,13 @@ def user_email_settings(request, name=None):
             return redirect_saved('user-email-settings',
                 request, name=user.user_name)
     else:
-        form = UserEmailSettingsForm(initial={}, auto_id=True)
+        form = UserEmailSettingsForm(auto_id=True)
     
     return render(request, 'user_email_settings.html', ctx({
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, 2, 2, 2, back_link=True, sections_args=dict(user=name)))
+    }, 2, 2, 3, back_link=True, sections_args=dict(user=name)))
 
 
 def user_email_filters(request, name=None):
@@ -220,13 +265,13 @@ def user_email_filters(request, name=None):
             return redirect_saved('user-email-filters',
                 request, name=user.user_name)
     else:
-        form = UserEmailFiltersForm(initial={}, auto_id=True)
+        form = UserEmailFiltersForm(auto_id=True)
     
     return render(request, 'user_email_filters.html', ctx({
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, 2, 2, 3, back_link=True, sections_args=dict(user=name)))
+    }, 2, 2, 4, back_link=True, sections_args=dict(user=name)))
 
 
 def user_email_aliases(request, name=None):
@@ -246,14 +291,14 @@ def user_email_aliases(request, name=None):
             return redirect_saved('user-email-aliases',
                 request, name=user.user_name)
     else:
-        form = UserEmailAliasesForm(initial={}, auto_id=True)
+        form = UserEmailAliasesForm(auto_id=True)
     
     return render(request, 'user_email_aliases.html', ctx({
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
         'scripts': ['swap-widget']
-    }, 2, 2, 4, back_link=True, sections_args=dict(user=name)))
+    }, 2, 2, 5, back_link=True, sections_args=dict(user=name)))
 
 
 def user_suspend_restore(request, name=None, suspend=None):
