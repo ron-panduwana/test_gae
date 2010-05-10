@@ -32,7 +32,7 @@ OAUTH_SECRET = '4lWcvnOC8jnj2KbBI6REl6JN'
 
 NAVIGATION = (
     'crgappspanel.navigation.base',
-    #'crappadmin.views.navigation',
+    'crappadmin.views.navigation',
 )
 
 DEBUG = True
@@ -137,7 +137,7 @@ INSTALLED_APPS = (
     'auth',
     'crlib',
     'crgappspanel',
-    #'crappadmin',
+    'crappadmin',
 #    'django.contrib.auth',
 #    'django.contrib.contenttypes',
 #    'django.contrib.sessions',

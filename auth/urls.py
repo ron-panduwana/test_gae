@@ -1,5 +1,4 @@
 from django.conf.urls.defaults import *
-from google.appengine.api import memcache
 
 
 DOMAIN = r'(?P<domain>(?:[-\w]+\.)+[a-z]{2,6})'

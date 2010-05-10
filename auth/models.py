@@ -13,16 +13,19 @@ class Association(db.Model):
 
 class AppsDomain(BaseModel):
     CACHE_TIME = 2 * 60 * 60 # we cache activity state for 2 hours
+
     domain = db.StringProperty(required=True)
     admin_email = db.StringProperty()
     # apparently it's only possible to send ClientLogin passwords in clear text,
     # so no hashing
     admin_password = db.StringProperty()
-    is_superadmin = db.BooleanProperty(default=False)
     license_state = db.StringProperty(choices=LICENSE_STATES)
+    is_enabled = db.BooleanProperty(default=False)
+    is_independent = db.BooleanProperty(default=False)
 
     def is_active(self):
-        return self.license_state == STATE_ACTIVE
+        return self.is_enabled and (
+            self.is_independend or self.license_state == STATE_ACTIVE)
 
     @classmethod
     def is_arbitrary_domain_active(cls, domain):
