@@ -5,7 +5,7 @@ DOMAIN = r'(?P<domain>(?:[-\w]+\.)+[a-z]{2,6})'
 
 
 urlpatterns = patterns(
-    'auth.views',
+    'crauth.views',
     url(r'login/$', 'openid_get_domain', name='openid_get_domain'),
     url(r'login/%s/$' % DOMAIN, 'openid_start', name='openid_start'),
     url(r'return/$', 'openid_return', name='openid_return'),

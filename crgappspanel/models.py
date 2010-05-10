@@ -3,7 +3,7 @@ from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from crlib import gdata_wrapper as gd
 from crlib import mappers
-from auth import users
+from crauth import users
 
 
 class GAUser(gd.Model):

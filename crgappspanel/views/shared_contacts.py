@@ -9,7 +9,7 @@ from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import SharedContact
 from crgappspanel.views.utils import get_sortby_asc, list_attrs, \
         get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch, render
-from auth.decorators import login_required
+from crauth.decorators import login_required
 from crlib.navigation import render_with_nav
 
 

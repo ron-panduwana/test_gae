@@ -3,8 +3,8 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from gdata.apps import service
 from gdata.service import CaptchaRequired, BadAuthentication
-from auth.users import SetupRequiredError
-from auth.models import AppsDomain
+from crauth.users import SetupRequiredError
+from crauth.models import AppsDomain
 
 
 class VerbatimWidget(forms.Widget):

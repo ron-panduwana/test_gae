@@ -79,7 +79,7 @@ urlpatterns += patterns('crgappspanel.views',
 
 urlpatterns += patterns(
     '',
-    url(r'^openid/', include('auth.urls')),
+    url(r'^openid/', include('crauth.urls')),
     url(r'^appadmin/', include('crappadmin.urls')),
 )
 

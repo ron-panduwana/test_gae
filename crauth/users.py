@@ -12,7 +12,7 @@ from gdata.service import GDataService, CaptchaRequired, BadAuthentication
 from gdata.client import GDClient, CaptchaChallenge
 from gdata.gauth import ClientLoginToken, TwoLeggedOAuthHmacToken
 from gdata.apps.service import AppsForYourDomainException
-from auth.models import AppsDomain
+from crauth.models import AppsDomain
 
 
 _SERVICE_MEMCACHE_TOKEN_KEY = 'service_client_login_token:%s:%s'

@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 
 from crgappspanel.models import GAGroup
 from crlib.navigation import render_with_nav
-from auth.decorators import login_required
+from crauth.decorators import login_required
 
 
 def index(request):

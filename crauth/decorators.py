@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from auth import users
+from crauth import users
 
 
 def admin_required(func):

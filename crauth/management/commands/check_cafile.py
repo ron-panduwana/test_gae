@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         crt_file = os.path.join(
-            sys.path[0], 'auth/GoogleInternetAuthority.crt')
+            sys.path[0], 'crauth/GoogleInternetAuthority.crt')
         ret = os.system('openssl verify %s' % crt_file)
         if ret != 0:
             raise CommandError(

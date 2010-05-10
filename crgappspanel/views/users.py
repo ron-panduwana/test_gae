@@ -2,8 +2,8 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
-import auth
-from auth.decorators import login_required
+import crauth
+from crauth.decorators import login_required
 from crgappspanel import consts
 from crgappspanel.forms import UserForm, UserGroupsForm, \
     UserEmailSettingsForm, UserEmailFiltersForm, UserEmailAliasesForm
@@ -49,7 +49,7 @@ _userWidths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
 
 @login_required
 def users(request):
-    domain = auth.users.get_current_user().domain().domain
+    domain = crauth.users.get_current_user().domain().domain
     _userFields = _userFieldsGen(domain)
     sortby, asc = get_sortby_asc(request, [f.name for f in _userFields])
     
@@ -67,7 +67,7 @@ def users(request):
 
 @login_required
 def user_create(request):
-    domain = auth.users.get_current_user().domain().domain
+    domain = crauth.users.get_current_user().domain().domain
     
     if request.method == 'POST':
         form = UserForm(request.POST, auto_id=True)
@@ -92,7 +92,7 @@ def user_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
     
-    domain = auth.users.get_current_user().domain().domain
+    domain = crauth.users.get_current_user().domain().domain
     user = GAUser.get_by_key_name(name)
     if not user:
         return redirect('users')

@@ -5,7 +5,7 @@ from google.appengine.api import memcache
 from openid.association import Association as xAssociation
 from openid.store import nonce
 from openid.store.interface import OpenIDStore
-from auth.models import Association
+from crauth.models import Association
 
 
 class DatastoreStore(OpenIDStore):

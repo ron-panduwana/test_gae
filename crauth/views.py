@@ -13,11 +13,11 @@ from google.appengine.api import memcache
 from openid.consumer.consumer import Consumer, SUCCESS
 from openid.store.memstore import MemoryStore
 from openid.extensions import ax
-from auth.models import AppsDomain
-from auth.store import DatastoreStore
-from auth.forms import DomainNameForm, CaptchaForm, DomainSetupForm
-from auth.ga_openid import discover_google_apps
-from auth import users
+from crauth.models import AppsDomain
+from crauth.store import DatastoreStore
+from crauth.forms import DomainNameForm, CaptchaForm, DomainSetupForm
+from crauth.ga_openid import discover_google_apps
+from crauth import users
 
 
 AX_PREFIX = 'http://axschema.org/'
@@ -202,7 +202,7 @@ def handle_captcha_challenge(request, template='captcha.html'):
 
 
 def handle_license_updates(request):
-    from auth.licensing import LicensingClient
+    from crauth.licensing import LicensingClient
     client = LicensingClient()
     start_datetime = datetime.datetime.now() - datetime.timedelta(hours=1)
     results = client.get_notifications(start_datetime).entry

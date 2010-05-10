@@ -1,7 +1,7 @@
 from google.appengine.api import users
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
-from auth.models import AppsDomain
+from crauth.models import AppsDomain
 from crlib.navigation import render_with_nav, Section
 from crappadmin.tables import domains_table
 

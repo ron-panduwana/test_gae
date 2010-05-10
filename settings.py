@@ -108,7 +108,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'auth.users.UsersMiddleware',
+    'crauth.users.UsersMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 #    'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'django.middleware.doc.XViewMiddleware',
@@ -118,8 +118,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 #   'django.core.context_processors.auth',
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
-    #'crlib.context_processors.google',
-    'auth.context_processors.users',
+    'crauth.context_processors.users',
 #    'django.core.context_processors.media',  # 0.97 only.
     'django.core.context_processors.request',
 )
@@ -134,7 +133,7 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'appengine_django',
-    'auth',
+    'crauth',
     'crlib',
     'crgappspanel',
     'crappadmin',

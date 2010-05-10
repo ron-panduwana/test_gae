@@ -593,7 +593,7 @@ class AtomMapper(object):
         if not hasattr(self, 'create_service'):
             return None
 
-        from auth import users
+        from crauth import users
         user = users.get_current_user()
         if not user:
             raise users.LoginRequiredError()

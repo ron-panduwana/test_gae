@@ -2,7 +2,7 @@ import logging
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from google.appengine.api import memcache
-from auth.licensing import LICENSE_STATES, STATE_ACTIVE
+from crauth.licensing import LICENSE_STATES, STATE_ACTIVE
 
 
 class Association(db.Model):
@@ -29,7 +29,7 @@ class AppsDomain(BaseModel):
 
     @classmethod
     def is_arbitrary_domain_active(cls, domain):
-        from auth.licensing import LicensingClient
+        from crauth.licensing import LicensingClient
         apps_domain = AppsDomain.get_by_key_name(domain)
         if apps_domain is not None and apps_domain.is_active():
             return True

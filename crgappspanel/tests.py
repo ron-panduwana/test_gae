@@ -10,7 +10,7 @@ from crgappspanel.models import *
 from crlib.gdata_wrapper import GDataQuery
 from crlib.mappers import MAIN_TYPES, PHONE_TYPES, ORGANIZATION_TYPES, \
         WEBSITE_TYPES
-from auth.users import _set_testing_user
+from crauth.users import _set_testing_user
 
 
 os.environ['SERVER_NAME'] = 'localhost'
@@ -32,7 +32,7 @@ class BaseGDataTestCase(unittest.TestCase):
     NUMBER_OF_USERS = 5
 
     def setUp(self):
-        from auth.models import AppsDomain
+        from crauth.models import AppsDomain
         AppsDomain.get_or_insert(
             key_name=domain,
             domain=domain,

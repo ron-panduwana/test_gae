@@ -1,4 +1,4 @@
-from auth import users as _users
+from crauth import users as _users
 
 
 DASHBOARD_URL = 'https://www.google.com/a/cpanel/%s/Dashboard'

@@ -2,8 +2,8 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
-from auth import users
-from auth.decorators import login_required
+from crauth import users
+from crauth.decorators import login_required
 from crgappspanel.forms import GroupForm, GroupMembersForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
