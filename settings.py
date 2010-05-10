@@ -30,6 +30,10 @@ OAUTH_APP_ID = '285282688156'
 OAUTH_CONSUMER = '285282688156.apps.googleusercontent.com'
 OAUTH_SECRET = '4lWcvnOC8jnj2KbBI6REl6JN'
 
+NAVIGATION = (
+    'crgappspanel.navigation.base',
+)
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -113,9 +117,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 #   'django.core.context_processors.auth',
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
+    'crlib.context_processors.google',
     'auth.context_processors.users',
 #    'django.core.context_processors.media',  # 0.97 only.
-#    'django.core.context_processors.request',
+    'django.core.context_processors.request',
 )
 
 ROOT_URLCONF = 'urls'
@@ -128,8 +133,10 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'appengine_django',
-    'crgappspanel',
     'auth',
+    'crlib',
+    'crgappspanel',
+    'crappadmin',
 #    'django.contrib.auth',
 #    'django.contrib.contenttypes',
 #    'django.contrib.sessions',
