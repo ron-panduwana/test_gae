@@ -231,9 +231,9 @@ def handle_license_updates(request):
 def generate_manifest(request):
     abs = lambda x: urllib.unquote(request.build_absolute_uri(x))
     setup_url = reverse('domain_setup', args=('example.com',)).replace(
-        'example.com', '${DOMAIN}')
+        'example.com', '${DOMAIN_NAME}')
     login_url = reverse('openid_start', args=('example.com',)).replace(
-        'example.com', '${DOMAIN}')
+        'example.com', '${DOMAIN_NAME}')
     ctx = {
         'setup_url': abs(setup_url),
         'login_url': abs(login_url),
