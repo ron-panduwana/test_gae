@@ -19,7 +19,7 @@
 						{% if not forloop.last %}<br/>{% endif %}
 					{% endfor %}
 				</td>
-			</tr>
+			</tr>{% endcomment %}
 			<tr>
 				<th>Member of</th>
 				<td>
@@ -30,7 +30,7 @@
 						{% if not forloop.last %}<br/>{% endif %}
 					{% endfor %}
 				</td>
-			</tr>{% endcomment %}
+			</tr>
 			{% with form.groups as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.add_as as field %}{% include "snippets/form_field_noline.html" %}{% endwith %}
 			{% include "snippets/form_save_reset.html" %}

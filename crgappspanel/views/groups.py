@@ -25,7 +25,7 @@ _groupWidths = ['%d%%' % x for x in (5, 40, 40, 15)]
 def groups(request):
     sortby, asc = get_sortby_asc(request, [f.name for f in _groupFields])
     
-    groups = GAGroup.all().fetch(1000000)
+    groups = GAGroup.all().fetch(1000)
     table = Table(_groupFields, _groupId, sortby=sortby, asc=asc)
     table.sort(groups)
     

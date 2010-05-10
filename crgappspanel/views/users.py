@@ -53,7 +53,7 @@ def users(request):
     _userFields = _userFieldsGen(domain)
     sortby, asc = get_sortby_asc(request, [f.name for f in _userFields])
     
-    users = GAUser.all().fetch(1000000)
+    users = GAUser.all().fetch(1000)
     
     table = Table(_userFields, _userId, sortby=sortby, asc=asc)
     table.sort(users)
@@ -141,7 +141,7 @@ def user_groups(request, name=None):
     if not user:
         return redirect('users')
     
-    groups = GAGroup.all().fetch(1000000)
+    groups = GAGroup.all().fetch(1000)
     if request.method == 'POST':
         form = UserGroupsForm(request.POST, auto_id=True)
         form.fields['groups'].choices = [(group.id, group.name) for group in groups]
@@ -167,9 +167,12 @@ def user_groups(request, name=None):
         form = UserGroupsForm(auto_id=True)
         form.fields['groups'].choices = [(group.id, group.name) for group in groups]
     
+    member_of = GAGroup.all().filter('members', GAGroupMember.from_user(user)).fetch(1000)
+    
     return render_with_nav(request, 'user_groups.html', {
         'user': user,
         'form': form,
+        'member_of': [group.id for group in member_of],
         'saved': request.session.pop('saved', False),
     }, extra_nav=user_nav(name))
 
