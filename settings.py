@@ -32,6 +32,7 @@ OAUTH_SECRET = '4lWcvnOC8jnj2KbBI6REl6JN'
 
 NAVIGATION = (
     'crgappspanel.navigation.base',
+    #'crappadmin.views.navigation',
 )
 
 DEBUG = True
@@ -117,7 +118,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 #   'django.core.context_processors.auth',
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
-    'crlib.context_processors.google',
+    #'crlib.context_processors.google',
     'auth.context_processors.users',
 #    'django.core.context_processors.media',  # 0.97 only.
     'django.core.context_processors.request',
@@ -136,7 +137,7 @@ INSTALLED_APPS = (
     'auth',
     'crlib',
     'crgappspanel',
-    'crappadmin',
+    #'crappadmin',
 #    'django.contrib.auth',
 #    'django.contrib.contenttypes',
 #    'django.contrib.sessions',
