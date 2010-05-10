@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 
 from crgappspanel.models import GAGroup
-from crgappspanel.views.utils import ctx, render
+from crlib.navigation import render_with_nav
 from auth.decorators import login_required
 
 
@@ -19,7 +19,7 @@ def test(request):
     sth = []
     for key, value in request.session.iteritems():
         sth.append('%s = %s (%s)' % (key, value, type(value)))
-    return render(request, 'test.html', ctx({
+    return render_with_nav(request, 'test.html', {
         'something': sth,
         'scripts': ['test'],
-    }, 2, 4))
+    })
