@@ -54,7 +54,7 @@ def shared_contacts(request):
     query_adv.add(request, 'company', None)
     query_adv.add(request, 'role', None)
     
-    shared_contacts = SharedContact.all().fetch(1000000)
+    shared_contacts = SharedContact.all().fetch(1000)
     
     if query:
         advanced_search = False
