@@ -7,9 +7,10 @@ from crgappspanel.helpers.filters import SharedContactFilter, \
         SharedContactAdvancedFilter, NullFilter
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import SharedContact
-from crgappspanel.views.utils import ctx, get_sortby_asc, list_attrs, \
+from crgappspanel.views.utils import get_sortby_asc, list_attrs, \
         get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch, render
 from auth.decorators import login_required
+from crlib.navigation import render_with_nav
 
 
 def _get_company_role(x):
@@ -79,7 +80,7 @@ def shared_contacts(request):
     # selecting particular page
     page = get_page(request, shared_contacts, 20)
     
-    return render(request, 'shared_contacts_list.html', ctx({
+    return render_with_nav(request, 'shared_contacts_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
             widths=_sharedContactWidths, singular='shared contact'),
@@ -87,7 +88,7 @@ def shared_contacts(request):
         'filters': filters,
         'query': dict(general=query, advanced=query_adv.search_by),
         'scripts': ['table'],
-    }, 3))
+    })
 
 
 @login_required
@@ -107,9 +108,9 @@ def shared_contact_add(request):
     else:
         form = SharedContactForm(auto_id=True)
     
-    return render(request, 'shared_contact_add.html', ctx({
+    return render_with_nav(request, 'shared_contact_add.html', {
         'form': form,
-    }, 3, back_link=True))
+    }, in_section='shared_contacts')
 
 
 @login_required
@@ -179,14 +180,14 @@ def shared_contact_details(request, name=None):
         fmt = '%s &ndash; <a href="%s">Remove</a>'
         full_phones.append(fmt % (phone.number, remove_phone_link(phone)))
     
-    return render(request, 'shared_contact_details.html', ctx({
+    return render_with_nav(request, 'shared_contact_details.html', {
         'shared_contact': shared_contact,
         'form': form,
         'full_emails': full_emails,
         'full_phones': full_phones,
         'saved': request.session.pop('saved', False),
         'scripts': ['swap-widget'],
-    }, 3, back_link=True))
+    }, in_section='shared_contacts')
 
 
 @login_required

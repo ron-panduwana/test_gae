@@ -10,8 +10,10 @@ from crgappspanel.forms import UserForm, UserGroupsForm, \
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname, GAGroup, GAGroupOwner, GAGroupMember
-from crgappspanel.views.utils import ctx, get_sortby_asc, random_password, \
+from crgappspanel.views.utils import get_sortby_asc, random_password, \
         redirect_saved, render
+from crlib.navigation import render_with_nav
+from crgappspanel.navigation import user_nav
 
 
 FORWARD_ACTIONS = dict(
@@ -56,11 +58,11 @@ def users(request):
     table = Table(_userFields, _userId, sortby=sortby, asc=asc)
     table.sort(users)
     
-    return render(request, 'users_list.html', ctx({
+    return render_with_nav(request, 'users_list.html', {
         'table': table.generate(users, widths=_userWidths, singular='user'),
         'saved': request.session.pop('saved', False),
         'scripts': ['table'],
-    }, 2, 2))
+    })
 
 
 @login_required
@@ -79,10 +81,10 @@ def user_create(request):
     
     temp_password = random_password(6)
     
-    return render(request, 'user_create.html', ctx({
+    return render_with_nav(request, 'user_create.html', {
         'form': form,
         'temp_password': temp_password,
-    }, 2, 2, back_link=True))
+    }, in_section='users/users')
 
 
 @login_required
@@ -121,13 +123,13 @@ def user_details(request, name=None):
         return reverse('user-remove-nickname', kwargs=kwargs)
     full_nicknames = [ValueWithRemoveLink(get_email(nick.nickname),
             remove_nick_link(nick)) for nick in user.nicknames]
-    return render(request, 'user_details.html', ctx({
+    return render_with_nav(request, 'user_details.html', {
         'user': user,
         'form': form,
         'full_nicknames': full_nicknames,
         'saved': request.session.pop('saved', False),
         'scripts': ['expand-field', 'swap-widget', 'user-details'],
-    }, 2, 2, 1, back_link=True, sections_args=dict(user=name)))
+    }, extra_nav=user_nav(name))
 
 
 @login_required
@@ -165,11 +167,11 @@ def user_groups(request, name=None):
         form = UserGroupsForm(auto_id=True)
         form.fields['groups'].choices = [(group.id, group.name) for group in groups]
     
-    return render(request, 'user_groups.html', ctx({
+    return render_with_nav(request, 'user_groups.html', {
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, 2, 2, 2, back_link=True, sections_args=dict(user=name)))
+    }, extra_nav=user_nav(name))
 
 
 @login_required
@@ -239,11 +241,11 @@ def user_email_settings(request, name=None):
     else:
         form = UserEmailSettingsForm(auto_id=True)
     
-    return render(request, 'user_email_settings.html', ctx({
+    return render_with_nav(request, 'user_email_settings.html', {
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, 2, 2, 3, back_link=True, sections_args=dict(user=name)))
+    }, extra_nav=user_nav(name))
 
 
 def user_email_filters(request, name=None):
@@ -269,11 +271,11 @@ def user_email_filters(request, name=None):
     else:
         form = UserEmailFiltersForm(auto_id=True)
     
-    return render(request, 'user_email_filters.html', ctx({
+    return render_with_nav(request, 'user_email_filters.html', {
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, 2, 2, 4, back_link=True, sections_args=dict(user=name)))
+    }, extra_nav=user_nav(name))
 
 
 def user_email_aliases(request, name=None):
@@ -295,12 +297,12 @@ def user_email_aliases(request, name=None):
     else:
         form = UserEmailAliasesForm(auto_id=True)
     
-    return render(request, 'user_email_aliases.html', ctx({
+    return render_with_nav(request, 'user_email_aliases.html', {
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-        'scripts': ['swap-widget']
-    }, 2, 2, 5, back_link=True, sections_args=dict(user=name)))
+        'scripts': ['swap-widget'],
+    }, extra_nav=user_nav(name))
 
 
 def user_suspend_restore(request, name=None, suspend=None):

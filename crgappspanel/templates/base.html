@@ -33,7 +33,7 @@
 			<ul>
 				{% for section in sections %}
 					<li{% if section.selected %} class="selected"{% endif %}>
-						<a href="{{ section.view|default_if_none:"#" }}">{{ section.name }}</a>
+						<a href="{{ section.url|default_if_none:"#" }}">{{ section.verbose_name }}</a>
 					</li>
 				{% endfor %}
 			</ul>
@@ -41,17 +41,17 @@
 		</div>
 		
 		{% if back_link %}
-			<div class="back-link"><a href="{{ back_link.view }}">&laquo; {% trans "Back to list" %}</a></div>
-			{% if sel_subsection.subsections %}
+			<div class="back-link"><a href="{{ back_link }}">&laquo; {% trans "Back to list" %}</a></div>
+			{% if sel_subsection.children %}
 				<div id="tabs">
-					<h2 id="tabs-title">{{ sel_subsection.name }}</h2>
+					<h2 id="tabs-title">{{ sel_subsection.verbose_name }}</h2>
 					<ul>
-						{% for subsubsection in sel_subsection.subsections %}
+						{% for subsubsection in sel_subsection.children %}
 						<li{% if subsubsection.selected %} class="selected"{% endif %}>
 							{% if subsubsection.selected %}
-								<b>{{ subsubsection.name }}</b>
+								<b>{{ subsubsection.verbose_name }}</b>
 							{% else %}
-								<a href="{{ subsubsection.view|default_if_none:"#" }}">{{ subsubsection.name }}</a>
+								<a href="{{ subsubsection.url|default_if_none:"#" }}">{{ subsubsection.verbose_name }}</a>
 							{% endif %}
 						</li>
 						{% endfor %}
@@ -60,16 +60,16 @@
 				</div>
 			{% endif %}
 		{% else %}
-			{% if sel_section.subsections %}
+			{% if sel_section.children %}
 				<div id="tabs">
-					<h2 id="tabs-title">{{ sel_section.name }}</h2>
+					<h2 id="tabs-title">{{ sel_section.verbose_name }}</h2>
 					<ul>
-						{% for subsection in sel_section.subsections %}
+						{% for subsection in sel_section.children %}
 						<li{% if subsection.selected %} class="selected"{% endif %}>
 							{% if subsection.selected %}
-								<b>{{ subsection.name }}</b>
+								<b>{{ subsection.verbose_name }}</b>
 							{% else %}
-								<a href="{{ subsection.view|default_if_none:"#" }}">{{ subsection.name }}</a>
+								<a href="{{ subsection.url|default_if_none:"#" }}">{{ subsection.verbose_name }}</a>
 							{% endif %}
 						</li>
 						{% endfor %}

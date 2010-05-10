@@ -8,7 +8,9 @@ from crgappspanel.forms import GroupForm, GroupMembersForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAGroup, GAGroupOwner, GAGroupMember
-from crgappspanel.views.utils import ctx, get_sortby_asc, render, redirect_saved
+from crgappspanel.views.utils import get_sortby_asc, render, redirect_saved
+from crlib.navigation import render_with_nav
+from crgappspanel.navigation import group_nav
 
 _groupFields = [
     Column(_('Name'), 'name', link=True),
@@ -27,11 +29,11 @@ def groups(request):
     table = Table(_groupFields, _groupId, sortby=sortby, asc=asc)
     table.sort(groups)
     
-    return render(request, 'groups_list.html', ctx({
+    return render_with_nav(request, 'groups_list.html', {
         'table': table.generate(groups, widths=_groupWidths, singular='group'),
         'saved': request.session.pop('saved', False),
         'scripts': ['table'],
-    }, 2, 1))
+    })
 
 
 @login_required
@@ -46,9 +48,9 @@ def group_create(request):
     else:
         form = GroupForm(auto_id=True)
     
-    return render(request, 'group_create.html', ctx({
+    return render_with_nav(request, 'group_create.html', {
         'form': form,
-    }, 2, 1, back_link=True))
+    }, in_section='users/groups')
 
 
 @login_required
@@ -77,11 +79,11 @@ def group_details(request, name=None):
         }, auto_id=True)
         form.fields['id'].help_text = '@%s' % domain
     
-    return render(request, 'group_details.html', ctx({
+    return render_with_nav(request, 'group_details.html', {
         'group': group,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, 2, 1, 1, back_link=True, sections_args=dict(group=name)))
+    }, extra_nav=group_nav(name))
 
 
 @login_required
@@ -131,14 +133,14 @@ def group_members(request, name=None):
     owners = [ValueWithRemoveLink(owner, remove_owner_link(group, owner)) for owner in owner_emails]
     members = [ValueWithRemoveLink(member, remove_member_link(group, member)) for member in member_emails if member not in owner_emails]
     
-    return render(request, 'group_members.html', ctx({
+    return render_with_nav(request, 'group_members.html', {
         'form': form,
         'group': group,
         'owners': owners,
         'members': members,
         'saved': request.session.pop('saved', False),
         'scripts': ['swap-widget'],
-    }, 2, 1, 2, back_link=True, sections_args=dict(group=name)))
+    }, extra_nav=group_nav(name))
 
 
 @login_required

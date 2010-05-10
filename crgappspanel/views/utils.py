@@ -65,38 +65,6 @@ def render(request, template, ctx):
         template, ctx, context_instance=RequestContext(request))
 
 
-def ctx(d, section=None, subsection=None, subsubsection=None, back_link=False, sections_args=None):
-    from crgappspanel.sections import get_sections
-    
-    sections = get_sections(**(sections_args or {}))
-    
-    if section is not None:
-        section = sections[section - 1]
-        section.selected = True
-        if subsection is not None:
-            subsection = section.subsections[subsection - 1]
-            subsection.selected = True
-            if subsubsection is not None:
-                subsubsection = subsection.subsections[subsubsection - 1]
-                subsubsection.selected = True
-        else:
-            assert not subsubsection
-    else:
-        assert not subsection
-        assert not subsubsection
-        assert not back_link, 'back link must not be set if section is not set'
-    
-    if back_link:
-        back_link = dict(view=(subsection or section).view)
-    
-    d['sections'] = sections
-    d['sel_section'] = section
-    d['sel_subsection'] = subsection
-    d['back_link'] = back_link
-    
-    return d
-
-
 def redirect_saved(view, request, *args, **kwargs):
     response = redirect(view, *args, **kwargs)
     request.session['saved'] = True
