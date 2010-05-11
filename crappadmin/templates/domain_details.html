@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Manage Google Apps Domains{% endblock %}
+
+{% block content %}
+{% include "snippets/saved_warning.html" %}
+<form action="{% url domain-details domain.domain %}" method="POST" class="details">
+	{% include "snippets/domain_header.html" %}
+	<table class="details" width="100%">
+		<tbody>
+			{% with form.domain as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.admin_email as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.admin_password as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.license_state as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.is_enabled as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.is_independent as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% include "snippets/form_save_reset.html" %}
+		</tbody>
+	</table>
+</form>
+{% endblock %}
