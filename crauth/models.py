@@ -14,13 +14,26 @@ class Association(db.Model):
 class AppsDomain(BaseModel):
     CACHE_TIME = 2 * 60 * 60 # we cache activity state for 2 hours
 
+    #: *Google Apps* domain. This value is also set as ``key_name`` of the given
+    #: model instance for faster datastore reads.
     domain = db.StringProperty(required=True)
+    #: Email of domain administrator account.
     admin_email = db.StringProperty()
-    # apparently it's only possible to send ClientLogin passwords in clear text,
-    # so no hashing
+    #: Password of domain administrator account. This value should be considered
+    #: **write-only** and never shown to users. Unfortunately *GData API*
+    #: doesn't allow to use hashed password in the *ClientLogin* authentication
+    #: method which would greatly improve the overall security.
     admin_password = db.StringProperty()
+    #: Value of this property is updated by
+    #: :func:`crauth.views.handle_license_updates` via cron job.
+    #: Allowed values are defined in :const:`crauth.licensing.LICENSE_STATES`.
     license_state = db.StringProperty(choices=LICENSE_STATES)
+    #: This property takes precedence before both :attr:`is_independent` and
+    #: :attr:`license_state`. If set to ``False`` the domain will not be able to
+    #: accees the application.
     is_enabled = db.BooleanProperty(default=False)
+    #: If set to ``True`` the domain is managed manually and Licensing API is
+    #: not used.
     is_independent = db.BooleanProperty(default=False)
 
     def is_active(self):

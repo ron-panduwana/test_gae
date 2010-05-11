@@ -7,9 +7,14 @@ from gdata.gauth import TwoLeggedOAuthHmacToken
 from gdata.data import GDEntry, GDFeed
 
 
+#: Application has just been installed and will soon be in the
+#: :const:`STATE_ACTIVE` state.
 STATE_PENDING = 'PENDING'
+#: Application is installed and enabled.
 STATE_ACTIVE = 'ACTIVE'
+#: Application is uninstalled or disabled.
 STATE_UNLICENSED = 'UNLICENSED'
+#: Possible licensing states.
 LICENSE_STATES = (
     STATE_PENDING, STATE_ACTIVE, STATE_UNLICENSED,
 )
@@ -79,6 +84,14 @@ def _default_oauth_token():
 
 
 class LicensingClient(GDClient):
+    """Wrapper around *Google Marketplace*
+    `Licensing API
+    <http://code.google.com/intl/pl/googleapps/marketplace/licensing.html>`_.
+
+    :param app_id: Application ID for given Marketplace listing.
+    :type app_id: str
+
+    """
     def __init__(self, app_id=settings.OAUTH_APP_ID, *args, **kwargs):
         self.app_id = app_id
         if not kwargs.has_key('auth_token'):
@@ -86,11 +99,30 @@ class LicensingClient(GDClient):
         super(LicensingClient, self).__init__(*args, **kwargs)
 
     def get_domain_info(self, domain):
+        """Return licensing information about given domain.
+
+        :param domain: Google Apps domain.
+        :type domain: str
+        :returns: :class:`LicenseEntry` object.
+        :rtype: :class:`LicenseEntry`
+
+        """
         lic_url = _LIC_URL + urllib.quote('[appid=%s][domain=%s]' % (
             self.app_id, domain))
         return self.get_feed(lic_url, desired_class=LicenseFeed)
 
     def get_notifications(self, start_datetime, max_results=100):
+        """Get notifications about license state changes for all domain since
+        given ``start_datetime``.
+
+        :param start_datetime: Get notifications from this time on.
+        :type start_datetime: datetime
+        :param max_results: Get up to ``max_results`` results.
+        :type max_results: int
+        :returns: Feed of :class:`LicenseEntry`.
+        :rtype: :class:`LicenseFeed`
+
+        """
         start_datetime = start_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
         not_url = _NOT_URL + urllib.quote(
             '[appid=%s][startdatetime=%s][max-results=%d]' % (

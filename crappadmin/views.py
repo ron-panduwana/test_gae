@@ -12,6 +12,7 @@ def navigation(request):
     return (
         Section('appadmin', _('Superadmin Panel'), reverse('all_domains'), (
             Section('all_domains', _('All Domains'), reverse('all_domains')),
+            Section('docs', _('Documentation'), '/appadmin/docs/index.html'),
             Section('admin_logout', _('Logout'), users.create_logout_url('/')),
         )),
     )
