@@ -6,6 +6,7 @@ from google.appengine.api import users
 from crappadmin.forms import DomainForm
 from crappadmin.tables import domains_table
 from crauth.models import AppsDomain
+from crgappspanel.views.utils import redirect_saved
 from crlib.navigation import render_with_nav, Section
 
 
@@ -39,8 +40,9 @@ def domain_details(request, name=None):
     if request.method == 'POST':
         form = DomainForm(request.POST, auto_id=True)
         if form.is_valid():
-            # TODO do sth here
-            pass
+            form.populate(domain)
+            domain.save()
+            return redirect_saved('domain-details', request, name=domain.domain)
     else:
         form = DomainForm(initial=dict(domain=domain.domain,
             admin_email=domain.admin_email, license_state=domain.license_state,
@@ -50,4 +52,5 @@ def domain_details(request, name=None):
     return render_with_nav(request, 'domain_details.html', {
         'domain': domain,
         'form': form,
+        'saved': request.session.pop('saved', None),
     }, in_section='appadmin/domains')

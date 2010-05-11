@@ -71,7 +71,7 @@ class UserForm(forms.Form):
         
         user.user_name = data['user_name']
         password = data['password']
-        if password and password[0] != '' and password[0] == password[1]:
+        if password and password[0] and password[0] == password[1]:
             user.password = password[0]
         user.change_password = data['change_password']
         user.given_name = data['full_name'][0]
@@ -230,12 +230,12 @@ class UserEmailFiltersForm(forms.Form):
         action_fields = ('label', 'should_mark_as_read', 'should_archive')
         
         if not any(data.get(key) for key in filter_fields):
-            msg = _(u'At least one of fields: from, to, subject, has words, '
+            msg = _('At least one of fields: from, to, subject, has words, '
                 'doesn\'t have, has attachment must be filled.')
             raise forms.ValidationError(msg)
         
         if not any(data.get(key) for key in action_fields):
-            msg = _(u'At least one of fields apply label, mark as read, '
+            msg = _('At least one of fields apply label, mark as read, '
                 'archive must be filled.')
             raise forms.ValidationError(msg)
         
@@ -245,7 +245,7 @@ class UserEmailFiltersForm(forms.Form):
         illegal_chars = '[]()$&*'
         value = self.cleaned_data[key]
         if any(c in value for c in illegal_chars):
-            msg = _(u'Characters %(illegal_chars)s are all illegal.') % dict(illegal_chars=illegal_chars)
+            msg = _('Characters %(illegal_chars)s are all illegal.') % dict(illegal_chars=illegal_chars)
             raise forms.ValidationError(msg)
         return value
 

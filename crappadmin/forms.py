@@ -17,3 +17,22 @@ class DomainForm(forms.Form):
         choices=LICENSE_STATES)
     is_enabled = forms.BooleanField(label=_('Enabled'), required=False)
     is_independent = forms.BooleanField(label=_('Independent'), required=False)
+    
+    def populate(self, domain):
+        data = self.cleaned_data
+        
+        domain.domain = data['domain']
+        domain.admin_email = data['admin_email']
+        passwords = data['admin_password']
+        if passwords and passwords[0] and passwords[0] == passwords[1]:
+            domain.admin_password = passwords[0]
+        domain.license_state = data['license_state']
+        domain.is_enabled = data['is_enabled']
+        domain.is_independent = data['is_independent']
+    
+    def clean_admin_password(self):
+        passwords = self.cleaned_data.get('admin_password')
+        if passwords and passwords[0] != passwords[1]:
+            msg = _('Passwords do not match.')
+            raise forms.ValidationError(msg)
+        return passwords

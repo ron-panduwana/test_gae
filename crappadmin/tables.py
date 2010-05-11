@@ -16,6 +16,7 @@ _DOMAINS_TABLE_COLUMNS = (
     tables.Column(_('Status'), 'status', getter=_get_enabled),
 )
 _DOMAINS_TABLE_ID = _DOMAINS_TABLE_COLUMNS[0]
+_DOMAINS_TABLE_WIDTHS = ['%d%%' % x for x in (5, 40, 45, 10)]
 
 
 def domains_table(request, domains):
@@ -23,4 +24,4 @@ def domains_table(request, domains):
     
     table = tables.Table(_DOMAINS_TABLE_COLUMNS,
         _DOMAINS_TABLE_ID, sortby=sortby, asc=asc)
-    return table.generate(domains, singular='domain')
+    return table.generate(domains, widths=_DOMAINS_TABLE_WIDTHS, singular='domain')
