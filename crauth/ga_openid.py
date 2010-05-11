@@ -16,7 +16,7 @@ RE_LINK = re.compile(r'Link: <(.*)>')
 
 DS_NS = 'http://www.w3.org/2000/09/xmldsig#'
 # Got from: http://www.gstatic.com/GoogleInternetAuthority/GoogleInternetAuthority.crt
-GOOGLE_CA_FILE = 'auth/GoogleInternetAuthority.crt'
+GOOGLE_CA_FILE = 'crauth/GoogleInternetAuthority.crt'
 CERT_START = '-----BEGIN CERTIFICATE-----'
 CERT_END = '-----END CERTIFICATE-----'
 
