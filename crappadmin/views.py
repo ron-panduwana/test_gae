@@ -50,9 +50,8 @@ def domain_details(request, name=None):
             return redirect_saved('domain-details', request, name=domain.domain)
     else:
         form = DomainForm(initial=dict(domain=domain.domain,
-            admin_email=domain.admin_email, license_state=domain.license_state,
-            is_enabled=domain.is_enabled, is_independent=domain.is_independent),
-            auto_id=True)
+            admin_email=domain.admin_email, is_enabled=domain.is_enabled,
+            is_independent=domain.is_independent), auto_id=True)
     
     return render_with_nav(request, 'domain_details.html', {
         'domain': domain,

@@ -12,7 +12,10 @@
 			{% with form.domain as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.admin_email as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.admin_password as field %}{% include "snippets/form_field.html" %}{% endwith %}
-			{% with form.license_state as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			<tr>
+				<th>License</th>
+				<td>{{ domain.license_state }}</td>
+			</tr>
 			{% with form.is_enabled as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.is_independent as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% include "snippets/form_save_reset.html" %}
