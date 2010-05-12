@@ -8,18 +8,7 @@
 <form action="{% url user-groups user.user_name %}" method="POST" class="details">
 	{% include "snippets/user_header.html" %}
 	<table class="details" width="100%">
-		<tbody>{% comment %}
-			<tr>
-				<th>Owner of</th>
-				<td>
-					{% for group in owner_of %}
-						{% with group as value %}
-							{% include "snippets/value.html" %}
-						{% endwith %}
-						{% if not forloop.last %}<br/>{% endif %}
-					{% endfor %}
-				</td>
-			</tr>{% endcomment %}
+		<tbody>
 			<tr>
 				<th>Member of</th>
 				<td>
