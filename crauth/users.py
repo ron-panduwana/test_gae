@@ -44,6 +44,7 @@ class User(object):
             self._email, service.service)
         token = memcache.get(memcache_key)
         if not token:
+            from gdata.service import BadAuthentication
             apps_domain = self.domain()
             if apps_domain is None:
                 raise SetupRequiredError()
@@ -57,8 +58,7 @@ class User(object):
                 challenge.captcha_token = service.captcha_token
                 challenge.service = service
                 raise challenge
-            except Exception:
-                logging.exception('ClientLogin Error')
+            except BadAuthentication:
                 raise SetupRequiredError()
             token = service.GetClientLoginToken()
             memcache.set(memcache_key, token, 24 * 60 * 60)
@@ -70,6 +70,7 @@ class User(object):
             self._email, client.auth_service)
         token = memcache.get(memcache_key)
         if not token:
+            from gdata.client import BadAuthentication
             apps_domain = self.domain()
             if apps_domain is None:
                 raise SetupRequiredError()
@@ -82,7 +83,7 @@ class User(object):
             except CaptchaChallenge, challenge:
                 challenge.service = client
                 raise challenge
-            except Exception:
+            except BadAuthentication:
                 raise SetupRequiredError()
             token = client.auth_token.token_string
             memcache.set(memcache_key, token, 24 * 60 * 60)
@@ -139,14 +140,15 @@ class UsersMiddleware(object):
                 reverse('captcha') + '?%s' % urllib.urlencode({
                     settings.REDIRECT_FIELD_NAME: request.get_full_path(),
                 }))
-        elif isinstance(
-            exception, (SetupRequiredError, AppsForYourDomainException)):
+        elif isinstance(exception, SetupRequiredError):
             if not is_current_user_admin():
                 return HttpResponseRedirect(reverse('setup_required'))
             else:
                 user = get_current_user()
                 return HttpResponseRedirect(
                     reverse('domain_setup', args=(user.domain().domain,)))
+        elif isinstance(exception, AppsForYourDomainException):
+            memcache.flush_all()
 
 
 def create_login_url(dest_url):
