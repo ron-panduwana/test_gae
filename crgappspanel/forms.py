@@ -86,7 +86,8 @@ ADD_AS_CHOICES = (('owner', _('Owner')), ('member', _('Member')))
 
 
 class UserGroupsForm(forms.Form):
-    groups = forms.MultipleChoiceField(label=_('Add to groups'), choices=())
+    groups = forms.MultipleChoiceField(label=_('Add to groups'), choices=(),
+        widget=forms.SelectMultiple(attrs={'class':'long'}))
     add_as = forms.ChoiceField(label=_('Add as'), choices=ADD_AS_CHOICES)
 
 
@@ -126,7 +127,8 @@ class UserEmailSettingsForm(forms.Form):
         choices=LANGUAGE_CHOICES, required=False)
     forward = forms.ChoiceField(label=_('Forwarding'),
         choices=FORWARD_CHOICES, required=False)
-    forward_to = forms.EmailField(label=_('Forward to'), required=False)
+    forward_to = forms.EmailField(label=_('Forward to'), required=False,
+        widget=forms.TextInput(attrs={'class':'long'}))
     pop3 = forms.ChoiceField(label=_('POP3'),
         choices=POP3_CHOICES, required=False)
     imap = forms.ChoiceField(label=_('IMAP'),
@@ -203,15 +205,19 @@ HAS_ATTACHMENT_CHOICES = (
 
 
 class UserEmailFiltersForm(forms.Form):
-    from_ = forms.EmailField(label=_('From'), required=False)
-    to = forms.EmailField(label=_('To'), required=False)
+    from_ = forms.EmailField(label=_('From'), required=False,
+        widget=forms.TextInput(attrs={'class':'long'}))
+    to = forms.EmailField(label=_('To'), required=False,
+        widget=forms.TextInput(attrs={'class':'long'}))
     subject = forms.CharField(label=_('Subject'), required=False)
     has_the_word = forms.CharField(label=_('Has the words'), required=False)
-    does_not_have_the_word = forms.CharField(label=_('Doesn\'t have'), required=False)
+    does_not_have_the_word = forms.CharField(label=_('Doesn\'t have'),
+        required=False)
     has_attachment = forms.ChoiceField(label=_('Has attachment'),
         choices=HAS_ATTACHMENT_CHOICES, required=False)
     label = forms.CharField(label=_('Apply label'), required=False)
-    should_mark_as_read = forms.BooleanField(label=_('Mark as read'), required=False)
+    should_mark_as_read = forms.BooleanField(label=_('Mark as read'),
+        required=False)
     should_archive = forms.BooleanField(label=_('Archive'), required=False)
     
     def clean_subject(self):
@@ -245,7 +251,8 @@ class UserEmailFiltersForm(forms.Form):
         illegal_chars = '[]()$&*'
         value = self.cleaned_data[key]
         if any(c in value for c in illegal_chars):
-            msg = _('Characters %(illegal_chars)s are all illegal.') % dict(illegal_chars=illegal_chars)
+            msg = _('Characters %(illegal_chars)s are all illegal.') \
+                % dict(illegal_chars=illegal_chars)
             raise forms.ValidationError(msg)
         return value
 
@@ -256,9 +263,11 @@ reply_to_e = '%(widget)s %(link_start)sCancel%(link_end)s'
 
 class UserEmailAliasesForm(forms.Form):
     name = forms.CharField(label=_('Name'))
-    address = forms.EmailField(label=_('Email address'))
+    address = forms.EmailField(label=_('Email address'),
+        widget=forms.TextInput(attrs={'class':'long'}))
     reply_to = forms.EmailField(label=_('Reply to'), required=False,
-        widget=widgets.SwapWidget(reply_to_c, forms.TextInput(), reply_to_e))
+        widget=widgets.SwapWidget(reply_to_c,
+            forms.TextInput(attrs={'class':'long'}), reply_to_e))
     make_default = forms.BooleanField(label=_('Make default'), required=False)
 
 
@@ -302,9 +311,11 @@ member_e = '%(widget)s %(link_start)sCancel%(link_end)s'
 
 class GroupMembersForm(forms.Form):
     owner = forms.EmailField(label=_('Owners'), required=False,
-        widget=widgets.SwapWidget(owner_c, forms.TextInput(), owner_e))
+        widget=widgets.SwapWidget(owner_c,
+            forms.TextInput(attrs={'class':'long'}), owner_e))
     member = forms.EmailField(label=_('Members'), required=False,
-        widget=widgets.SwapWidget(member_c, forms.TextInput(), member_e))
+        widget=widgets.SwapWidget(member_c,
+            forms.TextInput(attrs={'class':'long'}), member_e))
 
 
 ################################################################################
@@ -327,16 +338,19 @@ class SharedContactForm(forms.Form):
     role = forms.CharField(label=_('Role'), required=False)
     
     # email field to show when creating contact
-    email = forms.CharField(label=_('Email'), required=False)
+    email = forms.CharField(label=_('Email'), required=False,
+        widget=forms.TextInput(attrs={'class':'long'}))
     # emails filed to show when editing contact
     emails = forms.CharField(label=_('Emails'), required=False,
-        widget=widgets.SwapWidget(emails_c, forms.TextInput(), emails_e))
+        widget=widgets.SwapWidget(emails_c,
+            forms.TextInput(attrs={'class':'long'}), emails_e))
     
     # phone number field to show when creating contact
     phone_number = forms.CharField(label=_('Phone number'), required=False)
     # phone numbers field to show when editing contact
     phone_numbers = forms.CharField(label=_('Phone numbers'), required=False,
-        widget=widgets.SwapWidget(phone_numbers_c, forms.TextInput(), phone_numbers_e))
+        widget=widgets.SwapWidget(phone_numbers_c,
+            forms.TextInput(), phone_numbers_e))
     
     def create(self):
         data = self.cleaned_data

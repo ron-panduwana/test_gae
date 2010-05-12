@@ -1,6 +1,6 @@
 <tr>
 	<th>{{ field.label_tag }}</th>
-	<td>
+	<td{% if field_class %} class="{{ field_class }}"{% endif %}>
 		{% if items %}
 		<div style="margin-bottom: 0.5em">
 			{% for value in items %}
@@ -12,21 +12,6 @@
 			{% endfor %}
 		</div>
 		{% endif %}
-		<div style="margin: 0px">
-			{% if field.help_text %}
-				<label for="{{ field.html_name }}">
-			{% endif %}
-			{{ field }}
-			{% if field.help_text %}
-				{{ field.help_text }}</label>
-			{% endif %}
-			
-			{% for error in field.errors %}
-				{% if forloop.first %}
-					<span style="color: red">{{ error|escape }}</span>
-				{% endif %}
-			{% empty %}
-			{% endfor %}
-		</div>
+		<div style="margin: 0px">{% include "snippets/form_bare_field.html" %}</div>
 	</td>
 </tr>

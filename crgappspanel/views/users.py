@@ -161,7 +161,7 @@ def user_groups(request, name=None):
                     group[0].members.append(group_member)
                     group[0].save()
             
-            return redirect_saved('user_groups',
+            return redirect_saved('user-groups',
                 request, name=user.user_name)
     else:
         form = UserGroupsForm(auto_id=True)

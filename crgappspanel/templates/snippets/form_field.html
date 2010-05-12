@@ -1,4 +1,4 @@
 <tr{% if noline %} class="noline"{% endif %}>
 	<th>{{ field.label_tag }}</th>
-	<td>{% include "snippets/form_bare_field.html" %}</td>
+	<td{% if field_class %} class="{{ field_class }}"{% endif %}>{% include "snippets/form_bare_field.html" %}</td>
 </tr>

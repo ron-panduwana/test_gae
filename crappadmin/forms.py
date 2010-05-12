@@ -5,8 +5,10 @@ from crgappspanel.helpers import fields, widgets
 
 
 class DomainForm(forms.Form):
-    domain = forms.CharField(label=_('Domain'))
-    admin_email = forms.EmailField(label=_('Admin email'), required=False)
+    domain = forms.CharField(label=_('Domain'),
+        widget=forms.TextInput(attrs={'class':'long'}))
+    admin_email = forms.EmailField(label=_('Admin email'), required=False,
+        widget=forms.TextInput(attrs={'class':'long'}))
     admin_password = fields.CharField2(label=_('Admin password'), required=False,
         widget=widgets.DoubleWidget(forms.PasswordInput(), forms.PasswordInput()))
     is_enabled = forms.BooleanField(label=_('Enabled'), required=False)
