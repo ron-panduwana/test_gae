@@ -18,6 +18,8 @@ def navigation(request):
         Section('appadmin', _('Superadmin Panel'), reverse('domains'), (
             Section('domains', _('All Domains'), reverse('domains')),
             Section('tools', _('Tools'), reverse('tools')),
+            Section('appengine', _('Appengine Dashboard'),
+                    'http://appengine.google.com/dashboard?app_id=ga-powerpanel-dev'),
             Section('docs', _('Documentation'), '/appadmin/docs/index.html'),
             Section('admin_logout', _('Logout'), users.create_logout_url('/')),
         )),
