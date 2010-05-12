@@ -43,7 +43,6 @@ def _clone(sections):
 
 
 def _mark_sections(path, sections, parents=[]):
-    logging.warning('path: %s' % str(path))
     for section in sections:
         if section.url == path:
             section.selected = True
@@ -61,7 +60,7 @@ def _get_selected(sections):
             return section
 
 
-def render_with_nav(request, template, ctx, extra_nav=None, in_section=None):
+def render_with_nav(request, template, ctx={}, extra_nav=None, in_section=None):
     sections = []
     for fun in settings.NAVIGATION:
         fun = get_callable(fun)
