@@ -1,7 +1,8 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
-from google.appengine.api import users
+from google.appengine.api import users, memcache
 
 from crappadmin.forms import DomainForm
 from crappadmin.tables import domains_table
@@ -16,6 +17,7 @@ def navigation(request):
     return (
         Section('appadmin', _('Superadmin Panel'), reverse('domains'), (
             Section('domains', _('All Domains'), reverse('domains')),
+            Section('tools', _('Tools'), reverse('tools')),
             Section('docs', _('Documentation'), '/appadmin/docs/index.html'),
             Section('admin_logout', _('Logout'), users.create_logout_url('/')),
         )),
@@ -55,3 +57,17 @@ def domain_details(request, name=None):
         'form': form,
         'saved': request.session.pop('saved', None),
     }, in_section='appadmin/domains')
+
+
+TOOLS_ACTIONS = {
+    'memcache': lambda x: memcache.flush_all(),
+}
+
+def tools(request):
+    if request.method == 'POST':
+        for key, value in request.POST.iteritems():
+            if key in TOOLS_ACTIONS:
+                TOOLS_ACTIONS[key](request)
+        return HttpResponseRedirect(request.path)
+    return render_with_nav(request, 'tools.html')
+
