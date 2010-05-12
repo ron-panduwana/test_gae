@@ -38,7 +38,7 @@ class AppsDomain(BaseModel):
 
     def is_active(self):
         return self.is_enabled and (
-            self.is_independend or self.license_state == STATE_ACTIVE)
+            self.is_independent or self.license_state == STATE_ACTIVE)
 
     @classmethod
     def is_arbitrary_domain_active(cls, domain):
