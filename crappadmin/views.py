@@ -28,10 +28,11 @@ def navigation(request):
 
 def domains(request):
     domains = AppsDomain.all().fetch(1000)
-    ctx = {
+    
+    return render_with_nav(request, 'domains_list.html', {
         'table': domains_table(request, domains),
-    }
-    return render_with_nav(request, 'domains_list.html', ctx)
+        'saved': request.session.pop('saved', False),
+    })
 
 
 def domain_create(request):

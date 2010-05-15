@@ -4,7 +4,8 @@
 {% block title %}{% trans "Shared contacts" %}{% endblock %}
 
 {% block content %}
-<a href="{% url shared-contact-add %}" class="action-link">{% trans "Add shared contact" %}</a>
+	<a href="{% url shared-contact-add %}" class="action-link">{% trans "Add shared contact" %}</a>
+	{% include "snippets/saved_warning.html" %}
 <script type="text/javascript">
 function toggleSearch() {
 	var f1 = goog.dom.$('shared-contact-search')
@@ -101,5 +102,5 @@ goog.events.listen(window, 'unload', function() {
 	goog.events.removeAll()
 })
 </script>
-{{ table }}
+	{{ table }}
 {% endblock %}

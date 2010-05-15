@@ -5,24 +5,23 @@
 
 {% block content %}
 <form action="{% url user-create %}" method="POST" class="create">
-	{# TODO I18n #}
-	<h1>Create new user</h1>
+	<h1>{% trans "Create new user" %}</h1>
 	
-	<label for="user_name">Username</label><br/>
+	<label for="user_name">{% trans "Username" %}</label><br/>
 	{% with form.user_name as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
 	
 	<br/><br/>
-	<label for="full_name_0">First and Last name</label><br/>
+	<label for="full_name_0">{% trans "First and Last name" %}</label><br/>
 	{% with form.full_name as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
 	
 	<br/><br/>
-	Temporary password:
+	{% trans "Temporary password" %}:
 	<input type="hidden" name="password_0" value="{{ temp_password }}"/>
 	<input type="hidden" name="password_1" value="{{ temp_password }}"/>
 	<span style="color: gray">{{ temp_password }}</span>
 	
 	<br/><br/>
-	<input type="submit" value="create" class="default"/>
-	<input type="button" onclick="window.open('{% url users %}', '_self')" value="cancel"/>
+	<input type="submit" value="{% trans "create" %}" class="default"/>
+	<input type="button" onclick="window.open('{% url users %}', '_self')" value="{% trans "cancel" %}"/>
 </form>
 {% endblock %}

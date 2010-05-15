@@ -87,6 +87,7 @@ def shared_contacts(request):
         'advanced_search': advanced_search,
         'filters': filters,
         'query': dict(general=query, advanced=query_adv.search_by),
+        'saved': request.session.pop('saved', False),
         'scripts': ['table'],
     })
 

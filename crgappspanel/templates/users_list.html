@@ -5,6 +5,7 @@
 
 {% block content %}
 	<a href="{% url user-create %}" class="action-link">Create new user</a>
+	{% include "snippets/saved_warning.html" %}
 <script type="text/javascript">
 cr.table.deletes['table'] = function(list, removeUrl) {
 	var dialogDelete = new goog.ui.Dialog()
@@ -24,6 +25,5 @@ goog.events.listen(window, 'unload', function() {
 	goog.events.removeAll()
 })
 </script>
-	{% include "snippets/saved_warning.html" %}
 	{{ table }}
 {% endblock %}
