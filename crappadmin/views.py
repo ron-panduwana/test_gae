@@ -34,6 +34,21 @@ def domains(request):
     return render_with_nav(request, 'domains_list.html', ctx)
 
 
+def domain_create(request):
+    if request.method == 'POST':
+        form = DomainForm(request.POST, auto_id=True)
+        if form.is_valid():
+            domain = form.create()
+            domain.save()
+            return redirect_saved('domain-details', request, name=domain.domain)
+    else:
+        form = DomainForm(auto_id=True)
+    
+    return render_with_nav(request, 'domain_create.html', {
+        'form': form,
+    }, in_section='appadmin/domains')
+
+
 def domain_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)

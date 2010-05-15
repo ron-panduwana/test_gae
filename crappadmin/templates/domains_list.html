@@ -1,9 +1,9 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}Manage Google Apps Domains{% endblock %}
+{% block title %}{% trans "Google Apps Domains" %}{% endblock %}
 
 {% block content %}
-<h1>Manage Google Apps Domains</h1>
-{{ table }}
+	<a href="{% url domain-create %}" class="action-link">Create new domain</a>
+	{{ table }}
 {% endblock %}

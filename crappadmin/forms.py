@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext as _
 
+from crauth import models
 from crgappspanel.helpers import fields, widgets
 
 
@@ -13,6 +14,16 @@ class DomainForm(forms.Form):
         widget=widgets.DoubleWidget(forms.PasswordInput(), forms.PasswordInput()))
     is_enabled = forms.BooleanField(label=_('Enabled'), required=False)
     is_independent = forms.BooleanField(label=_('Independent'), required=False)
+    
+    def create(self):
+        data = self.cleaned_data
+        
+        return models.AppsDomain(
+            domain=data['domain'],
+            admin_email=data['admin_email'],
+            admin_password=data['admin_password'][0],
+            is_enabled=data['is_enabled'],
+            is_independent=data['is_independent'])
     
     def populate(self, domain):
         data = self.cleaned_data
