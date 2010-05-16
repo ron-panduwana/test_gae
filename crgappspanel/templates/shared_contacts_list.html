@@ -78,7 +78,7 @@
 	</form>
 	{% if filters %}
 	<div style="margin-top: 1em">
-		Filters: 
+		{% trans "Filters" %}:
 		{% for filter in filters %}{% if not forloop.first %}, {% endif %}{{ filter }}{% endfor %}<br/>
 		<a href="{% url shared-contacts %}">{% trans "Remove filters" %}</a>
 	</div>
