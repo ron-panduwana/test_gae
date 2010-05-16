@@ -11,7 +11,9 @@ def base(request):
             Section('users', _('Users'), reverse('users')),
         )),
         Section('shared_contacts', _('Shared Contacts'),
-                reverse('shared-contacts')),
+            reverse('shared-contacts')),
+        Section('calendar_resources', _('Calendar Resources'),
+            reverse('calendar-resources')),
     )
 
 

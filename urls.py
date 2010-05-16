@@ -73,6 +73,15 @@ urlpatterns += patterns('crgappspanel.views.shared_contacts',
         'shared_contact_remove_phone', name='shared-contact-remove-phone'),
 )
 
+urlpatterns += patterns('crgappspanel.views.calendar_resources',
+    url(r'^calendar-resources/list/$',
+        'calendar_resources', name='calendar-resources'),
+    url(r'^calendar-resources/add/$',
+        'calendar_resource_add', name='calendar-resource-add'),
+    url(r'^calendar-resources/details/(?P<name>[^/]+)/$',
+        'calendar_resource_add', name='calendar-resource-add'),
+)
+
 
 urlpatterns += patterns('',
     url(r'^openid/', include('crauth.urls')),
