@@ -48,6 +48,30 @@ def calendar_resource_add(request):
     }, in_section='calendar_resources')
 
 
-def calendar_resource_details(request, name=None):
-    # TODO implement this
-    pass
+def calendar_resource_details(request, id=None):
+    if not id:
+        raise ValueError('id = %s' % id)
+    
+    resource = CalendarResource.get_by_key_name(id)
+    if not resource:
+        return redirect('calendar-resources')
+    
+    if request.method == 'POST':
+        form = CalendarResourceForm(request.POST, auto_id=True)
+        if form.is_valid():
+            form.populate(resource)
+            resource.save()
+            return redirect_saved('calendar-resource-details', request,
+                id=resource.id)
+    else:
+        form = CalendarResourceForm(initial={
+            'common_name': resource.common_name,
+            'type': resource.type,
+            'description': resource.description,
+        }, auto_id=True)
+    
+    return render_with_nav(request, 'calendar_resource_details.html', {
+        'calendar_resource': resource,
+        'form': form,
+        'saved': request.session.pop('saved', False),
+    }, in_section='calendar_resources')

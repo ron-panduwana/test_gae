@@ -434,4 +434,10 @@ class CalendarResourceForm(forms.Form):
         return models.CalendarResource(
             id=id, common_name=data['common_name'], type=data['type'],
             description=data['description'])
-            
+    
+    def populate(self, resource):
+        data = self.cleaned_data
+        
+        resource.common_name = data['common_name']
+        resource.type = data['type']
+        resource.description = data['description']

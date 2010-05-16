@@ -78,7 +78,7 @@ urlpatterns += patterns('crgappspanel.views.calendar_resources',
         'calendar_resources', name='calendar-resources'),
     url(r'^calendar-resources/add/$',
         'calendar_resource_add', name='calendar-resource-add'),
-    url(r'^calendar-resources/details/(?P<name>[^/]+)/$',
+    url(r'^calendar-resources/details/(?P<id>[^/]+)/$',
         'calendar_resource_details', name='calendar-resource-details'),
 )
 
