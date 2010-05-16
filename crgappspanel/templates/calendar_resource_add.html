@@ -5,7 +5,7 @@
 
 {% block content %}
 <form action="{% url calendar-resource-add %}" method="POST" class="create">
-	<h1>{% trans "Add calendar resource" %}</h1>
+	<h1>{% trans "Add calendar resource" %}</h1><br/>
 	
 	<label for="common_name">{% trans "Name" %}</label><br/>
 	{% with form.common_name as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}

@@ -5,7 +5,7 @@
 
 {% block content %}
 <form action="{% url user-create %}" method="POST" class="create">
-	<h1>{% trans "Create new user" %}</h1>
+	<h1>{% trans "Create new user" %}</h1><br/>
 	
 	<label for="user_name">{% trans "Username" %}</label><br/>
 	{% with form.user_name as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}

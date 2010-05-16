@@ -6,101 +6,85 @@
 {% block content %}
 	<a href="{% url shared-contact-add %}" class="action-link">{% trans "Add shared contact" %}</a>
 	{% include "snippets/saved_warning.html" %}
-<script type="text/javascript">
-function toggleSearch() {
-	var f1 = goog.dom.$('shared-contact-search')
-	var f2 = goog.dom.$('shared-contact-advanced-search')
-	
-	var vis = (f1.style.display == 'none')
-	
-	f1.style.display = vis ? 'block' : 'none'
-	f2.style.display = vis ? 'none' : 'block'
-}
-</script>
-<form id="shared-contact-search" action="{% url shared-contacts %}"
-		style="{% if advanced_search %}display: none; {% endif %}margin-top: 2em">
-	<b>{% trans "quick search" %}</b>&nbsp;&nbsp;&nbsp;
-	<a href="#" onclick="toggleSearch()">{% trans "advanced search" %}</a><br/>
-	<table>
-		<col width="60"/>
-		<col width="*"/>
-		<col width="*"/>
-		<tbody>
-			<tr>
-				<td>Query</td>
-				<td><input type="text" name="q" value="{{ query.general }}"/></td>
-				<td><input type="submit" value="{% trans "go" %}"/></td>
-			</tr>
-		</tbody>
-	</table>
-</form>
-<form id="shared-contact-advanced-search" action="{% url shared-contacts %}"
-		style="{% if not advanced_search %}display: none; {% endif %}margin-top: 2em">
-	<a href="#" onclick="toggleSearch()">{% trans "quick search" %}</a>
-	&nbsp;&nbsp;&nbsp;<b>{% trans "advanced search" %}</b><br/>
-	<table>
-		<col width="60"/>
-		<col width="*"/>
-		<col width="*"/>
-		<tbody>
-			<tr>
-				<td>{% trans "Name" %}</td>
-				<td><input type="text" name="name" value="{{ query.advanced.name }}"/></td>
-				<td></td>
-			</tr>
-			<tr>
-				<td>{% trans "Company" %}</td>
-				<td><input type="text" name="company" value="{{ query.advanced.company }}"/></td>
-				<td></td>
-			</tr>
-			<tr>
-				<td>{% trans "Role" %}</td>
-				<td><input type="text" name="role" value="{{ query.advanced.role }}"/></td>
-				<td></td>
-			</tr>
-			<tr>
-				<td>{% trans "Notes" %}</td>
-				<td><input type="text" name="notes" value="{{ query.advanced.notes }}"/></td>
-				<td></td>
-			</tr>
-			<tr>
-				<td>{% trans "E-mail" %}</td>
-				<td><input type="text" name="email" value="{{ query.advanced.email }}"/></td>
-				<td></td>
-			</tr>
-			<tr>
-				<td>{% trans "Phone" %}</td>
-				<td><input type="text" name="phone" value="{{ query.advanced.phone }}"/></td>
-				<td><input type="submit" value="{% trans "go" %}"/></td>
-			</tr>
-		</tbody>
-	</table>
-</form>
-{% if filters %}
-<div style="margin-top: 1em">
-	Filters: 
-	{% for filter in filters %}{% if not forloop.first %}, {% endif %}{{ filter }}{% endfor %}<br/>
-	<a href="{% url shared-contacts %}">{% trans "Remove filters" %}</a>
-</div>
-{% endif %}
-<script type="text/javascript">
-cr.table.deletes['table'] = function(list, removeUrl) {
-	var dialogDelete = new goog.ui.Dialog()
-	dialogDelete.setTitle('{% trans "Remove shared contacts" %}')
-	dialogDelete.setContent('{% trans "Are you sure want to remove selected shared contacts?" %}')
-	dialogDelete.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
-	
-	goog.events.listenOnce(dialogDelete, goog.ui.Dialog.EventType.SELECT, function(e) {
-		if (e.key == 'yes') {
-			window.open(removeUrl, '_self')
-		}
-	})
-	dialogDelete.setVisible(true)
-}
-
-goog.events.listen(window, 'unload', function() {
-	goog.events.removeAll()
-})
-</script>
+	<script type="text/javascript">
+	function toggleSearch() {
+		var f1 = goog.dom.$('shared-contact-search')
+		var f2 = goog.dom.$('shared-contact-advanced-search')
+		
+		var vis = (f1.style.display == 'none')
+		
+		f1.style.display = vis ? 'block' : 'none'
+		f2.style.display = vis ? 'none' : 'block'
+	}
+	</script>
+	<form id="shared-contact-search" action="{% url shared-contacts %}"
+			style="{% if advanced_search %}display: none; {% endif %}margin-top: 2em">
+		<b>{% trans "quick search" %}</b>&nbsp;&nbsp;&nbsp;
+		<a href="#" onclick="toggleSearch()">{% trans "advanced search" %}</a><br/>
+		<table>
+			<col width="60"/>
+			<col width="*"/>
+			<col width="*"/>
+			<tbody>
+				<tr>
+					<td>Query</td>
+					<td><input type="text" name="q" value="{{ query.general }}"/></td>
+					<td><input type="submit" value="{% trans "go" %}"/></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+	<form id="shared-contact-advanced-search" action="{% url shared-contacts %}"
+			style="{% if not advanced_search %}display: none; {% endif %}margin-top: 2em">
+		<a href="#" onclick="toggleSearch()">{% trans "quick search" %}</a>
+		&nbsp;&nbsp;&nbsp;<b>{% trans "advanced search" %}</b><br/>
+		<table>
+			<col width="60"/>
+			<col width="*"/>
+			<col width="*"/>
+			<tbody>
+				<tr>
+					<td>{% trans "Name" %}</td>
+					<td><input type="text" name="name" value="{{ query.advanced.name }}"/></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>{% trans "Company" %}</td>
+					<td><input type="text" name="company" value="{{ query.advanced.company }}"/></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>{% trans "Role" %}</td>
+					<td><input type="text" name="role" value="{{ query.advanced.role }}"/></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>{% trans "Notes" %}</td>
+					<td><input type="text" name="notes" value="{{ query.advanced.notes }}"/></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>{% trans "E-mail" %}</td>
+					<td><input type="text" name="email" value="{{ query.advanced.email }}"/></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>{% trans "Phone" %}</td>
+					<td><input type="text" name="phone" value="{{ query.advanced.phone }}"/></td>
+					<td><input type="submit" value="{% trans "go" %}"/></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+	{% if filters %}
+	<div style="margin-top: 1em">
+		{% trans "Filters" %}:
+		{% for filter in filters %}{% if not forloop.first %}, {% endif %}{{ filter }}{% endfor %}<br/>
+		<a href="{% url shared-contacts %}">{% trans "Remove filters" %}</a>
+	</div>
+	{% endif %}
+	{% with "shared contacts" as entities_name %}
+		{% include "snippets/objects_table_delete_script.html" %}
+	{% endwith %}
 	{{ table }}
 {% endblock %}
