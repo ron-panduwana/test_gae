@@ -6,26 +6,8 @@
 {% block content %}
 	<a href="{% url calendar-resource-add %}" class="action-link">{% trans "Add calendar resource" %}</a>
 	{% include "snippets/saved_warning.html" %}
-{% comment %}{# TODO change this #}
-<script type="text/javascript">
-cr.table.deletes['table'] = function(list, removeUrl) {
-	var dialogDelete = new goog.ui.Dialog()
-	dialogDelete.setTitle('{% trans "Remove shared contacts" %}')
-	dialogDelete.setContent('{% trans "Are you sure want to remove selected shared contacts?" %}')
-	dialogDelete.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
-	
-	goog.events.listenOnce(dialogDelete, goog.ui.Dialog.EventType.SELECT, function(e) {
-		if (e.key == 'yes') {
-			window.open(removeUrl, '_self')
-		}
-	})
-	dialogDelete.setVisible(true)
-}
-
-goog.events.listen(window, 'unload', function() {
-	goog.events.removeAll()
-})
-</script>
-{% endcomment %}
+	{% with "calendar resources" as entities_name %}
+		{% include "snippets/objects_table_delete_script.html" %}
+	{% endwith %}
 	{{ table }}
 {% endblock %}

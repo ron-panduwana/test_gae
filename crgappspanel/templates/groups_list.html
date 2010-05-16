@@ -6,5 +6,8 @@
 {% block content %}
 	<a href="{% url group-create %}" class="action-link">Create new group</a>
 	{% include "snippets/saved_warning.html" %}
+	{% with "groups" as entities_name %}
+		{% include "snippets/objects_table_delete_script.html" %}
+	{% endwith %}
 	{{ table }}
 {% endblock %}

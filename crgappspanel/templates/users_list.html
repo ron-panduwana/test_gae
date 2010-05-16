@@ -6,24 +6,8 @@
 {% block content %}
 	<a href="{% url user-create %}" class="action-link">Create new user</a>
 	{% include "snippets/saved_warning.html" %}
-<script type="text/javascript">
-cr.table.deletes['table'] = function(list, removeUrl) {
-	var dialogDelete = new goog.ui.Dialog()
-	dialogDelete.setTitle('{% trans "Remove users" %}')
-	dialogDelete.setContent('{% trans "Are you sure want to remove selected users?" %}')
-	dialogDelete.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
-	
-	goog.events.listenOnce(dialogDelete, goog.ui.Dialog.EventType.SELECT, function(e) {
-		if (e.key == 'yes') {
-			window.open(removeUrl, '_self')
-		}
-	})
-	dialogDelete.setVisible(true)
-}
-
-goog.events.listen(window, 'unload', function() {
-	goog.events.removeAll()
-})
-</script>
+	{% with "users" as entities_name %}
+		{% include "snippets/objects_table_delete_script.html" %}
+	{% endwith %}
 	{{ table }}
 {% endblock %}

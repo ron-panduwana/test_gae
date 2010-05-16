@@ -32,7 +32,6 @@ def groups(request):
     return render_with_nav(request, 'groups_list.html', {
         'table': table.generate(groups, widths=_table_widths, singular='group'),
         'saved': request.session.pop('saved', False),
-        'scripts': ['table'],
     })
 
 

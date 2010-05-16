@@ -61,7 +61,6 @@ def users(request):
     return render_with_nav(request, 'users_list.html', {
         'table': table.generate(users, widths=_table_widths, singular='user'),
         'saved': request.session.pop('saved', False),
-        'scripts': ['table'],
     })
 
 
