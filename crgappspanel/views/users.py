@@ -10,7 +10,7 @@ from crgappspanel.forms import UserForm, UserGroupsForm, \
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname, GAGroup, GAGroupOwner, GAGroupMember
-from crgappspanel.views.utils import get_sortby_asc, random_password, \
+from crgappspanel.views.utils import get_sortby_asc, secure_random_chars, \
         redirect_saved, render
 from crlib.navigation import render_with_nav
 from crgappspanel.navigation import user_nav
@@ -74,12 +74,12 @@ def user_create(request):
         if form.is_valid():
             user = form.create()
             user.save()
-            return redirect('user-details', name=user.user_name)
+            return redirect_saved('user-details', request, name=user.user_name)
     else:
         form = UserForm(auto_id=True)
         form.fields['user_name'].help_text = '@%s' % domain
     
-    temp_password = random_password(6)
+    temp_password = secure_random_chars(8)
     
     return render_with_nav(request, 'user_create.html', {
         'form': form,

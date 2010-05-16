@@ -7,7 +7,7 @@ from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
 
 __all__ = ('UserForm', 'UserEmailSettingsForm', 'UserEmailFiltersForm',
-    'SharedContactForm')
+    'SharedContactForm', 'CalendarResourceForm')
 
 
 ENABLE = 'e'
@@ -415,3 +415,23 @@ class SharedContactForm(forms.Form):
             data.pop('role', None)
         
         return data
+
+
+################################################################################
+#                              CALENDAR RESOURCES                              #
+################################################################################
+
+
+class CalendarResourceForm(forms.Form):
+    common_name = forms.CharField(_('Name'))
+    type = forms.CharField(_('Type'))
+    description = forms.CharField(_('Description'), required=False,
+        widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
+    
+    def create(self, id):
+        data = self.cleaned_data
+        
+        return models.CalendarResource(
+            id=id, common_name=data['common_name'], type=data['type'],
+            description=data['description'])
+            

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Add calendar resource" %}{% endblock %}
+
+{% block content %}
+<form action="{% url calendar-resource-add %}" method="POST" class="create">
+	<h1>{% trans "Add calendar resource" %}</h1>
+	
+	<label for="common_name">{% trans "Name" %}</label><br/>
+	{% with form.common_name as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
+	
+	<br/><br/>
+	<label for="type">{% trans "Type" %}</label><br/>
+	{% with form.type as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
+	
+	<br/><br/>
+	<label for="description">{% trans "Description" %}</label><br/>
+	{% with form.description as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
+	
+	<br/><br/>
+	<input type="submit" value="{% trans "create" %}" class="default"/>
+	<input type="button" onclick="window.open('{% url users %}', '_self')" value="{% trans "cancel" %}"/>
+</form>
+{% endblock %}

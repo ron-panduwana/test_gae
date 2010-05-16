@@ -35,13 +35,13 @@ def qs_wo_page(request):
     return qs_obj.urlencode()
 
 
-_password_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-def get_password_char(n1, n2):
-    return _password_chars[(256 * n1 + n2) % len(_password_chars)]
+_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+def secure_random_char(n1, n2, chars=_chars):
+    return chars[(256 * n1 + n2) % len(chars)]
 
-def random_password(chars):
-    bts = os.urandom(2 * chars)
-    return ''.join(get_password_char(ord(b1), ord(b2)) for b1, b2 in zip(bts[:chars], bts[chars:]))
+def secure_random_chars(howmany, chars=_chars):
+    bts = zip(os.urandom(howmany), os.urandom(howmany))
+    return ''.join(secure_random_char(ord(b1), ord(b2), chars=chars) for b1, b2 in bts)
 
 
 def list_attrs(lst, attr, max_len=3, finish='...'):
