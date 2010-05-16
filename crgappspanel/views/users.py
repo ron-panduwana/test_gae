@@ -33,7 +33,7 @@ def _get_status(x):
         return _('Administrator')
     return ''
 
-def _userFieldsGen(domain):
+def _table_fields_gen(domain):
     return [
         Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
         Column(_('Username'), 'username',
@@ -43,23 +43,23 @@ def _userFieldsGen(domain):
         Column(_('Roles'), 'roles', getter=lambda x: ''),
         Column(_('Last signed in'), 'last_login', getter=lambda x: '')
     ]
-_userId = Column(None, 'user_name')
-_userWidths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
+_table_id = Column(None, 'user_name')
+_table_widths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
 
 
 @login_required
 def users(request):
     domain = crauth.users.get_current_user().domain().domain
-    _userFields = _userFieldsGen(domain)
-    sortby, asc = get_sortby_asc(request, [f.name for f in _userFields])
+    _table_fields = _table_fields_gen(domain)
+    sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
     users = GAUser.all().fetch(1000)
     
-    table = Table(_userFields, _userId, sortby=sortby, asc=asc)
+    table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
     table.sort(users)
     
     return render_with_nav(request, 'users_list.html', {
-        'table': table.generate(users, widths=_userWidths, singular='user'),
+        'table': table.generate(users, widths=_table_widths, singular='user'),
         'saved': request.session.pop('saved', False),
         'scripts': ['table'],
     })

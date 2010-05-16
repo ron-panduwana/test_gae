@@ -12,25 +12,25 @@ from crgappspanel.views.utils import get_sortby_asc, render, redirect_saved
 from crlib.navigation import render_with_nav
 from crgappspanel.navigation import group_nav
 
-_groupFields = [
+_table_fields = [
     Column(_('Name'), 'name', link=True),
     Column(_('Email address'), 'email', getter=lambda x: x.id),
     Column(_('Email permission'), 'email_permission'),
 ]
-_groupId = Column(None, 'id', getter=lambda x: x.id.partition('@')[0])
-_groupWidths = ['%d%%' % x for x in (5, 40, 40, 15)]
+_table_id = Column(None, 'id', getter=lambda x: x.id.partition('@')[0])
+_table_widths = ['%d%%' % x for x in (5, 40, 40, 15)]
 
 
 @login_required
 def groups(request):
-    sortby, asc = get_sortby_asc(request, [f.name for f in _groupFields])
+    sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
     groups = GAGroup.all().fetch(1000)
-    table = Table(_groupFields, _groupId, sortby=sortby, asc=asc)
+    table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
     table.sort(groups)
     
     return render_with_nav(request, 'groups_list.html', {
-        'table': table.generate(groups, widths=_groupWidths, singular='group'),
+        'table': table.generate(groups, widths=_table_widths, singular='group'),
         'saved': request.session.pop('saved', False),
         'scripts': ['table'],
     })

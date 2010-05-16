@@ -23,7 +23,7 @@ def _get_company_role(x):
     return '%s/%s' % (company, role)
 
 
-_sharedContactFields = [
+_table_fields = [
     Column(_('Name'), 'full_name', getter=lambda x: x.name.full_name, link=True),
     Column(_('Real name'), 'real_name',
         getter=lambda x: '%s %s' % (x.name.given_name or '', x.name.family_name or '')),
@@ -36,13 +36,13 @@ _sharedContactFields = [
     Column(_('E-mails'), 'emails',
         getter=lambda x: list_attrs(x.emails, 'address')),
 ]
-_sharedContactId = _sharedContactFields[0]
-_sharedContactWidths = ['%d%%' % x for x in (5, 20, 20, 15, 10, 30)]
+_table_id = _table_fields[0]
+_table_widths = ['%d%%' % x for x in (5, 20, 20, 15, 10, 30)]
 
 
 @login_required
 def shared_contacts(request):
-    sortby, asc = get_sortby_asc(request, [f.name for f in _sharedContactFields])
+    sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
     # getting queries
     query = request.GET.get('q', '')
@@ -74,7 +74,7 @@ def shared_contacts(request):
     shared_contacts = [x for x in shared_contacts if filter.match(x)]
     
     # instantiating table and sorting shared contacts
-    table = Table(_sharedContactFields, _sharedContactId, sortby=sortby, asc=asc)
+    table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
     table.sort(shared_contacts)
     
     # selecting particular page
@@ -83,7 +83,7 @@ def shared_contacts(request):
     return render_with_nav(request, 'shared_contacts_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
-            widths=_sharedContactWidths, singular='shared contact'),
+            widths=_table_widths, singular='shared contact'),
         'advanced_search': advanced_search,
         'filters': filters,
         'query': dict(general=query, advanced=query_adv.search_by),
