@@ -127,7 +127,7 @@ def user_details(request, name=None):
         'form': form,
         'full_nicknames': full_nicknames,
         'saved': request.session.pop('saved', False),
-        'scripts': ['expand-field', 'swap-widget', 'user-details'],
+        'scripts': ['swap-widget'],
     }, extra_nav=user_nav(name))
 
 
