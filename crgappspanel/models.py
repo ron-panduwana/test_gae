@@ -208,7 +208,7 @@ class CalendarResource(gd.Model):
     Mapper = mappers.CalendarResourceEntryMapper()
 
     id = gd.StringProperty('resource_id', required=True)
-    common_name = gd.StringProperty('resource_common_name')
+    common_name = gd.StringProperty('resource_common_name', required=True)
     description = gd.StringProperty('resource_description')
     type = gd.StringProperty('resource_type')
 

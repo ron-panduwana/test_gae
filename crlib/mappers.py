@@ -450,6 +450,15 @@ class CalendarResourceEntryMapper(AtomMapper):
         )
 
     def update(self, atom, old_atom):
+        # There is a bug in Calendar Resources GData API: if
+        # resource_description is set to non-empty value and then we try to
+        # set it to '' or None - the change is not permanent -
+        # resource_description returns to its previous non-empty value. To
+        # fix this behaviour for now we simply delete the resource and then
+        # recreate it with empty resource_description.
+        if not atom.resource_description:
+            self.delete(old_atom)
+            return self.create(atom)
         return self.service.update_resource(
             old_atom.resource_id, atom.resource_common_name,
             atom.resource_description, resource_type=atom.resource_type)

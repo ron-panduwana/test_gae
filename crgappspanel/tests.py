@@ -439,6 +439,28 @@ class CalendarResourceAPITestCase(BaseGDataTestCase):
         self.assertEqual(resource.description, 'NEW_DESCRIPTION')
         resource.delete()
 
+    def testUpdateResourceWithNoDescription(self):
+        resource = CalendarResource.get_by_key_name('TEST_RESOURCE')
+        if resource is None:
+            resource = CalendarResource(
+                id='TEST_RESOURCE',
+                common_name='Test Resource',
+                type='Meeting Room',
+                description='',
+            ).save()
+
+        resource.description = 'SOME_DESCRIPTION'
+        resource.save()
+
+        resource = CalendarResource.get_by_key_name('TEST_RESOURCE')
+        self.assertEqual(resource.description, 'SOME_DESCRIPTION')
+
+        resource.description = ''
+        resource.save()
+
+        resource = CalendarResource.get_by_key_name('TEST_RESOURCE')
+        self.assertEqual(resource.description, None)
+
 
 class RoleCreationTestCase(unittest.TestCase):
     def setUp(self):
