@@ -416,7 +416,7 @@ class _EmailSettingsWrapper(object):
         self._user_name = user_name
         user = users.get_current_user()
         self._service = EmailSettingsService()
-        self._service.domain = settings.APPS_DOMAIN
+        self._service.domain = user.domain_name
         user.client_login(self._service)
 
     def __getattr__(self, name):
