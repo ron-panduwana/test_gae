@@ -76,6 +76,18 @@ def domain_details(request, name=None):
     }, in_section='appadmin/domains')
 
 
+def domain_remove(request, names=None):
+    if not names:
+        raise ValueError('names = %s' % names)
+    
+    for name in names.split('/'):
+        domain = AppsDomain.get_by_key_name(name)
+        if domain:
+            domain.delete()
+    
+    return redirect('domains')
+
+
 TOOLS_ACTIONS = {
     'memcache': lambda x: memcache.flush_all(),
 }

@@ -5,5 +5,8 @@
 
 {% block content %}
 	<a href="{% url domain-create %}" class="action-link">Create new domain</a>
+	{% with "domains" as entities_name %}
+		{% include "snippets/objects_table_delete_script.html" %}
+	{% endwith %}
 	{{ table }}
 {% endblock %}
