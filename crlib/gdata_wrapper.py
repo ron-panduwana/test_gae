@@ -597,8 +597,7 @@ class AtomMapper(object):
         if not user:
             raise users.LoginRequiredError()
 
-        domain = user.domain().domain
-        logging.warning('domain: %s' % str(domain))
+        domain = user.domain_name
         service = self.create_service(domain)
         auth_method = getattr(self, 'auth_method', 'client_login')
         if auth_method == 'oauth':
