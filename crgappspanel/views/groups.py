@@ -57,7 +57,7 @@ def group_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
     
-    domain = users.get_current_user().domain().domain
+    domain = users.get_current_user().domain_name
     group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
     if not group:
         return redirect('groups')
@@ -90,7 +90,7 @@ def group_members(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
     
-    domain = users.get_current_user().domain().domain
+    domain = users.get_current_user().domain_name
     group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
     if not group:
         return redirect('groups')
@@ -147,7 +147,7 @@ def group_remove(request, names=None):
     if not names:
         ValueError('names = %s' % names)
     
-    domain = users.get_current_user().domain().domain
+    domain = users.get_current_user().domain_name
     for name in names.split('/'):
         group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
         if group:
@@ -161,7 +161,7 @@ def group_remove_owner(request, name=None, owner=None):
     if not all((name, owner)):
         raise ValueError('name = %s, owner = %s' % (name, owner))
     
-    domain = users.get_current_user().domain().domain
+    domain = users.get_current_user().domain_name
     group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
     if not group:
         return redirect('groups')
@@ -178,7 +178,7 @@ def group_remove_member(request, name=None, member=None):
     if not all((name, member)):
         raise ValueError('name = %s, member = %s' % (name, member))
     
-    domain = users.get_current_user().domain().domain
+    domain = users.get_current_user().domain_name
     group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
     if not group:
         return redirect('groups')

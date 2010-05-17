@@ -49,7 +49,7 @@ _table_widths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
 
 @login_required
 def users(request):
-    domain = crauth.users.get_current_user().domain().domain
+    domain = crauth.users.get_current_user().domain_name
     _table_fields = _table_fields_gen(domain)
     sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
@@ -66,7 +66,7 @@ def users(request):
 
 @login_required
 def user_create(request):
-    domain = crauth.users.get_current_user().domain().domain
+    domain = crauth.users.get_current_user().domain_name
     
     if request.method == 'POST':
         form = UserForm(request.POST, auto_id=True)
@@ -91,7 +91,7 @@ def user_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
     
-    domain = crauth.users.get_current_user().domain().domain
+    domain = crauth.users.get_current_user().domain_name
     user = GAUser.get_by_key_name(name)
     if not user:
         return redirect('users')

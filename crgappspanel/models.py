@@ -36,7 +36,7 @@ class GAGroupMember(gd.Model):
 
     @classmethod
     def from_user(cls, user):
-        domain = users.get_current_user().domain().domain
+        domain = users.get_current_user().domain_name
         return GAGroupMember(
             id='%s@%s' % (user.user_name, domain)).save()
 
@@ -65,7 +65,7 @@ class GAGroupOwner(gd.Model):
 
     @classmethod
     def from_user(cls, user):
-        domain = users.get_current_user().domain().domain
+        domain = users.get_current_user().domain_name
         return GAGroupOwner(
             email='%s@%s' % (user.user_name, domain)).save()
 
