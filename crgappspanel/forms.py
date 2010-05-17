@@ -42,12 +42,23 @@ digit_end = ord('9')
 
 
 def enforce_valid(value, lower=False, upper=False, digits=False, other=''):
+    """Enforces that all characters in value are valid characters.
+    Valid characters are:
+    1. All characters in other argument
+    2. Lowercase english letters if lower argument evaluates to True
+    3. Uppercase english letters if upper argument evaluates to True
+    4. Digits is digits argument evaluates to True
+    Returns value if passed, throws ValidationError otherwise.
+    """
+    
     if not value:
         return value
     
     for c in value:
         x = ord(c)
-        if lower_start <= x <= lower_end:
+        if c in other:
+            pass
+        elif lower_start <= x <= lower_end:
             if not lower:
                 msg = _('Lowercase english letters are not allowed.')
                 raise forms.ValidationError(msg)
@@ -59,23 +70,61 @@ def enforce_valid(value, lower=False, upper=False, digits=False, other=''):
             if not digits:
                 msg = _('Digits are not allowed.')
                 raise forms.ValidationError(msg)
-        elif c not in other:
+        else:
             msg = _('Character \'%(char)s\' is not allowed.') % dict(char=c)
             raise forms.ValidationError(msg)
     
     return value
 
 
+def enforce_invalid(value, lower=False, upper=False, digits=False, other=''):
+    """Enforces that no single character in value is invalid character.
+    Invalid characters are:
+    1. All characters in other argument
+    2. Lowercase english letters if lower argument evaluates to True
+    3. Uppercase english letters if upper argument evaluates to True
+    4. Digits is digits argument evaluates to True
+    Returns value if passed, throws ValidationError otherwise.
+    """
+    
+    if not value:
+        return value
+    
+    for c in value:
+        x = ord(c)
+        if c in other:
+            msg = _('Character \'%(char)s\' is not allowed.') % dict(char=c)
+            raise forms.ValidationError(msg)
+        elif lower_start <= x <= lower_end:
+            if lower:
+                msg = _('Lowercase english letters are not allowed.')
+                raise forms.ValidationError(msg)
+        elif upper_start <= x <= upper_end:
+            if upper:
+                msg = _('Uppercase english letters are not allowed.')
+                raise forms.ValidationError(msg)
+        elif digit_start <= x <= digit_end:
+            if digits:
+                msg = _('Digits are not allowed.')
+                raise forms.ValidationError(msg)
+    
+    return value
+
+
 def enforce_some_alnum(value):
+    """Enforces that at least one alphanumeric character exists in value.
+    Returns value is passed, throws ValidationError otherwise.
+    """
+    
     if value:
         for c in value:
             x = ord(c)
             if lower_start <= x <= lower_end:
                 return value
             elif upper_start <= x <= upper_end:
-                return
+                return value
             elif digit_start <= x <= digit_end:
-                return
+                return value
     
     msg = _('There must be at least one letter or digit.')
     raise forms.ValidationError(msg)
@@ -301,13 +350,8 @@ class UserEmailFiltersForm(forms.Form):
         return data
     
     def verify_illegal_chars(self, key):
-        illegal_chars = '[]()$&*'
         value = self.cleaned_data[key]
-        if any(c in value for c in illegal_chars):
-            msg = _('Characters %(illegal_chars)s are all illegal.') \
-                % dict(illegal_chars=illegal_chars)
-            raise forms.ValidationError(msg)
-        return value
+        return enforce_invalid(value, other='[]()$&*')
 
 
 reply_to_c = 'Set %(link_start)sanother%(link_end)s reply to address'

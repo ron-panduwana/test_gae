@@ -37,12 +37,15 @@ class Table(object):
         """Generates table html (using appropriate HTML template).
         
         Arguments:
-          obj - list of objects, each object represents a table row
-          widths - list of column widths
-          table_name - html id of the table as well as beginning of id of objects in the table
-          singular - singular name of entity presented in the table (e.g. 'user')
-          plural - plural name of entity presented in the table (e.g. 'users'),
-            if None - it will be created from singular form by appending 's'
+            obj - list of objects, each object represents a table row
+            page - number of page to be generated
+            qs_wo_page - query string without page (after appending &page=page
+                this gives GET part of link to particular page)
+            widths - list of column widths
+            table_name - html id of the table as well as beginning of id of objects in the table
+            singular - singular name of entity presented in the table (e.g. 'user')
+            plural - plural name of entity presented in the table (e.g. 'users'),
+                if None - it will be created from singular form by appending 's'
         """
         
         if widths == None:
