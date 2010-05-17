@@ -29,6 +29,59 @@ def create_exact_keep(*values):
 
 
 ################################################################################
+#                           GENERAL VALIDATION CODE                            #
+################################################################################
+
+
+lower_start = ord('a')
+lower_end = ord('z')
+upper_start = ord('A')
+upper_end = ord('Z')
+digit_start = ord('0')
+digit_end = ord('9')
+
+
+def enforce_valid(value, lower=False, upper=False, digits=False, other=''):
+    if not value:
+        return value
+    
+    for c in value:
+        x = ord(c)
+        if lower_start <= x <= lower_end:
+            if not lower:
+                msg = _('Lowercase english letters are not allowed.')
+                raise forms.ValidationError(msg)
+        elif upper_start <= x <= upper_end:
+            if not upper:
+                msg = _('Uppercase english letters are not allowed.')
+                raise forms.ValidationError(msg)
+        elif digit_start <= x <= digit_end:
+            if not digits:
+                msg = _('Digits are not allowed.')
+                raise forms.ValidationError(msg)
+        elif c not in other:
+            msg = _('Character \'%(char)s\' is not allowed.') % dict(char=c)
+            raise forms.ValidationError(msg)
+    
+    return value
+
+
+def enforce_some_alnum(value):
+    if value:
+        for c in value:
+            x = ord(c)
+            if lower_start <= x <= lower_end:
+                return value
+            elif upper_start <= x <= upper_end:
+                return
+            elif digit_start <= x <= digit_end:
+                return
+    
+    msg = _('There must be at least one letter or digit.')
+    raise forms.ValidationError(msg)
+
+
+################################################################################
 #                                    USERS                                     #
 ################################################################################
 
@@ -301,6 +354,12 @@ class GroupForm(forms.Form):
         group.description = data['description']
         
         return data['id']
+    
+    def clean_id(self):
+        id = self.cleaned_data['id']
+        enforce_valid(id, lower=True, upper=True, digits=True, other='_.-+')
+        enforce_some_alnum(id)
+        return id
 
 
 owner_c = '%(link_start)sAdd%(link_end)s another owner'
