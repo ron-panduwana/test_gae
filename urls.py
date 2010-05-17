@@ -80,6 +80,8 @@ urlpatterns += patterns('crgappspanel.views.calendar_resources',
         'calendar_resource_add', name='calendar-resource-add'),
     url(r'^calendar-resources/details/(?P<id>[^/]+)/$',
         'calendar_resource_details', name='calendar-resource-details'),
+    url(r'^calendar-resources/remove/(?P<ids>.+)/$',
+        'calendar_resource_remove', name='calendar-resource-remove'),
 )
 
 

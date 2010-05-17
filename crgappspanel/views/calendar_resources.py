@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext as _
 
+from crauth.decorators import login_required
 from crgappspanel.forms import CalendarResourceForm
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import CalendarResource
@@ -17,6 +18,7 @@ _table_id = Column(None, 'id')
 _table_field_widths = ['%d%%' % x for x in (5, 30, 20, 45)]
 
 
+@login_required
 def calendar_resources(request):
     sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
@@ -32,6 +34,7 @@ def calendar_resources(request):
     })
 
 
+@login_required
 def calendar_resource_add(request):
     if request.method == 'POST':
         form = CalendarResourceForm(request.POST, auto_id=True)
@@ -48,6 +51,7 @@ def calendar_resource_add(request):
     }, in_section='calendar_resources')
 
 
+@login_required
 def calendar_resource_details(request, id=None):
     if not id:
         raise ValueError('id = %s' % id)
@@ -75,3 +79,16 @@ def calendar_resource_details(request, id=None):
         'form': form,
         'saved': request.session.pop('saved', False),
     }, in_section='calendar_resources')
+
+
+@login_required
+def calendar_resource_remove(request, ids=None):
+    if not ids:
+        raise ValueError('ids = %s' % ids)
+    
+    for id in ids.split('/'):
+        resource = CalendarResource.get_by_key_name(id)
+        if resource:
+            resource.delete()
+    
+    return redirect_saved('calendar-resources', request)

@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
+from crauth.decorators import login_required
 from crgappspanel.forms import SharedContactForm
 from crgappspanel.helpers.filters import SharedContactFilter, \
         SharedContactAdvancedFilter, NullFilter
@@ -9,7 +10,6 @@ from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import SharedContact
 from crgappspanel.views.utils import get_sortby_asc, list_attrs, \
         get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch, render
-from crauth.decorators import login_required
 from crlib.navigation import render_with_nav
 
 
@@ -28,9 +28,6 @@ _table_fields = [
     Column(_('Real name'), 'real_name',
         getter=lambda x: '%s %s' % (x.name.given_name or '', x.name.family_name or '')),
     Column(_('Company'), 'company', getter=lambda x: x.extended_properties.get('company', '')),
-    #Column(_('Company/role'), 'company_role', getter=_get_company_role),
-    #Column(_('Given name'), 'given_name', getter=lambda x: x.name.given_name),
-    #Column(_('Family name'), 'family_name', getter=lambda x: x.name.family_name),
     Column(_('Phone numbers'), 'phone_numbers',
         getter=lambda x: list_attrs(x.phone_numbers, 'number')),
     Column(_('E-mails'), 'emails',
@@ -196,8 +193,9 @@ def shared_contact_remove(request, names=None):
         raise ValueError('names = %s' % names)
     
     for name in names.split('/'):
-        user = SharedContact.all().filter('title', name).get()
-        user.delete()
+        contact = SharedContact.all().filter('title', name).get()
+        if contact:
+            contact.delete()
     
     return redirect('shared-contacts')
 
