@@ -4,8 +4,8 @@
 {% block title %}{% trans "Calendar resources" %}{% endblock %}
 
 {% block content %}
-	<a href="{% url calendar-resource-add %}" class="action-link">{% trans "Add calendar resource" %}</a>
 	{% include "snippets/saved_warning.html" %}
+	<a href="{% url calendar-resource-add %}" class="action-link">{% trans "Add calendar resource" %}</a>
 	{% with "calendar resources" as entities_name %}
 		{% include "snippets/objects_table_delete_script.html" %}
 	{% endwith %}

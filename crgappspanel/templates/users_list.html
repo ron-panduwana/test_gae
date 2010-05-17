@@ -4,8 +4,8 @@
 {% block title %}{% trans "Users list" %}{% endblock %}
 
 {% block content %}
-	<a href="{% url user-create %}" class="action-link">Create new user</a>
 	{% include "snippets/saved_warning.html" %}
+	<a href="{% url user-create %}" class="action-link">Create new user</a>
 	{% with "users" as entities_name %}
 		{% include "snippets/objects_table_delete_script.html" %}
 	{% endwith %}
