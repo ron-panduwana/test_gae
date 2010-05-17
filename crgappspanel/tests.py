@@ -64,9 +64,9 @@ class ProvisioningAPITestCase(BaseGDataTestCase):
 
     def testNewUser(self):
         new_user = GAUser(
-            user_name='test',
-            given_name='Test',
-            family_name='Account',
+            user_name=self.USER_NAME,
+            given_name=self.USER_GIVEN_NAME,
+            family_name=self.USER_FAMILY_NAME,
             password='some_password',
         )
         self.assertRaises(AppsForYourDomainException, new_user.put)
@@ -115,13 +115,13 @@ class ProvisioningAPITestCase(BaseGDataTestCase):
         user.password = 'new_password'
         user.put()
 
-    def testReferencePropertyOnNormalModel(self):
-        user = GAUser.get_by_key_name(self.USER_NAME)
-        test_model = TestModel(user=user)
-        test_model.put()
+    #def testReferencePropertyOnNormalModel(self):
+    #    user = GAUser.get_by_key_name(self.USER_NAME)
+    #    test_model = TestModel(user=user)
+    #    test_model.put()
 
-        test_model = TestModel.all().get()
-        self.assertEqual(user, test_model.user)
+    #    test_model = TestModel.all().get()
+    #    self.assertEqual(user, test_model.user)
 
     def testGDataQueryRE(self):
         regexp = GDataQuery._PROPERTY_RE
@@ -459,6 +459,7 @@ class CalendarResourceAPITestCase(BaseGDataTestCase):
         resource.save()
 
         resource = CalendarResource.get_by_key_name('TEST_RESOURCE')
+        self.assertNotEqual(resource, None)
         self.assertEqual(resource.description, None)
 
 
