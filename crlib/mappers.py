@@ -72,6 +72,9 @@ GROUP_EMAIL_PERMISSIONS = (
 )
 
 
+class UserDeletedRecentlyError(Exception): pass
+
+
 class UserEntryMapper(AtomMapper):
     @classmethod
     def create_service(cls, domain):
@@ -89,10 +92,16 @@ class UserEntryMapper(AtomMapper):
         )
 
     def create(self, atom):
-        return self.service.CreateUser(
-            atom.login.user_name, atom.name.family_name,
-            atom.name.given_name, atom.login.password,
-            atom.login.suspended, password_hash_function='SHA-1')
+        from gdata.apps.service import AppsForYourDomainException
+        try:
+            return self.service.CreateUser(
+                atom.login.user_name, atom.name.family_name,
+                atom.name.given_name, atom.login.password,
+                atom.login.suspended, password_hash_function='SHA-1')
+        except AppsForYourDomainException, e:
+            if e.reason == 'UserDeletedRecently':
+                raise UserDeletedRecentlyError()
+            raise
 
     def update(self, atom, old_atom):
         atom.login.hash_function_name = 'SHA-1'
