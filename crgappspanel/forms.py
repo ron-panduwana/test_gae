@@ -424,7 +424,7 @@ class SharedContactForm(forms.Form):
 
 class CalendarResourceForm(forms.Form):
     common_name = forms.CharField(_('Name'))
-    type = forms.CharField(_('Type'))
+    type = forms.CharField(_('Type'), required=False)
     description = forms.CharField(_('Description'), required=False,
         widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
     

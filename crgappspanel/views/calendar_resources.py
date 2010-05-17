@@ -39,7 +39,7 @@ def calendar_resource_add(request):
             resource = form.create(secure_random_chars(20))
             resource.save()
             return redirect_saved('calendar-resource-details', request,
-                name=resource.id)
+                id=resource.id)
     else:
         form = CalendarResourceForm(auto_id=True)
     
