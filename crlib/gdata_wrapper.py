@@ -398,17 +398,22 @@ class _MemcacheDict(object):
         self.namespace = namespace
         self.time = time
 
+    def _key(self, key):
+        from crauth import users
+        domain = users.get_current_user().domain_name
+        return '%s:%s' % (domain, key)
+
     def __getitem__(self, key):
-        return memcache.get(key, namespace=self.namespace)
+        return memcache.get(self._key(key), namespace=self.namespace)
 
     def __setitem__(self, key, value):
         try:
-            memcache.set(key, value, namespace=self.namespace, time=self.time)
+            memcache.set(self._key(key), value, namespace=self.namespace, time=self.time)
         except TypeError:
             logging.warning('Couldn\'t store a value in memcache.')
 
     def __delitem__(self, key):
-        memcache.delete(key, namespace=self.namespace)
+        memcache.delete(self._key(key), namespace=self.namespace)
 
 
 class _GDataModelMetaclass(db.PropertiedClass):
@@ -582,14 +587,8 @@ class AtomMapper(object):
         called by Model.get_by_key_name().
 
     """
-    def __init__(self):
-        self._service = None
-
     @property
     def service(self):
-        if self._service is not None:
-            return self._service
-
         if not hasattr(self, 'create_service'):
             return None
 
@@ -599,6 +598,7 @@ class AtomMapper(object):
             raise users.LoginRequiredError()
 
         domain = user.domain().domain
+        logging.warning('domain: %s' % str(domain))
         service = self.create_service(domain)
         auth_method = getattr(self, 'auth_method', 'client_login')
         if auth_method == 'oauth':
@@ -606,7 +606,6 @@ class AtomMapper(object):
         else:
             user.client_login(service)
 
-        self._service = service
         return service
 
     def clone_atom(self, atom):

@@ -28,7 +28,7 @@ class SetupRequiredError(Exception): pass
 class User(object):
     def __init__(self, email, domain):
         self._email = email
-        self._domain = domain
+        self.domain_name = domain
 
     def nickname(self):
         return self._email.partition('@')[0]
@@ -37,7 +37,7 @@ class User(object):
         return self._email
 
     def domain(self):
-        return AppsDomain.get_by_key_name(self._domain)
+        return AppsDomain.get_by_key_name(self.domain_name)
 
     def _client_login_service(self, service, captcha_token, captcha):
         memcache_key = _SERVICE_MEMCACHE_TOKEN_KEY % (
