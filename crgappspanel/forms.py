@@ -365,13 +365,14 @@ class SharedContactForm(forms.Form):
         phone_number = data['phone_number']
         phone_numbers = [self._phone_number(phone_number)] if phone_number else []
         
-        company = self._ext_prop('company', data['company']) if data['company'] else None
-        role = self._ext_prop('role', data['role']) if data['role'] else None
-        
-        return models.SharedContact(
-            name=name, notes=data['notes'],
-            emails=emails, phone_numbers=phone_numbers,
-            extended_properties=[x for x in (company, role) if x is not None])
+        contact = models.SharedContact(name=name, notes=data['notes'],
+            emails=emails, phone_numbers=phone_numbers)
+        contact.extended_properties = contact.extended_properties or dict()
+        if data['company']:
+            contact.extended_properties['company'] = data['company']
+        if data['role']:
+            contact.extended_properties['role'] = data['role']
+        return contact
     
     def populate(self, shared_contact):
         data = self.cleaned_data
@@ -398,9 +399,6 @@ class SharedContactForm(forms.Form):
     def _phone_number(self, phone_number):
         return models.PhoneNumber(number=phone_number, rel=PHONE_RELS[0])
     
-    def _ext_prop(self, name, value):
-        return models.ExtendedProperty(name=name, value=value)
-    
     def clean(self):
         data = self.cleaned_data
         company = data.get('company')
@@ -409,7 +407,7 @@ class SharedContactForm(forms.Form):
         # role filled => company must be filled
         if not company and role:
             msg = _('Company is required if role is not empty.')
-            self._errors['company'] = forms.ErrorList([msg])
+            self._errors['company'] = ErrorList([msg])
             
             data.pop('company', None)
             data.pop('role', None)
