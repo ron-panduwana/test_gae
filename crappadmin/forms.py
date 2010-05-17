@@ -19,6 +19,7 @@ class DomainForm(forms.Form):
         data = self.cleaned_data
         
         return models.AppsDomain(
+            key_name=data['domain'],
             domain=data['domain'],
             admin_email=data['admin_email'],
             admin_password=data['admin_password'][0],
