@@ -47,6 +47,7 @@ def group_create(request):
     else:
         form = GroupForm(auto_id=True)
     
+    form.fields['id'].help_text = '@%s' % users.get_current_user().domain_name
     return render_with_nav(request, 'group_create.html', {
         'form': form,
     }, in_section='users/groups')
