@@ -12,7 +12,7 @@ class PermWrapper(object):
         self._user = user
 
     def __getattr__(self, name):
-        return self._user.hasperm(name)
+        return self._user.has_perm(name)
 
 
 def users(request):
