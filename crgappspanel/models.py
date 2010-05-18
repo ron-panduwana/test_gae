@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from crlib import gdata_wrapper as gd

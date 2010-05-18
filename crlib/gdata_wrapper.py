@@ -419,11 +419,15 @@ class _MemcacheDict(object):
 
 class _GDataModelMetaclass(db.PropertiedClass):
     def __new__(cls, name, bases, attrs):
-        new_cls = super(_GDataModelMetaclass, cls).__new__(cls, name, bases, attrs)
+        new_cls = super(_GDataModelMetaclass, cls).__new__(
+            cls, name, bases, attrs)
         if name == 'Model':
             return new_cls
 
         new_cls._mapper = new_cls.Mapper
+        new_cls._meta = getattr(new_cls, 'Meta', None)
+        if hasattr(new_cls, 'Meta'):
+            del new_cls.Meta
         del new_cls.Mapper
         new_cls._cache = _MemcacheDict(name, 60 * 60)
         class_prepared.send(sender=new_cls)
