@@ -150,8 +150,6 @@ class UserForm(forms.Form):
     change_password = forms.BooleanField(label=_('Password'), required=False,
         help_text='Require a change of password in the next sign in')
     full_name = fields.CharField2(label=_('Full name'))
-    admin = forms.BooleanField(label=_('Privileges'), required=False,
-        help_text='Administrators can manage all users and settings for this domain')
     nicknames = forms.CharField(label=_('Nicknames'), required=False,
         widget=widgets.SwapWidget(nicknames_c, forms.TextInput(), nicknames_e))
     
@@ -178,7 +176,6 @@ class UserForm(forms.Form):
         user.change_password = data['change_password']
         user.given_name = data['full_name'][0]
         user.family_name = data['full_name'][1]
-        user.admin = data['admin']
     
     def get_nickname(self):
         return self.cleaned_data['nicknames']
