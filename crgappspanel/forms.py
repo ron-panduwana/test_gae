@@ -430,7 +430,7 @@ phone_numbers_e = 'Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link
 
 
 class SharedContactForm(forms.Form):
-    full_name = forms.CharField(label=_('Name'))
+    full_name = forms.CharField(label=_('Display name'))
     real_name = fields.RealNameField(label=_('Real name'), required=False)
     notes = forms.CharField(label=_('Notes'), required=False,
         widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
