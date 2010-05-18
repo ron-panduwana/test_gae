@@ -371,7 +371,7 @@ class UserEmailAliasesForm(forms.Form):
 
 
 class GroupForm(forms.Form):
-    id = forms.CharField(label=_('Identifier'))
+    id = forms.CharField(label=_('Email address'))
     name = forms.CharField(label=_('Name'))
     email_permission = forms.ChoiceField(label=_('Email permission'),
         choices=consts.GROUP_EMAIL_PERMISSION_CHOICES)
