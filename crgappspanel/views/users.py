@@ -26,12 +26,10 @@ POP3_ENABLE_FORS = dict(
 
 
 def _get_status(x):
-    suspended, admin = getattr(x, 'suspended'), getattr(x, 'admin')
-    if x.suspended:
-        return _('Suspended')
-    if x.admin:
-        return _('Administrator')
-    return ''
+    return _('Suspended') if x.suspended else _('Active')
+
+def _get_roles(x):
+    return _('Administrator') if x.admin else ''
 
 def _table_fields_gen(domain):
     return [
@@ -40,7 +38,7 @@ def _table_fields_gen(domain):
             getter=lambda x: '%s@%s' % (x.user_name or '', domain)),
         Column(_('Status'), 'status', getter=_get_status),
         Column(_('Email quota'), 'quota'),
-        Column(_('Roles'), 'roles', getter=lambda x: ''),
+        Column(_('Roles'), 'roles', getter=_get_roles),
         Column(_('Last signed in'), 'last_login', getter=lambda x: '')
     ]
 _table_id = Column(None, 'user_name')
