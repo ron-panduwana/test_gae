@@ -5,7 +5,7 @@ from crlib.navigation import Section
 
 def base(request):
     return (
-        Section('dashboard', _('Dashboard')),
+        #Section('dashboard', _('Dashboard')),
         Section('users', _('Users and Groups'), reverse('users'), (
             Section('groups', _('Groups'), reverse('groups')),
             Section('users', _('Users'), reverse('users')),
