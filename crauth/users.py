@@ -36,9 +36,14 @@ class User(object):
         return self._email.partition('@')[0]
 
     def email(self):
+        """Returns email address of given User."""
         return self._email
 
     def domain(self):
+        """Returns :class:`AppsDomain <crauth.models.AppsDomain>` object the
+        User is part of.
+
+        """
         return AppsDomain.get_by_key_name(self.domain_name)
 
     def _client_login_service(self, service, captcha_token, captcha):
@@ -111,6 +116,15 @@ class User(object):
                 self.email())
 
     def is_admin(self):
+        """Checks if given User is an administrator of its *Google Apps* domain.
+        
+        This check is performed using *GData API* with the help of *OAuth*
+        2-legged authentication method. For this method to work we need access
+        to *Provisioning API* for given domain.
+
+        :returns: ``True`` or ``False``.
+
+        """
         from gdata.apps.service import AppsService
         from gdata.auth import OAuthSignatureMethod
         is_admin = memcache.get(self.email(), namespace='is_current_user_admin')
@@ -129,9 +143,25 @@ class User(object):
         return is_admin
 
     def has_perm(self, permission):
+        """Returns ``True`` if the User has permission ``permission``.
+
+        It simply calls :func:`has_perms` with ``[permission]`` argument.
+        
+        """
         return self.has_perms([permission])
 
     def has_perms(self, perm_list):
+        """Returns ``True`` if the User has all of the permissions in the
+        ``perm_list`` list.
+
+        This method always returns ``True`` if :func:`is_admin` returns
+        ``True``.
+
+        On the other hand, it always returns ``False`` if ``perm_list`` contains
+        permission from :attr:`ADMIN_PERMS <crauth.permissions.ADMIN_PERMS>` and
+        :func:`is_admin` returns ``False``.
+
+        """
         perm_list = set(perm_list)
         is_admin = self.is_admin()
         if is_admin:

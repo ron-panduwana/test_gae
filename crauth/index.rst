@@ -5,6 +5,13 @@ This package provides functionality implementing authentication/authorization
 mechanism needed to integrate the application with *Google Marketplace for Apps*.
 General overview of this module is provided in :doc:`../docs/google_marketplace`.
 
+Users
+*****
+
+.. automodule:: crauth.users
+   :members:
+   :undoc-members:
+
 Views
 *****
 

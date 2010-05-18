@@ -61,17 +61,24 @@ class AppsDomain(BaseModel):
 
 
 class Role(BaseModel):
+    #: Name of the Role.
     name = db.StringProperty(required=True)
+    #: List of permissions.
     permissions = db.StringListProperty()
+    #: AppsDomain this Role is part of.
     domain = db.ReferenceProperty(AppsDomain, required=True)
 
     @classmethod
     def for_domain(cls, domain, **kwargs):
+        """Returs a Query object with ``filter('domain', domain)`` applied."""
         return cls.all(**kwargs).filter('domain', domain)
 
 
 class UserPermissions(BaseModel):
+    #: Email address of user.
     user_email = db.EmailProperty(required=True)
+    #: List of Roles given user is assigned.
     roles = db.ListProperty(db.Key)
+    #: List of permissions given user is assigned.
     permissions = db.StringListProperty()
 
