@@ -3,7 +3,7 @@ from google.appengine.api import users
 from django.conf import settings
 from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse, get_callable, resolve
+from django.core.urlresolvers import reverse, get_callable, resolve, Resolver404
 from django.shortcuts import render_to_response
 from crauth import users
 
@@ -15,12 +15,15 @@ class Section(object):
         self.verbose_name = verbose_name
         self.url = url
         self.perm_list = []
-        if url:
+        if url and not url.startswith('http'):
             # @has_perm and @has_perms decorators adnotate views with perm_list
             # parameter and we simply reuse this parameter here.
-            view, args, kwargs = resolve(url)
-            if hasattr(view, 'perm_list'):
-                self.perm_list = view.perm_list
+            try:
+                view, args, kwargs = resolve(url)
+                if hasattr(view, 'perm_list'):
+                    self.perm_list = view.perm_list
+            except Resolver404:
+                pass
         self.children = children or []
         self.parent = parent
         self.selected = False
