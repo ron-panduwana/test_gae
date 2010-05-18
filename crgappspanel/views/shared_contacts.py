@@ -24,7 +24,7 @@ def _get_company_role(x):
 
 
 _table_fields = [
-    Column(_('Name'), 'full_name', getter=lambda x: x.name.full_name, link=True),
+    Column(_('Display name'), 'full_name', getter=lambda x: x.name.full_name, link=True),
     Column(_('Real name'), 'real_name',
         getter=lambda x: '%s %s' % (x.name.given_name or '', x.name.family_name or '')),
     Column(_('Company'), 'company', getter=lambda x: x.extended_properties.get('company', '')),
