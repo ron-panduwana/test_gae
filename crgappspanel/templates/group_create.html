@@ -19,6 +19,10 @@
 	{% with form.email_permission as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
 	
 	<br/><br/>
+	<label for="description">{% trans "Description" %}</label><br/>
+	{% with form.description as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
+	
+	<br/><br/>
 	<input type="submit" value="{% trans "create" %}" class="default"/>
 	<input type="button" onclick="window.open('{% url groups %}', '_self')" value="{% trans "cancel" %}"/>
 </form>
