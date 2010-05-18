@@ -7,7 +7,7 @@
 <form action="{% url group-create %}" method="POST" class="create">
 	<h1>{% trans "Create new group" %}</h1><br/>
 	
-	<label for="id">{% trans "Identifier" %}</label><br/>
+	<label for="id">{% trans "Email address" %}</label><br/>
 	{% with form.id as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
 	
 	<br/><br/>
