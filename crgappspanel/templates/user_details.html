@@ -53,6 +53,7 @@ function showDialog(dialog) {
 			{% with form.password as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.change_password as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.full_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.admin as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.nicknames as field %}{% with full_nicknames as items %}
 				{% include "snippets/form_field_with_items.html" %}
 			{% endwith %}{% endwith %}
