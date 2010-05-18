@@ -12,11 +12,11 @@ from crgappspanel.views.utils import get_sortby_asc, render, redirect_saved
 from crlib.navigation import render_with_nav
 from crgappspanel.navigation import group_nav
 
-_table_fields = [
+_table_fields = (
     Column(_('Name'), 'name', link=True),
     Column(_('Email address'), 'email', getter=lambda x: x.id),
     Column(_('Email permission'), 'email_permission'),
-]
+)
 _table_id = Column(None, 'id', getter=lambda x: x.id.partition('@')[0])
 _table_widths = ['%d%%' % x for x in (5, 40, 40, 15)]
 
