@@ -22,11 +22,11 @@ os.environ['USER_IS_ADMIN'] = '1'
 with open('google_apps.txt') as f:
     lines = f.readlines()
 email, password, domain = [line.strip() for line in lines]
-_set_testing_user(email, password, domain)
+_set_testing_user(email, domain)
 
 
 class BaseGDataTestCase(unittest.TestCase):
-    USER_NAME = 'test_account'
+    USER_NAME = 'test_account2'
     USER_GIVEN_NAME = 'Test'
     USER_FAMILY_NAME = 'Account'
     NUMBER_OF_USERS = 5
@@ -461,21 +461,4 @@ class CalendarResourceAPITestCase(BaseGDataTestCase):
         resource = CalendarResource.get_by_key_name('TEST_RESOURCE')
         self.assertNotEqual(resource, None)
         self.assertEqual(resource.description, None)
-
-
-class RoleCreationTestCase(unittest.TestCase):
-    def setUp(self):
-        db.delete(Role.all().fetch(100))
-
-    def testCreateRole(self):
-        Role.create('test_role', 'Some description')
-        roles = Role.all().fetch(2)
-        self.assertEqual(len(roles), 1)
-        role = roles[0]
-        self.assertEqual(role.name, 'test_role')
-
-    def testGetByName(self):
-        role_a = Role.create('test_role', 'Some description')
-        role_b = Role.get_by_name('test_role')
-        self.assertEqual(role_a, role_b)
 

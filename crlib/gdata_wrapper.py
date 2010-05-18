@@ -9,6 +9,7 @@ from atom import AtomBase
 from gdata.data import ExtendedProperty
 from gdata.client import GDClient
 from gdata.service import GDataService
+from crlib.signals import class_prepared
 
 
 BadValueError = db.BadValueError
@@ -425,6 +426,7 @@ class _GDataModelMetaclass(db.PropertiedClass):
         new_cls._mapper = new_cls.Mapper
         del new_cls.Mapper
         new_cls._cache = _MemcacheDict(name, 60 * 60)
+        class_prepared.send(sender=new_cls)
 
         return new_cls
 

@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
 from crauth import users
-from crauth.decorators import login_required
+from crauth.decorators import has_perm
 from crgappspanel.forms import GroupForm, GroupMembersForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
@@ -21,7 +21,7 @@ _table_id = Column(None, 'id', getter=lambda x: x.id.partition('@')[0])
 _table_widths = ['%d%%' % x for x in (5, 40, 40, 15)]
 
 
-@login_required
+@has_perm('read_gagroup')
 def groups(request):
     sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
@@ -35,7 +35,7 @@ def groups(request):
     })
 
 
-@login_required
+@has_perm('add_gagroup')
 def group_create(request):
     if request.method == 'POST':
         form = GroupForm(request.POST, auto_id=True)
@@ -52,7 +52,7 @@ def group_create(request):
     }, in_section='users/groups')
 
 
-@login_required
+@has_perm('change_gagroup')
 def group_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -85,7 +85,7 @@ def group_details(request, name=None):
     }, extra_nav=group_nav(name))
 
 
-@login_required
+@has_perm('change_gagroup')
 def group_members(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -142,7 +142,7 @@ def group_members(request, name=None):
     }, extra_nav=group_nav(name))
 
 
-@login_required
+@has_perm('change_gagroup')
 def group_remove(request, names=None):
     if not names:
         ValueError('names = %s' % names)
@@ -156,7 +156,7 @@ def group_remove(request, names=None):
     return redirect_saved('groups', request)
 
 
-@login_required
+@has_perm('change_gagroup')
 def group_remove_owner(request, name=None, owner=None):
     if not all((name, owner)):
         raise ValueError('name = %s, owner = %s' % (name, owner))
@@ -173,7 +173,7 @@ def group_remove_owner(request, name=None, owner=None):
     return redirect_saved('group-members', request, name=group.get_pure_id())
 
 
-@login_required
+@has_perm('change_gagroup')
 def group_remove_member(request, name=None, member=None):
     if not all((name, member)):
         raise ValueError('name = %s, member = %s' % (name, member))

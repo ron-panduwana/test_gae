@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
-from crauth.decorators import login_required
+from crauth.decorators import has_perm
 from crgappspanel.forms import SharedContactForm
 from crgappspanel.helpers.filters import SharedContactFilter, \
         SharedContactAdvancedFilter, NullFilter
@@ -37,7 +37,7 @@ _table_id = _table_fields[0]
 _table_widths = ['%d%%' % x for x in (5, 20, 20, 15, 10, 30)]
 
 
-@login_required
+@has_perm('read_sharedcontact')
 def shared_contacts(request):
     sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
@@ -88,7 +88,7 @@ def shared_contacts(request):
     })
 
 
-@login_required
+@has_perm('add_sharedcontact')
 def shared_contact_add(request):
     if request.method == 'POST':
         form = SharedContactForm(request.POST, auto_id=True)
@@ -110,7 +110,7 @@ def shared_contact_add(request):
     }, in_section='shared_contacts')
 
 
-@login_required
+@has_perm('change_sharedcontact')
 def shared_contact_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -187,7 +187,7 @@ def shared_contact_details(request, name=None):
     }, in_section='shared_contacts')
 
 
-@login_required
+@has_perm('change_sharedcontact')
 def shared_contact_remove(request, names=None):
     if not names:
         raise ValueError('names = %s' % names)
@@ -200,7 +200,7 @@ def shared_contact_remove(request, names=None):
     return redirect('shared-contacts')
 
 
-@login_required
+@has_perm('change_sharedcontact')
 def shared_contact_remove_email(request, name=None, email=None):
     if not all((name, email)):
         raise ValueError('name = %s, email = %s' % (name, email))
@@ -218,7 +218,7 @@ def shared_contact_remove_email(request, name=None, email=None):
     return redirect_saved('shared-contact-details', request, name=name)
 
 
-@login_required
+@has_perm('change_sharedcontact')
 def shared_contact_remove_phone(request, name=None, phone=None):
     if not all((name, phone)):
         raise ValueError('name = %s, phone = %s' % (name, phone))

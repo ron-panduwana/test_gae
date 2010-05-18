@@ -7,12 +7,14 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django import forms
+from google.appengine.ext import db
 from google.appengine.api import memcache
 from gdata.service import GDataService, CaptchaRequired, BadAuthentication
 from gdata.client import GDClient, CaptchaChallenge
 from gdata.gauth import ClientLoginToken, TwoLeggedOAuthHmacToken
 from gdata.apps.service import AppsForYourDomainException
-from crauth.models import AppsDomain
+from crauth.models import AppsDomain, UserPermissions, Role
+from crauth.permissions import ADMIN_PERMS
 
 
 _SERVICE_MEMCACHE_TOKEN_KEY = 'service_client_login_token:%s:%s'
@@ -108,6 +110,47 @@ class User(object):
                 settings.OAUTH_SECRET,
                 self.email())
 
+    def is_admin(self):
+        from gdata.apps.service import AppsService
+        from gdata.auth import OAuthSignatureMethod
+        is_admin = memcache.get(self.email(), namespace='is_current_user_admin')
+        if is_admin is not None:
+            return is_admin
+        service = AppsService(domain=self.domain_name)
+        service.SetOAuthInputParameters(
+            OAuthSignatureMethod.HMAC_SHA1,
+            settings.OAUTH_CONSUMER, settings.OAUTH_SECRET,
+            two_legged_oauth=True)
+        service.debug = True
+        apps_user = service.RetrieveUser(self.email().rpartition('@')[0])
+        is_admin = apps_user is not None and apps_user.login.admin == 'true'
+        memcache.set(self.email(), is_admin, 60 * 60,
+                     namespace='is_current_user_admin')
+        return is_admin
+
+    def has_perm(self, permission):
+        return self.has_perms([permission])
+
+    def has_perms(self, perm_list):
+        perm_list = set(perm_list)
+        is_admin = self.is_admin()
+        if is_admin:
+            return True
+
+        if perm_list.intersection(set(ADMIN_PERMS)):
+            return is_admin
+
+        permissions = UserPermissions.get_or_insert(
+            key_name=self._email,
+            user_email=self._email)
+        if not permissions:
+            return False
+        roles = [role for role in Role.get(permissions.roles) if role]
+        all_perms = set(permissions.permissions)
+        for role in roles:
+            all_perms.update(role.permissions)
+        return all_perms.issuperset(perm_list)
+
 
 class UsersMiddleware(object):
     def process_request(self, request):
@@ -171,28 +214,13 @@ def get_current_user():
 
 
 def is_current_user_admin():
-    from gdata.apps.service import AppsService
-    from gdata.auth import OAuthSignatureMethod
     user = get_current_user()
     if user is None:
         return False
-    is_admin = memcache.get(user.email(), namespace='is_current_user_admin')
-    if is_admin is not None:
-        return is_admin
-    service = AppsService(domain=user.domain().domain)
-    service.SetOAuthInputParameters(
-        OAuthSignatureMethod.HMAC_SHA1,
-        settings.OAUTH_CONSUMER, settings.OAUTH_SECRET,
-        two_legged_oauth=True)
-    service.debug = True
-    apps_user = service.RetrieveUser(user.email().rpartition('@')[0])
-    is_admin = apps_user is not None and apps_user.login.admin == 'true'
-    memcache.set(user.email(), is_admin, 60 * 60,
-                 namespace='is_current_user_admin')
-    return is_admin
+    return user.is_admin()
 
 
-def _set_testing_user(email, password, domain):
+def _set_testing_user(email, domain):
     os.environ[_ENVIRON_EMAIL] = email
     os.environ[_ENVIRON_DOMAIN] = domain
 

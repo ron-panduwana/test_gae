@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
 import crauth
-from crauth.decorators import login_required
+from crauth.decorators import login_required, has_perm
 from crgappspanel import consts
 from crgappspanel.forms import UserForm, UserGroupsForm, \
     UserEmailSettingsForm, UserEmailFiltersForm, UserEmailAliasesForm
@@ -47,7 +47,7 @@ _table_id = Column(None, 'user_name')
 _table_widths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
 
 
-@login_required
+@has_perm('read_gauser')
 def users(request):
     domain = crauth.users.get_current_user().domain_name
     _table_fields = _table_fields_gen(domain)
@@ -64,7 +64,7 @@ def users(request):
     })
 
 
-@login_required
+@has_perm('add_gauser')
 def user_create(request):
     domain = crauth.users.get_current_user().domain_name
     
@@ -86,7 +86,7 @@ def user_create(request):
     }, in_section='users/users')
 
 
-@login_required
+@has_perm('change_gauser')
 def user_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -131,7 +131,7 @@ def user_details(request, name=None):
     }, extra_nav=user_nav(name))
 
 
-@login_required
+@has_perm('change_gauser')
 def user_groups(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -176,7 +176,7 @@ def user_groups(request, name=None):
     }, extra_nav=user_nav(name))
 
 
-@login_required
+@has_perm('change_gauser')
 def user_email_settings(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -250,6 +250,7 @@ def user_email_settings(request, name=None):
     }, extra_nav=user_nav(name))
 
 
+@has_perm('change_gauser')
 def user_email_filters(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -280,6 +281,7 @@ def user_email_filters(request, name=None):
     }, extra_nav=user_nav(name))
 
 
+@has_perm('change_gauser')
 def user_email_aliases(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -307,6 +309,7 @@ def user_email_aliases(request, name=None):
     }, extra_nav=user_nav(name))
 
 
+@has_perm('change_gauser')
 def user_suspend_restore(request, name=None, suspend=None):
     if not name or suspend is None:
         raise ValueError('name = %s, suspend = %s' % (name, str(suspend)))
@@ -318,17 +321,17 @@ def user_suspend_restore(request, name=None, suspend=None):
     return redirect('user-details', name=user.user_name)
 
 
-@login_required
+@has_perm('change_gauser')
 def user_suspend(request, name=None):
     return user_suspend_restore(request, name=name, suspend=True)
 
 
-@login_required
+@has_perm('change_gauser')
 def user_restore(request, name=None):
     return user_suspend_restore(request, name=name, suspend=False)
 
 
-@login_required
+@has_perm('change_gauser')
 def user_remove(request, names=None):
     if not names:
         raise ValueError('names = %s' % names)
@@ -340,7 +343,7 @@ def user_remove(request, names=None):
     return redirect_saved('users', request)
 
 
-@login_required
+@has_perm('change_gauser')
 def user_remove_nickname(request, name=None, nickname=None):
     if not all((name, nickname)):
         raise ValueError('name = %s, nickname = %s' % (name, nickname))

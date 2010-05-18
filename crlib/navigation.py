@@ -3,8 +3,9 @@ from google.appengine.api import users
 from django.conf import settings
 from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse, get_callable
+from django.core.urlresolvers import reverse, get_callable, resolve
 from django.shortcuts import render_to_response
+from crauth import users
 
 
 class Section(object):
@@ -13,6 +14,13 @@ class Section(object):
         self.name = name
         self.verbose_name = verbose_name
         self.url = url
+        self.perm_list = []
+        if url:
+            # @has_perm and @has_perms decorators adnotate views with perm_list
+            # parameter and we simply reuse this parameter here.
+            view, args, kwargs = resolve(url)
+            if hasattr(view, 'perm_list'):
+                self.perm_list = view.perm_list
         self.children = children or []
         self.parent = parent
         self.selected = False
@@ -42,15 +50,23 @@ def _clone(sections):
     return [section.clone() for section in sections]
 
 
-def _mark_sections(path, sections, parents=[]):
-    for section in sections:
+def _mark_sections(path, sections, parents=[], user=None):
+    sections = list(sections)
+    for section in sections[:]:
+        if section.perm_list:
+            if not user:
+                user = users.get_current_user()
+            if not user or not user.has_perms(section.perm_list):
+                sections.remove(section)
+                continue
         if section.url == path:
             section.selected = True
             for parent in parents:
                 parent.selected = True
         else:
             section.selected = False
-        _mark_sections(path, section.children, parents + [section])
+        section.children = _mark_sections(
+            path, section.children, parents + [section], user=user)
     return sections
 
 

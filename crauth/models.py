@@ -3,6 +3,11 @@ from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from crauth.licensing import LICENSE_STATES, STATE_ACTIVE
+from crauth.permissions import class_prepared_callback
+from crlib.signals import class_prepared
+
+
+class_prepared.connect(class_prepared_callback)
 
 
 class Association(db.Model):
@@ -54,4 +59,19 @@ class AppsDomain(BaseModel):
         result = client.get_domain_info(domain).entry[0]
         return result.content.entity.state.text == STATE_ACTIVE
 
+
+class Role(BaseModel):
+    name = db.StringProperty(required=True)
+    permissions = db.StringListProperty()
+    domain = db.ReferenceProperty(AppsDomain, required=True)
+
+    @classmethod
+    def for_domain(cls, domain, **kwargs):
+        return cls.all(**kwargs).filter('domain', domain)
+
+
+class UserPermissions(BaseModel):
+    user_email = db.EmailProperty(required=True)
+    roles = db.ListProperty(db.Key)
+    permissions = db.StringListProperty()
 

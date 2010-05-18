@@ -22,6 +22,15 @@ class GAUser(gd.Model):
     quota = gd.IntegerProperty('quota.limit')
     change_password = gd.BooleanProperty('login.change_password', default=False)
     email_settings = mappers.EmailSettingsProperty()
+
+    @classmethod
+    def get_current_user(cls):
+        user = users.get_current_user()
+        if user:
+            return cls.get_by_key_name(user.email().rpartition('@')[0])
+
+    def has_perm(self, permission):
+        pass
     
     def get_full_name(self):
         return '%s %s' % (self.given_name, self.family_name)
@@ -211,42 +220,4 @@ class CalendarResource(gd.Model):
     common_name = gd.StringProperty('resource_common_name', required=True)
     description = gd.StringProperty('resource_description')
     type = gd.StringProperty('resource_type')
-
-
-class Role(BaseModel):
-    name = db.StringProperty()
-    description = db.StringProperty()
-    #privileges = db.ListProperty()
-
-    @classmethod
-    def get_by_name(cls, name):
-        return cls.get_by_key_name('role:%s' % name)
-
-    @classmethod
-    def create(cls, name, description):
-        def txn():
-            role = cls(
-                key_name='role:%s' % name,
-                name=name,
-                description=description)
-            role.put()
-            return role
-        return db.run_in_transaction(txn)
-
-    @classmethod
-    def get_user_role(cls, user):
-        return _UserRoleMapping.get_by_key_name(user.id).role
-
-    def add_user(self, user):
-        def txn(user_id, role_key):
-            mapping = _UserRoleMapping(
-                key_name=user.id,
-                role=role_key)
-            mapping.put()
-            return mapping
-        db.run_in_transaction(user.id, self.key())
-
-
-class _UserRoleMapping(BaseModel):
-    roles = db.ListProperty(db.Key)
 
