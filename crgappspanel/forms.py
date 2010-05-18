@@ -385,7 +385,7 @@ class GroupForm(forms.Form):
             id=data['id'],
             name=data['name'],
             email_permission=data['email_permission'],
-            description='')
+            description=data['description'])
     
     def populate(self, group):
         data = self.cleaned_data
