@@ -48,6 +48,9 @@ urlpatterns += patterns('crgappspanel.views.users',
 urlpatterns += patterns('crgappspanel.views.roles',
     url(r'^roles/list/$', 'roles', name='roles'),
     url(r'^roles/create/$', 'role_create', name='role-create'),
+    url(r'^roles/details/(?P<name>[^/]+)/$',
+        'role_details', name='role-details'),
+    url(r'^roles/remove/(?P<names>.+)/$', 'role_remove', name='role-remove'),
 )
 
 urlpatterns += patterns('crgappspanel.views.groups',

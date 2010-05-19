@@ -430,11 +430,11 @@ class GroupMembersForm(forms.Form):
 PERMISSION_CHOICES = crauth.permissions.permission_choices(False)
 PERMISSION_NAMES = tuple(perm[0] for perm in PERMISSION_CHOICES)
 OBJECT_TYPES = (
-    ('gauser', _('users')),
-    ('gagroup', _('groups')),
-    ('role', _('roles')),
-    ('sharedcontact', _('shared contacts')),
-    ('calendarresource', _('calendar resources')),
+    ('gauser', _('Users')),
+    ('gagroup', _('Groups')),
+    ('role', _('Roles')),
+    ('sharedcontact', _('Shared contacts')),
+    ('calendarresource', _('Calendar resources')),
 )
 
 
@@ -497,6 +497,17 @@ class RoleForm(forms.Form):
         
         return crauth.models.Role(name=data['name'],
             permissions=permissions, domain=domain)
+    
+    def populate(self, role):
+        data = self.cleaned_data
+        
+        permissions = []
+        for perm in PERMISSION_NAMES:
+            if perm in data and data[perm]:
+                permissions.append(perm)
+        
+        role.name = data['name']
+        role.permissions = permissions
     
     def _add_obj_type_fields(self, obj_type, actions, name=None):
         actions = list(actions)

@@ -240,18 +240,18 @@ table.details {
 	border-collapse: collapse;
 }
 
-table.details th, table.details td {
+table.details > tbody > tr > th, table.details > tbody > tr > td {
 	border-top: 1px solid #ccc;
 	vertical-align: top;
 	padding: 10px 0 15px 0;
 }
 
-table.details tr.noline th, table.details tr.noline td {
+table.details > tbody > tr.noline > th, table.details > tbody > tr.noline > td {
 	border-top-style: none;
 	padding-top: 0px;
 }
 
-table.details th {
+table.details > tbody > tr > th {
 	padding-right: 20px;
 	width: 12em;
 	text-align: right;

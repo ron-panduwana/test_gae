@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Role details" %}: {{ role.name }}{% endblock %}
+
+{% block content %}
+{% include "snippets/saved_warning.html" %}
+<form action="{% url role-details role.name %}" method="POST" class="details">
+	{% include "snippets/group_header.html" %}
+	<table class="details" width="100%">
+		<tbody>
+			{% with form.name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			<tr>
+				<th>Permissions</th>
+				<td>
+					<table class="roles">
+						<col width="125"/>
+						<col width="50"/>
+						<col width="50"/>
+						<col width="50"/>
+						<tr>
+							<td></td>
+							<td style="padding: 0px 5px">Add</td>
+							<td style="padding: 0px 5px">Change</td>
+							<td style="padding: 0px 5px">Read</td>
+						</tr>
+						{% for field_group in form.field_groups %}
+						<tr>
+							<td style="text-align: left">{{ field_group.name }}</td>
+							<td>{{ field_group.add|default_if_none:'' }}</td>
+							<td>{{ field_group.change|default_if_none:'' }}</td>
+							<td>{{ field_group.read|default_if_none:'' }}</td>
+						</tr>
+						{% endfor %}
+					</table>
+				</td>
+			</tr>
+			{% include "snippets/form_save_reset.html" %}
+		</tbody>
+	</table>
+</form>
+{% endblock %}
