@@ -504,8 +504,21 @@ class RoleForm(forms.Form):
             if perm in data and data[perm]:
                 permissions.append(perm)
         
-        role.name = data['name']
-        role.permissions = permissions
+        def txn(role_key):
+            role = crauth.models.Role.get(role_key)
+            domain = role.parent()
+            new_role = domain.create_role(data['name'], permissions)
+            role.delete()
+            return new_role
+
+        if role.name != data['name']:
+            from google.appengine.ext import db
+            new_role = db.run_in_transaction(txn, role.key())
+            return new_role
+        else:
+            role.permissions = permissions
+            role.save()
+            return role
     
     def _add_obj_type_fields(self, obj_type, actions, name=None):
         actions = list(actions)

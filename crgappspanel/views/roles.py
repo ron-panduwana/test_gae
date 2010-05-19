@@ -66,8 +66,7 @@ def role_details(request, name=None):
     if request.method == 'POST':
         form = RoleForm(request.POST, auto_id=True)
         if form.is_valid():
-            form.populate(role)
-            role.save()
+            role = form.populate(role)
             return redirect_saved('role-details', request, name=role.name)
     else:
         initial = dict(name=role.name)
