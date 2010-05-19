@@ -1,0 +1,8 @@
+{% spaceless %}
+{% load i18n %}
+{% if exists %}
+<div class="error">
+	{% trans "Entity with specified name already exists, please choose another one." %}
+</div>
+{% endif %}
+{% endspaceless %}
