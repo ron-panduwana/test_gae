@@ -1,5 +1,8 @@
+{% spaceless %}
+{% load i18n %}
 {% if saved %}
 <div class="warning">
-	Changes were saved, although it may take up to 24 hours for new data to propagate through Google services.
+	{% trans "Changes have been saved, although it may take up to 24 hours for new data to propagate through Google services." %}
 </div>
 {% endif %}
+{% endspaceless %}

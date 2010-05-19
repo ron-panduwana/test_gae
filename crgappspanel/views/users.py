@@ -11,7 +11,7 @@ from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname, GAGroup, GAGroupOwner, GAGroupMember
 from crgappspanel.views.utils import get_sortby_asc, secure_random_chars, \
-        redirect_saved, render
+        redirect_saved, render, exists_goto
 from crlib.navigation import render_with_nav
 from crgappspanel.navigation import user_nav
 
@@ -69,6 +69,7 @@ def users(request):
 
 
 @login_required
+@exists_goto('user-create')
 def user_create(request):
     domain = crauth.users.get_current_user().domain_name
     
@@ -87,6 +88,7 @@ def user_create(request):
     return render_with_nav(request, 'user_create.html', {
         'form': form,
         'temp_password': temp_password,
+        'exists': request.session.pop('exists', False),
     }, in_section='users/users')
 
 

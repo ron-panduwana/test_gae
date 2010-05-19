@@ -71,6 +71,26 @@ def redirect_saved(view, request, *args, **kwargs):
     return response
 
 
+def exists_goto(view):
+    from functools import wraps
+    from gdata.apps.service import AppsForYourDomainException
+    
+    def error_goto2(f):
+        @wraps(f)
+        def new_f(request, *args, **kwargs):
+            try:
+                return f(request, *args, **kwargs)
+            except AppsForYourDomainException, ex:
+                if ex.reason == 'EntityExists':
+                    response = redirect(view)
+                    request.session['exists'] = True
+                    return response
+                else:
+                    raise
+        return new_f
+    return error_goto2
+
+
 class QueryString(object):
     def __init__(self):
         self.qs = ''
