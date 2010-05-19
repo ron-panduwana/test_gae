@@ -25,24 +25,30 @@ POP3_ENABLE_FORS = dict(
     en=consts.EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON)
 
 
+def _get_roles(x):
+    return _('Administrator') if x.admin else ''
+
 def _get_status(x):
     return _('Suspended') if x.suspended else _('Active')
 
-def _get_roles(x):
-    return _('Administrator') if x.admin else ''
+def _get_quota(x):
+    quota = x.quota
+    if quota > 1024:
+        return '%d GB' % (quota // 1024)
+    else:
+        return '%s MB' % quota
 
 def _table_fields_gen(domain):
     return [
         Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
         Column(_('Username'), 'username',
-            getter=lambda x: '%s@%s' % (x.user_name or '', domain)),
+            getter=lambda x: '%s@%s' % (x.user_name, domain)),
         Column(_('Status'), 'status', getter=_get_status),
-        Column(_('Email quota'), 'quota'),
         Column(_('Roles'), 'roles', getter=_get_roles),
-        Column(_('Last signed in'), 'last_login', getter=lambda x: '')
+        Column(_('Email quota'), 'quota', getter=_get_quota),
     ]
 _table_id = Column(None, 'user_name')
-_table_widths = ['%d%%' % x for x in (5, 15, 25, 15, 15, 15, 10)]
+_table_widths = ['%d%%' % x for x in (5, 20, 30, 15, 20, 10)]
 
 
 @login_required
