@@ -427,8 +427,7 @@ class GroupMembersForm(forms.Form):
 ################################################################################
 
 
-PERMISSION_CHOICES = crauth.permissions.permission_choices(False)
-PERMISSION_NAMES = tuple(perm[0] for perm in PERMISSION_CHOICES)
+PERMISSION_NAMES = crauth.permissions.permission_names(False)
 OBJECT_TYPES = (
     ('gauser', _('Users')),
     ('gagroup', _('Groups')),
