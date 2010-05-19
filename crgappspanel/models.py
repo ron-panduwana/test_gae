@@ -135,11 +135,7 @@ class GAGroup(gd.Model):
 class GANickname(gd.Model):
     Mapper = mappers.NicknameEntryMapper()
     class Meta:
-        permissions = (
-            ('read_ganickname', _('View nicknames in your domain')),
-            ('add_ganickname', _('Create nicknames in your domain')),
-            ('change_ganickname', _('Modify nicknames in your domain')),
-        )
+        permissions = ()
 
     nickname = gd.StringProperty('nickname.name', required=True)
     user_name = gd.StringProperty('login.user_name')
