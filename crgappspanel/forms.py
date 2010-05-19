@@ -495,8 +495,7 @@ class RoleForm(forms.Form):
             if perm in data and data[perm]:
                 permissions.append(perm)
         
-        return crauth.models.Role(name=data['name'],
-            permissions=permissions, domain=domain)
+        return domain.create_role(data['name'], permissions)
     
     def populate(self, role):
         data = self.cleaned_data

@@ -3,7 +3,8 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
 from crauth.decorators import login_required, has_perm
-from crauth.models import Role
+from crauth.models import AppsDomain, Role
+from crauth import users
 from crgappspanel.forms import RoleForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
@@ -22,17 +23,11 @@ _table_id = _table_fields[0]
 _table_widths = tuple('%d%%' % x for x in (5, 20, 75))
 
 
-def _get_domain():
-    from crauth import users
-    from crauth.models import AppsDomain
-    return AppsDomain.get_by_key_name(users.get_current_user().domain_name)
-
-
-@login_required
+@has_perm('read_role')
 def roles(request):
     sortby, asc = get_sortby_asc(request, _table_field_names)
     
-    roles = Role.for_domain(_get_domain()).fetch(1000)
+    roles = users.get_current_domain().roles().fetch(1000)
     
     table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
     table.sort(roles)
@@ -43,12 +38,12 @@ def roles(request):
     })
 
 
-@login_required
+@has_perm('add_role')
 def role_create(request):
     if request.method == 'POST':
         form = RoleForm(request.POST, auto_id=True)
         if form.is_valid():
-            role = form.create(_get_domain())
+            role = form.create(users.get_current_domain())
             role.save()
             return redirect_saved('role-details', request, name=role.name)
     else:
@@ -59,12 +54,12 @@ def role_create(request):
     }, in_section='users/roles')
 
 
-@login_required
+@has_perm('change_role')
 def role_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
     
-    role = Role.for_domain(_get_domain()).filter('name', name).get()
+    role = users.get_current_domain().get_role(name)
     if not role:
         return redirect('roles')
     
@@ -87,13 +82,13 @@ def role_details(request, name=None):
     }, in_section='users/roles')
 
 
-@login_required
+@has_perm('change_role')
 def role_remove(request, names=None):
     if not names:
         raise ValueError('names = %s' % names)
     
     for name in names.split('/'):
-        role = Role.for_domain(_get_domain()).filter('name', name).get()
+        role = users.get_current_domain().get_role(name)
         if role:
             role.delete()
     

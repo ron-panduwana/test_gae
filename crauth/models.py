@@ -59,19 +59,29 @@ class AppsDomain(BaseModel):
         result = client.get_domain_info(domain).entry[0]
         return result.content.entity.state.text == STATE_ACTIVE
 
+    def roles(self):
+        return Role.all().ancestor(self)
+
+    def get_role(self, role_name):
+        return Role.get_by_key_name(role_name, parent=self)
+
+    def create_role(self, role_name, permissions=[]):
+        role = Role(
+            key_name=role_name,
+            parent=self,
+            permissions=permissions,
+        )
+        role.put()
+        return role
+
 
 class Role(BaseModel):
-    #: Name of the Role.
-    name = db.StringProperty(required=True)
     #: List of permissions.
     permissions = db.StringListProperty()
-    #: AppsDomain this Role is part of.
-    domain = db.ReferenceProperty(AppsDomain, required=True)
 
-    @classmethod
-    def for_domain(cls, domain, **kwargs):
-        """Returs a Query object with ``filter('domain', domain)`` applied."""
-        return cls.all(**kwargs).filter('domain', domain)
+    @property
+    def name(self):
+        return self.key().name()
 
 
 class UserPermissions(BaseModel):
