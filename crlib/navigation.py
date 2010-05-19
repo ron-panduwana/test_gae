@@ -10,12 +10,12 @@ from crauth import users
 
 class Section(object):
     def __init__(self, name, verbose_name, url=None, children=None,
-                 parent=None):
+                 parent=None, perm_list=None):
         self.name = name
         self.verbose_name = verbose_name
         self.url = url
-        self.perm_list = []
-        if url and not url.startswith('http'):
+        self.perm_list = perm_list or []
+        if not self.perm_list and url and not url.startswith('http'):
             # @has_perm and @has_perms decorators adnotate views with perm_list
             # parameter and we simply reuse this parameter here.
             try:
