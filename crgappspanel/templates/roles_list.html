@@ -5,7 +5,7 @@
 
 {% block content %}
 	{% include "snippets/saved_warning.html" %}
-	{#<a href="{% url user-create %}" class="action-link">Create new user</a>#}
+	<a href="{% url role-create %}" class="action-link">{% trans "Create new role" %}</a>
 	{% with "roles" as entities_name %}
 		{% include "snippets/objects_table_delete_script.html" %}
 	{% endwith %}

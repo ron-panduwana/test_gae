@@ -9,6 +9,8 @@ def encode_js(text):
 
 
 class DoubleWidget(forms.MultiWidget):
+    join_with = u' '
+    
     def __init__(self, widget1, widget2):
         widgets = (widget1, widget2)
         super(DoubleWidget, self).__init__(widgets)
@@ -19,10 +21,12 @@ class DoubleWidget(forms.MultiWidget):
         return value
     
     def format_output(self, rendered_widgets):
-        return mark_safe(u' '.join(rendered_widgets))
+        return mark_safe(self.join_with.join(rendered_widgets))
 
 
 class TripleWidget(forms.MultiWidget):
+    join_with = u' '
+    
     def __init__(self, widget1, widget2, widget3):
         widgets = (widget1, widget2, widget3)
         super(TripleWidget, self).__init__(widgets)
@@ -33,7 +37,7 @@ class TripleWidget(forms.MultiWidget):
         return value
     
     def format_output(self, rendered_widgets):
-        return mark_safe(u' '.join(rendered_widgets))
+        return mark_safe(self.join_with.join(rendered_widgets))
 
 
 class SwapWidget(forms.Widget):

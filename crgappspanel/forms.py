@@ -2,6 +2,7 @@ from django import forms
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
 
+import crauth
 from crgappspanel import consts, models
 from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
@@ -419,6 +420,98 @@ class GroupMembersForm(forms.Form):
     member = forms.EmailField(label=_('Members'), required=False,
         widget=widgets.SwapWidget(member_c,
             forms.TextInput(attrs={'class':'long'}), member_e))
+
+
+################################################################################
+#                                    ROLES                                     #
+################################################################################
+
+
+PERMISSION_CHOICES = crauth.permissions.permission_choices(False)
+PERMISSION_NAMES = tuple(perm[0] for perm in PERMISSION_CHOICES)
+OBJECT_TYPES = (
+    ('gauser', _('users')),
+    ('gagroup', _('groups')),
+    ('role', _('roles')),
+    ('sharedcontact', _('shared contacts')),
+    ('calendarresource', _('calendar resources')),
+)
+
+
+class ObjectTypeFields(object):
+    def __init__(self, form, obj_type, name=None):
+        self.form = form
+        self.obj_type = obj_type
+        self.name = name or obj_type
+    
+    def obj_name(self):
+        return 
+    
+    def add(self):
+        return self.get('add_%s' % self.obj_type)
+    
+    def change(self):
+        return self.get('change_%s' % self.obj_type)
+    
+    def read(self):
+        return self.get('read_%s' % self.obj_type)
+    
+    def get(self, key):
+        try:
+            return self.form[key]
+        except KeyError:
+            return None
+
+
+class RoleForm(forms.Form):
+    name = forms.CharField(label=_('Name'))
+    
+    def __init__(self, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+        
+        self.field_groups = []
+        
+        perms = dict()
+        for perm in PERMISSION_NAMES:
+            action, obj_type = perm.split('_')
+            
+            actions = perms[obj_type] if obj_type in perms else set()
+            actions.add(action)
+            perms[obj_type] = actions
+        
+        for obj_type, plural in OBJECT_TYPES:
+            if obj_type in perms:
+                self._add_obj_type_fields(obj_type, perms[obj_type], name=plural)
+                del perms[obj_type]
+        
+        for obj_type, actions in perms.iteritems():
+            self._add_obj_type_fields(obj_type, actions)
+    
+    def create(self, domain):
+        data = self.cleaned_data
+        
+        permissions = []
+        for perm in PERMISSION_NAMES:
+            if perm in data and data[perm]:
+                permissions.append(perm)
+        
+        return crauth.models.Role(name=data['name'],
+            permissions=permissions, domain=domain)
+    
+    def _add_obj_type_fields(self, obj_type, actions, name=None):
+        actions = list(actions)
+        actions.sort()
+        
+        group = ObjectTypeFields(self, obj_type, name=name)
+        for action in actions:
+            field = self._add_field(obj_type, action)
+        self.field_groups.append(group)
+    
+    def _add_field(self, obj_type, action):
+        field_name = '%s_%s' % (action, obj_type)
+        field = forms.BooleanField(required=False)
+        self.fields[field_name] = field
+        return field
 
 
 ################################################################################

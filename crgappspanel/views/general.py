@@ -23,7 +23,7 @@ def test(request):
     domain = AppsDomain.get_by_key_name(users.get_current_user().domain_name)
     perms = ['add_gauser', 'change_gauser', 'read_gauser']
     
-    Role(name='User manager', permissions=perms, domain=domain).save()
+    Role(name='User manager', permissions=perms, domain=domain)#.save()
     sth = 'domain name: ' + users.get_current_user().domain_name + '\n'
     sth += 'domain: ' + str(domain) + '\n'
     sth += 'admin perms: ' + str(crauth.permissions.ADMIN_PERMS) + '\n'
@@ -31,5 +31,4 @@ def test(request):
     sth += 'permission choices (no admin): ' + str(crauth.permissions.permission_choices(False)) + '\n'
     return render_with_nav(request, 'test.html', {
         'sth': sth,
-        #'scripts': ['test'],
     })

@@ -181,6 +181,10 @@ div.error {
 	color: gray;
 }
 
+table.roles td {
+	text-align: center;
+}
+
 
 /*******************************************************************************
 *                                OBJECTS TABLE                                 *
