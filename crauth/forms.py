@@ -1,10 +1,15 @@
 import logging
+import re
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from gdata.apps import service
 from gdata.service import CaptchaRequired, BadAuthentication
 from crauth.users import SetupRequiredError
 from crauth.models import AppsDomain
+from crlib import forms as crforms
+
+
+RE_DOMAIN = re.compile(r'(?:[-\w]+\.)+[a-z]{2,6}$')
 
 
 class VerbatimWidget(forms.Widget):
@@ -14,8 +19,25 @@ class VerbatimWidget(forms.Widget):
 
 class DomainNameForm(forms.Form):
     domain = forms.RegexField(
-        required=True, regex=r'(?:[-\w]+\.)+[a-z]{2,6}$', label='www.',
+        required=True, regex=RE_DOMAIN, label='www.',
         error_messages={'invalid': _('Please enter valid domain name')})
+
+
+class ChooseDomainForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        choices = kwargs.pop('choices', set())
+        super(ChooseDomainForm, self).__init__(*args, **kwargs)
+        self.fields['domain'] = crforms.ChoiceWithOtherField(
+            required=True, choices=choices,
+            label=_('Please select Google apps domain you want to log in to:'))
+
+    def clean_domain(self):
+        main, other = self.cleaned_data['domain']
+        if main == 'other':
+            if not RE_DOMAIN.match(other):
+                raise forms.ValidationError('Please enter valid domain name')
+            return other
+        return main
 
 
 class CaptchaForm(forms.Form):

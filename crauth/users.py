@@ -124,7 +124,7 @@ class UsersMiddleware(object):
 
     def process_exception(self, request, exception):
         if isinstance(exception, LoginRequiredError):
-            request.session.flush()
+            request.session.pop(settings.SESSION_LOGIN_INFO_KEY, None)
             return HttpResponseRedirect(
                 create_login_url(request.get_full_path()))
         elif isinstance(exception, CaptchaChallenge):
