@@ -18,6 +18,7 @@ from crauth.store import DatastoreStore
 from crauth.forms import DomainNameForm, CaptchaForm, DomainSetupForm
 from crauth.ga_openid import discover_google_apps
 from crauth import users
+from crlib.navigation import render_with_nav
 
 
 AX_PREFIX = 'http://axschema.org/'
@@ -169,8 +170,7 @@ def domain_setup(request, domain, template='domain_setup.html'):
     }
     if not 'other_user' in request.GET:
         ctx['email'] = user.email()
-    return render_to_response(
-        template, ctx, context_instance=RequestContext(request))
+    return render_with_nav(request, template, ctx)
 
 
 def handle_captcha_challenge(request, template='captcha.html'):
