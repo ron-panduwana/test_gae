@@ -430,6 +430,9 @@ class GroupMembersForm(forms.Form):
 PERMISSION_NAMES = crauth.permissions.permission_names(False)
 OBJECT_TYPES = (
     ('gauser', _('Users')),
+    ('gausersettings', _('User Settings')),
+    ('gauserfilters', _('User Filters')),
+    ('gausersendas', _('User Send As Settings')),
     ('gagroup', _('Groups')),
     ('role', _('Roles')),
     ('sharedcontact', _('Shared contacts')),

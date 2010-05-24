@@ -176,7 +176,7 @@ def user_groups(request, name=None):
     }, extra_nav=user_nav(name))
 
 
-@has_perm('change_gauser')
+@has_perm('change_gausersettings')
 def user_email_settings(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -250,7 +250,7 @@ def user_email_settings(request, name=None):
     }, extra_nav=user_nav(name))
 
 
-@has_perm('change_gauser')
+@has_perm('change_gauserfilters')
 def user_email_filters(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)

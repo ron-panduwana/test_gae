@@ -14,6 +14,9 @@ class GAUser(gd.Model):
             ('read_gauser', _('View users in your domain')),
             ('add_gauser', _('Create users in your domain')),
             ('change_gauser', _('Modify users in your domain')),
+            ('change_gausersettings', _('Modify users in your domain')),
+            ('change_gauserfilters', _('Modify users in your domain')),
+            ('change_gausersendas', _('Modify users in your domain')),
         )
 
     id = gd.StringProperty('id.text', read_only=True)
