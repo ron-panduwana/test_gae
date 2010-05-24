@@ -429,14 +429,19 @@ class GroupMembersForm(forms.Form):
 
 PERMISSION_NAMES = crauth.permissions.permission_names(False)
 OBJECT_TYPES = (
-    ('gauser', _('Users')),
-    ('gausersettings', _('User Settings')),
-    ('gauserfilters', _('User Filters')),
-    ('gausersendas', _('User Send As Settings')),
-    ('gagroup', _('Groups')),
-    ('role', _('Roles')),
-    ('sharedcontact', _('Shared contacts')),
-    ('calendarresource', _('Calendar resources')),
+    ('users', _('Manage Users'), (
+        ('gauser', _('General')),
+        ('gausersettings', _('Settings')),
+        ('gauserfilters', _('Filters')),
+        ('gausersendas', _('Send as')))),
+    ('groups', _('Manage Groups'), (
+        ('gagroup', _('General')),)),
+    ('roles', _('Manage Roles'), (
+        ('role', _('General')),)),
+    ('shared_contacts', _('Manage Shared Contacts'), (
+        ('sharedcontact', _('General')),)),
+    ('calendar_resources', _('Manage Calendar Resources'), (
+        ('calendarresource', _('General')),)),
 )
 
 
@@ -471,7 +476,7 @@ class RoleForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)
         
-        self.field_groups = []
+        self.sections = dict()
         
         perms = dict()
         for perm in PERMISSION_NAMES:
@@ -481,13 +486,8 @@ class RoleForm(forms.Form):
             actions.add(action)
             perms[obj_type] = actions
         
-        for obj_type, plural in OBJECT_TYPES:
-            if obj_type in perms:
-                self._add_obj_type_fields(obj_type, perms[obj_type], name=plural)
-                del perms[obj_type]
-        
-        for obj_type, actions in perms.iteritems():
-            self._add_obj_type_fields(obj_type, actions)
+        for section in OBJECT_TYPES:
+            self._add_section(section, perms)
     
     def create(self, domain):
         data = self.cleaned_data
@@ -512,14 +512,22 @@ class RoleForm(forms.Form):
         role.name = data['name']
         role.permissions = permissions
     
-    def _add_obj_type_fields(self, obj_type, actions, name=None):
-        actions = list(actions)
-        actions.sort()
+    def _add_section(self, section, perms):
+        section_obj = dict(name=section[1], groups=[])
         
-        group = ObjectTypeFields(self, obj_type, name=name)
-        for action in actions:
-            field = self._add_field(obj_type, action)
-        self.field_groups.append(group)
+        # iterating through section groups
+        for obj_type, name in section[2]:
+            actions = list(perms[obj_type])
+            actions.sort()
+            
+            # adding fields to the form
+            for action in actions:
+                field = self._add_field(obj_type, action)
+            
+            # adding group to section
+            group = ObjectTypeFields(self, obj_type, name=name)
+            section_obj['groups'].append(group)
+        self.sections[section[0]] = section_obj
     
     def _add_field(self, obj_type, action):
         field_name = '%s_%s' % (action, obj_type)

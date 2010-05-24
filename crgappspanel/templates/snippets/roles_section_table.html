@@ -1,0 +1,22 @@
+<table class="roles">
+	<col width="100"/>
+	<col width="50"/>
+	<col width="50"/>
+	<col width="50"/>
+	{% if show_roles_table_header %}
+	<tr>
+		<td></td>
+		<td style="padding: 0px 5px">Add</td>
+		<td style="padding: 0px 5px">Change</td>
+		<td style="padding: 0px 5px">Read</td>
+	</tr>
+	{% endif %}
+	{% for group in section.groups %}
+	<tr>
+		<td style="text-align: left">{{ group.name }}</td>
+		<td>{{ group.add|default_if_none:'' }}</td>
+		<td>{{ group.change|default_if_none:'' }}</td>
+		<td>{{ group.read|default_if_none:'' }}</td>
+	</tr>
+	{% endfor %}
+</table>
