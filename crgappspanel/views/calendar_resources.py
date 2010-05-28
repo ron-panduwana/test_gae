@@ -4,8 +4,8 @@ from crauth.decorators import login_required
 from crgappspanel.forms import CalendarResourceForm
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import CalendarResource
-from crgappspanel.views.utils import get_sortby_asc, secure_random_chars, \
-        redirect_saved
+from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
+        secure_random_chars, redirect_saved
 from crlib.navigation import render_with_nav
 
 
@@ -15,7 +15,7 @@ _table_fields = [
     Column(_('Description'), 'description'),
 ]
 _table_id = Column(None, 'id')
-_table_field_widths = ['%d%%' % x for x in (5, 30, 20, 45)]
+_table_widths = ['%d%%' % x for x in (5, 30, 20, 45)]
 
 
 @login_required
@@ -24,12 +24,17 @@ def calendar_resources(request):
     
     resources = CalendarResource.all().fetch(1000)
     
-    table = Table(_table_fields, _table_id, sortby='common_name', asc=True)
+    # instantiating table and sorting resources
+    table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
     table.sort(resources)
     
+    # selecting particular page
+    page = get_page(request, resources, 20);
+    
     return render_with_nav(request, 'calendar_resources_list.html', {
-        'table': table.generate(resources, widths=_table_field_widths,
-            singular='calendar resource'),
+        'table': table.generate(
+            page.object_list, page=page, qs_wo_page=qs_wo_page(request),
+            widths=_table_widths, singular='calendar resource'),
         'saved': request.session.pop('saved', False),
     })
 
