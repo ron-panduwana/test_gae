@@ -14,12 +14,22 @@ from crlib.navigation import render_with_nav
 
 
 def _get_full_name(x):
-    if not x.name:
-        return None
-    if hasattr(x.name, 'full_name'):
+    if x.name and hasattr(x.name, 'full_name'):
         return x.name.full_name
-    else:
-        return None
+    return None
+
+def _get_given_name(x):
+    if x.name and hasattr(x.name, 'given_name'):
+        return x.name.given_name
+    return None
+
+def _get_family_name(x):
+    if x.name and hasattr(x.name, 'family_name'):
+        return x.name.family_name
+    return None
+
+def _get_real_name(x):
+    return '%s %s' % (_get_given_name(x) or '', _get_family_name(x) or '')
 
 def _get_company_role(x):
     company = x.extended_properties.get('company')
@@ -33,8 +43,7 @@ def _get_company_role(x):
 
 _table_fields = [
     Column(_('Display name'), 'full_name', getter=_get_full_name, link=True),
-    Column(_('Real name'), 'real_name',
-        getter=lambda x: '%s %s' % (x.name.given_name or '', x.name.family_name or '')),
+    Column(_('Real name'), 'real_name', getter=_get_real_name),
     Column(_('Company'), 'company', getter=lambda x: x.extended_properties.get('company', '')),
     Column(_('Phone numbers'), 'phone_numbers',
         getter=lambda x: list_attrs(x.phone_numbers, 'number')),
