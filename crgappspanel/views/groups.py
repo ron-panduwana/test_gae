@@ -8,7 +8,8 @@ from crgappspanel.forms import GroupForm, GroupMembersForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAGroup, GAGroupOwner, GAGroupMember
-from crgappspanel.views.utils import get_sortby_asc, render, redirect_saved
+from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
+        render, redirect_saved
 from crlib.navigation import render_with_nav
 from crgappspanel.navigation import group_nav
 
@@ -26,11 +27,18 @@ def groups(request):
     sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
     groups = GAGroup.all().fetch(1000)
+    
+    # instantiating table and sorting groups
     table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
     table.sort(groups)
     
+    # selecting particular page
+    page = get_page(request, groups, 20)
+    
     return render_with_nav(request, 'groups_list.html', {
-        'table': table.generate(groups, widths=_table_widths, singular='group'),
+        'table': table.generate(
+            page.object_list, page=page, qs_wo_page=qs_wo_page(request),
+            widths=_table_widths, singular='group'),
         'saved': request.session.pop('saved', False),
     })
 
