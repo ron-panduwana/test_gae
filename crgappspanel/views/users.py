@@ -4,6 +4,7 @@ from django.utils.translation import ugettext as _
 
 import crauth
 from crauth.decorators import login_required, has_perm
+from crauth.models import Role, UserPermissions
 from crgappspanel import consts
 from crgappspanel.forms import UserForm, UserGroupsForm, \
     UserEmailSettingsForm, UserEmailFiltersForm, UserEmailAliasesForm
@@ -25,6 +26,11 @@ POP3_ENABLE_FORS = dict(
     en=consts.EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON)
 
 
+def _get_user_email(domain):
+    def new(x):
+        return '%s@%s' % (x.user_name or '', domain)
+    return new
+
 def _get_status(x):
     suspended, admin = getattr(x, 'suspended'), getattr(x, 'admin')
     if x.suspended:
@@ -33,14 +39,33 @@ def _get_status(x):
         return _('Administrator')
     return ''
 
+def _get_cached_roles(roles_map=dict()):
+    if len(roles_map) == 0:
+        for role in Role.for_domain(crauth.users.get_current_domain()).fetch(1000):
+            roles_map[role.key()] = role
+    return roles_map
+
+def _get_roles(domain):
+    def new(x):
+        if x.admin:
+            return _('Administrator')
+        
+        from crauth.models import UserPermissions
+        perms = UserPermissions.get_by_key_name(_get_user_email(domain)(x))
+        if perms:
+            
+            return ', '.join(_get_cached_roles()[perm].name for perm in perms.roles)
+        else:
+            return ''
+    return new
+
 def _table_fields_gen(domain):
     return [
         Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
-        Column(_('Username'), 'username',
-            getter=lambda x: '%s@%s' % (x.user_name or '', domain)),
+        Column(_('Username'), 'username', getter=_get_user_email(domain)),
         Column(_('Status'), 'status', getter=_get_status),
         Column(_('Email quota'), 'quota'),
-        Column(_('Roles'), 'roles', getter=lambda x: ''),
+        Column(_('Roles'), 'roles', getter=_get_roles(domain)),
         Column(_('Last signed in'), 'last_login', getter=lambda x: '')
     ]
 _table_id = Column(None, 'user_name')

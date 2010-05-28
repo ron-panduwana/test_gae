@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 import crauth
 from crauth import users
 from crauth.decorators import login_required
-from crgappspanel.models import GAGroup
+from crgappspanel.models import GAUser, GAGroup
 from crlib.navigation import render_with_nav
 
 
@@ -18,17 +18,19 @@ def language(request):
 
 @login_required
 def test(request):
-    from crauth.models import AppsDomain, Role
+    from crauth.models import AppsDomain, Role, UserPermissions
     
-    domain = AppsDomain.get_by_key_name(users.get_current_user().domain_name)
-    perms = ['add_gauser', 'change_gauser', 'read_gauser']
+    email = 'bbking@moroccanholidayrental.com'
+    role_names = ['User creator']
     
-    Role(name='User manager', permissions=perms, domain=domain)#.save()
-    sth = 'domain name: ' + users.get_current_user().domain_name + '\n'
-    sth += 'domain: ' + str(domain) + '\n'
-    sth += 'admin perms: ' + str(crauth.permissions.ADMIN_PERMS) + '\n'
-    sth += 'permission choices: ' + str(crauth.permissions.permission_choices()) + '\n'
-    sth += 'permission choices (no admin): ' + str(crauth.permissions.permission_choices(False)) + '\n'
+    perms = UserPermissions.get_or_insert(key_name=email, user_email=email)
+    for role_name in role_names:
+        role = Role.for_domain(users.get_current_domain()).filter('name', role_name).get()
+        perms.roles.append(role.key())
+    perms.save()
+    
+    sth = str(perms)
+    
     return render_with_nav(request, 'test.html', {
         'sth': sth,
     })
