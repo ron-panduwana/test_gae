@@ -10,8 +10,8 @@ from crgappspanel.forms import UserForm, UserGroupsForm, \
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname, GAGroup, GAGroupOwner, GAGroupMember
-from crgappspanel.views.utils import get_sortby_asc, secure_random_chars, \
-        redirect_saved, render, exists_goto
+from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
+        secure_random_chars, redirect_saved, render, exists_goto
 from crlib.navigation import render_with_nav
 from crgappspanel.navigation import user_nav
 
@@ -59,11 +59,17 @@ def users(request):
     
     users = GAUser.all().fetch(1000)
     
+    # instantiating table and sorting users
     table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
     table.sort(users)
     
+    # selecting particular page
+    page = get_page(request, users, 20)
+    
     return render_with_nav(request, 'users_list.html', {
-        'table': table.generate(users, widths=_table_widths, singular='user'),
+        'table': table.generate(
+            page.object_list, page=page, qs_wo_page=qs_wo_page(request),
+            widths=_table_widths, singular='user'),
         'saved': request.session.pop('saved', False),
     })
 
