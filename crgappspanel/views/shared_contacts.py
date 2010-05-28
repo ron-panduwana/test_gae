@@ -13,6 +13,14 @@ from crgappspanel.views.utils import get_sortby_asc, list_attrs, \
 from crlib.navigation import render_with_nav
 
 
+def _get_full_name(x):
+    if not x.name:
+        return None
+    if hasattr(x.name, 'full_name'):
+        return x.name.full_name
+    else:
+        return None
+
 def _get_company_role(x):
     company = x.extended_properties.get('company')
     if not company:
@@ -24,7 +32,7 @@ def _get_company_role(x):
 
 
 _table_fields = [
-    Column(_('Display name'), 'full_name', getter=lambda x: x.name.full_name, link=True),
+    Column(_('Display name'), 'full_name', getter=_get_full_name, link=True),
     Column(_('Real name'), 'real_name',
         getter=lambda x: '%s %s' % (x.name.given_name or '', x.name.family_name or '')),
     Column(_('Company'), 'company', getter=lambda x: x.extended_properties.get('company', '')),
