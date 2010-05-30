@@ -42,8 +42,10 @@ urlpatterns += patterns('crgappspanel.views.users',
     url(r'^users/restore/(?P<name>[^/]+)/$',
         'user_restore', name='user-restore'),
     url(r'^users/remove/(?P<names>.+)/$', 'user_remove', name='user-remove'),
-    url(r'^users/remove-nickname/(?P<name>[^/]+)/(?P<nickname>[^/]+)/',
+    url(r'^users/remove-nickname/(?P<name>[^/]+)/(?P<nickname>[^/]+)/$',
         'user_remove_nickname', name='user-remove-nickname'),
+    url(r'^users/remove-role/(?P<name>[^/]+)/(?P<role_name>[^/]+)/$',
+        'user_remove_role', name='user-remove-role'),
 )
 
 urlpatterns += patterns('crgappspanel.views.roles',

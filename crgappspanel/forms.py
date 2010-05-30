@@ -190,7 +190,7 @@ roles_e = 'Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 
 
 class UserRolesForm(forms.Form):
-    roles = forms.CharField(label=_('Nicknames'), required=False,
+    roles = forms.CharField(label=_('Roles'), required=False,
         widget=widgets.SwapWidget(roles_c, forms.Select(), roles_e))
     
     def __init__(self, *args, **kwargs):
@@ -203,7 +203,7 @@ class UserRolesForm(forms.Form):
         super(UserRolesForm, self).__init__(*args, **kwargs)
         
         if choices:
-            self.fields['roles'].choices = choices
+            self.fields['roles'].widget.widget.choices = choices
 
 
 ADD_AS_CHOICES = (('owner', _('Owner')), ('member', _('Member')))

@@ -42,12 +42,16 @@ def _get_status(x):
 def _get_roles_map(roles_map=dict()):
     if len(roles_map) == 0:
         for role in Role.for_domain(crauth.users.get_current_domain()).fetch(1000):
-            roles_map[role.key()] = role
+            roles_map[str(role.key())] = role
     return roles_map
 
-def _get_roles_choices():
-    choices = [('admin', _('Administrator'))]
-    choices.extend([(key, value.name) for key, value in _get_roles_map().iteritems()])
+def _get_roles_choices(role_keys, is_admin):
+    choices = [('', '')]
+    if not is_admin:
+        choices.append(('admin', _('Administrator')))
+    
+    new_role_keys = [key for key in _get_roles_map().iterkeys() if key not in role_keys]
+    choices.extend([(key, _get_roles_map()[key].name) for key in new_role_keys])
     return choices
 
 def _get_roles(domain):
@@ -58,7 +62,7 @@ def _get_roles(domain):
         from crauth.models import UserPermissions
         perms = UserPermissions.get_by_key_name(_get_user_email(domain)(x))
         if perms:
-            return ', '.join(_get_roles_map()[perm].name for perm in perms.roles)
+            return ', '.join(_get_roles_map()[str(perm)].name for perm in perms.roles)
         else:
             return ''
     return new
@@ -174,19 +178,38 @@ def user_roles(request, name=None):
     email = '%s@%s' % (user.user_name, crauth.users.get_current_user().domain_name)
     perms = UserPermissions.get_or_insert(key_name=email, user_email=email)
     
-    if request.method == 'POST':
-        form = UserRolesForm(request.POST, auto_id=True, choices=_get_roles_choices())
-        if form.is_valid():
-            pass
-    else:
-        form = UserRolesForm(initial={}, auto_id=True, choices=_get_roles_choices())
+    role_keys = [str(role_key) for role_key in perms.roles]
     
-    roles = [_get_roles_map()[role_key].name for role_key in perms.roles]
+    if request.method == 'POST':
+        form = UserRolesForm(request.POST, auto_id=True,
+            choices=_get_roles_choices(role_keys, user.admin))
+        if form.is_valid():
+            data = form.cleaned_data
+            
+            roles = data['roles']
+            if roles:
+                if roles == 'admin':
+                    user.admin = True
+                    user.save()
+                else:
+                    perms.roles.append(_get_roles_map()[roles].key())
+                    perms.save()
+            return redirect_saved('user-roles', request, name=user.user_name)
+    else:
+        form = UserRolesForm(initial=dict(role=''), auto_id=True,
+            choices=_get_roles_choices(role_keys, user.admin))
+    
+    def remove_role_link(x):
+        kwargs = dict(name=user.user_name, role_name=x)
+        return reverse('user-remove-role', kwargs=kwargs)
+    roles = [_get_roles_map()[role_key].name for role_key in role_keys]
+    roles_with_remove = [ValueWithRemoveLink(role_name, remove_role_link(role_name))
+        for role_name in roles]
     
     return render_with_nav(request, 'user_roles.html', {
         'user': user,
         'form': form,
-        'roles': roles,
+        'roles': roles_with_remove,
         'saved': request.session.pop('saved', False),
         'scripts': ['swap-widget'],
     }, extra_nav=user_nav(name))
@@ -412,4 +435,29 @@ def user_remove_nickname(request, name=None, nickname=None):
     nickname = GANickname.get_by_key_name(nickname)
     nickname.delete()
     
-    return redirect('user-details', name=name)
+    return redirect_saved('user-details', request, name=name)
+
+
+@admin_required
+def user_remove_role(request, name=None, role_name=None):
+    if not all((name, role_name)):
+        raise ValueError('name = %s, role_name = %s' % (name, role_name))
+    
+    if not name:
+        raise ValueError('name = %s' % name)
+    
+    user = GAUser.get_by_key_name(name)
+    if not user:
+        return redirect('users')
+    
+    email = '%s@%s' % (user.user_name, crauth.users.get_current_user().domain_name)
+    perms = UserPermissions.get_or_insert(key_name=email, user_email=email)
+    
+    if role_name == 'admin':
+        user.admin = False
+        user.save()
+    else:
+        perms.roles = [rk for rk in perms.roles if _get_roles_map()[str(rk)].name != role_name]
+        perms.save()
+    
+    return redirect_saved('user-roles', request, name=user.user_name)
