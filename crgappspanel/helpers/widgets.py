@@ -41,10 +41,10 @@ class TripleWidget(forms.MultiWidget):
 
 
 class SwapWidget(forms.Widget):
-    def __init__(self, text_c, widget_e, text_e, *args, **kwargs):
+    def __init__(self, text_c, widget, text_e, *args, **kwargs):
         super(SwapWidget, self).__init__(*args, **kwargs)
         self.text_c = text_c
-        self.widget_e = widget_e
+        self.widget = widget
         self.text_e = text_e
         
         id = ''
@@ -61,7 +61,7 @@ class SwapWidget(forms.Widget):
         ctx = {
             'id': self.id,
             'content_c': self.text_c % d,
-            'content_e': self.text_e % dict(d, widget=self.widget_e.render(name, value)),
+            'content_e': self.text_e % dict(d, widget=self.widget.render(name, value)),
         }
         
         return mark_safe(u'''

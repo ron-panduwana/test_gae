@@ -3,10 +3,10 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
 import crauth
-from crauth.decorators import login_required, has_perm
+from crauth.decorators import login_required, admin_required, has_perm
 from crauth.models import Role, UserPermissions
 from crgappspanel import consts
-from crgappspanel.forms import UserForm, UserGroupsForm, \
+from crgappspanel.forms import UserForm, UserRolesForm, UserGroupsForm, \
     UserEmailSettingsForm, UserEmailFiltersForm, UserEmailAliasesForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
@@ -39,11 +39,16 @@ def _get_status(x):
         return _('Administrator')
     return ''
 
-def _get_cached_roles(roles_map=dict()):
+def _get_roles_map(roles_map=dict()):
     if len(roles_map) == 0:
         for role in Role.for_domain(crauth.users.get_current_domain()).fetch(1000):
             roles_map[role.key()] = role
     return roles_map
+
+def _get_roles_choices():
+    choices = [('admin', _('Administrator'))]
+    choices.extend([(key, value.name) for key, value in _get_roles_map().iteritems()])
+    return choices
 
 def _get_roles(domain):
     def new(x):
@@ -53,8 +58,7 @@ def _get_roles(domain):
         from crauth.models import UserPermissions
         perms = UserPermissions.get_by_key_name(_get_user_email(domain)(x))
         if perms:
-            
-            return ', '.join(_get_cached_roles()[perm].name for perm in perms.roles)
+            return ', '.join(_get_roles_map()[perm].name for perm in perms.roles)
         else:
             return ''
     return new
@@ -151,6 +155,38 @@ def user_details(request, name=None):
         'user': user,
         'form': form,
         'full_nicknames': full_nicknames,
+        'saved': request.session.pop('saved', False),
+        'scripts': ['swap-widget'],
+    }, extra_nav=user_nav(name))
+
+
+@admin_required
+def user_roles(request, name=None):
+    from crauth.models import AppsDomain, Role, UserPermissions
+    
+    if not name:
+        raise ValueError('name = %s' % name)
+    
+    user = GAUser.get_by_key_name(name)
+    if not user:
+        return redirect('users')
+    
+    email = '%s@%s' % (user.user_name, crauth.users.get_current_user().domain_name)
+    perms = UserPermissions.get_or_insert(key_name=email, user_email=email)
+    
+    if request.method == 'POST':
+        form = UserRolesForm(request.POST, auto_id=True, choices=_get_roles_choices())
+        if form.is_valid():
+            pass
+    else:
+        form = UserRolesForm(initial={}, auto_id=True, choices=_get_roles_choices())
+    
+    roles = [_get_roles_map()[role_key].name for role_key in perms.roles]
+    
+    return render_with_nav(request, 'user_roles.html', {
+        'user': user,
+        'form': form,
+        'roles': roles,
         'saved': request.session.pop('saved', False),
         'scripts': ['swap-widget'],
     }, extra_nav=user_nav(name))

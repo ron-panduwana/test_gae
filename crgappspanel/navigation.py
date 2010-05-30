@@ -26,6 +26,10 @@ def user_nav(user):
             parent=parent
         ),
         Section(
+            'roles', _('Roles'), reverse('user-roles', args=(user,)),
+            parent=parent
+        ),
+        Section(
             'groups', _('Groups'), reverse('user-groups', args=(user,)),
             parent=parent
         ),

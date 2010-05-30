@@ -185,6 +185,27 @@ class UserForm(forms.Form):
         return self.cleaned_data['nicknames']
 
 
+roles_c = '%(link_start)sAdd role%(link_end)s'
+roles_e = 'Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+
+
+class UserRolesForm(forms.Form):
+    roles = forms.CharField(label=_('Nicknames'), required=False,
+        widget=widgets.SwapWidget(roles_c, forms.Select(), roles_e))
+    
+    def __init__(self, *args, **kwargs):
+        if 'choices' in kwargs:
+            choices = kwargs['choices']
+            del kwargs['choices']
+        else:
+            choices = None
+        
+        super(UserRolesForm, self).__init__(*args, **kwargs)
+        
+        if choices:
+            self.fields['roles'].choices = choices
+
+
 ADD_AS_CHOICES = (('owner', _('Owner')), ('member', _('Member')))
 
 
