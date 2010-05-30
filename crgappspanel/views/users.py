@@ -205,6 +205,9 @@ def user_roles(request, name=None):
     roles = [_get_roles_map()[role_key].name for role_key in role_keys]
     roles_with_remove = [ValueWithRemoveLink(role_name, remove_role_link(role_name))
         for role_name in roles]
+    if user.admin:
+        obj = ValueWithRemoveLink(_('Administrator'), remove_role_link('admin'))
+        roles_with_remove.insert(0, obj)
     
     return render_with_nav(request, 'user_roles.html', {
         'user': user,
