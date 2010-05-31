@@ -4,8 +4,23 @@ from django.utils.translation import ugettext as _
 from crauth import models
 from crgappspanel.helpers import fields, widgets
 
-
+#The form being used for creating new domain
 class DomainForm(forms.Form):
+    """The form being used for creating new domain.
+
+    :param domain: Name of the domain.
+    :type domain: CharField
+    :param admin_email: Email of domain administrator account.
+    :type admin_email: EmailField
+    :param admin_password: Password of domain administrator account. 
+    :type admin_password: CharField2
+    :param is_enabled: Indicates if the domain is enabled. If set to ``False`` the domain will not be able to accees the application.
+    :type is_enabled: BooleanField
+    :param is_independent: If set to ``True`` the domain is managed manually and Licensing API is not used.
+    :type is_independent: BooleanField
+
+    """
+	
     domain = forms.CharField(label=_('Domain'),
         widget=forms.TextInput(attrs={'class':'long'}))
     admin_email = forms.EmailField(label=_('Admin email'), required=False,
@@ -16,6 +31,12 @@ class DomainForm(forms.Form):
     is_independent = forms.BooleanField(label=_('Independent'), required=False)
     
     def create(self):
+        """Creates new domain entry, returns object of class class:`AppsDomain`.
+
+        :returns: ``AppsDomain`` object.
+        :rtype: AppsDomain
+
+        """
         data = self.cleaned_data
         
         return models.AppsDomain(
@@ -27,6 +48,12 @@ class DomainForm(forms.Form):
             is_independent=data['is_independent'])
     
     def populate(self, domain):
+        """Fills the form, with the given data from a domain.
+
+        :param domain: Google Apps domain.
+        :type domain: str
+
+        """
         data = self.cleaned_data
         
         domain.domain = data['domain']
@@ -38,6 +65,12 @@ class DomainForm(forms.Form):
         domain.is_independent = data['is_independent']
     
     def clean_admin_password(self):
+        """Returns the admin password and cleans the admin password field.
+
+        :returns: Admin passwords.
+        :rtype: array
+
+        """	
         passwords = self.cleaned_data.get('admin_password')
         if passwords and passwords[0] != passwords[1]:
             msg = _('Passwords do not match.')

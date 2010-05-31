@@ -12,6 +12,8 @@ from crlib.navigation import render_with_nav, Section
 
 
 def navigation(request):
+    """Displays the navigation panel. 
+    """
     if not users.is_current_user_admin():
         return
     return (
@@ -27,6 +29,8 @@ def navigation(request):
 
 
 def domains(request):
+    """Displays the list of domains. 
+    """
     domains = AppsDomain.all().fetch(1000)
     
     return render_with_nav(request, 'domains_list.html', {
@@ -36,6 +40,8 @@ def domains(request):
 
 
 def domain_create(request):
+    """Displays the form for creating new domain. 
+    """
     if request.method == 'POST':
         form = DomainForm(request.POST, auto_id=True)
         if form.is_valid():
@@ -51,6 +57,8 @@ def domain_create(request):
 
 
 def domain_details(request, name=None):
+    """Displays the details of the selected domain. 
+    """
     if not name:
         raise ValueError('name = %s' % name)
     
@@ -77,6 +85,8 @@ def domain_details(request, name=None):
 
 
 def domain_remove(request, names=None):
+    """Removes the selected domain. 
+    """
     if not names:
         raise ValueError('names = %s' % names)
     
@@ -93,6 +103,8 @@ TOOLS_ACTIONS = {
 }
 
 def tools(request):
+    """Displays the tools panel.
+    """
     if request.method == 'POST':
         for key, value in request.POST.iteritems():
             if key in TOOLS_ACTIONS:
