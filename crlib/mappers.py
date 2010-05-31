@@ -1,4 +1,5 @@
 import logging
+import re
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from gdata import contacts, data
@@ -345,6 +346,10 @@ class SharedContactEntryMapper(AtomMapper):
         'content': Content,
         'birthday': contacts_data.Birthday,
     }
+    RE_SELF_LINK = re.compile(
+        r'http://www.google.com/m8/feeds/contacts/'
+        r'(?:[^/]+)/full/(?P<id>[a-f0-9]+)$')
+    SELF_LINK = 'http://www.google.com/m8/feeds/contacts/%s/full/%s'
 
     @classmethod
     def create_service(cls, domain):
@@ -357,7 +362,9 @@ class SharedContactEntryMapper(AtomMapper):
         return contacts.data.ContactEntry()
 
     def key(self, atom):
-        return atom.find_self_link()
+        link = atom.find_self_link()
+        match = self.RE_SELF_LINK.match(link)
+        return match.groups(0)[0]
 
     def create(self, atom):
         return self.service.create_contact(atom)
@@ -369,8 +376,9 @@ class SharedContactEntryMapper(AtomMapper):
         self.service.delete(atom)
 
     def retrieve(self, key):
+        link = self.SELF_LINK % (self.service.contact_list, key)
         return self.service.get_entry(
-            key, desired_class=contacts.data.ContactEntry)
+            link, desired_class=contacts.data.ContactEntry)
 
     def retrieve_all(self):
         return self.retrieve_subset()
