@@ -170,6 +170,11 @@ def get_current_user():
         return None
 
 
+def get_current_domain():
+    if os.environ.get(_ENVIRON_DOMAIN):
+        return AppsDomain.get_by_key_name(os.environ[_ENVIRON_DOMAIN])
+
+
 def is_current_user_admin():
     from gdata.apps.service import AppsService
     from gdata.auth import OAuthSignatureMethod
