@@ -1,11 +1,11 @@
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from crlib.navigation import Section
-from crauth import users
 
 
 def base(request):
-    nav = (
+    return (
+        #Section('dashboard', _('Dashboard')),
         Section('users', _('Users and Groups'), reverse('users'), (
             Section('groups', _('Groups'), reverse('groups')),
             Section('users', _('Users'), reverse('users')),
@@ -15,21 +15,6 @@ def base(request):
         Section('calendar_resources', _('Calendar Resources'),
             reverse('calendar-resources')),
     )
-
-    if users.is_current_user_admin():
-        domain = users.get_current_domain().domain
-        domain_setup_url = reverse('domain_setup', args=(domain,))
-        return nav + (
-            Section(
-                'domain_settings', _('Additional Management'),
-                domain_setup_url, (
-                    Section(
-                        'panel_config', _('Panel Configuration'),
-                        domain_setup_url),
-                )),
-        )
-    else:
-        return nav
 
 
 def user_nav(user):

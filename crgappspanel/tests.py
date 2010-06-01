@@ -313,12 +313,6 @@ class SharedContactsAPITestCase(BaseGDataTestCase):
 
         contact.delete()
 
-    def testGetByKeyName(self):
-        contact_1 = SharedContact.all().get()
-        key = contact_1.key()
-        contact_2 = SharedContact.get_by_key_name(key)
-        self.assertEqual(contact_1, contact_2)
-
     def testUpdateSharedContact(self):
         contact = SharedContact.all().filter('title', 'Updated Name').get()
         if contact:

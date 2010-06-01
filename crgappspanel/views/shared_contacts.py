@@ -50,7 +50,7 @@ _table_fields = [
     Column(_('E-mails'), 'emails',
         getter=lambda x: list_attrs(x.emails, 'address')),
 ]
-_table_id = Column(None, 'key', getter=lambda x: x.key())
+_table_id = _table_fields[0]
 _table_widths = ['%d%%' % x for x in (5, 20, 20, 15, 10, 30)]
 
 
@@ -118,7 +118,7 @@ def shared_contact_add(request):
                 phone.save()
             shared_contact.save()
             return redirect_saved('shared-contact-details',
-                request, key=shared_contact.key())
+                request, name=shared_contact.name)
     else:
         form = SharedContactForm(auto_id=True)
     
@@ -128,11 +128,11 @@ def shared_contact_add(request):
 
 
 @login_required
-def shared_contact_details(request, key=None):
-    if not key:
-        raise ValueError('key = %s' % key)
+def shared_contact_details(request, name=None):
+    if not name:
+        raise ValueError('name = %s' % name)
     
-    shared_contact = SharedContact.get_by_key_name(key)
+    shared_contact = SharedContact.all().filter('title', name).get()
     if not shared_contact:
         return redirect('shared-contacts')
     
@@ -158,7 +158,7 @@ def shared_contact_details(request, key=None):
             
             shared_contact.save()
             return redirect_saved('shared-contact-details',
-                request, key=key)
+                request, name=shared_contact.name.full_name)
     else:
         real_name = [shared_contact.name.name_prefix,
                 shared_contact.name.given_name, shared_contact.name.family_name]
@@ -172,7 +172,7 @@ def shared_contact_details(request, key=None):
         }, auto_id=True)
     
     def remove_email_link(x):
-        kwargs = dict(key=key, email=x.address)
+        kwargs = dict(name=shared_contact.title, email=x.address)
         return reverse('shared-contact-remove-email', kwargs=kwargs)
     full_emails = []
     for email in shared_contact.emails:
@@ -187,7 +187,7 @@ def shared_contact_details(request, key=None):
             full_emails.append(fmt % (email.address, remove_email_link(email)))
     
     def remove_phone_link(x):
-        kwargs = dict(key=key, phone=x.number)
+        kwargs = dict(name=shared_contact.title, phone=x.number)
         return reverse('shared-contact-remove-phone', kwargs=kwargs)
     full_phones = []
     for phone in shared_contact.phone_numbers:
@@ -205,24 +205,24 @@ def shared_contact_details(request, key=None):
 
 
 @login_required
-def shared_contact_remove(request, keys=None):
-    if not keys:
-        raise ValueError('keys = %s' % keys)
+def shared_contact_remove(request, names=None):
+    if not names:
+        raise ValueError('names = %s' % names)
     
-    for key in keys.split('/'):
-        contact = SharedContact.get_by_key_name(key)
+    for name in names.split('/'):
+        contact = SharedContact.all().filter('title', name).get()
         if contact:
             contact.delete()
     
-    return redirect_saved('shared-contacts', request)
+    return redirect('shared-contacts')
 
 
 @login_required
-def shared_contact_remove_email(request, key=None, email=None):
-    if not all((key, email)):
-        raise ValueError('key = %s, email = %s' % (key, email))
+def shared_contact_remove_email(request, name=None, email=None):
+    if not all((name, email)):
+        raise ValueError('name = %s, email = %s' % (name, email))
     
-    shared_contact = SharedContact.get_by_key_name(key)
+    shared_contact = SharedContact.all().filter('title', name).get()
     if not shared_contact:
         return redirect('shared-contacts')
     
@@ -232,15 +232,15 @@ def shared_contact_remove_email(request, key=None, email=None):
             break
     shared_contact.save()
     
-    return redirect_saved('shared-contact-details', request, key=key)
+    return redirect_saved('shared-contact-details', request, name=name)
 
 
 @login_required
-def shared_contact_remove_phone(request, key=None, phone=None):
-    if not all((key, phone)):
-        raise ValueError('key = %s, phone = %s' % (key, phone))
+def shared_contact_remove_phone(request, name=None, phone=None):
+    if not all((name, phone)):
+        raise ValueError('name = %s, phone = %s' % (name, phone))
     
-    shared_contact = SharedContact.get_by_key_name(key)
+    shared_contact = SharedContact.all().filter('title', name).get()
     if not shared_contact:
         return redirect('shared-contacts')
     
@@ -250,4 +250,4 @@ def shared_contact_remove_phone(request, key=None, phone=None):
             break
     shared_contact.save()
     
-    return redirect_saved('shared-contact-details', request, key=key)
+    return redirect_saved('shared-contact-details', request, name=name)
