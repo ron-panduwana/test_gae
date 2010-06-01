@@ -23,7 +23,5 @@ function showDialog() {
 </script>
 You selected <span id="dialogLabel">[nothing yet]</span><br/>
 <input type="button" onclick="showDialog()" value="show dialog"/><br/>
-{% for sth in something %}
-	{{ sth }}<br/>
-{% endfor %}
+{{ sth|escape|linebreaksbr }}
 {% endblock %}

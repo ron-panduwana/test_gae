@@ -9,6 +9,8 @@ def encode_js(text):
 
 
 class DoubleWidget(forms.MultiWidget):
+    join_with = u' '
+    
     def __init__(self, widget1, widget2):
         widgets = (widget1, widget2)
         super(DoubleWidget, self).__init__(widgets)
@@ -19,10 +21,12 @@ class DoubleWidget(forms.MultiWidget):
         return value
     
     def format_output(self, rendered_widgets):
-        return mark_safe(u' '.join(rendered_widgets))
+        return mark_safe(self.join_with.join(rendered_widgets))
 
 
 class TripleWidget(forms.MultiWidget):
+    join_with = u' '
+    
     def __init__(self, widget1, widget2, widget3):
         widgets = (widget1, widget2, widget3)
         super(TripleWidget, self).__init__(widgets)
@@ -33,14 +37,14 @@ class TripleWidget(forms.MultiWidget):
         return value
     
     def format_output(self, rendered_widgets):
-        return mark_safe(u' '.join(rendered_widgets))
+        return mark_safe(self.join_with.join(rendered_widgets))
 
 
 class SwapWidget(forms.Widget):
-    def __init__(self, text_c, widget_e, text_e, *args, **kwargs):
+    def __init__(self, text_c, widget, text_e, *args, **kwargs):
         super(SwapWidget, self).__init__(*args, **kwargs)
         self.text_c = text_c
-        self.widget_e = widget_e
+        self.widget = widget
         self.text_e = text_e
         
         id = ''
@@ -57,7 +61,7 @@ class SwapWidget(forms.Widget):
         ctx = {
             'id': self.id,
             'content_c': self.text_c % d,
-            'content_e': self.text_e % dict(d, widget=self.widget_e.render(name, value)),
+            'content_e': self.text_e % dict(d, widget=self.widget.render(name, value)),
         }
         
         return mark_safe(u'''

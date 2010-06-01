@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from crlib import gdata_wrapper as gd
@@ -8,6 +9,15 @@ from crauth import users
 
 class GAUser(gd.Model):
     Mapper = mappers.UserEntryMapper()
+    class Meta:
+        permissions = (
+            ('read_gauser', _('View users in your domain')),
+            ('add_gauser', _('Create users in your domain')),
+            ('change_gauser', _('Modify users in your domain')),
+            ('change_gausersettings', _('Modify users in your domain')),
+            ('change_gauserfilters', _('Modify users in your domain')),
+            ('change_gausersendas', _('Modify users in your domain')),
+        )
 
     id = gd.StringProperty('id.text', read_only=True)
     title = gd.StringProperty('title.text', read_only=True)
@@ -22,6 +32,15 @@ class GAUser(gd.Model):
     quota = gd.IntegerProperty('quota.limit')
     change_password = gd.BooleanProperty('login.change_password', default=False)
     email_settings = mappers.EmailSettingsProperty()
+
+    @classmethod
+    def get_current_user(cls):
+        user = users.get_current_user()
+        if user:
+            return cls.get_by_key_name(user.email().rpartition('@')[0])
+
+    def has_perm(self, permission):
+        pass
     
     def get_full_name(self):
         return '%s %s' % (self.given_name, self.family_name)
@@ -79,6 +98,12 @@ class GAGroupOwner(gd.Model):
 
 class GAGroup(gd.Model):
     Mapper = mappers.GroupEntryMapper()
+    class Meta:
+        permissions = (
+            ('read_gagroup', _('View groups in your domain')),
+            ('add_gagroup', _('Create groups in your domain')),
+            ('change_gagroup', _('Modify groups in your domain')),
+        )
 
     id = gd.StringProperty('groupId', required=True)
     name = gd.StringProperty('groupName', required=True)
@@ -112,6 +137,8 @@ class GAGroup(gd.Model):
 
 class GANickname(gd.Model):
     Mapper = mappers.NicknameEntryMapper()
+    class Meta:
+        permissions = ()
 
     nickname = gd.StringProperty('nickname.name', required=True)
     user_name = gd.StringProperty('login.user_name')
@@ -184,6 +211,13 @@ class Website(gd.Model):
 
 class SharedContact(gd.Model):
     Mapper = mappers.SharedContactEntryMapper()
+    class Meta:
+        permissions = (
+            ('read_sharedcontact', _('View shared contacts in your domain')),
+            ('add_sharedcontact', _('Create shared contacts in your domain')),
+            ('change_sharedcontact',
+             _('Modify shared contacts in your domain')),
+        )
 
     name = gd.EmbeddedModelProperty(Name, 'name', required=False)
     title = gd.StringProperty('title.text', required=False, read_only=True)
@@ -206,47 +240,18 @@ class SharedContact(gd.Model):
 
 class CalendarResource(gd.Model):
     Mapper = mappers.CalendarResourceEntryMapper()
+    class Meta:
+        permissions = (
+            ('read_calendarresource',
+             _('View calendar resources in your domain')),
+            ('add_calendarresource',
+             _('Create calendar resources in your domain')),
+            ('change_calendarresource',
+             _('Modify calendar resources in your domain')),
+        )
 
     id = gd.StringProperty('resource_id', required=True)
     common_name = gd.StringProperty('resource_common_name', required=True)
     description = gd.StringProperty('resource_description')
     type = gd.StringProperty('resource_type')
-
-
-class Role(BaseModel):
-    name = db.StringProperty()
-    description = db.StringProperty()
-    #privileges = db.ListProperty()
-
-    @classmethod
-    def get_by_name(cls, name):
-        return cls.get_by_key_name('role:%s' % name)
-
-    @classmethod
-    def create(cls, name, description):
-        def txn():
-            role = cls(
-                key_name='role:%s' % name,
-                name=name,
-                description=description)
-            role.put()
-            return role
-        return db.run_in_transaction(txn)
-
-    @classmethod
-    def get_user_role(cls, user):
-        return _UserRoleMapping.get_by_key_name(user.id).role
-
-    def add_user(self, user):
-        def txn(user_id, role_key):
-            mapping = _UserRoleMapping(
-                key_name=user.id,
-                role=role_key)
-            mapping.put()
-            return mapping
-        db.run_in_transaction(user.id, self.key())
-
-
-class _UserRoleMapping(BaseModel):
-    roles = db.ListProperty(db.Key)
 

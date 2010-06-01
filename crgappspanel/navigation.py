@@ -9,6 +9,7 @@ def base(request):
         Section('users', _('Users and Groups'), reverse('users'), (
             Section('groups', _('Groups'), reverse('groups')),
             Section('users', _('Users'), reverse('users')),
+            Section('roles', _('Roles'), reverse('roles')),
         )),
         Section('shared_contacts', _('Shared Contacts'),
             reverse('shared-contacts')),
@@ -37,6 +38,10 @@ def user_nav(user):
     return (
         Section(
             'details', _('General'), reverse('user-details', args=(user,)),
+            parent=parent
+        ),
+        Section(
+            'roles', _('Roles'), reverse('user-roles', args=(user,)),
             parent=parent
         ),
         Section(

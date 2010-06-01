@@ -3,9 +3,10 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
 import crauth
-from crauth.decorators import login_required
+from crauth.decorators import login_required, admin_required, has_perm
+from crauth.models import Role, UserPermissions
 from crgappspanel import consts
-from crgappspanel.forms import UserForm, UserGroupsForm, \
+from crgappspanel.forms import UserForm, UserRolesForm, UserGroupsForm, \
     UserEmailSettingsForm, UserEmailFiltersForm, UserEmailAliasesForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
@@ -25,8 +26,10 @@ POP3_ENABLE_FORS = dict(
     en=consts.EMAIL_ENABLE_FOR_MAIL_FROM_NOW_ON)
 
 
-def _get_roles(x):
-    return _('Administrator') if x.admin else ''
+def _get_user_email(domain):
+    def new(x):
+        return '%s@%s' % (x.user_name or '', domain)
+    return new
 
 def _get_status(x):
     return _('Suspended') if x.suspended else _('Active')
@@ -38,20 +41,47 @@ def _get_quota(x):
     else:
         return '%s MB' % quota
 
+def _get_roles_map(roles_map=dict()):
+    if len(roles_map) == 0:
+        for role in Role.for_domain(crauth.users.get_current_domain()).fetch(1000):
+            roles_map[str(role.key())] = role
+    return roles_map
+
+def _get_roles_choices(role_keys, is_admin):
+    choices = [('', '')]
+    if not is_admin:
+        choices.append(('admin', _('Administrator')))
+    
+    new_role_keys = [key for key in _get_roles_map().iterkeys() if key not in role_keys]
+    choices.extend([(key, _get_roles_map()[key].name) for key in new_role_keys])
+    return choices
+
+def _get_roles(domain):
+    def new(x):
+        if x.admin:
+            return _('Administrator')
+        
+        from crauth.models import UserPermissions
+        perms = UserPermissions.get_by_key_name(_get_user_email(domain)(x))
+        if perms:
+            return ', '.join(_get_roles_map()[str(perm)].name for perm in perms.roles)
+        else:
+            return ''
+    return new
+
 def _table_fields_gen(domain):
     return [
         Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
-        Column(_('Username'), 'username',
-            getter=lambda x: '%s@%s' % (x.user_name, domain)),
+        Column(_('Username'), 'username', getter=_get_user_email(domain)),
         Column(_('Status'), 'status', getter=_get_status),
-        Column(_('Roles'), 'roles', getter=_get_roles),
-        Column(_('Email quota'), 'quota', getter=_get_quota),
+        Column(_('Roles'), 'roles', getter=_get_roles(domain)),
+        Column(_('Email quota'), 'quota'),
     ]
 _table_id = Column(None, 'user_name')
 _table_widths = ['%d%%' % x for x in (5, 20, 30, 15, 20, 10)]
 
 
-@login_required
+@has_perm('read_gauser')
 def users(request):
     domain = crauth.users.get_current_user().domain_name
     _table_fields = _table_fields_gen(domain)
@@ -74,7 +104,7 @@ def users(request):
     })
 
 
-@login_required
+@has_perm('add_gauser')
 @exists_goto('user-create')
 def user_create(request):
     domain = crauth.users.get_current_user().domain_name
@@ -98,7 +128,7 @@ def user_create(request):
     }, in_section='users/users')
 
 
-@login_required
+@has_perm('change_gauser')
 def user_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -143,7 +173,61 @@ def user_details(request, name=None):
     }, extra_nav=user_nav(name))
 
 
-@login_required
+@admin_required
+def user_roles(request, name=None):
+    from crauth.models import AppsDomain, Role, UserPermissions
+    
+    if not name:
+        raise ValueError('name = %s' % name)
+    
+    user = GAUser.get_by_key_name(name)
+    if not user:
+        return redirect('users')
+    
+    email = '%s@%s' % (user.user_name, crauth.users.get_current_user().domain_name)
+    perms = UserPermissions.get_or_insert(key_name=email, user_email=email)
+    
+    role_keys = [str(role_key) for role_key in perms.roles]
+    
+    if request.method == 'POST':
+        form = UserRolesForm(request.POST, auto_id=True,
+            choices=_get_roles_choices(role_keys, user.admin))
+        if form.is_valid():
+            data = form.cleaned_data
+            
+            roles = data['roles']
+            if roles:
+                if roles == 'admin':
+                    user.admin = True
+                    user.save()
+                else:
+                    perms.roles.append(_get_roles_map()[roles].key())
+                    perms.save()
+            return redirect_saved('user-roles', request, name=user.user_name)
+    else:
+        form = UserRolesForm(initial=dict(role=''), auto_id=True,
+            choices=_get_roles_choices(role_keys, user.admin))
+    
+    def remove_role_link(x):
+        kwargs = dict(name=user.user_name, role_name=x)
+        return reverse('user-remove-role', kwargs=kwargs)
+    roles = [_get_roles_map()[role_key].name for role_key in role_keys]
+    roles_with_remove = [ValueWithRemoveLink(role_name, remove_role_link(role_name))
+        for role_name in roles]
+    if user.admin:
+        obj = ValueWithRemoveLink(_('Administrator'), remove_role_link('admin'))
+        roles_with_remove.insert(0, obj)
+    
+    return render_with_nav(request, 'user_roles.html', {
+        'user': user,
+        'form': form,
+        'roles': roles_with_remove,
+        'saved': request.session.pop('saved', False),
+        'scripts': ['swap-widget'],
+    }, extra_nav=user_nav(name))
+
+
+@has_perm('change_gauser')
 def user_groups(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -188,7 +272,7 @@ def user_groups(request, name=None):
     }, extra_nav=user_nav(name))
 
 
-@login_required
+@has_perm('change_gausersettings')
 def user_email_settings(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -262,6 +346,7 @@ def user_email_settings(request, name=None):
     }, extra_nav=user_nav(name))
 
 
+@has_perm('change_gauserfilters')
 def user_email_filters(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -292,6 +377,7 @@ def user_email_filters(request, name=None):
     }, extra_nav=user_nav(name))
 
 
+@has_perm('change_gauser')
 def user_email_aliases(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -319,6 +405,7 @@ def user_email_aliases(request, name=None):
     }, extra_nav=user_nav(name))
 
 
+@has_perm('change_gauser')
 def user_suspend_restore(request, name=None, suspend=None):
     if not name or suspend is None:
         raise ValueError('name = %s, suspend = %s' % (name, str(suspend)))
@@ -330,17 +417,17 @@ def user_suspend_restore(request, name=None, suspend=None):
     return redirect('user-details', name=user.user_name)
 
 
-@login_required
+@has_perm('change_gauser')
 def user_suspend(request, name=None):
     return user_suspend_restore(request, name=name, suspend=True)
 
 
-@login_required
+@has_perm('change_gauser')
 def user_restore(request, name=None):
     return user_suspend_restore(request, name=name, suspend=False)
 
 
-@login_required
+@has_perm('change_gauser')
 def user_remove(request, names=None):
     if not names:
         raise ValueError('names = %s' % names)
@@ -352,7 +439,7 @@ def user_remove(request, names=None):
     return redirect_saved('users', request)
 
 
-@login_required
+@has_perm('change_gauser')
 def user_remove_nickname(request, name=None, nickname=None):
     if not all((name, nickname)):
         raise ValueError('name = %s, nickname = %s' % (name, nickname))
@@ -360,4 +447,29 @@ def user_remove_nickname(request, name=None, nickname=None):
     nickname = GANickname.get_by_key_name(nickname)
     nickname.delete()
     
-    return redirect('user-details', name=name)
+    return redirect_saved('user-details', request, name=name)
+
+
+@admin_required
+def user_remove_role(request, name=None, role_name=None):
+    if not all((name, role_name)):
+        raise ValueError('name = %s, role_name = %s' % (name, role_name))
+    
+    if not name:
+        raise ValueError('name = %s' % name)
+    
+    user = GAUser.get_by_key_name(name)
+    if not user:
+        return redirect('users')
+    
+    email = '%s@%s' % (user.user_name, crauth.users.get_current_user().domain_name)
+    perms = UserPermissions.get_or_insert(key_name=email, user_email=email)
+    
+    if role_name == 'admin':
+        user.admin = False
+        user.save()
+    else:
+        perms.roles = [rk for rk in perms.roles if _get_roles_map()[str(rk)].name != role_name]
+        perms.save()
+    
+    return redirect_saved('user-roles', request, name=user.user_name)

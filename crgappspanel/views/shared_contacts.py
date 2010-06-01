@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
-from crauth.decorators import login_required
+from crauth.decorators import has_perm
 from crgappspanel.forms import SharedContactForm
 from crgappspanel.helpers.filters import SharedContactFilter, \
         SharedContactAdvancedFilter, NullFilter
@@ -54,7 +54,7 @@ _table_id = Column(None, 'key', getter=lambda x: x.key())
 _table_widths = ['%d%%' % x for x in (5, 20, 20, 15, 10, 30)]
 
 
-@login_required
+@has_perm('read_sharedcontact')
 def shared_contacts(request):
     sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
@@ -105,7 +105,7 @@ def shared_contacts(request):
     })
 
 
-@login_required
+@has_perm('add_sharedcontact')
 def shared_contact_add(request):
     if request.method == 'POST':
         form = SharedContactForm(request.POST, auto_id=True)
@@ -127,7 +127,7 @@ def shared_contact_add(request):
     }, in_section='shared_contacts')
 
 
-@login_required
+@has_perm('change_sharedcontact')
 def shared_contact_details(request, key=None):
     if not key:
         raise ValueError('key = %s' % key)
@@ -204,7 +204,7 @@ def shared_contact_details(request, key=None):
     }, in_section='shared_contacts')
 
 
-@login_required
+@has_perm('change_sharedcontact')
 def shared_contact_remove(request, keys=None):
     if not keys:
         raise ValueError('keys = %s' % keys)
@@ -217,7 +217,7 @@ def shared_contact_remove(request, keys=None):
     return redirect_saved('shared-contacts', request)
 
 
-@login_required
+@has_perm('change_sharedcontact')
 def shared_contact_remove_email(request, key=None, email=None):
     if not all((key, email)):
         raise ValueError('key = %s, email = %s' % (key, email))
@@ -235,7 +235,7 @@ def shared_contact_remove_email(request, key=None, email=None):
     return redirect_saved('shared-contact-details', request, key=key)
 
 
-@login_required
+@has_perm('change_sharedcontact')
 def shared_contact_remove_phone(request, key=None, phone=None):
     if not all((key, phone)):
         raise ValueError('key = %s, phone = %s' % (key, phone))

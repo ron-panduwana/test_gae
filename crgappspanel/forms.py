@@ -2,6 +2,7 @@ from django import forms
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
 
+import crauth
 from crgappspanel import consts, models
 from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
@@ -179,6 +180,27 @@ class UserForm(forms.Form):
     
     def get_nickname(self):
         return self.cleaned_data['nicknames']
+
+
+roles_c = '%(link_start)sAdd role%(link_end)s'
+roles_e = 'Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+
+
+class UserRolesForm(forms.Form):
+    roles = forms.CharField(label=_('Roles'), required=False,
+        widget=widgets.SwapWidget(roles_c, forms.Select(), roles_e))
+    
+    def __init__(self, *args, **kwargs):
+        if 'choices' in kwargs:
+            choices = kwargs['choices']
+            del kwargs['choices']
+        else:
+            choices = None
+        
+        super(UserRolesForm, self).__init__(*args, **kwargs)
+        
+        if choices:
+            self.fields['roles'].widget.widget.choices = choices
 
 
 ADD_AS_CHOICES = (('owner', _('Owner')), ('member', _('Member')))
@@ -416,6 +438,120 @@ class GroupMembersForm(forms.Form):
     member = forms.EmailField(label=_('Members'), required=False,
         widget=widgets.SwapWidget(member_c,
             forms.TextInput(attrs={'class':'long'}), member_e))
+
+
+################################################################################
+#                                    ROLES                                     #
+################################################################################
+
+
+PERMISSION_NAMES = crauth.permissions.permission_names(False)
+OBJECT_TYPES = (
+    ('users', _('Manage Users'), (
+        ('gauser', _('General')),
+        ('gausersettings', _('Settings')),
+        ('gauserfilters', _('Filters')),
+        ('gausersendas', _('Send as')))),
+    ('groups', _('Manage Groups'), (
+        ('gagroup', _('General')),)),
+    ('roles', _('Manage Roles'), (
+        ('role', _('General')),)),
+    ('shared_contacts', _('Manage Shared Contacts'), (
+        ('sharedcontact', _('General')),)),
+    ('calendar_resources', _('Manage Calendar Resources'), (
+        ('calendarresource', _('General')),)),
+)
+
+
+class ObjectTypeFields(object):
+    def __init__(self, form, obj_type, name=None):
+        self.form = form
+        self.obj_type = obj_type
+        self.name = name or obj_type
+    
+    def obj_name(self):
+        return 
+    
+    def add(self):
+        return self.get('add_%s' % self.obj_type)
+    
+    def change(self):
+        return self.get('change_%s' % self.obj_type)
+    
+    def read(self):
+        return self.get('read_%s' % self.obj_type)
+    
+    def get(self, key):
+        try:
+            return self.form[key]
+        except KeyError:
+            return None
+
+
+class RoleForm(forms.Form):
+    name = forms.CharField(label=_('Name'))
+    
+    def __init__(self, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+        
+        self.sections = dict()
+        
+        perms = dict()
+        for perm in PERMISSION_NAMES:
+            action, obj_type = perm.split('_')
+            
+            actions = perms[obj_type] if obj_type in perms else set()
+            actions.add(action)
+            perms[obj_type] = actions
+        
+        for section in OBJECT_TYPES:
+            self._add_section(section, perms)
+    
+    def create(self, domain):
+        data = self.cleaned_data
+        
+        permissions = []
+        for perm in PERMISSION_NAMES:
+            if perm in data and data[perm]:
+                permissions.append(perm)
+        
+        return crauth.models.Role(
+            parent=domain, name=data['name'],
+            permissions=permissions)
+    
+    def populate(self, role):
+        data = self.cleaned_data
+        
+        permissions = []
+        for perm in PERMISSION_NAMES:
+            if perm in data and data[perm]:
+                permissions.append(perm)
+        
+        role.name = data['name']
+        role.permissions = permissions
+    
+    def _add_section(self, section, perms):
+        section_obj = dict(name=section[1], groups=[])
+        
+        # iterating through section groups
+        for obj_type, name in section[2]:
+            actions = list(perms[obj_type])
+            actions.sort()
+            
+            # adding fields to the form
+            for action in actions:
+                field = self._add_field(obj_type, action)
+            
+            # adding group to section
+            group = ObjectTypeFields(self, obj_type, name=name)
+            section_obj['groups'].append(group)
+        self.sections[section[0]] = section_obj
+    
+    def _add_field(self, obj_type, action):
+        field_name = '%s_%s' % (action, obj_type)
+        field = forms.BooleanField(required=False)
+        self.fields[field_name] = field
+        return field
 
 
 ################################################################################

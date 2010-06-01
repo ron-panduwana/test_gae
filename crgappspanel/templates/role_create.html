@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create role" %}{% endblock %}
+
+{% block content %}
+<form action="{% url role-create %}" method="POST" class="create">
+	<h1>{% trans "Create new role" %}</h1><br/>
+	
+	<label for="id">{% trans "Name" %}</label><br/>
+	{% with form.name as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
+	
+	<br/><br/>
+	<label for="name"><b>{% trans "Manage Users" %}</b></label><br/>
+	{% with form.sections.users as section %}{% with "1" as show_roles_table_header %}
+		{% include "snippets/roles_section_table.html" %}
+	{% endwith %}{% endwith %}
+	
+	<br/><br/>
+	<label for="name"><b>{% trans "Manage Groups" %}</b></label><br/>
+	{% with form.sections.groups as section %}
+		{% include "snippets/roles_section_table.html" %}
+	{% endwith %}
+	
+	<br/><br/>
+	<label for="name"><b>{% trans "Manage Roles" %}</b></label><br/>
+	{% with form.sections.roles as section %}
+		{% include "snippets/roles_section_table.html" %}
+	{% endwith %}
+	
+	<br/><br/>
+	<label for="name"><b>{% trans "Manage Shared Contacts" %}</b></label><br/>
+	{% with form.sections.shared_contacts as section %}
+		{% include "snippets/roles_section_table.html" %}
+	{% endwith %}
+	
+	<br/><br/>
+	<label for="name"><b>{% trans "Manage Calendar Resources" %}</b></label><br/>
+	{% with form.sections.calendar_resources as section %}
+		{% include "snippets/roles_section_table.html" %}
+	{% endwith %}
+	
+	<br/><br/>
+	<input type="submit" value="{% trans "create" %}" class="default"/>
+	<input type="button" onclick="window.open('{% url roles %}', '_self')" value="{% trans "cancel" %}"/>
+</form>
+{% endblock %}

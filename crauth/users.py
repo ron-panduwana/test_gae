@@ -7,12 +7,14 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django import forms
+from google.appengine.ext import db
 from google.appengine.api import memcache
 from gdata.service import GDataService, CaptchaRequired, BadAuthentication
 from gdata.client import GDClient, CaptchaChallenge
 from gdata.gauth import ClientLoginToken, TwoLeggedOAuthHmacToken
 from gdata.apps.service import AppsForYourDomainException
-from crauth.models import AppsDomain
+from crauth.models import AppsDomain, UserPermissions, Role
+from crauth.permissions import ADMIN_PERMS
 
 
 _SERVICE_MEMCACHE_TOKEN_KEY = 'service_client_login_token:%s:%s'
@@ -34,9 +36,14 @@ class User(object):
         return self._email.partition('@')[0]
 
     def email(self):
+        """Returns email address of given User."""
         return self._email
 
     def domain(self):
+        """Returns :class:`AppsDomain <crauth.models.AppsDomain>` object the
+        User is part of.
+
+        """
         return AppsDomain.get_by_key_name(self.domain_name)
 
     def _client_login_service(self, service, captcha_token, captcha):
@@ -108,6 +115,72 @@ class User(object):
                 settings.OAUTH_SECRET,
                 self.email())
 
+    def is_admin(self):
+        """Checks if given User is an administrator of its *Google Apps* domain.
+        
+        This check is performed using *GData API* with the help of *OAuth*
+        2-legged authentication method. For this method to work we need access
+        to *Provisioning API* for given domain.
+
+        :returns: ``True`` or ``False``.
+
+        """
+        from gdata.apps.service import AppsService
+        from gdata.auth import OAuthSignatureMethod
+        is_admin = memcache.get(self.email(), namespace='is_current_user_admin')
+        if is_admin is not None:
+            return is_admin
+        service = AppsService(domain=self.domain_name)
+        service.SetOAuthInputParameters(
+            OAuthSignatureMethod.HMAC_SHA1,
+            settings.OAUTH_CONSUMER, settings.OAUTH_SECRET,
+            two_legged_oauth=True)
+        service.debug = True
+        apps_user = service.RetrieveUser(self.email().rpartition('@')[0])
+        is_admin = apps_user is not None and apps_user.login.admin == 'true'
+        memcache.set(self.email(), is_admin, 60 * 60,
+                     namespace='is_current_user_admin')
+        return is_admin
+
+    def has_perm(self, permission):
+        """Returns ``True`` if the User has permission ``permission``.
+
+        It simply calls :func:`has_perms` with ``[permission]`` argument.
+        
+        """
+        return self.has_perms([permission])
+
+    def has_perms(self, perm_list):
+        """Returns ``True`` if the User has all of the permissions in the
+        ``perm_list`` list.
+
+        This method always returns ``True`` if :func:`is_admin` returns
+        ``True``.
+
+        On the other hand, it always returns ``False`` if ``perm_list`` contains
+        permission from :attr:`ADMIN_PERMS <crauth.permissions.ADMIN_PERMS>` and
+        :func:`is_admin` returns ``False``.
+
+        """
+        perm_list = set(perm_list)
+        is_admin = self.is_admin()
+        if is_admin:
+            return True
+
+        if perm_list.intersection(set(ADMIN_PERMS)):
+            return is_admin
+
+        permissions = UserPermissions.get_or_insert(
+            key_name=self._email,
+            user_email=self._email)
+        if not permissions:
+            return False
+        roles = [role for role in Role.get(permissions.roles) if role]
+        all_perms = set(permissions.permissions)
+        for role in roles:
+            all_perms.update(role.permissions)
+        return all_perms.issuperset(perm_list)
+
 
 class UsersMiddleware(object):
     def process_request(self, request):
@@ -171,33 +244,18 @@ def get_current_user():
 
 
 def get_current_domain():
-    if os.environ.get(_ENVIRON_DOMAIN):
+    if os.environ.get(_ENVIRON_EMAIL) and os.environ.get(_ENVIRON_DOMAIN):
         return AppsDomain.get_by_key_name(os.environ[_ENVIRON_DOMAIN])
 
 
 def is_current_user_admin():
-    from gdata.apps.service import AppsService
-    from gdata.auth import OAuthSignatureMethod
     user = get_current_user()
     if user is None:
         return False
-    is_admin = memcache.get(user.email(), namespace='is_current_user_admin')
-    if is_admin is not None:
-        return is_admin
-    service = AppsService(domain=user.domain().domain)
-    service.SetOAuthInputParameters(
-        OAuthSignatureMethod.HMAC_SHA1,
-        settings.OAUTH_CONSUMER, settings.OAUTH_SECRET,
-        two_legged_oauth=True)
-    service.debug = True
-    apps_user = service.RetrieveUser(user.email().rpartition('@')[0])
-    is_admin = apps_user is not None and apps_user.login.admin == 'true'
-    memcache.set(user.email(), is_admin, 60 * 60,
-                 namespace='is_current_user_admin')
-    return is_admin
+    return user.is_admin()
 
 
-def _set_testing_user(email, password, domain):
+def _set_testing_user(email, domain):
     os.environ[_ENVIRON_EMAIL] = email
     os.environ[_ENVIRON_DOMAIN] = domain
 

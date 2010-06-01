@@ -7,6 +7,14 @@ CALENDAR_URL = 'https://www.google.com/calendar/hosted/%s'
 HELP_URL = 'http://www.google.com/support/a'
 
 
+class PermWrapper(object):
+    def __init__(self, user):
+        self._user = user
+
+    def __getattr__(self, name):
+        return self._user.has_perm(name)
+
+
 def users(request):
     user = _users.get_current_user()
     if user is None:
@@ -17,6 +25,7 @@ def users(request):
     return {
         'auth': {
             'user': user,
+            'perms': PermWrapper(user),
             'domain': domain,
             'logout_url': _users.create_logout_url(DASHBOARD_URL % domain),
             'dashboard_url': DASHBOARD_URL % domain,
@@ -25,3 +34,5 @@ def users(request):
             'help_url': HELP_URL,
         }
     }
+
+
