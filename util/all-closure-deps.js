@@ -1,3 +1,5 @@
+goog.require('goog.async.Delay')
 goog.require('goog.dom')
+goog.require('goog.fx.dom.FadeOutAndHide')
 goog.require('goog.net.XhrIo')
 goog.require('goog.ui.Dialog')
