@@ -7,8 +7,7 @@ from crauth.decorators import has_perm
 from crgappspanel.forms import GroupForm, GroupMembersForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
-from crgappspanel.models import GAGroup, GAGroupOwner, GAGroupMember, \
-        SharedContact
+from crgappspanel.models import GAGroup, GAGroupOwner, GAGroupMember
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
         render, redirect_saved
 from crlib.navigation import render_with_nav
@@ -142,20 +141,34 @@ def group_members(request, name=None):
     owners = [ValueWithRemoveLink(owner, remove_owner_link(group, owner)) for owner in owner_emails]
     members = [ValueWithRemoveLink(member, remove_member_link(group, member)) for member in member_emails if member not in owner_emails]
     
-    contact_emails = set()
-    for contact in SharedContact.all().fetch(1000):
-        for email in contact.emails:
-            if email.address:
-                contact_emails.add(email.address)
-    contact_emails = list(contact_emails)
-    contact_emails.sort()
+    suggestions = set()
+    
+    current_user = users.get_current_user()
+    domain_name = current_user.domain_name
+    
+    if current_user.has_perm('read_gauser'):
+        from crgappspanel.models import GAUser
+        for user in GAUser.all().fetch(1000):
+            suggestions.add('%s@%s' % (user.user_name, domain_name))
+            for nick in user.nicknames:
+                suggestions.add('%s@%s' % (nick.nickname, domain_name))
+    
+    if current_user.has_perm('read_sharedcontact'):
+        from crgappspanel.models import SharedContact
+        for contact in SharedContact.all().fetch(1000):
+            for email in contact.emails:
+                if email.address:
+                    suggestions.add(email.address)
+    
+    suggestions = list(suggestions)
+    suggestions.sort()
     
     return render_with_nav(request, 'group_members.html', {
         'form': form,
         'group': group,
         'owners': owners,
         'members': members,
-        'contact_emails': contact_emails,
+        'suggestions': suggestions,
         'saved': request.session.pop('saved', False),
         'scripts': ['swap-widget'],
     }, extra_nav=group_nav(name))

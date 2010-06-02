@@ -20,7 +20,7 @@
 	</table>
 </form>
 <script type="text/javascript">
-var suggestions = [{% for x in contact_emails %}'{{ x|escapejs }}',{% endfor %}]
+var suggestions = [{% for x in suggestions %}'{{ x|escapejs }}',{% endfor %}]
 new goog.ui.AutoComplete.Basic(suggestions, goog.dom.$('owner'), false)
 new goog.ui.AutoComplete.Basic(suggestions, goog.dom.$('member'), false)
 </script>
