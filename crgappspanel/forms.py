@@ -434,10 +434,10 @@ member_e = '%(widget)s %(link_start)sCancel%(link_end)s'
 class GroupMembersForm(forms.Form):
     owner = forms.EmailField(label=_('Owners'), required=False,
         widget=widgets.SwapWidget(owner_c,
-            forms.TextInput(attrs={'class':'long'}), owner_e))
+            forms.TextInput(attrs={'class':'long', 'id':'owner'}), owner_e))
     member = forms.EmailField(label=_('Members'), required=False,
         widget=widgets.SwapWidget(member_c,
-            forms.TextInput(attrs={'class':'long'}), member_e))
+            forms.TextInput(attrs={'class':'long', 'id':'member'}), member_e))
 
 
 ################################################################################

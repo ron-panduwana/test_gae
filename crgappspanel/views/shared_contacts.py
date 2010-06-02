@@ -47,7 +47,7 @@ _table_fields = [
     Column(_('Company'), 'company', getter=lambda x: x.extended_properties.get('company', '')),
     Column(_('Phone numbers'), 'phone_numbers',
         getter=lambda x: list_attrs(x.phone_numbers, 'number')),
-    Column(_('E-mails'), 'emails',
+    Column(_('Emails'), 'emails',
         getter=lambda x: list_attrs(x.emails, 'address')),
 ]
 _table_id = Column(None, 'key', getter=lambda x: x.key())

@@ -7,7 +7,8 @@ from crauth.decorators import has_perm
 from crgappspanel.forms import GroupForm, GroupMembersForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
-from crgappspanel.models import GAGroup, GAGroupOwner, GAGroupMember
+from crgappspanel.models import GAGroup, GAGroupOwner, GAGroupMember, \
+        SharedContact
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
         render, redirect_saved
 from crlib.navigation import render_with_nav
@@ -141,11 +142,20 @@ def group_members(request, name=None):
     owners = [ValueWithRemoveLink(owner, remove_owner_link(group, owner)) for owner in owner_emails]
     members = [ValueWithRemoveLink(member, remove_member_link(group, member)) for member in member_emails if member not in owner_emails]
     
+    contact_emails = set()
+    for contact in SharedContact.all().fetch(1000):
+        for email in contact.emails:
+            if email.address:
+                contact_emails.add(email.address)
+    contact_emails = list(contact_emails)
+    contact_emails.sort()
+    
     return render_with_nav(request, 'group_members.html', {
         'form': form,
         'group': group,
         'owners': owners,
         'members': members,
+        'contact_emails': contact_emails,
         'saved': request.session.pop('saved', False),
         'scripts': ['swap-widget'],
     }, extra_nav=group_nav(name))
