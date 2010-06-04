@@ -1,3 +1,5 @@
+from itertools import imap
+
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
@@ -41,22 +43,33 @@ def _get_quota(x):
     else:
         return '%s MB' % quota
 
-def _get_roles_map(roles_map=dict()):
+def _cached_roles(roles_map=dict()):
     if len(roles_map) == 0:
         for role in Role.for_domain(crauth.users.get_current_domain()).fetch(1000):
             roles_map[str(role.key())] = role
     return roles_map
+
+def _get_role(key):
+    key = str(key)
+    if key in _cached_roles():
+        return _cached_roles()[key]
+    else:
+        return None
+
+def _get_roles(keys):
+    res = imap(lambda x: _get_role(x), keys)
+    return [x for x in res if x is not None]
 
 def _get_roles_choices(role_keys, is_admin):
     choices = [('', '')]
     if not is_admin:
         choices.append(('admin', _('Administrator')))
     
-    new_role_keys = [key for key in _get_roles_map().iterkeys() if key not in role_keys]
-    choices.extend([(key, _get_roles_map()[key].name) for key in new_role_keys])
+    new_role_keys = [key for key in _cached_roles().iterkeys() if key not in role_keys]
+    choices.extend([(key, _get_role(key).name) for key in new_role_keys])
     return choices
 
-def _get_roles(domain):
+def _get_user_roles(domain):
     def new(x):
         if x.admin:
             return _('Administrator')
@@ -64,7 +77,7 @@ def _get_roles(domain):
         from crauth.models import UserPermissions
         perms = UserPermissions.get_by_key_name(_get_user_email(domain)(x))
         if perms:
-            return ', '.join(_get_roles_map()[str(perm)].name for perm in perms.roles)
+            return ', '.join(role.name for role in _get_roles(perms.roles))
         else:
             return ''
     return new
@@ -74,7 +87,7 @@ def _table_fields_gen(domain):
         Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
         Column(_('Username'), 'username', getter=_get_user_email(domain)),
         Column(_('Status'), 'status', getter=_get_status),
-        Column(_('Roles'), 'roles', getter=_get_roles(domain)),
+        Column(_('Roles'), 'roles', getter=_get_user_roles(domain)),
         Column(_('Email quota'), 'quota'),
     ]
 _table_id = Column(None, 'user_name')
@@ -201,7 +214,7 @@ def user_roles(request, name=None):
                     user.admin = True
                     user.save()
                 else:
-                    perms.roles.append(_get_roles_map()[roles].key())
+                    perms.roles.append(_get_role(roles).key())
                     perms.save()
             return redirect_saved('user-roles', request, name=user.user_name)
     else:
@@ -211,7 +224,7 @@ def user_roles(request, name=None):
     def remove_role_link(x):
         kwargs = dict(name=user.user_name, role_name=x)
         return reverse('user-remove-role', kwargs=kwargs)
-    roles = [_get_roles_map()[role_key].name for role_key in role_keys]
+    roles = _get_roles(role_keys)
     roles_with_remove = [ValueWithRemoveLink(role_name, remove_role_link(role_name))
         for role_name in roles]
     if user.admin:
@@ -469,7 +482,7 @@ def user_remove_role(request, name=None, role_name=None):
         user.admin = False
         user.save()
     else:
-        perms.roles = [rk for rk in perms.roles if _get_roles_map()[str(rk)].name != role_name]
+        perms.roles = [rk for rk in perms.roles if _get_role(rk).name != role_name]
         perms.save()
     
     return redirect_saved('user-roles', request, name=user.user_name)
