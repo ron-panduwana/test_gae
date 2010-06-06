@@ -7,3 +7,4 @@ Packages
    crauth/index
    crlib/index
    crappadmin/index
+   crgappspanel/index
