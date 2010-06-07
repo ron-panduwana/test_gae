@@ -48,7 +48,7 @@ class User(object):
 
     def _client_login_service(self, service, captcha_token, captcha):
         memcache_key = _SERVICE_MEMCACHE_TOKEN_KEY % (
-            self._email, service.service)
+            self.domain_name, service.service)
         token = memcache.get(memcache_key)
         if not token:
             from gdata.service import BadAuthentication
@@ -74,7 +74,7 @@ class User(object):
 
     def _client_login_client(self, client, captcha_token, captcha):
         memcache_key = _CLIENT_MEMCACHE_TOKEN_KEY % (
-            self._email, client.auth_service)
+            self.domain_name, client.auth_service)
         token = memcache.get(memcache_key)
         if not token:
             from gdata.client import BadAuthentication
@@ -136,7 +136,11 @@ class User(object):
             settings.OAUTH_CONSUMER, settings.OAUTH_SECRET,
             two_legged_oauth=True)
         service.debug = True
-        apps_user = service.RetrieveUser(self.email().rpartition('@')[0])
+        try:
+            apps_user = service.RetrieveUser(self.email().rpartition('@')[0])
+        except AppsForYourDomainException:
+            logging.warning('self.domain_name: %s' % str(self.domain_name))
+            return False
         is_admin = apps_user is not None and apps_user.login.admin == 'true'
         memcache.set(self.email(), is_admin, 60 * 60,
                      namespace='is_current_user_admin')
