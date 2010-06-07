@@ -197,7 +197,7 @@ class UsersMiddleware(object):
 
     def process_exception(self, request, exception):
         if isinstance(exception, LoginRequiredError):
-            request.session.flush()
+            request.session.pop(settings.SESSION_LOGIN_INFO_KEY, None)
             return HttpResponseRedirect(
                 create_login_url(request.get_full_path()))
         elif isinstance(exception, CaptchaChallenge):
@@ -221,10 +221,11 @@ class UsersMiddleware(object):
                 return HttpResponseRedirect(
                     reverse('domain_setup', args=(user.domain().domain,)))
         elif isinstance(exception, AppsForYourDomainException):
+            request.session.pop(settings.SESSION_LOGIN_INFO_KEY, None)
             memcache.flush_all()
 
 
-def create_login_url(dest_url):
+def create_login_url(dest_url=settings.LOGIN_REDIRECT_URL):
     return reverse('openid_get_domain') + '?%s' % urllib.urlencode({
         settings.REDIRECT_FIELD_NAME: dest_url})
 

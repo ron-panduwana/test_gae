@@ -169,6 +169,14 @@ div.error {
 *                             SPECIFIC INFORMATION                             *
 *******************************************************************************/
 
+form.login ul {
+    list-style: none;
+}
+
+form.login ul label:not([for=id_domain_0_other]) {
+    font-weight: bold;
+}
+
 .admin-label {
 	color: green;
 }

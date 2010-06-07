@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import logging
 import urllib
+from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
@@ -15,12 +16,14 @@ from openid.store.memstore import MemoryStore
 from openid.extensions import ax
 from crauth.models import AppsDomain
 from crauth.store import DatastoreStore
-from crauth.forms import DomainNameForm, CaptchaForm, DomainSetupForm
+from crauth.forms import DomainNameForm, ChooseDomainForm, CaptchaForm, \
+        DomainSetupForm
 from crauth.ga_openid import discover_google_apps
 from crauth import users
 from crlib.navigation import render_with_nav
 
 
+SESSION_DOMAINS_KEY = '_domains_set'
 AX_PREFIX = 'http://axschema.org/'
 AX_ATTRS = (
     ('contact/email', 'email'),
@@ -32,18 +35,52 @@ store = DatastoreStore()
 
 
 def openid_get_domain(request, template='get_domain.html'):
+    domains = request.session.get(SESSION_DOMAINS_KEY, set())
+    if len(domains) == 1 and not request.GET.has_key('force'):
+        # We only have one domains in cookies, let's redirect directly to this
+        # domain.
+        return HttpResponseRedirect(
+            reverse('openid_start', args=(domains.pop(),)))
+    if domains:
+        choices = [(domain, domain) for domain in domains]
+        choices.append(
+            ('other', _('Other, please specify: www.')),
+        )
     if request.method == 'POST':
-        form = DomainNameForm(request.POST)
+        if domains:
+            form = ChooseDomainForm(request.POST, choices=choices)
+        else:
+            form = DomainNameForm(request.POST)
         if form.is_valid():
+            domain = form.cleaned_data['domain']
             return HttpResponseRedirect(
-                reverse('openid_start', args=(form.cleaned_data['domain'],)))
+                reverse('openid_start', args=(domain,)))
     else:
-        form = DomainNameForm()
+        if domains:
+            form = ChooseDomainForm(choices=choices,
+                                    initial={'domain': (domains.pop(), '')})
+        else:
+            form = DomainNameForm()
     ctx = {
         'form': form,
+        'with_domains': bool(domains),
     }
     return render_to_response(
         template, ctx, context_instance=RequestContext(request))
+
+
+def openid_change_domain(request, domain, template='change_domain.html'):
+    current_domain = users.get_current_domain()
+    if current_domain:
+        if current_domain.domain != domain:
+            if request.method == 'POST':
+                if 'yes' not in request.POST:
+                    return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
+            else:
+                return render_with_nav(request, template, {'domain': domain})
+        else:
+            return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
+    return HttpResponseRedirect(reverse('openid_start', args=(domain,)))
 
 
 def openid_start(request, domain=None):
@@ -100,7 +137,7 @@ def openid_return(request):
         request.GET, request.build_absolute_uri(request.get_full_path()))
 
     if info.status != SUCCESS:
-        request.session.flush()
+        request.session.pop(settings.SESSION_LOGIN_INFO_KEY, None)
         return HttpResponse('%s: %s' % (info.status, info.message))
 
     if request.session.test_cookie_worked():
@@ -109,6 +146,9 @@ def openid_return(request):
         return HttpResponse('You need cookies enabled!')
 
     session_info = request.session[settings.SESSION_LOGIN_INFO_KEY]
+    domains_set = request.session.get(SESSION_DOMAINS_KEY, set())
+    domains_set.add(session_info['domain'])
+    request.session[SESSION_DOMAINS_KEY] = domains_set
 
     # Request information about user email and name
     ax_resp = ax.FetchResponse.fromSuccessResponse(info)
@@ -129,7 +169,7 @@ def openid_logout(request):
     redirect_to = request.GET.get(
         settings.REDIRECT_FIELD_NAME, request.META.get('HTTP_REFERER', '/'))
     try:
-        request.session.flush()
+        request.session.pop(settings.SESSION_LOGIN_INFO_KEY, None)
     except TypeError:
         pass
     return HttpResponseRedirect(redirect_to)

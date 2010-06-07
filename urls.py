@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from django.conf.urls.defaults import *
+from crauth.urls import DOMAIN
 
 urlpatterns = patterns('',
     (r'^i18n/', include('django.conf.urls.i18n')),
@@ -99,5 +100,10 @@ urlpatterns += patterns('crgappspanel.views.calendar_resources',
 urlpatterns += patterns('',
     url(r'^openid/', include('crauth.urls')),
     url(r'^appadmin/', include('crappadmin.urls')),
+)
+
+urlpatterns += patterns(
+    'crauth.views',
+    url(r'^a/%s/$' % DOMAIN, 'openid_change_domain'),
 )
 
