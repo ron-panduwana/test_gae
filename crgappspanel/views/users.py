@@ -225,8 +225,8 @@ def user_roles(request, name=None):
         kwargs = dict(name=user.user_name, role_name=x)
         return reverse('user-remove-role', kwargs=kwargs)
     roles = _get_roles(role_keys)
-    roles_with_remove = [ValueWithRemoveLink(role_name, remove_role_link(role_name))
-        for role_name in roles]
+    roles_with_remove = [ValueWithRemoveLink(role.name, remove_role_link(role.name))
+        for role in roles]
     if user.admin:
         obj = ValueWithRemoveLink(_('Administrator'), remove_role_link('admin'))
         roles_with_remove.insert(0, obj)
