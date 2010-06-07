@@ -36,7 +36,7 @@ store = DatastoreStore()
 
 def openid_get_domain(request, template='get_domain.html'):
     domains = request.session.get(SESSION_DOMAINS_KEY, set())
-    if len(domains) == 1:
+    if len(domains) == 1 and not request.GET.has_key('force'):
         # We only have one domains in cookies, let's redirect directly to this
         # domain.
         return HttpResponseRedirect(
@@ -52,14 +52,7 @@ def openid_get_domain(request, template='get_domain.html'):
         else:
             form = DomainNameForm(request.POST)
         if form.is_valid():
-            if domains:
-                id, value = form.cleaned_data['domain']
-                if id == 'other':
-                    domain = value
-                else:
-                    domain = id
-            else:
-                domain = form.cleaned_data['domain']
+            domain = form.cleaned_data['domain']
             return HttpResponseRedirect(
                 reverse('openid_start', args=(domain,)))
     else:

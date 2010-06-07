@@ -152,7 +152,7 @@ class UsersMiddleware(object):
             memcache.flush_all()
 
 
-def create_login_url(dest_url):
+def create_login_url(dest_url=settings.LOGIN_REDIRECT_URL):
     return reverse('openid_get_domain') + '?%s' % urllib.urlencode({
         settings.REDIRECT_FIELD_NAME: dest_url})
 

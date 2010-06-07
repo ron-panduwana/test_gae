@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from crauth import users as _users
 
 
@@ -19,6 +20,7 @@ def users(request):
             'user': user,
             'domain': domain,
             'logout_url': _users.create_logout_url(DASHBOARD_URL % domain),
+            'change_domain_url': reverse('openid_get_domain') + '?force',
             'dashboard_url': DASHBOARD_URL % domain,
             'inbox_url': INBOX_URL % domain,
             'calendar_url': CALENDAR_URL % domain,
