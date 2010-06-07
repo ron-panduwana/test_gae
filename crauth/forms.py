@@ -10,6 +10,9 @@ from crlib import forms as crforms
 
 
 RE_DOMAIN = re.compile(r'(?:[-\w]+\.)+[a-z]{2,6}$')
+# Look at http://www.google.com/support/a/bin/answer.py?answer=33386 for
+# description of allowed characters in usernames and passwords
+RE_USERNAME = re.compile(r'[a-z0-9\-_\.\']+$')
 
 
 class VerbatimWidget(forms.Widget):
@@ -74,10 +77,15 @@ class CaptchaForm(forms.Form):
 
 
 class DomainSetupForm(CaptchaForm):
-    account = forms.CharField(label=_('Administrator account'))
+    account = forms.RegexField(
+        regex=RE_USERNAME, label=_('Administrator account'),
+        error_messages={'invalid': _(
+            'Usernames may contain letters (a-z), numbers (0-9), dashes (-), '
+            'underscores (_), periods (.), and apostrophes (\'), and may not '
+            'contain an equal sign (=) or brackets (<,>).')})
     password = forms.CharField(
         label=_('Administrator password'),
-        required=True, widget=forms.PasswordInput)
+        required=True, widget=forms.PasswordInput, min_length=6)
     domain = forms.CharField(widget=forms.HiddenInput, required=True)
     callback = forms.URLField(required=False, widget=forms.HiddenInput)
 

@@ -11,8 +11,14 @@
         {% if email %}
         <p>{{ form.account.label_tag }}: <strong>{{ email }}</strong> <a href="?other_user">[ use different user ]</a></p>
         {% else %}
+        {% for error in form.account.errors %}
+        <div class="error">{{ error }}</div>
+        {% endfor %}
         <p>{{ form.account.label_tag }}: {{ form.account }} <strong>@{{ domain }}</strong></p>
         {% endif %}
+        {% for error in form.password.errors %}
+        <div class="error">{{ error }}</div>
+        {% endfor %}
         <p>{{ form.password.label_tag }}: {{ form.password }}</p>
         {% if form.captcha_url.data %}
         <p><img src="{{ form.captcha_url.data }}"></p>
