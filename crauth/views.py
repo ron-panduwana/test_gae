@@ -208,6 +208,7 @@ def domain_setup(request, domain, template='domain_setup.html'):
     ctx = {
         'form': form,
         'domain': domain,
+        'fix': request.GET.has_key('fix'),
     }
     if not 'other_user' in request.GET:
         ctx['email'] = user.email()

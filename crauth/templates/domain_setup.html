@@ -1,8 +1,17 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}Setup domain{% endblock %}
 
 {% block content %}
 <h1>Setup domain</h1>
+{% if fix %}
+<div class="error">
+{% blocktrans %}
+Administrator credentials for this domain <strong>are not correct</strong>.
+Please enter <strong>valid credentials</strong> to continue using this application.
+{% endblocktrans %}
+</div>
+{% endif %}
 {% if form.non_field_errors %}
 <p>{{ form.non_field_errors }}</p>
 {% endif %}

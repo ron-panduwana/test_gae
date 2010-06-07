@@ -219,7 +219,8 @@ class UsersMiddleware(object):
             else:
                 user = get_current_user()
                 return HttpResponseRedirect(
-                    reverse('domain_setup', args=(user.domain().domain,)))
+                    reverse('domain_setup', args=(user.domain().domain,)) +
+                    '?fix')
         elif isinstance(exception, AppsForYourDomainException):
             request.session.pop(settings.SESSION_LOGIN_INFO_KEY, None)
             memcache.flush_all()
