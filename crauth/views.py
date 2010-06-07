@@ -46,6 +46,7 @@ def openid_get_domain(request, template='get_domain.html'):
         choices.append(
             ('other', _('Other, please specify: www.')),
         )
+    with_domains = bool(domains)
     if request.method == 'POST':
         if domains:
             form = ChooseDomainForm(request.POST, choices=choices)
@@ -63,7 +64,7 @@ def openid_get_domain(request, template='get_domain.html'):
             form = DomainNameForm()
     ctx = {
         'form': form,
-        'with_domains': bool(domains),
+        'with_domains': with_domains,
     }
     return render_to_response(
         template, ctx, context_instance=RequestContext(request))
