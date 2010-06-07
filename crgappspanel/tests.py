@@ -26,9 +26,9 @@ _set_testing_user(email, domain)
 
 
 class BaseGDataTestCase(unittest.TestCase):
-    USER_NAME = 'test_account2'
-    USER_GIVEN_NAME = 'Test'
-    USER_FAMILY_NAME = 'Account'
+    USER_NAME = 'bbking'
+    USER_GIVEN_NAME = 'BB'
+    USER_FAMILY_NAME = 'King'
     NUMBER_OF_USERS = 5
 
     def setUp(self):
@@ -63,13 +63,14 @@ class ProvisioningAPITestCase(BaseGDataTestCase):
         user.put()
 
     def testNewUser(self):
+        from crlib.mappers import DomainUserLimitExceededError
         new_user = GAUser(
             user_name=self.USER_NAME,
             given_name=self.USER_GIVEN_NAME,
             family_name=self.USER_FAMILY_NAME,
             password='some_password',
         )
-        self.assertRaises(AppsForYourDomainException, new_user.put)
+        self.assertRaises(DomainUserLimitExceededError, new_user.put)
 
     def testCreateNickname(self):
         user = GAUser.get_by_key_name(self.USER_NAME)
@@ -399,6 +400,18 @@ class EmailSettingsAPITestCase(BaseGDataTestCase):
 
 
 class CalendarResourceAPITestCase(BaseGDataTestCase):
+    def testCreateDuplicateResource(self):
+        from crlib.mappers import EntityExistsError
+        def create_duplicate():
+            for i in range(2):
+                resource = CalendarResource(
+                    id='DUPLICATE_RESOURCE',
+                    common_name='Test Resource',
+                    type='Meeting Room',
+                    description='',
+                ).save()
+        self.assertRaises(EntityExistsError, create_duplicate)
+
     def testGetAllResources(self):
         resources = CalendarResource.all().fetch(100)
         for resource in resources:

@@ -73,8 +73,60 @@ GROUP_EMAIL_PERMISSIONS = (
 )
 
 
-class UserDeletedRecentlyError(Exception): pass
+# Exceptions
 
+class GDataError(Exception): pass
+
+
+class EntityDeletedRecentlyError(GDataError):
+    """ The request instructs Google to create a new entity but uses
+    the name of an entity that was deleted in the previous five days.
+
+    """
+
+
+class DomainUserLimitExceededError(GDataError):
+    """ The specified domain has already reached its quota of user accounts.
+    
+    """
+
+
+class EntityExistsError(GDataError):
+    """ The request instructs Google to create an entity that already exists.
+
+    """
+
+
+class EntityDoesNotExistError(GDataError):
+    """ The request asks Google to retrieve an entity that does not exist.
+
+    """
+
+
+APPS_FOR_YOUR_DOMAIN_ERROR_CODES = {
+    1100: EntityDeletedRecentlyError,
+    1200: DomainUserLimitExceededError,
+    1300: EntityExistsError,
+    1301: EntityDoesNotExistError,
+}
+
+
+def apps_for_your_domain_exception_wrapper(func):
+    from gdata.apps.service import AppsForYourDomainException
+    def new(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except AppsForYourDomainException, e:
+            exception = APPS_FOR_YOUR_DOMAIN_ERROR_CODES.get(e.error_code)
+            if exception:
+                raise exception()
+            raise
+    new.__name__ = func.__name__
+    new.__doc__ = func.__doc__
+    return new
+
+
+# Mappers
 
 class UserEntryMapper(AtomMapper):
     @classmethod
@@ -92,17 +144,12 @@ class UserEntryMapper(AtomMapper):
             quota=apps.Quota(),
         )
 
+    @apps_for_your_domain_exception_wrapper
     def create(self, atom):
-        from gdata.apps.service import AppsForYourDomainException
-        try:
-            return self.service.CreateUser(
-                atom.login.user_name, atom.name.family_name,
-                atom.name.given_name, atom.login.password,
-                atom.login.suspended, password_hash_function='SHA-1')
-        except AppsForYourDomainException, e:
-            if e.reason == 'UserDeletedRecently':
-                raise UserDeletedRecentlyError()
-            raise
+        return self.service.CreateUser(
+            atom.login.user_name, atom.name.family_name,
+            atom.name.given_name, atom.login.password,
+            atom.login.suspended, password_hash_function='SHA-1')
 
     def update(self, atom, old_atom):
         atom.login.hash_function_name = 'SHA-1'
@@ -210,6 +257,7 @@ class GroupEntryMapper(AtomMapper):
     def clone_atom(self, atom):
         return GroupEntry(self, atom)
 
+    @apps_for_your_domain_exception_wrapper
     def create(self, atom):
         new_group = self.service.CreateGroup(
             atom.groupId, atom.groupName, atom.description,
@@ -273,6 +321,7 @@ class NicknameEntryMapper(AtomMapper):
             login=apps.Login(),
         )
 
+    @apps_for_your_domain_exception_wrapper
     def create(self, atom):
         return self.service.CreateNickname(
             atom.login.user_name, atom.nickname.name)
@@ -291,10 +340,6 @@ class NicknameEntryMapper(AtomMapper):
 
     def delete(self, atom):
         self.service.DeleteNickname(atom.nickname.name)
-
-    #@filter('user')
-    #def filter_by_user(self, user_name):
-    #    return self.service.RetrieveNicknames(user_name).entry
 
 
 PhoneNumberMapper = simple_mapper(data.PhoneNumber, 'text')
@@ -461,10 +506,16 @@ class CalendarResourceEntryMapper(AtomMapper):
         return atom.resource_id
 
     def create(self, atom):
-        return self.service.create_resource(
-            atom.resource_id, atom.resource_common_name,
-            atom.resource_description, atom.resource_type,
-        )
+        from gdata.client import RequestError
+        try:
+            return self.service.create_resource(
+                atom.resource_id, atom.resource_common_name,
+                atom.resource_description, atom.resource_type,
+            )
+        except RequestError, e:
+            if 'EntityExists' in e.body:
+                raise EntityExistsError()
+            raise
 
     def update(self, atom, old_atom):
         # There is a bug in Calendar Resources GData API: if
