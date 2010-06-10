@@ -136,11 +136,16 @@ class User(object):
             settings.OAUTH_CONSUMER, settings.OAUTH_SECRET,
             two_legged_oauth=True)
         service.debug = True
+        username = self.email().rpartition('@')[0]
         try:
-            apps_user = service.RetrieveUser(self.email().rpartition('@')[0])
+            apps_user = service.RetrieveUser(username)
         except AppsForYourDomainException:
-            logging.warning('self.domain_name: %s' % str(self.domain_name))
-            return False
+            try:
+                service = AppsService(domain=self.domain_name)
+                self.client_login(service)
+                apps_user = service.RetrieveUser(username)
+            except (SetupRequiredError, CaptchaChallenge):
+                return False
         is_admin = apps_user is not None and apps_user.login.admin == 'true'
         memcache.set(self.email(), is_admin, 60 * 60,
                      namespace='is_current_user_admin')

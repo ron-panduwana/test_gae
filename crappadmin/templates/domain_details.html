@@ -18,6 +18,15 @@
 			</tr>
 			{% with form.is_enabled as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.is_independent as field %}{% include "snippets/form_field.html" %}{% endwith %}
+            {% if installation_link %}
+            <tr>
+                <th>Installation link</th>
+                <td>
+                        <a href="{{ installation_link }}">{{ installation_link }}</a>
+                        [ <a href="{% url domain-change-installation-link domain.domain %}">Change</a> ]
+                </td>
+            </tr>
+            {% endif %}
 			{% include "snippets/form_save_reset.html" %}
 		</tbody>
 	</table>
