@@ -27,6 +27,9 @@ def base(request):
                     Section(
                         'panel_config', _('Panel Configuration'),
                         domain_setup_url),
+                    Section(
+                        'installation_instructions', _('Additional Setup'),
+                        reverse('installation_instructions', args=(domain,))),
                 )),
         )
     else:

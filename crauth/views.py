@@ -180,7 +180,7 @@ def domain_setup(request, domain, template='domain_setup.html'):
     from gdata.apps.service import AppsService
     token = request.GET.get('token')
     apps_domain = AppsDomain.get_by_key_name(domain)
-    if token == apps_domain.installation_token:
+    if token and token == apps_domain.installation_token:
         user = None
     else:
         token = None
