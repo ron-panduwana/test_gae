@@ -39,11 +39,12 @@ class DomainForm(forms.Form):
         """
         data = self.cleaned_data
         
+        password_list = data['admin_password']
         return models.AppsDomain(
             key_name=data['domain'],
             domain=data['domain'],
             admin_email=data['admin_email'],
-            admin_password=data['admin_password'][0],
+            admin_password=password_list and password_list[0] or '',
             is_enabled=data['is_enabled'],
             is_independent=data['is_independent'])
     

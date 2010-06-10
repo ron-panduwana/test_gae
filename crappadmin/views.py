@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.utils.translation import ugettext_lazy as _
 from google.appengine.api import users, memcache
 
@@ -46,6 +46,7 @@ def domain_create(request):
         form = DomainForm(request.POST, auto_id=True)
         if form.is_valid():
             domain = form.create()
+            domain.installation_token = AppsDomain.random_token()
             domain.save()
             return redirect_saved('domain-details', request, name=domain.domain)
     else:
@@ -54,6 +55,15 @@ def domain_create(request):
     return render_with_nav(request, 'domain_create.html', {
         'form': form,
     }, in_section='appadmin/domains')
+
+
+def domain_change_installation_link(request, name):
+    domain = AppsDomain.get_by_key_name(name)
+    if not domain:
+        raise Http404
+    domain.installation_token = AppsDomain.random_token()
+    domain.put()
+    return HttpResponseRedirect(reverse(domain_details, args=(domain.domain,)))
 
 
 def domain_details(request, name=None):
@@ -65,6 +75,10 @@ def domain_details(request, name=None):
     domain = AppsDomain.get_by_key_name(name)
     if not domain:
         return redirect('domains')
+    
+    if not domain.installation_token:
+        domain.installation_token = AppsDomain.random_token()
+        domain.put()
     
     if request.method == 'POST':
         form = DomainForm(request.POST, auto_id=True)
@@ -79,6 +93,7 @@ def domain_details(request, name=None):
     
     return render_with_nav(request, 'domain_details.html', {
         'domain': domain,
+        'installation_link': domain.installation_link(request),
         'form': form,
         'saved': request.session.pop('saved', None),
     }, in_section='appadmin/domains')

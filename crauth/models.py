@@ -1,5 +1,6 @@
 import logging
 from appengine_django.models import BaseModel
+from django.core.urlresolvers import reverse
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from crauth.licensing import LICENSE_STATES, STATE_ACTIVE
@@ -40,10 +41,26 @@ class AppsDomain(BaseModel):
     #: If set to ``True`` the domain is managed manually and Licensing API is
     #: not used.
     is_independent = db.BooleanProperty(default=False)
+    #: Security token which should be sent to Google Apps domain administrator
+    #: for him to perform Powerpanel installation w/o Google Marketplace
+    #: machinery.
+    installation_token = db.StringProperty()
 
     def is_active(self):
         return self.is_enabled and (
             self.is_independent or self.license_state == STATE_ACTIVE)
+
+    def installation_link(self, request):
+        if self.installation_token:
+            return request.build_absolute_uri(reverse(
+                'domain_setup', args=(self.domain,)) + '?token=' +
+                self.installation_token)
+
+    @classmethod
+    def random_token(cls):
+        import hashlib
+        import random
+        return hashlib.sha1(str(random.random())).hexdigest()[:10]
 
     @classmethod
     def is_arbitrary_domain_active(cls, domain):

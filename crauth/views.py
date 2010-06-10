@@ -178,25 +178,36 @@ def openid_logout(request):
 
 def domain_setup(request, domain, template='domain_setup.html'):
     from gdata.apps.service import AppsService
-    user = users.get_current_user()
-    if user is None:
-        return HttpResponseRedirect(
-            reverse('openid_start', args=(domain,)) +'?%s' % urllib.urlencode({
-                settings.REDIRECT_FIELD_NAME: request.get_full_path(),
-                'from': 'google',
-            }))
-    if not users.is_current_user_admin():
-        return HttpResponseRedirect(reverse('admin_required'))
+    token = request.GET.get('token')
+    apps_domain = AppsDomain.get_by_key_name(domain)
+    if token == apps_domain.installation_token:
+        user = None
+    else:
+        token = None
+        user = users.get_current_user()
+        if user is None:
+            return HttpResponseRedirect(
+                reverse('openid_start', args=(domain,)) +'?%s' % urllib.urlencode({
+                    settings.REDIRECT_FIELD_NAME: request.get_full_path(),
+                    'from': 'google',
+                }))
+        if not users.is_current_user_admin():
+            return HttpResponseRedirect(reverse('admin_required'))
     service = AppsService(domain=domain)
     if request.method == 'POST':
         data = request.POST.copy()
         data['domain'] = domain
         if not 'account' in data:
             data['account'] = user.email().rpartition('@')[0]
+        if not user:
+            user = users.User('%s@%s' % (data['account'], domain), domain)
         form = DomainSetupForm(user, service, data)
         if form.is_valid():
             redirect_to = form.cleaned_data['callback']
-            if not redirect_to:
+            if not redirect_to and token:
+                redirect_to = reverse('installation_instructions',
+                                      args=(domain,))
+            else:
                 redirect_to = settings.LOGIN_REDIRECT_URL
             return HttpResponseRedirect(redirect_to)
         else:
@@ -210,8 +221,17 @@ def domain_setup(request, domain, template='domain_setup.html'):
         'domain': domain,
         'fix': request.GET.has_key('fix'),
     }
-    if not 'other_user' in request.GET:
+    if not token and not 'other_user' in request.GET:
         ctx['email'] = user.email()
+    return render_with_nav(request, template, ctx)
+
+
+OAUTH_SETTINGS_URL = 'https://www.google.com/a/cpanel/%s/ManageOauthClients'
+def installation_instructions(request, domain, template='instructions.html'):
+    ctx = {
+        'app_id': settings.OAUTH_CONSUMER,
+        'oauth_settings_url': OAUTH_SETTINGS_URL % domain,
+    }
     return render_with_nav(request, template, ctx)
 
 
