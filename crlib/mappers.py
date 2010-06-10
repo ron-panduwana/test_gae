@@ -9,6 +9,7 @@ from gdata.apps import PropertyEntry
 from gdata.apps.groups import service as groups
 from atom import AtomBase
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
+from crlib.signals import gauser_renamed
 
 
 # Constants
@@ -106,7 +107,12 @@ class UserEntryMapper(AtomMapper):
 
     def update(self, atom, old_atom):
         atom.login.hash_function_name = 'SHA-1'
-        return self.service.UpdateUser(old_atom.login.user_name, atom)
+        new_atom = self.service.UpdateUser(old_atom.login.user_name, atom)
+        if old_atom.login.user_name != atom.login.user_name:
+            gauser_renamed.send(sender=self.service.domain,
+                                old_name=old_atom.login.user_name,
+                                new_name=atom.login.user_name)
+        return new_atom
 
     def retrieve_all(self):
         return self.service.RetrieveAllUsers().entry
