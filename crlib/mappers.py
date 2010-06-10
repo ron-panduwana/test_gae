@@ -151,6 +151,7 @@ class UserEntryMapper(AtomMapper):
             atom.name.given_name, atom.login.password,
             atom.login.suspended, password_hash_function='SHA-1')
 
+    @apps_for_your_domain_exception_wrapper
     def update(self, atom, old_atom):
         atom.login.hash_function_name = 'SHA-1'
         return self.service.UpdateUser(old_atom.login.user_name, atom)
