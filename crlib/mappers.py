@@ -1,5 +1,8 @@
 import logging
 import re
+from google.appengine.api import memcache
+from google.appengine.api.urlfetch import DownloadError
+from google.appengine.runtime import DeadlineExceededError
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from gdata import contacts, data
@@ -9,6 +12,7 @@ from gdata.apps import PropertyEntry
 from gdata.apps.groups import service as groups
 from atom import AtomBase
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
+from crlib.models import LastCacheUpdate
 
 
 # Constants
@@ -74,6 +78,7 @@ GROUP_EMAIL_PERMISSIONS = (
 
 
 class UserDeletedRecentlyError(Exception): pass
+class RetryError(Exception): pass
 
 
 class UserEntryMapper(AtomMapper):
@@ -108,8 +113,40 @@ class UserEntryMapper(AtomMapper):
         atom.login.hash_function_name = 'SHA-1'
         return self.service.UpdateUser(old_atom.login.user_name, atom)
 
-    def retrieve_all(self):
-        return self.service.RetrieveAllUsers().entry
+    def retrieve_all(self, use_cache=True):
+        feed = self.retrieve_page(use_cache=use_cache)
+        while feed:
+            users = feed
+            try:
+                feed = self.retrieve_page(feed, use_cache=use_cache)
+            except (DownloadError, DeadlineExceededError):
+                raise RetryError
+        return users.entry
+
+    def retrieve_page(self, previous=None, use_cache=True):
+        if previous:
+            next = previous.GetNextLink()
+            if next:
+                from gdata.apps import UserFeedFromString
+                cached = memcache.get('users-%s' % next.href)
+                if cached and use_cache:
+                    next_feed = cached
+                else:
+                    next_feed = self.service.Get(
+                        next.href, converter=UserFeedFromString)
+                    memcache.set('users-%s' % next.href, next_feed)
+                previous.entry.extend(next_feed.entry)
+                return previous
+            else:
+                return False
+        else:
+            cached = memcache.get('users-%s' % self.service.domain)
+            if cached and use_cache:
+                return cached
+            LastCacheUpdate.get_or_insert(self.service.domain)
+            result = self.service.RetrievePageOfUsers()
+            memcache.set('users-%s' % self.service.domain, result)
+            return result
 
     def retrieve(self, user_name):
         return self.service.RetrieveUser(user_name)

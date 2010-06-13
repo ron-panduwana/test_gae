@@ -9,6 +9,7 @@ from atom import AtomBase
 from gdata.data import ExtendedProperty
 from gdata.client import GDClient
 from gdata.service import GDataService
+from crlib.models import recache_current_domain
 from crlib.signals import class_prepared
 
 
@@ -527,6 +528,7 @@ class Model(object):
 
         del self._cache['item:%s' % self.key()]
         del self._cache['retrieve_all']
+        recache_current_domain()
         return self
     put = save
 
@@ -534,6 +536,7 @@ class Model(object):
         self._mapper.delete(self._atom)
         del self._cache['item:%s' % self.key()]
         del self._cache['retrieve_all']
+        recache_current_domain()
         del self
 
     def is_saved(self):
