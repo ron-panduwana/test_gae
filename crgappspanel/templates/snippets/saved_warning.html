@@ -1,8 +1,22 @@
 {% spaceless %}
 {% load i18n %}
 {% if saved %}
-<div class="warning">
+<div id="saved-warning" class="warning">
 	{% trans "Changes have been saved, although it may take up to 24 hours for new data to propagate through Google services." %}
 </div>
+<script type="text/javascript">
+goog.require('goog.async.Delay')
+goog.require('goog.fx.dom.FadeOutAndHide')
+</script>
+<script type="text/javascript">
+var hideSavedWarning = function() {
+	var elem = goog.dom.$('saved-warning')
+	var fadeOut = new goog.fx.dom.FadeOutAndHide(elem, 1000)
+	fadeOut.play()
+}
+
+delay = new goog.async.Delay(hideSavedWarning, 5000);
+delay.start()
+</script>
 {% endif %}
 {% endspaceless %}

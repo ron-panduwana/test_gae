@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from django.conf.urls.defaults import *
+from crauth.urls import DOMAIN
 
 urlpatterns = patterns('',
     (r'^i18n/', include('django.conf.urls.i18n')),
@@ -29,6 +30,7 @@ urlpatterns += patterns('crgappspanel.views.users',
     url(r'^users/create/$', 'user_create', name='user-create'),
     url(r'^users/details/(?P<name>[^/]+)/$',
         'user_details', name='user-details'),
+    url(r'^users/roles/(?P<name>[^/]+)/$', 'user_roles', name='user-roles'),
     url(r'^users/groups/(?P<name>[^/]+)/$', 'user_groups', name='user-groups'),
     url(r'^users/email-settings/(?P<name>[^/]+)/$',
         'user_email_settings', name='user-email-settings'),
@@ -41,8 +43,18 @@ urlpatterns += patterns('crgappspanel.views.users',
     url(r'^users/restore/(?P<name>[^/]+)/$',
         'user_restore', name='user-restore'),
     url(r'^users/remove/(?P<names>.+)/$', 'user_remove', name='user-remove'),
-    url(r'^users/remove-nickname/(?P<name>[^/]+)/(?P<nickname>[^/]+)/',
+    url(r'^users/remove-nickname/(?P<name>[^/]+)/(?P<nickname>[^/]+)/$',
         'user_remove_nickname', name='user-remove-nickname'),
+    url(r'^users/remove-role/(?P<name>[^/]+)/(?P<role_name>[^/]+)/$',
+        'user_remove_role', name='user-remove-role'),
+)
+
+urlpatterns += patterns('crgappspanel.views.roles',
+    url(r'^roles/list/$', 'roles', name='roles'),
+    url(r'^roles/create/$', 'role_create', name='role-create'),
+    url(r'^roles/details/(?P<name>[^/]+)/$',
+        'role_details', name='role-details'),
+    url(r'^roles/remove/(?P<names>.+)/$', 'role_remove', name='role-remove'),
 )
 
 urlpatterns += patterns('crgappspanel.views.groups',
@@ -88,5 +100,10 @@ urlpatterns += patterns('crgappspanel.views.calendar_resources',
 urlpatterns += patterns('',
     url(r'^openid/', include('crauth.urls')),
     url(r'^appadmin/', include('crappadmin.urls')),
+)
+
+urlpatterns += patterns(
+    'crauth.views',
+    url(r'^a/%s/$' % DOMAIN, 'openid_change_domain'),
 )
 

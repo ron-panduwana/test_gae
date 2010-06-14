@@ -10,14 +10,33 @@ cr.swapWidget.swap = function(id) {
 		cField.style.display = 'block'
 		eField.style.display = 'none'
 		
-		var nodes = goog.dom.findNodes(eField, function(node) {
+		// finding all INPUT nodes
+		var inputNodes = goog.dom.findNodes(eField, function(node) {
 			if (node.nodeType != Node.ELEMENT_NODE) return false
 			return node.nodeName.toLowerCase() == 'input'
 		})
+		// finding all SELECT nodes
+		var selectNodes = goog.dom.findNodes(eField, function(node) {
+			if (node.nodeType != Node.ELEMENT_NODE) return false
+			return node.nodeName.toLowerCase() == 'select'
+		})
 		
-		for (var i = 0 ; i < nodes.length ; ++i) {
-			var node = nodes[i]
+		// resetting all INPUT nodes values
+		for (var i = 0 ; i < inputNodes.length ; ++i) {
+			var node = inputNodes[i]
 			node.value = node.getAttribute('value')
+		}
+		// resetting all SELECT nodes values
+		for (var i = 0 ; i < selectNodes.length ; ++i) {
+			var node = selectNodes[i]
+			var idx = 0
+			for (var j = 0 ; j < node.options.length ; ++j) {
+				if (node.options[j].defaultSelected) {
+					idx = j;
+					break;
+				}
+			}
+			node.selectedIndex = idx
 		}
 	} else {
 		cField.style.display = 'none'

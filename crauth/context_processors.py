@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from crauth import users as _users
 
 
@@ -5,6 +6,14 @@ DASHBOARD_URL = 'https://www.google.com/a/cpanel/%s/Dashboard'
 INBOX_URL = 'https://mail.google.com/a/%s'
 CALENDAR_URL = 'https://www.google.com/calendar/hosted/%s'
 HELP_URL = 'http://www.google.com/support/a'
+
+
+class PermWrapper(object):
+    def __init__(self, user):
+        self._user = user
+
+    def __getattr__(self, name):
+        return self._user.has_perm(name)
 
 
 def users(request):
@@ -17,11 +26,15 @@ def users(request):
     return {
         'auth': {
             'user': user,
+            'perms': PermWrapper(user),
             'domain': domain,
             'logout_url': _users.create_logout_url(DASHBOARD_URL % domain),
+            'change_domain_url': reverse('openid_get_domain') + '?force',
             'dashboard_url': DASHBOARD_URL % domain,
             'inbox_url': INBOX_URL % domain,
             'calendar_url': CALENDAR_URL % domain,
             'help_url': HELP_URL,
         }
     }
+
+

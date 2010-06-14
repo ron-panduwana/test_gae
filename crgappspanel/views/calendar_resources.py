@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext as _
 
-from crauth.decorators import login_required
+from crauth.decorators import has_perm
 from crgappspanel.forms import CalendarResourceForm
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import CalendarResource
@@ -18,7 +18,7 @@ _table_id = Column(None, 'id')
 _table_widths = ['%d%%' % x for x in (5, 30, 20, 45)]
 
 
-@login_required
+@has_perm('read_calendarresource')
 def calendar_resources(request):
     sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
@@ -39,7 +39,7 @@ def calendar_resources(request):
     })
 
 
-@login_required
+@has_perm('add_calendarresource')
 def calendar_resource_add(request):
     if request.method == 'POST':
         form = CalendarResourceForm(request.POST, auto_id=True)
@@ -56,7 +56,7 @@ def calendar_resource_add(request):
     }, in_section='calendar_resources')
 
 
-@login_required
+@has_perm('change_calendarresource')
 def calendar_resource_details(request, id=None):
     if not id:
         raise ValueError('id = %s' % id)
@@ -86,7 +86,7 @@ def calendar_resource_details(request, id=None):
     }, in_section='calendar_resources')
 
 
-@login_required
+@has_perm('change_calendarresource')
 def calendar_resource_remove(request, ids=None):
     if not ids:
         raise ValueError('ids = %s' % ids)

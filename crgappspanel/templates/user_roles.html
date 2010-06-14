@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "User details" %}: {{ user.given_name }} {{ user.family_name }}{% endblock %}
+
+{% block content %}
+{% include "snippets/saved_warning.html" %}
+<form action="{% url user-roles user.user_name %}" method="POST" class="details">
+	{% include "snippets/user_header.html" %}
+	<table class="details" width="100%">
+		<tbody>
+			{% with form.roles as field %}{% with roles as items %}
+				{% include "snippets/form_field_with_items.html" %}
+			{% endwith %}{% endwith %}
+			{% include "snippets/form_save_reset.html" %}
+		</tbody>
+	</table>
+</form>
+{% endblock %}

@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
 from crauth import users
-from crauth.decorators import login_required
+from crauth.decorators import has_perm
 from crgappspanel.forms import GroupForm, GroupMembersForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
@@ -13,16 +13,16 @@ from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
 from crlib.navigation import render_with_nav
 from crgappspanel.navigation import group_nav
 
-_table_fields = [
+_table_fields = (
     Column(_('Name'), 'name', link=True),
     Column(_('Email address'), 'email', getter=lambda x: x.id),
     Column(_('Email permission'), 'email_permission'),
-]
+)
 _table_id = Column(None, 'id', getter=lambda x: x.id.partition('@')[0])
 _table_widths = ['%d%%' % x for x in (5, 40, 40, 15)]
 
 
-@login_required
+@has_perm('read_gagroup')
 def groups(request):
     sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
@@ -43,7 +43,7 @@ def groups(request):
     })
 
 
-@login_required
+@has_perm('add_gagroup')
 def group_create(request):
     if request.method == 'POST':
         form = GroupForm(request.POST, auto_id=True)
@@ -61,7 +61,7 @@ def group_create(request):
     }, in_section='users/groups')
 
 
-@login_required
+@has_perm('change_gagroup')
 def group_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -94,7 +94,7 @@ def group_details(request, name=None):
     }, extra_nav=group_nav(name))
 
 
-@login_required
+@has_perm('change_gagroup')
 def group_members(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -141,17 +141,40 @@ def group_members(request, name=None):
     owners = [ValueWithRemoveLink(owner, remove_owner_link(group, owner)) for owner in owner_emails]
     members = [ValueWithRemoveLink(member, remove_member_link(group, member)) for member in member_emails if member not in owner_emails]
     
+    suggestions = set()
+    
+    current_user = users.get_current_user()
+    domain_name = current_user.domain_name
+    
+    if current_user.has_perm('read_gauser'):
+        from crgappspanel.models import GAUser
+        for user in GAUser.all().fetch(1000):
+            suggestions.add('%s@%s' % (user.user_name, domain_name))
+            for nick in user.nicknames:
+                suggestions.add('%s@%s' % (nick.nickname, domain_name))
+    
+    if current_user.has_perm('read_sharedcontact'):
+        from crgappspanel.models import SharedContact
+        for contact in SharedContact.all().fetch(1000):
+            for email in contact.emails:
+                if email.address:
+                    suggestions.add(email.address)
+    
+    suggestions = list(suggestions)
+    suggestions.sort()
+    
     return render_with_nav(request, 'group_members.html', {
         'form': form,
         'group': group,
         'owners': owners,
         'members': members,
+        'suggestions': suggestions,
         'saved': request.session.pop('saved', False),
         'scripts': ['swap-widget'],
     }, extra_nav=group_nav(name))
 
 
-@login_required
+@has_perm('change_gagroup')
 def group_remove(request, names=None):
     if not names:
         ValueError('names = %s' % names)
@@ -165,7 +188,7 @@ def group_remove(request, names=None):
     return redirect_saved('groups', request)
 
 
-@login_required
+@has_perm('change_gagroup')
 def group_remove_owner(request, name=None, owner=None):
     if not all((name, owner)):
         raise ValueError('name = %s, owner = %s' % (name, owner))
@@ -182,7 +205,7 @@ def group_remove_owner(request, name=None, owner=None):
     return redirect_saved('group-members', request, name=group.get_pure_id())
 
 
-@login_required
+@has_perm('change_gagroup')
 def group_remove_member(request, name=None, member=None):
     if not all((name, member)):
         raise ValueError('name = %s, member = %s' % (name, member))

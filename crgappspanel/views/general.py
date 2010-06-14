@@ -1,9 +1,11 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect
 
-from crgappspanel.models import GAGroup, SharedContact
-from crlib.navigation import render_with_nav
+import crauth
+from crauth import users
 from crauth.decorators import login_required
+from crgappspanel.models import GAUser, GAGroup
+from crlib.navigation import render_with_nav
 
 
 def index(request):
@@ -16,15 +18,19 @@ def language(request):
 
 @login_required
 def test(request):
-    sth = []
-    for key, value in request.session.iteritems():
-        sth.append('%s = %s (%s)' % (key, value, type(value)))
+    from crauth.models import AppsDomain, Role, UserPermissions
     
-    sc = SharedContact.all().fetch(1)[0]
-    sc = SharedContact.get_by_key_name(r'http://www.google.com/m8/feeds/contacts/moroccanholidayrental.com/full/10981388ab842a7')
-    sth.append(sc.key())
-    sth.append(str(sc.key()))
+    email = 'bbking@moroccanholidayrental.com'
+    role_names = ['User creator']
+    
+    perms = UserPermissions.get_or_insert(key_name=email, user_email=email)
+    for role_name in role_names:
+        role = Role.for_domain(users.get_current_domain()).filter('name', role_name).get()
+        perms.roles.append(role.key())
+    perms.save()
+    
+    sth = str(perms)
+    
     return render_with_nav(request, 'test.html', {
-        'something': sth,
-        'scripts': ['test'],
+        'sth': sth,
     })

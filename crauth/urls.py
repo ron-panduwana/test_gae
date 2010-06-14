@@ -11,6 +11,8 @@ urlpatterns = patterns(
     url(r'return/$', 'openid_return', name='openid_return'),
     url(r'logout/$', 'openid_logout', name='openid_logout'),
     url(r'setup/%s/$' % DOMAIN, 'domain_setup', name='domain_setup'),
+    url(r'instructions/%s/$' % DOMAIN, 'installation_instructions',
+        name='installation_instructions'),
     url(r'captcha/$', 'handle_captcha_challenge', name='captcha'),
     url(r'__cron_check_licenses/$', 'handle_license_updates'),
     url(r'__manifest/$', 'generate_manifest'),

@@ -1,28 +1,41 @@
-<html>
-        <head>
-                <title>Setup domain</title>
-        </head>
-        <body>
-                <h1>Setup domain</h1>
-                {% if form.non_field_errors %}
-                <p>{{ form.non_field_errors }}</p>
-                {% endif %}
-                <form method="POST" action="">
-                        {{ form.callback }}
-                        {% if email %}
-                        <p>{{ form.account.label_tag }}: <strong>{{ email }}</strong> <a href="?other_user">[ use different user ]</a></p>
-                        {% else %}
-                        <p>{{ form.account.label_tag }}: {{ form.account }} <strong>@{{ domain }}</strong></p>
-                        {% endif %}
-                        <p>{{ form.password.label_tag }}: {{ form.password }}</p>
-                        {% if form.captcha_url.data %}
-                        <p><img src="{{ form.captcha_url.data }}"></p>
-                        {{ form.captcha_token.as_p }}
-                        {{ form.captcha_url.as_p }}
-                        <p>{{ form.captcha.errors }}</p>
-                        <p>{{ form.captcha.label_tag }}: {{ form.captcha }}</p>
-                        {% endif %}
-                        <p><input type="submit" value="Save"></p>
-                </form>
-        </body>
-</html>
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Setup domain{% endblock %}
+
+{% block content %}
+<h1>Setup domain</h1>
+{% if fix %}
+<div class="error">
+{% blocktrans %}
+Administrator credentials for this domain <strong>are not correct</strong>.
+Please enter <strong>valid credentials</strong> to continue using this application.
+{% endblocktrans %}
+</div>
+{% endif %}
+{% if form.non_field_errors %}
+<p>{{ form.non_field_errors }}</p>
+{% endif %}
+<form method="POST" action="">
+        {{ form.callback }}
+        {% if email %}
+        <p>{{ form.account.label_tag }}: <strong>{{ email }}</strong> <a href="?other_user">[ use different user ]</a></p>
+        {% else %}
+        {% for error in form.account.errors %}
+        <div class="error">{{ error }}</div>
+        {% endfor %}
+        <p>{{ form.account.label_tag }}: {{ form.account }} <strong>@{{ domain }}</strong></p>
+        {% endif %}
+        {% for error in form.password.errors %}
+        <div class="error">{{ error }}</div>
+        {% endfor %}
+        <p>{{ form.password.label_tag }}: {{ form.password }}</p>
+        {% if form.captcha_url.data %}
+        <p><img src="{{ form.captcha_url.data }}"></p>
+        {{ form.captcha_token.as_p }}
+        {{ form.captcha_url.as_p }}
+        <p>{{ form.captcha.errors }}</p>
+        <p>{{ form.captcha.label_tag }}: {{ form.captcha }}</p>
+        {% endif %}
+        <p><input type="submit" value="Save"></p>
+</form>
+{% endblock %}

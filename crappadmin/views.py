@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.utils.translation import ugettext_lazy as _
 from google.appengine.api import users, memcache
 
@@ -12,6 +12,8 @@ from crlib.navigation import render_with_nav, Section
 
 
 def navigation(request):
+    """Displays the navigation panel. 
+    """
     if not users.is_current_user_admin():
         return
     return (
@@ -27,6 +29,8 @@ def navigation(request):
 
 
 def domains(request):
+    """Displays the list of domains. 
+    """
     domains = AppsDomain.all().fetch(1000)
     
     return render_with_nav(request, 'domains_list.html', {
@@ -36,10 +40,13 @@ def domains(request):
 
 
 def domain_create(request):
+    """Displays the form for creating new domain. 
+    """
     if request.method == 'POST':
         form = DomainForm(request.POST, auto_id=True)
         if form.is_valid():
             domain = form.create()
+            domain.installation_token = AppsDomain.random_token()
             domain.save()
             return redirect_saved('domain-details', request, name=domain.domain)
     else:
@@ -50,13 +57,28 @@ def domain_create(request):
     }, in_section='appadmin/domains')
 
 
+def domain_change_installation_link(request, name):
+    domain = AppsDomain.get_by_key_name(name)
+    if not domain:
+        raise Http404
+    domain.installation_token = AppsDomain.random_token()
+    domain.put()
+    return HttpResponseRedirect(reverse(domain_details, args=(domain.domain,)))
+
+
 def domain_details(request, name=None):
+    """Displays the details of the selected domain. 
+    """
     if not name:
         raise ValueError('name = %s' % name)
     
     domain = AppsDomain.get_by_key_name(name)
     if not domain:
         return redirect('domains')
+    
+    if not domain.installation_token:
+        domain.installation_token = AppsDomain.random_token()
+        domain.put()
     
     if request.method == 'POST':
         form = DomainForm(request.POST, auto_id=True)
@@ -71,12 +93,15 @@ def domain_details(request, name=None):
     
     return render_with_nav(request, 'domain_details.html', {
         'domain': domain,
+        'installation_link': domain.installation_link(request),
         'form': form,
         'saved': request.session.pop('saved', None),
     }, in_section='appadmin/domains')
 
 
 def domain_remove(request, names=None):
+    """Removes the selected domain. 
+    """
     if not names:
         raise ValueError('names = %s' % names)
     
@@ -93,6 +118,8 @@ TOOLS_ACTIONS = {
 }
 
 def tools(request):
+    """Displays the tools panel.
+    """
     if request.method == 'POST':
         for key, value in request.POST.iteritems():
             if key in TOOLS_ACTIONS:

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}
+{% trans 'Setup Google Apps domain' %}
+{% endblock %}
+
+{% block content %}
+<p>{% blocktrans %}
+For better experience we invite you to perform additional setup step in
+your Google Apps dashboard.
+{% endblocktrans %}</p>
+<p>{% blocktrans %}
+Please go to <a href="{{ oauth_settings_url }}" target="_blank">{{ oauth_settings_url }}</a>
+and add the following information to the list of <strong>Authorized API clients</strong>:
+{% endblocktrans %}</p>
+<ul>
+        <li><strong>Client Name:</strong> {{ app_id }}</li>
+        <li><strong>API Scope:</strong> https://apps-apis.google.com/a/feeds/user/#readonly</li>
+</ul>
+{% endblock %}

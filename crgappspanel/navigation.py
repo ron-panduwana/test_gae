@@ -1,14 +1,15 @@
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from crlib.navigation import Section
+from crauth import users
 
 
 def base(request):
-    return (
-        #Section('dashboard', _('Dashboard')),
+    nav = (
         Section('users', _('Users and Groups'), reverse('users'), (
             Section('groups', _('Groups'), reverse('groups')),
             Section('users', _('Users'), reverse('users')),
+            Section('roles', _('Roles'), reverse('roles')),
         )),
         Section('shared_contacts', _('Shared Contacts'),
             reverse('shared-contacts')),
@@ -16,12 +17,34 @@ def base(request):
             reverse('calendar-resources')),
     )
 
+    if users.is_current_user_admin():
+        domain = users.get_current_domain().domain
+        domain_setup_url = reverse('domain_setup', args=(domain,))
+        return nav + (
+            Section(
+                'domain_settings', _('Additional Management'),
+                domain_setup_url, (
+                    Section(
+                        'panel_config', _('Panel Configuration'),
+                        domain_setup_url),
+                    Section(
+                        'installation_instructions', _('Additional Setup'),
+                        reverse('installation_instructions', args=(domain,))),
+                )),
+        )
+    else:
+        return nav
+
 
 def user_nav(user):
     parent = 'users/users'
     return (
         Section(
             'details', _('General'), reverse('user-details', args=(user,)),
+            parent=parent
+        ),
+        Section(
+            'roles', _('Roles'), reverse('user-roles', args=(user,)),
             parent=parent
         ),
         Section(

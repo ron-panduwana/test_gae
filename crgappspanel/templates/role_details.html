@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Role details" %}: {{ role.name }}{% endblock %}
+
+{% block content %}
+{% include "snippets/saved_warning.html" %}
+<form action="{% url role-details role.name %}" method="POST" class="details">
+	{% include "snippets/group_header.html" %}
+	<table class="details" width="100%">
+		<tbody>
+			{% with form.name as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.sections.users as section %}{% with "1" as show_roles_table_header %}
+				{% include "snippets/roles_section.html" %}
+			{% endwith %}{% endwith %}
+			{% with form.sections.groups as section %}
+				{% include "snippets/roles_section.html" %}
+			{% endwith %}
+			{% with form.sections.roles as section %}
+				{% include "snippets/roles_section.html" %}
+			{% endwith %}
+			{% with form.sections.shared_contacts as section %}
+				{% include "snippets/roles_section.html" %}
+			{% endwith %}
+			{% with form.sections.calendar_resources as section %}
+				{% include "snippets/roles_section.html" %}
+			{% endwith %}
+			{% include "snippets/form_save_reset.html" %}
+		</tbody>
+	</table>
+</form>
+{% endblock %}

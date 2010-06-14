@@ -1,10 +1,19 @@
 import logging
+import re
+from google.appengine.api import memcache
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from gdata.apps import service
 from gdata.service import CaptchaRequired, BadAuthentication
-from crauth.users import SetupRequiredError
+from crauth.users import SetupRequiredError, _SERVICE_MEMCACHE_TOKEN_KEY
 from crauth.models import AppsDomain
+from crlib import forms as crforms
+
+
+RE_DOMAIN = re.compile(r'^(?:[-\w]+\.)+[a-z]{2,6}$')
+# Look at http://www.google.com/support/a/bin/answer.py?answer=33386 for
+# description of allowed characters in usernames and passwords
+RE_USERNAME = re.compile(r'^[a-z0-9\-_\.\']+$')
 
 
 class VerbatimWidget(forms.Widget):
@@ -14,8 +23,25 @@ class VerbatimWidget(forms.Widget):
 
 class DomainNameForm(forms.Form):
     domain = forms.RegexField(
-        required=True, regex=r'(?:[-\w]+\.)+[a-z]{2,6}$', label='www.',
+        required=True, regex=RE_DOMAIN, label='www.',
         error_messages={'invalid': _('Please enter valid domain name')})
+
+
+class ChooseDomainForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        choices = kwargs.pop('choices', set())
+        super(ChooseDomainForm, self).__init__(*args, **kwargs)
+        self.fields['domain'] = crforms.ChoiceWithOtherField(
+            required=True, choices=choices,
+            label=_('Please select Google apps domain you want to log in to:'))
+
+    def clean_domain(self):
+        main, other = self.cleaned_data['domain']
+        if main == 'other':
+            if not RE_DOMAIN.match(other):
+                raise forms.ValidationError('Please enter valid domain name')
+            return other
+        return main
 
 
 class CaptchaForm(forms.Form):
@@ -52,10 +78,15 @@ class CaptchaForm(forms.Form):
 
 
 class DomainSetupForm(CaptchaForm):
-    account = forms.CharField(label=_('Administrator account'))
+    account = forms.RegexField(
+        regex=RE_USERNAME, label=_('Administrator account'),
+        error_messages={'invalid': _(
+            'Usernames may contain letters (a-z), numbers (0-9), dashes (-), '
+            'underscores (_), periods (.), and apostrophes (\'), and may not '
+            'contain an equal sign (=) or brackets (<,>).')})
     password = forms.CharField(
         label=_('Administrator password'),
-        required=True, widget=forms.PasswordInput)
+        required=True, widget=forms.PasswordInput, min_length=6)
     domain = forms.CharField(widget=forms.HiddenInput, required=True)
     callback = forms.URLField(required=False, widget=forms.HiddenInput)
 
@@ -70,9 +101,24 @@ class DomainSetupForm(CaptchaForm):
 
         apps_domain = AppsDomain.get_by_key_name(domain)
         if not apps_domain:
+            old_credentials = {}
             apps_domain = AppsDomain(
                 key_name=domain,
                 domain=domain)
+        else:
+            old_credentials = {
+                'email': apps_domain.admin_email,
+                'password': apps_domain.admin_password,
+            }
+
+        def restore_credentials():
+            if old_credentials:
+                apps_domain.admin_email = old_credentials['email']
+                apps_domain.admin_password = old_credentials['password']
+                apps_domain.put()
+
+        memcache.delete(_SERVICE_MEMCACHE_TOKEN_KEY % (
+            domain, self.service.service))
         apps_domain.admin_email = email
         apps_domain.admin_password = password
         apps_domain.put()
@@ -82,10 +128,12 @@ class DomainSetupForm(CaptchaForm):
             self.service.RetrieveUser(account)
             return cleaned_data
         except service.AppsForYourDomainException:
+            restore_credentials()
             raise forms.ValidationError(
                 _('Make sure to provide credentials for administrator of your '
                   'domain'))
         except SetupRequiredError:
+            restore_credentials()
             raise forms.ValidationError(
                 _('Please provide correct authentication credentials'))
 
