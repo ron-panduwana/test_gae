@@ -9,8 +9,8 @@ def base(request):
         Section('users', _('Users and Groups'), reverse('users'), (
             Section('groups', _('Groups'), reverse('groups')),
             Section('users', _('Users'), reverse('users')),
-            Section('roles', _('Roles'), reverse('roles')),
         )),
+        Section('roles', _('Roles'), reverse('roles')),
         Section('shared_contacts', _('Shared Contacts'),
             reverse('shared-contacts')),
         Section('calendar_resources', _('Calendar Resources'),
@@ -22,7 +22,7 @@ def base(request):
         domain_setup_url = reverse('domain_setup', args=(domain,))
         return nav + (
             Section(
-                'domain_settings', _('Additional Management'),
+                'domain_settings', _('Settings'),
                 domain_setup_url, (
                     Section(
                         'panel_config', _('Panel Configuration'),
