@@ -22,7 +22,7 @@ def base(request):
         domain_setup_url = reverse('domain_setup', args=(domain,))
         return nav + (
             Section(
-                'domain_settings', _('Additional Management'),
+                'domain_settings', _('Settings'),
                 domain_setup_url, (
                     Section(
                         'panel_config', _('Panel Configuration'),
