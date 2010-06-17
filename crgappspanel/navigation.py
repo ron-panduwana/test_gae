@@ -6,9 +6,9 @@ from crauth import users
 
 def base(request):
     nav = (
-        Section('users', _('Users and Groups'), reverse('users'), (
-            Section('groups', _('Groups'), reverse('groups')),
+        Section('users', _('Users, Groups and Roles'), reverse('users'), (
             Section('users', _('Users'), reverse('users')),
+            Section('groups', _('Groups'), reverse('groups')),
             Section('roles', _('Roles'), reverse('roles')),
         )),
         Section('shared_contacts', _('Shared Contacts'),
