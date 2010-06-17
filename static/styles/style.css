@@ -162,6 +162,7 @@ div.warning {
 div.error {
 	background-color: #ffdbdb;
 	border: 1px solid #ff8080;
+    text-align: center;
 }
 
 
