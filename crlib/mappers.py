@@ -1,8 +1,6 @@
 import logging
 import re
 from google.appengine.api import memcache
-from google.appengine.api.urlfetch import DownloadError
-from google.appengine.runtime import DeadlineExceededError
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from gdata import contacts, data
@@ -112,30 +110,16 @@ class UserEntryMapper(AtomMapper):
         atom.login.hash_function_name = 'SHA-1'
         return self.service.UpdateUser(old_atom.login.user_name, atom)
 
-    def retrieve_page(self, previous=None, use_cache=True):
+    def retrieve_page(self, previous=None):
         if previous:
             next = previous.GetNextLink()
             if next:
                 from gdata.apps import UserFeedFromString
-                cached = memcache.get('users-%s' % next.href)
-                if cached and use_cache:
-                    next_feed = cached
-                else:
-                    next_feed = self.service.Get(
-                        next.href, converter=UserFeedFromString)
-                    memcache.set('users-%s' % next.href, next_feed)
-                previous.entry.extend(next_feed.entry)
-                return previous
+                return self.service.Get(next.href, converter=UserFeedFromString)
             else:
                 return False
         else:
-            cached = memcache.get('users-%s' % self.service.domain)
-            if cached and use_cache:
-                return cached
-            LastCacheUpdate.get_or_insert(self.service.domain)
-            result = self.service.RetrievePageOfUsers()
-            memcache.set('users-%s' % self.service.domain, result)
-            return result
+            return self.service.RetrievePageOfUsers()
 
     def retrieve(self, user_name):
         return self.service.RetrieveUser(user_name)
@@ -376,7 +360,7 @@ class SharedContactEntryMapper(AtomMapper):
         r'http://www.google.com/m8/feeds/contacts/'
         r'(?:[^/]+)/full/(?P<id>[a-f0-9]+)$')
     SELF_LINK = 'http://www.google.com/m8/feeds/contacts/%s/full/%s'
-    ITEMS_PER_PAGE = 150
+    ITEMS_PER_PAGE = 100
 
     @classmethod
     def create_service(cls, domain):
@@ -407,33 +391,19 @@ class SharedContactEntryMapper(AtomMapper):
         return self.service.get_entry(
             link, desired_class=contacts.data.ContactEntry)
 
-    def retrieve_page(self, previous=None, use_cache=True):
+    def retrieve_page(self, previous=None):
         if previous:
-            per_page = int(previous.items_per_page.text)
             total_results = int(previous.total_results.text)
             start_index = int(previous.start_index.text)
-            if len(previous.entry) < total_results:
+            if start_index - 1 + len(previous.entry) < total_results:
                 next_start = start_index + self.ITEMS_PER_PAGE
-                cached = memcache.get('shared-%s' % next_start)
-                if cached and use_cache:
-                    next_feed = cached
-                else:
-                    next_feed = self._retrieve_subset(
-                        limit=self.ITEMS_PER_PAGE, offset=next_start)
-                    memcache.set('shared-%s' % next_start, next_feed)
-                previous.entry.extend(next_feed.entry)
-                previous.start_index.text = next_feed.start_index.text
-                return previous
+                return self._retrieve_subset(
+                    limit=self.ITEMS_PER_PAGE, offset=next_start)
             else:
                 return False
         else:
-            cached = memcache.get('shared-%s' % self.service.contact_list)
-            if cached and use_cache:
-                return cached
-            LastCacheUpdate.get_or_insert(self.service.contact_list)
-            result = self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
-            memcache.set('shared-%s' % self.service.contact_list, result)
-            return result
+            #LastCacheUpdate.get_or_insert(self.service.contact_list)
+            return self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
 
     def _retrieve_subset(self, limit=1000, offset=1):
         from gdata.contacts.client import ContactsQuery

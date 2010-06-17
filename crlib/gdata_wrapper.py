@@ -1,6 +1,7 @@
 import datetime
 import logging
 import operator
+import os
 import re
 from django.conf import settings
 from google.appengine.ext import db
@@ -632,13 +633,39 @@ class AtomMapper(object):
             return CreateClassFromXMLString(atom.__class__, unicode(atom))
 
     def retrieve_all(self, use_cache=True):
-        feed = self.retrieve_page(use_cache=use_cache)
+        import hashlib
+        from google.appengine.api.urlfetch import DownloadError
+        from google.appengine.runtime import DeadlineExceededError
+        from crauth import users
+
+        domain = os.environ.get(users._ENVIRON_DOMAIN)
+
+        if use_cache:
+            memcache_main_key = '%s-%s' % (self.__class__.__name__, domain)
+            feed = memcache.get(memcache_main_key)
+        if not use_cache or not feed:
+            feed = self.retrieve_page()
+            if use_cache:
+                memcache.set(memcache_main_key, feed)
+        users = feed
+
         while feed:
-            users = feed
-            try:
-                feed = self.retrieve_page(feed, use_cache=use_cache)
-            except (DownloadError, DeadlineExceededError):
-                raise RetryError
+            if use_cache:
+                hsh = hashlib.sha1(str(feed)).hexdigest()
+                memcache_key = '%s-%s' % (self.__class__.__name__, hsh)
+                cached = memcache.get(memcache_key)
+                if cached is not None:
+                    feed = cached
+            if not use_cache or cached is None:
+                try:
+                    feed = self.retrieve_page(feed)
+                except (DownloadError, DeadlineExceededError):
+                    raise RetryError
+                if use_cache:
+                    memcache.set(memcache_key, feed)
+            if feed:
+                users.entry.extend(feed.entry)
+
         return users.entry
 
 
