@@ -22,7 +22,7 @@ sys.path.insert(1, os.path.join(sys.path[0], 'lib'))
 
 REDIRECT_FIELD_NAME = 'next'
 SESSION_LOGIN_INFO_KEY = '_client_login_info'
-LOGIN_REDIRECT_URL = '/users/list/'
+LOGIN_REDIRECT_URL = '/'
 CLIENT_LOGIN_SOURCE = 'cloudreach-powerpanel-v1'
 
 OAUTH_APP_ID = '285282688156'
