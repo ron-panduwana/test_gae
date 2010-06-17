@@ -9,8 +9,12 @@ class LastCacheUpdate(BaseModel):
     last_updated = db.DateTimeProperty(auto_now=True)
 
 
-def recache_current_domain():
+def recache_current_domain(mapper):
     domain = users.get_current_domain().domain
+    mapper = mapper.__class__.__name__
     if domain:
-        taskqueue.add(url=reverse('precache_domain'), params={'domain': domain})
+        taskqueue.add(url=reverse('precache_domain'), params={
+            'domain': domain,
+            'mapper': mapper,
+        })
 

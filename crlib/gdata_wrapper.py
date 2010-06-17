@@ -529,7 +529,7 @@ class Model(object):
 
         del self._cache['item:%s' % self.key()]
         del self._cache['retrieve_all']
-        recache_current_domain()
+        recache_current_domain(self._mapper)
         return self
     put = save
 
@@ -537,7 +537,7 @@ class Model(object):
         self._mapper.delete(self._atom)
         del self._cache['item:%s' % self.key()]
         del self._cache['retrieve_all']
-        recache_current_domain()
+        recache_current_domain(self._mapper)
         del self
 
     def is_saved(self):
@@ -637,22 +637,23 @@ class AtomMapper(object):
         from google.appengine.api.urlfetch import DownloadError
         from google.appengine.runtime import DeadlineExceededError
         from crauth import users
+        from crlib.models import LastCacheUpdate
 
         domain = os.environ.get(users._ENVIRON_DOMAIN)
 
+        main_key = '%s-%s' % (self.__class__.__name__, domain)
         if use_cache:
-            memcache_main_key = '%s-%s' % (self.__class__.__name__, domain)
-            feed = memcache.get(memcache_main_key)
+            feed = memcache.get(main_key)
         if not use_cache or not feed:
             feed = self.retrieve_page()
-            if use_cache:
-                memcache.set(memcache_main_key, feed)
+            LastCacheUpdate.get_or_insert(main_key)
+            memcache.set(main_key, feed)
         users = feed
 
         while feed:
+            hsh = hashlib.sha1(str(feed)).hexdigest()
+            memcache_key = '%s-%s' % (self.__class__.__name__, hsh)
             if use_cache:
-                hsh = hashlib.sha1(str(feed)).hexdigest()
-                memcache_key = '%s-%s' % (self.__class__.__name__, hsh)
                 cached = memcache.get(memcache_key)
                 if cached is not None:
                     feed = cached
@@ -661,8 +662,7 @@ class AtomMapper(object):
                     feed = self.retrieve_page(feed)
                 except (DownloadError, DeadlineExceededError):
                     raise RetryError
-                if use_cache:
-                    memcache.set(memcache_key, feed)
+                memcache.set(memcache_key, feed)
             if feed:
                 users.entry.extend(feed.entry)
 

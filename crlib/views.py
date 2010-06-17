@@ -14,32 +14,50 @@ from crlib import mappers
 _CACHE_UPDATE_INTERVAL = 5 * 60 # 5 minutes
 
 
+# These mappers are required to contain retrieve_all() method taking use_cache
+# boolean keyword argument.
+_MAPPERS_LIST = (
+    mappers.UserEntryMapper,
+    mappers.GroupEntryMapper,
+    mappers.NicknameEntryMapper,
+    mappers.SharedContactEntryMapper,
+)
+
+_MAPPERS_DICT = {}
+for mapper in _MAPPERS_LIST:
+    _MAPPERS_DICT[mapper.__name__] = mapper
+
+
 def precache_all_domains(request):
     treshold = datetime.datetime.now() - datetime.timedelta(
         seconds=_CACHE_UPDATE_INTERVAL)
     to_update = LastCacheUpdate.all().filter(
         'last_updated <', treshold).order('last_updated').fetch(100)
     for item in to_update:
-        domain = item.key().name()
-        taskqueue.add(url=reverse('precache_domain'), params={'domain': domain})
+        mapper, _, domain = item.key().name().partition('-')
+        taskqueue.add(url=reverse('precache_domain'), params={
+            'domain': domain,
+            'mapper': mapper,
+        })
     return HttpResponse(str(len(to_update)))
 
 
 def precache_domain(request):
+    domain = request.POST['domain']
+    mapper = request.POST['mapper']
+    apps_domain = AppsDomain.get_by_key_name(domain)
+    key_name = '%s-%s' % (mapper, domain)
+    last_updated = LastCacheUpdate.get_or_insert(key_name)
+    users._set_current_user(apps_domain.admin_email, domain)
+    mapper_class = _MAPPERS_DICT[mapper]
     try:
-        domain = request.POST['domain']
-        logging.warning('domain: %s' % str(domain))
-        apps_domain = AppsDomain.get_by_key_name(domain)
-        last_updated = LastCacheUpdate.get_by_key_name(domain)
-        users._set_current_user(apps_domain.admin_email, domain)
-        try:
-            mappers.UserEntryMapper().retrieve_all(use_cache=False)
-            last_updated.last_updated = datetime.datetime.now()
-            last_updated.put()
-        except mapper.RetryError:
-            taskqueue.add(url=request.get_full_path(), params={'domain': domain})
-        return HttpResponse('ok')
-    except Exception:
-        logging.exception('test')
-        raise
+        mapper_class().retrieve_all(use_cache=False)
+    except mapper.RetryError:
+        taskqueue.add(url=request.get_full_path(), params={
+            'domain': domain,
+            'mapper': mapper,
+        })
+    last_updated.last_updated = datetime.datetime.now()
+    last_updated.put()
+    return HttpResponse('ok')
 

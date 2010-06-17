@@ -10,7 +10,6 @@ from gdata.apps import PropertyEntry
 from gdata.apps.groups import service as groups
 from atom import AtomBase
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
-from crlib.models import LastCacheUpdate
 
 
 # Constants
@@ -428,7 +427,6 @@ class SharedContactEntryMapper(AtomMapper):
             else:
                 return False
         else:
-            #LastCacheUpdate.get_or_insert(self.service.contact_list)
             return self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
 
     def _retrieve_subset(self, limit=1000, offset=1):
