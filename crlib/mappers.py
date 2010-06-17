@@ -304,8 +304,17 @@ class NicknameEntryMapper(AtomMapper):
         return self.service.CreateNickname(
             atom.login.user_name, atom.nickname.name)
 
-    def retrieve_all(self):
-        return self.service.RetrieveAllNicknames().entry
+    def retrieve_page(self, previous=None):
+        if previous:
+            next = previous.GetNextLink()
+            if next:
+                from gdata.apps import NicknameFeedFromString
+                return self.service.Get(
+                    next.href, converter=NicknameFeedFromString)
+            else:
+                return False
+        else:
+            return self.service.RetrievePageOfNicknames()
 
     def retrieve(self, nickname):
         return self.service.RetrieveNickname(nickname)
