@@ -214,12 +214,21 @@ table.objects_table tr.data td {
 }
 
 table.objects_table tr.header th, table.objects_table tr.data td {
-	padding: 2px 5px;
-	
+	/*padding: 2px 5px;*/
 	text-align: left;
 }
 
-table.objects_table tr.data:hover td {
+table.objects_table tr.header th,
+table.objects_table tr.data td {
+    padding: 5px 5px;
+}
+
+table.objects_table tr.header.can_change th,
+table.objects_table tr.data.can_change td {
+	padding: 2px 5px;
+}
+
+table.objects_table tr.data.can_change:hover td {
 	background-color: #ffc;
 	cursor: pointer;
 }

@@ -97,7 +97,8 @@ _table_widths = ['%d%%' % x for x in (5, 20, 30, 15, 20, 10)]
 
 @has_perm('read_gauser')
 def users(request):
-    domain = crauth.users.get_current_user().domain_name
+    user = crauth.users.get_current_user()
+    domain = user.domain_name
     _table_fields = _table_fields_gen(domain)
     sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
@@ -113,7 +114,8 @@ def users(request):
     return render_with_nav(request, 'users_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
-            widths=_table_widths, singular='user'),
+            widths=_table_widths, singular='user',
+            can_change=user.has_perm('change_gauser')),
         'saved': request.session.pop('saved', False),
     })
 

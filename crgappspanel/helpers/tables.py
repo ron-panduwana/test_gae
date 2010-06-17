@@ -33,7 +33,8 @@ class Table(object):
         self.asc = asc if asc != None else True
     
     def generate(self, objs, page=None, qs_wo_page=None, widths=None,
-            table_name='table', singular='object', plural=None):
+                 table_name='table', singular='object', plural=None,
+                 can_change=False):
         """Generates table html (using appropriate HTML template).
         
         Arguments:
@@ -72,6 +73,7 @@ class Table(object):
             'table_name': table_name,
             'object_singular': singular,
             'object_plural': plural,
+            'can_change': can_change,
         })
     
     def sort(self, objs):
