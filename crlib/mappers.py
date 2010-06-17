@@ -1,5 +1,6 @@
 import logging
 import re
+from google.appengine.api import memcache
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from gdata import contacts, data
@@ -104,8 +105,16 @@ class UserEntryMapper(AtomMapper):
         atom.login.hash_function_name = 'SHA-1'
         return self.service.UpdateUser(old_atom.login.user_name, atom)
 
-    def retrieve_all(self):
-        return self.service.RetrieveAllUsers().entry
+    def retrieve_page(self, previous=None):
+        if previous:
+            next = previous.GetNextLink()
+            if next:
+                from gdata.apps import UserFeedFromString
+                return self.service.Get(next.href, converter=UserFeedFromString)
+            else:
+                return False
+        else:
+            return self.service.RetrievePageOfUsers()
 
     def retrieve(self, user_name):
         return self.service.RetrieveUser(user_name)
@@ -249,8 +258,25 @@ class GroupEntryMapper(AtomMapper):
         self.service.DeleteGroup(atom.groupId)
 
     def retrieve_all(self):
-        groups = self.service.RetrieveAllGroups()
-        return [GroupEntry(self, entry) for entry in groups]
+        entries = super(GroupEntryMapper, self).retrieve_all()
+        properties_list = []
+        for property_entry in entries:
+            properties_list.append(
+                self.service._PropertyEntry2Dict(property_entry))
+        return [GroupEntry(self, entry) for entry in properties_list]
+
+    def retrieve_page(self, previous=None):
+        if previous:
+            next = previous.GetNextLink()
+            if next:
+                from gdata.apps import PropertyFeedFromString
+                return self.service.Get(
+                    next.href, converter=PropertyFeedFromString)
+            else:
+                return False
+        else:
+            uri = self.service._ServiceUrl('group', True, '', '', '')
+            return self.service._GetPropertyFeed(uri)
 
     def retrieve(self, group_id):
         return GroupEntry(self, self.service.RetrieveGroup(group_id))
@@ -275,8 +301,17 @@ class NicknameEntryMapper(AtomMapper):
         return self.service.CreateNickname(
             atom.login.user_name, atom.nickname.name)
 
-    def retrieve_all(self):
-        return self.service.RetrieveAllNicknames().entry
+    def retrieve_page(self, previous=None):
+        if previous:
+            next = previous.GetNextLink()
+            if next:
+                from gdata.apps import NicknameFeedFromString
+                return self.service.Get(
+                    next.href, converter=NicknameFeedFromString)
+            else:
+                return False
+        else:
+            return self.service.RetrievePageOfNicknames()
 
     def retrieve(self, nickname):
         return self.service.RetrieveNickname(nickname)
@@ -344,6 +379,7 @@ class SharedContactEntryMapper(AtomMapper):
         r'http://www.google.com/m8/feeds/contacts/'
         r'(?:[^/]+)/full/(?P<id>[a-f0-9]+)$')
     SELF_LINK = 'http://www.google.com/m8/feeds/contacts/%s/full/%s'
+    ITEMS_PER_PAGE = 100
 
     @classmethod
     def create_service(cls, domain):
@@ -374,16 +410,26 @@ class SharedContactEntryMapper(AtomMapper):
         return self.service.get_entry(
             link, desired_class=contacts.data.ContactEntry)
 
-    def retrieve_all(self):
-        return self.retrieve_subset()
+    def retrieve_page(self, previous=None):
+        if previous:
+            total_results = int(previous.total_results.text)
+            start_index = int(previous.start_index.text)
+            if start_index - 1 + len(previous.entry) < total_results:
+                next_start = start_index + self.ITEMS_PER_PAGE
+                return self._retrieve_subset(
+                    limit=self.ITEMS_PER_PAGE, offset=next_start)
+            else:
+                return False
+        else:
+            return self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
 
-    def retrieve_subset(self, limit=1000, offset=0):
+    def _retrieve_subset(self, limit=1000, offset=1):
         from gdata.contacts.client import ContactsQuery
         query = ContactsQuery()
         query.max_results = limit
-        query.start_index = offset + 1
+        query.start_index = offset
         feed = self.service.get_contacts(query=query)
-        return feed.entry
+        return feed
 
 
 class RelProperty(StringProperty):

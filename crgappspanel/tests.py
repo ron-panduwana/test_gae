@@ -10,7 +10,7 @@ from crgappspanel.models import *
 from crlib.gdata_wrapper import GDataQuery
 from crlib.mappers import MAIN_TYPES, PHONE_TYPES, ORGANIZATION_TYPES, \
         WEBSITE_TYPES
-from crauth.users import _set_testing_user
+from crauth.users import _set_current_user
 
 
 os.environ['SERVER_NAME'] = 'localhost'
@@ -22,7 +22,7 @@ os.environ['USER_IS_ADMIN'] = '1'
 with open('google_apps.txt') as f:
     lines = f.readlines()
 email, password, domain = [line.strip() for line in lines]
-_set_testing_user(email, domain)
+_set_current_user(email, domain)
 
 
 class BaseGDataTestCase(unittest.TestCase):
