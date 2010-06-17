@@ -628,6 +628,16 @@ class AtomMapper(object):
             # Old version
             return CreateClassFromXMLString(atom.__class__, unicode(atom))
 
+    def retrieve_all(self, use_cache=True):
+        feed = self.retrieve_page(use_cache=use_cache)
+        while feed:
+            users = feed
+            try:
+                feed = self.retrieve_page(feed, use_cache=use_cache)
+            except (DownloadError, DeadlineExceededError):
+                raise RetryError
+        return users.entry
+
 
 def simple_mapper(atom, key):
     def empty_atom(self):

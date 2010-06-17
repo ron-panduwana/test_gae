@@ -113,16 +113,6 @@ class UserEntryMapper(AtomMapper):
         atom.login.hash_function_name = 'SHA-1'
         return self.service.UpdateUser(old_atom.login.user_name, atom)
 
-    def retrieve_all(self, use_cache=True):
-        feed = self.retrieve_page(use_cache=use_cache)
-        while feed:
-            users = feed
-            try:
-                feed = self.retrieve_page(feed, use_cache=use_cache)
-            except (DownloadError, DeadlineExceededError):
-                raise RetryError
-        return users.entry
-
     def retrieve_page(self, previous=None, use_cache=True):
         if previous:
             next = previous.GetNextLink()
@@ -387,6 +377,7 @@ class SharedContactEntryMapper(AtomMapper):
         r'http://www.google.com/m8/feeds/contacts/'
         r'(?:[^/]+)/full/(?P<id>[a-f0-9]+)$')
     SELF_LINK = 'http://www.google.com/m8/feeds/contacts/%s/full/%s'
+    ITEMS_PER_PAGE = 150
 
     @classmethod
     def create_service(cls, domain):
@@ -417,16 +408,41 @@ class SharedContactEntryMapper(AtomMapper):
         return self.service.get_entry(
             link, desired_class=contacts.data.ContactEntry)
 
-    def retrieve_all(self):
-        return self.retrieve_subset()
+    def retrieve_page(self, previous=None, use_cache=True):
+        if previous:
+            per_page = int(previous.items_per_page.text)
+            total_results = int(previous.total_results.text)
+            start_index = int(previous.start_index.text)
+            if len(previous.entry) < total_results:
+                next_start = start_index + self.ITEMS_PER_PAGE
+                cached = memcache.get('shared-%s' % next_start)
+                if cached and use_cache:
+                    next_feed = cached
+                else:
+                    next_feed = self._retrieve_subset(
+                        limit=self.ITEMS_PER_PAGE, offset=next_start)
+                    memcache.set('shared-%s' % next_start, next_feed)
+                previous.entry.extend(next_feed.entry)
+                previous.start_index.text = next_feed.start_index.text
+                return previous
+            else:
+                return False
+        else:
+            cached = memcache.get('shared-%s' % self.service.contact_list)
+            if cached and use_cache:
+                return cached
+            LastCacheUpdate.get_or_insert(self.service.contact_list)
+            result = self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
+            memcache.set('shared-%s' % self.service.contact_list, result)
+            return result
 
-    def retrieve_subset(self, limit=1000, offset=0):
+    def _retrieve_subset(self, limit=1000, offset=1):
         from gdata.contacts.client import ContactsQuery
         query = ContactsQuery()
         query.max_results = limit
-        query.start_index = offset + 1
+        query.start_index = offset
         feed = self.service.get_contacts(query=query)
-        return feed.entry
+        return feed
 
 
 class RelProperty(StringProperty):
