@@ -10,8 +10,9 @@ from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAGroup, GAGroupOwner, GAGroupMember
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
         render, redirect_saved
-from crlib.navigation import render_with_nav
 from crgappspanel.navigation import group_nav
+from crlib.navigation import render_with_nav
+from crlib import errors
 
 _table_fields = (
     Column(_('Name'), 'name', link=True),
@@ -49,9 +50,13 @@ def group_create(request):
         form = GroupForm(request.POST, auto_id=True)
         if form.is_valid():
             group = form.create()
-            group.save()
-            return redirect_saved('group-details',
-                request, name=group.get_pure_id())
+            try:
+                group.save()
+                return redirect_saved('group-details',
+                    request, name=group.get_pure_id())
+            except errors.EntityExistsError:
+                form.add_error(
+                    'id', _('User or group with this name already exists.'))
     else:
         form = GroupForm(auto_id=True)
     

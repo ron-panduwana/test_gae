@@ -14,8 +14,9 @@ from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname, GAGroup, GAGroupOwner, GAGroupMember
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
-        secure_random_chars, redirect_saved, render, exists_goto
+        secure_random_chars, redirect_saved, render
 from crlib.navigation import render_with_nav
+from crlib import errors
 from crgappspanel.navigation import user_nav
 
 
@@ -118,7 +119,6 @@ def users(request):
 
 
 @has_perm('add_gauser')
-@exists_goto('user-create')
 def user_create(request):
     domain = crauth.users.get_current_user().domain_name
     
@@ -126,8 +126,24 @@ def user_create(request):
         form = UserForm(request.POST, auto_id=True)
         if form.is_valid():
             user = form.create()
-            user.save()
-            return redirect_saved('user-details', request, name=user.user_name)
+            try:
+                user.save()
+                return redirect_saved('user-details', request,
+                                      name=user.user_name)
+            except errors.EntityExistsError:
+                form.add_error(
+                    'user_name',
+                    _('Either user or nick with this name already exists.'))
+            except errors.EntityDeletedRecentlyError:
+                form.add_error(
+                    'user_name',
+                    _('User with such name was recently deleted and this name '
+                      'cannot be currently used.'))
+            except errors.DomainUserLimitExceededError:
+                form.add_error(
+                    '__all__',
+                    _('Your domain user limit has been reached, you cannot '
+                      'create more users.'))
     else:
         form = UserForm(auto_id=True)
         form.fields['user_name'].help_text = '@%s' % domain
@@ -155,10 +171,27 @@ def user_details(request, name=None):
         form = UserForm(request.POST, auto_id=True)
         if form.is_valid():
             form.populate(user)
-            user.save()
-            if form.get_nickname():
-                GANickname(user=user, nickname=form.get_nickname()).save()
-            return redirect_saved('user-details', request, name=user.user_name)
+            try:
+                user.save()
+                try:
+                    if form.get_nickname():
+                        GANickname(
+                            user=user,nickname=form.get_nickname()).save()
+                    return redirect_saved('user-details', request,
+                                          name=user.user_name)
+                except errors.EntityExistsError:
+                    form.add_error(
+                        'nicknames',
+                        _('This name is already reserved.'))
+            except errors.EntityExistsError:
+                form.add_error(
+                    'user_name',
+                    _('Either user or nick with this name already exists.'))
+            except errors.EntityDeletedRecentlyError:
+                form.add_error(
+                    'user_name',
+                    _('User with such name was recently deleted and this name '
+                      'cannot be currently used.'))
     else:
         form = UserForm(initial={
             'user_name': user.user_name,

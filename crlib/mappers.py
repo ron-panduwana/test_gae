@@ -9,6 +9,7 @@ from gdata.apps import PropertyEntry
 from gdata.apps.groups import service as groups
 from atom import AtomBase
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
+from crlib.errors import apps_for_your_domain_exception_wrapper
 
 
 # Constants
@@ -73,8 +74,7 @@ GROUP_EMAIL_PERMISSIONS = (
 )
 
 
-class UserDeletedRecentlyError(Exception): pass
-
+# Mappers
 
 class UserEntryMapper(AtomMapper):
     @classmethod
@@ -92,18 +92,14 @@ class UserEntryMapper(AtomMapper):
             quota=apps.Quota(),
         )
 
+    @apps_for_your_domain_exception_wrapper
     def create(self, atom):
-        from gdata.apps.service import AppsForYourDomainException
-        try:
-            return self.service.CreateUser(
-                atom.login.user_name, atom.name.family_name,
-                atom.name.given_name, atom.login.password,
-                atom.login.suspended, password_hash_function='SHA-1')
-        except AppsForYourDomainException, e:
-            if e.reason == 'UserDeletedRecently':
-                raise UserDeletedRecentlyError()
-            raise
+        return self.service.CreateUser(
+            atom.login.user_name, atom.name.family_name,
+            atom.name.given_name, atom.login.password,
+            atom.login.suspended, password_hash_function='SHA-1')
 
+    @apps_for_your_domain_exception_wrapper
     def update(self, atom, old_atom):
         atom.login.hash_function_name = 'SHA-1'
         return self.service.UpdateUser(old_atom.login.user_name, atom)
@@ -210,6 +206,7 @@ class GroupEntryMapper(AtomMapper):
     def clone_atom(self, atom):
         return GroupEntry(self, atom)
 
+    @apps_for_your_domain_exception_wrapper
     def create(self, atom):
         new_group = self.service.CreateGroup(
             atom.groupId, atom.groupName, atom.description,
@@ -273,6 +270,7 @@ class NicknameEntryMapper(AtomMapper):
             login=apps.Login(),
         )
 
+    @apps_for_your_domain_exception_wrapper
     def create(self, atom):
         return self.service.CreateNickname(
             atom.login.user_name, atom.nickname.name)
@@ -291,10 +289,6 @@ class NicknameEntryMapper(AtomMapper):
 
     def delete(self, atom):
         self.service.DeleteNickname(atom.nickname.name)
-
-    #@filter('user')
-    #def filter_by_user(self, user_name):
-    #    return self.service.RetrieveNicknames(user_name).entry
 
 
 PhoneNumberMapper = simple_mapper(data.PhoneNumber, 'text')
@@ -462,10 +456,16 @@ class CalendarResourceEntryMapper(AtomMapper):
         return atom.resource_id
 
     def create(self, atom):
-        return self.service.create_resource(
-            atom.resource_id, atom.resource_common_name,
-            atom.resource_description, atom.resource_type,
-        )
+        from gdata.client import RequestError
+        try:
+            return self.service.create_resource(
+                atom.resource_id, atom.resource_common_name,
+                atom.resource_description, atom.resource_type,
+            )
+        except RequestError, e:
+            if 'EntityExists' in e.body:
+                raise EntityExistsError()
+            raise
 
     def update(self, atom, old_atom):
         # There is a bug in Calendar Resources GData API: if

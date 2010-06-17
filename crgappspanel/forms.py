@@ -29,6 +29,14 @@ def create_exact_keep(*values):
     return ret
 
 
+class Form(forms.Form):
+    def add_error(self, field, msg):
+        if self._errors.has_key(field):
+            self._errors[field].append(msg)
+        else:
+            self._errors[field] = ErrorList([msg])
+
+
 ################################################################################
 #                           GENERAL VALIDATION CODE                            #
 ################################################################################
@@ -145,7 +153,7 @@ nicknames_c = '%(link_start)sAdd nickname%(link_end)s'
 nicknames_e = 'Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 
 
-class UserForm(forms.Form):
+class UserForm(Form):
     user_name = forms.CharField(label=_('Username'))
     password = fields.CharField2(label=_('Password'), required=False, widget=password_2)
     change_password = forms.BooleanField(label=_('Password'), required=False,
@@ -392,7 +400,7 @@ class UserEmailAliasesForm(forms.Form):
 ################################################################################
 
 
-class GroupForm(forms.Form):
+class GroupForm(Form):
     id = forms.CharField(label=_('Email address'))
     name = forms.CharField(label=_('Name'))
     email_permission = forms.ChoiceField(label=_('Email permission'),

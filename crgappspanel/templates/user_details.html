@@ -40,7 +40,7 @@ function showDialog(dialog) {
 </script>
 
 {% include "snippets/saved_warning.html" %}
-<form action="{% url user-details user.user_name %}" method="POST" class="details">
+<form action="" method="POST" class="details">
 	{% include "snippets/user_header.html" %}
 	{% if user.suspended %}
 	<a href="#" onclick="showDialog(dialogRestore)">{% trans "Restore" %}</a>
