@@ -601,13 +601,15 @@ class SharedContactForm(forms.Form):
         phone_number = data['phone_number']
         phone_numbers = [self._phone_number(phone_number)] if phone_number else []
         
-        contact = models.SharedContact(name=name, notes=data['notes'],
+        contact = models.SharedContact(
+            name=name, notes=data['notes'],
             emails=emails, phone_numbers=phone_numbers)
-        contact.extended_properties = contact.extended_properties or dict()
-        if data['company']:
-            contact.extended_properties['company'] = data['company']
-        if data['role']:
-            contact.extended_properties['role'] = data['role']
+
+        company, role = data['company'], data['role']
+        if company or role:
+            contact.organization = Organization(name=company, title=role)
+            contact.organization.save()
+
         return contact
     
     def populate(self, shared_contact):

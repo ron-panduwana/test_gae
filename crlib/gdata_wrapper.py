@@ -337,9 +337,8 @@ class EmbeddedModelProperty(StringProperty):
             return self.reference_class._from_atom(value)
 
     def set_value_on_atom(self, atom, value):
-        if value is not None:
-            super(EmbeddedModelProperty, self).set_value_on_atom(
-                atom, value._atom)
+        super(EmbeddedModelProperty, self).set_value_on_atom(
+            atom, value and value._atom or None)
 
 
 class ListProperty(StringProperty):

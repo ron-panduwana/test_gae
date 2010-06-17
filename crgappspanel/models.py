@@ -191,7 +191,8 @@ class Organization(gd.Model):
     Mapper = mappers.OrganizationMapper()
 
     name = gd.StringProperty('name.text', required=False)
-    rel = mappers.RelProperty(mappers.ORGANIZATION_TYPES)
+    rel = mappers.RelProperty(mappers.ORGANIZATION_TYPES,
+                              default=mappers.ORGANIZATION_TYPES[0][0])
     primary = gd.BooleanProperty('primary', default=False)
     title = gd.StringProperty('title.text', required=False)
     job_description = gd.StringProperty(

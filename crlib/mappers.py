@@ -393,8 +393,9 @@ class SharedContactEntryMapper(AtomMapper):
 
 
 class RelProperty(StringProperty):
-    def __init__(self, choices=MAIN_TYPES):
-        super(RelProperty, self).__init__('rel', required=False, choices=choices)
+    def __init__(self, choices=MAIN_TYPES, **kwargs):
+        super(RelProperty, self).__init__(
+            'rel', required=False, choices=choices, **kwargs)
 
 
 class _EmailSettingsWrapper(object):
