@@ -13,6 +13,11 @@ def dashboard(request):
     return render_with_nav(request, 'dashboard.html')
 
 
+@login_required
+def feedback_thanks(request):
+    return render_with_nav(request, 'feedback_thanks.html')
+
+
 def language(request):
     return render(request, 'language.html', {'LANGUAGES': LANGUAGES})
 
