@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
-from crauth.decorators import login_required, has_perm
+from crauth.decorators import has_perm
 from crauth.models import Role
 from crauth import users
 from crgappspanel.forms import RoleForm
@@ -23,7 +23,7 @@ _table_id = _table_fields[0]
 _table_widths = tuple('%d%%' % x for x in (5, 20, 75))
 
 
-@login_required
+@has_perm('read_role')
 def roles(request):
     sortby, asc = get_sortby_asc(request, _table_field_names)
     
@@ -38,7 +38,7 @@ def roles(request):
     })
 
 
-@login_required
+@has_perm('add_role')
 def role_create(request):
     if request.method == 'POST':
         form = RoleForm(request.POST, auto_id=True)
@@ -54,7 +54,7 @@ def role_create(request):
     }, in_section='users/roles')
 
 
-@login_required
+@has_perm('change_role')
 def role_details(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
@@ -83,7 +83,7 @@ def role_details(request, name=None):
     }, in_section='users/roles')
 
 
-@login_required
+@has_perm('change_role')
 def role_remove(request, names=None):
     if not names:
         raise ValueError('names = %s' % names)
