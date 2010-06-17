@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
+from crauth import users
 from crauth.decorators import has_perm
 from crgappspanel.forms import SharedContactForm
 from crgappspanel.helpers.filters import SharedContactFilter, \
@@ -95,7 +96,9 @@ def shared_contacts(request):
     return render_with_nav(request, 'shared_contacts_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
-            widths=_table_widths, singular='shared contact'),
+            widths=_table_widths, singular='shared contact',
+            can_change=users.get_current_user().has_perm(
+                'change_sharedcontact')),
         'advanced_search': advanced_search,
         'filters': filters,
         'query': dict(general=query, advanced=query_adv.search_by),
