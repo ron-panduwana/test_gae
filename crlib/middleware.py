@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from crlib.mappers import RetryError
+from crlib.gdata_wrapper import RetryError
 
 
 class PrecacheRetryMiddleware(object):

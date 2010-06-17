@@ -578,6 +578,9 @@ class Model(object):
         return cls(**props)
 
 
+class RetryError(Exception): pass
+
+
 class AtomMapper(object):
     """Subclasses of this class implement actual interaction with GData APIs.
 

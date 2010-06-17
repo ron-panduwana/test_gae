@@ -78,7 +78,6 @@ GROUP_EMAIL_PERMISSIONS = (
 
 
 class UserDeletedRecentlyError(Exception): pass
-class RetryError(Exception): pass
 
 
 class UserEntryMapper(AtomMapper):
