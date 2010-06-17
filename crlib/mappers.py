@@ -262,8 +262,25 @@ class GroupEntryMapper(AtomMapper):
         self.service.DeleteGroup(atom.groupId)
 
     def retrieve_all(self):
-        groups = self.service.RetrieveAllGroups()
-        return [GroupEntry(self, entry) for entry in groups]
+        entries = super(GroupEntryMapper, self).retrieve_all()
+        properties_list = []
+        for property_entry in entries:
+            properties_list.append(
+                self.service._PropertyEntry2Dict(property_entry))
+        return [GroupEntry(self, entry) for entry in properties_list]
+
+    def retrieve_page(self, previous=None):
+        if previous:
+            next = previous.GetNextLink()
+            if next:
+                from gdata.apps import PropertyFeedFromString
+                return self.service.Get(
+                    next.href, converter=PropertyFeedFromString)
+            else:
+                return False
+        else:
+            uri = self.service._ServiceUrl('group', True, '', '', '')
+            return self.service._GetPropertyFeed(uri)
 
     def retrieve(self, group_id):
         return GroupEntry(self, self.service.RetrieveGroup(group_id))
