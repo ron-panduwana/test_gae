@@ -8,8 +8,9 @@ from crgappspanel.models import GAUser, GAGroup
 from crlib.navigation import render_with_nav
 
 
-def index(request):
-    return redirect('users')
+@login_required
+def dashboard(request):
+    return render_with_nav(request, 'dashboard.html')
 
 
 def language(request):

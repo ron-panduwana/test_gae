@@ -20,9 +20,9 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('crgappspanel.views.general',
-    url(r'^$', 'index', name='index'),
+    url(r'^$', 'dashboard', name='dashboard'),
     url(r'^language/$', 'language', name='language'),
-    url(r'^test/$', 'test', name='test'), # TODO remove in the future
+    #url(r'^test/$', 'test', name='test'), # TODO remove in the future
 )
 
 urlpatterns += patterns('crgappspanel.views.users',
