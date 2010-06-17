@@ -5,7 +5,9 @@
 
 {% block content %}
 	{% include "snippets/saved_warning.html" %}
+    {% if auth.perms.add_sharedcontact %}
 	<a href="{% url shared-contact-add %}" class="action-link">{% trans "Add shared contact" %}</a>
+    {% endif %}
 	<script type="text/javascript">
 	function toggleSearch() {
 		var f1 = goog.dom.$('shared-contact-search')
