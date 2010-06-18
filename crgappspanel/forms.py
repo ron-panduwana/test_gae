@@ -381,6 +381,39 @@ class UserEmailFiltersForm(forms.Form):
         return enforce_invalid(value, other='[]()$&*')
 
 
+VACATION_STATE_CHOICES = (
+    ('true', _('Enabled')),
+    ('false', _('Disabled')),
+)
+
+VACATION_CONTACTS_ONLY_CHOICES = (
+    ('true', _('Only send a response to people in my Contacts')),
+    ('false', _('Send to all')),
+)
+
+class UserEmailVacationForm(forms.Form):
+    state = forms.ChoiceField(
+        label=_('Out of Office AutoReply'), choices=VACATION_STATE_CHOICES,
+        widget=forms.Select(attrs={
+            'onchange': 'return cr.snippets.vacationStateChanged(this.value);',
+        }))
+    subject = forms.CharField(max_length=500, required=False)
+    message = forms.CharField(widget=forms.Textarea, required=False)
+    contacts_only = forms.ChoiceField(choices=VACATION_CONTACTS_ONLY_CHOICES)
+
+    def clean_subject(self):
+        enabled = self.cleaned_data.get('state', 'true') == 'true'
+        if enabled and not self.cleaned_data['subject']:
+            raise forms.ValidationError(
+                _('Subject field is required'))
+
+    def clean_message(self):
+        enabled = self.cleaned_data.get('state', 'true') == 'true'
+        if enabled and not self.cleaned_data['message']:
+            raise forms.ValidationError(
+                _('Message field is required'))
+
+
 reply_to_c = 'Set %(link_start)sanother%(link_end)s reply to address'
 reply_to_e = '%(widget)s %(link_start)sCancel%(link_end)s'
 

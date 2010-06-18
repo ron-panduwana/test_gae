@@ -67,6 +67,11 @@ def user_nav(user):
             reverse('user-email-aliases', args=(user,)),
             parent=parent
         ),
+        Section(
+            'vacation', _('Vacation responser'),
+            reverse('user-email-vacation', args=(user,)),
+            parent=parent
+        ),
     )
 
 

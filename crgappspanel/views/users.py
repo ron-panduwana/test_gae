@@ -3,13 +3,15 @@ from itertools import imap
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
+from django.http import Http404
 
 import crauth
 from crauth.decorators import login_required, admin_required, has_perm
 from crauth.models import Role, UserPermissions
 from crgappspanel import consts
 from crgappspanel.forms import UserForm, UserRolesForm, UserGroupsForm, \
-    UserEmailSettingsForm, UserEmailFiltersForm, UserEmailAliasesForm
+    UserEmailSettingsForm, UserEmailFiltersForm, UserEmailAliasesForm, \
+    UserEmailVacationForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname, GAGroup, GAGroupOwner, GAGroupMember
@@ -444,6 +446,36 @@ def user_email_aliases(request, name=None):
         form = UserEmailAliasesForm(auto_id=True)
     
     return render_with_nav(request, 'user_email_aliases.html', {
+        'user': user,
+        'form': form,
+        'saved': request.session.pop('saved', False),
+    }, extra_nav=user_nav(name))
+
+
+@has_perm('change_gauser')
+def user_email_vacation(request, name):
+    user = GAUser.get_by_key_name(name)
+    if not user:
+        raise Http404
+
+    if request.method == 'POST':
+        form = UserEmailVacationForm(request.POST)
+        if form.is_valid():
+            enabled = form.cleaned_data['state'] == 'true'
+            if enabled:
+                user.email_settings.update_vacation(
+                    form.cleaned_data['state'],
+                    subject=form.cleaned_data['subject'],
+                    message=form.cleaned_data['message'],
+                    contacts_only=form.cleaned_data['contacts_only'])
+            else:
+                user.email_settings.update_vacation(form.cleaned_data['state'])
+            return redirect_saved('user-email-vacation', request,
+                                  name=user.user_name)
+    else:
+        form = UserEmailVacationForm()
+
+    return render_with_nav(request, 'user_email_vacation.html', {
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
