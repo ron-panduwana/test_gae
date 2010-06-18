@@ -217,7 +217,6 @@ def user_details(request, name=None):
         'form': form,
         'full_nicknames': full_nicknames,
         'saved': request.session.pop('saved', False),
-        'scripts': ['swap-widget'],
     }, extra_nav=user_nav(name))
 
 
@@ -271,7 +270,6 @@ def user_roles(request, name=None):
         'form': form,
         'roles': roles_with_remove,
         'saved': request.session.pop('saved', False),
-        'scripts': ['swap-widget'],
     }, extra_nav=user_nav(name))
 
 
@@ -449,7 +447,6 @@ def user_email_aliases(request, name=None):
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-        'scripts': ['swap-widget'],
     }, extra_nav=user_nav(name))
 
 

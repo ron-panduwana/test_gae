@@ -53,3 +53,5 @@ function feedback(type) {
     });
     return false;
 }
+
+goog.exportSymbol('feedback', feedback);

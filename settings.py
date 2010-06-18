@@ -18,7 +18,9 @@ import os
 import sys
 import logging
 
-sys.path.insert(1, os.path.join(sys.path[0], 'lib'))
+lib_path = os.path.join(sys.path[0], 'lib')
+if not lib_path in sys.path:
+    sys.path.insert(1, lib_path)
 
 REDIRECT_FIELD_NAME = 'next'
 SESSION_LOGIN_INFO_KEY = '_client_login_info'

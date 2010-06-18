@@ -176,7 +176,6 @@ def group_members(request, name=None):
         'members': members,
         'suggestions': suggestions,
         'saved': request.session.pop('saved', False),
-        'scripts': ['swap-widget'],
     }, extra_nav=group_nav(name))
 
 
