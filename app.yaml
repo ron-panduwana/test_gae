@@ -49,6 +49,8 @@ skip_files:
 - ^(.*/)?.*/RCS/.*
 - ^(.*/)?\..*
 - ^(.*/)?django/.*
+- ^(.*/)?lib/Crypto/.*
+- ^(.*/)?static/closure-library/.*
 - ^(.*/)?marketplace/.*
 - ^(.*/)?util/.*
 - ^(.*/)*tests.py

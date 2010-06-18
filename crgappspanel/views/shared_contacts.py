@@ -210,7 +210,6 @@ def shared_contact_details(request, key=None):
         'full_emails': full_emails,
         'full_phones': full_phones,
         'saved': request.session.pop('saved', False),
-        'scripts': ['swap-widget'],
     }, in_section='shared_contacts')
 
 

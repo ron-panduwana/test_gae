@@ -10,12 +10,13 @@ PATHS = {
     'closure_deps': abs('util/all-closure-deps.js'),
     'closure_dir': abs('static/closure-library'),
     'compiler_jar': abs('util/compiler.jar'),
-    'output': abs('util/all-closure.js'),
+    'output': abs('static/scripts/all-closure.js'),
     'scripts_dir': abs('static/scripts'),
 }
 
 COMMAND = ("""
 python "%(calc_deps)s" -i "%(closure_deps)s" -p "%(closure_dir)s"
+-p "%(scripts_dir)s"
 -o compiled -c "%(compiler_jar)s" --output_file="%(output)s"
 """ % PATHS).strip().replace('\n', ' ')
 
@@ -27,5 +28,4 @@ class Command(BaseCommand):
         ret_val = os.system(COMMAND.strip().replace('\n', ' '))
         if ret_val != 0:
             raise CommandError('calcdeps returned %d error code.' % ret_val)
-        shutil.copy(PATHS['output'], PATHS['scripts_dir'])
 
