@@ -8,12 +8,12 @@
 var suspendTitle = '{% trans "Suspend user" %}';
 var suspendContent = '{% trans "Are you sure want to suspend selected user?" %}';
 var suspendUrl = '{% url user-suspend user.user_name %}';
-var dialogSuspend = cr.snippets.userSuspendDialog(suspendTitle, suspendContent, suspendUrl);
+var dialogSuspend = cr.snippets.userDialog(suspendTitle, suspendContent, suspendUrl);
 
 var restoreTitle = '{% trans "Restore user" %}';
 var restoreContent = '{% trans "Are you sure want to restore selected user?" %}';
 var restoreUrl = '{% url user-restore user.user_name %}';
-var dialogRestore = cr.snippets.userRestoreDialog(restoreTitle, restoreContent, restoreUrl);
+var dialogRestore = cr.snippets.userDialog(restoreTitle, restoreContent, restoreUrl);
 
 cr.snippets.setUpListener();
 </script>

@@ -39,35 +39,20 @@ cr.snippets.groupAutoComplete = function(suggestions) {
 goog.exportProperty(cr.snippets, 'groupAutoComplete', cr.snippets.groupAutoComplete);
 
 
-cr.snippets.userSuspendDialog = function(title, content, url) {
-    var dialogSuspend = new goog.ui.Dialog()
-    dialogSuspend.setTitle(title)
-    dialogSuspend.setContent(content)
-    dialogSuspend.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+cr.snippets.userDialog = function(title, content, url) {
+    var dialog= new goog.ui.Dialog()
+    dialog.setTitle(title)
+    dialog.setContent(content)
+    dialog.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
 
-    goog.events.listen(dialogSuspend, goog.ui.Dialog.EventType.SELECT, function(e) {
+    goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
         if (e.key == 'yes') {
             open(url, '_self')
         }
     })
-    return dialogSuspend;
+    return dialog;
 }
-goog.exportProperty(cr.snippets, 'userSuspendDialog', cr.snippets.userSuspendDialog);
-
-
-cr.snippets.userRestoreDialog = function(title, content, url) {
-    var dialogRestore = new goog.ui.Dialog()
-    dialogRestore.setTitle(title)
-    dialogRestore.setContent(content)
-    dialogRestore.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
-
-    goog.events.listen(dialogRestore, goog.ui.Dialog.EventType.SELECT, function(e) {
-        if (e.key == 'yes') {
-            open(url, '_self')
-        }
-    })
-}
-goog.exportProperty(cr.snippets, 'userRestoreDialog', cr.snippets.userRestoreDialog);
+goog.exportProperty(cr.snippets, 'userDialog', cr.snippets.userDialog);
 
 
 cr.snippets.setUpListener = function() {
