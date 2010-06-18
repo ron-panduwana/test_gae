@@ -5,47 +5,26 @@
 
 {% block content %}
 <script type="text/javascript">
-goog.require('goog.ui.Dialog')
-</script>
-<script type="text/javascript">
-var dialogSuspend = new goog.ui.Dialog()
-dialogSuspend.setTitle('{% trans "Suspend user" %}')
-dialogSuspend.setContent('{% trans "Are you sure want to suspend selected user?" %}')
-dialogSuspend.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+var suspendTitle = '{% trans "Suspend user" %}';
+var suspendContent = '{% trans "Are you sure want to suspend selected user?" %}';
+var suspendUrl = '{% url user-suspend user.user_name %}';
+var dialogSuspend = cr.snippets.userSuspendDialog(suspendTitle, suspendContent, suspendUrl);
 
-goog.events.listen(dialogSuspend, goog.ui.Dialog.EventType.SELECT, function(e) {
-	if (e.key == 'yes') {
-		open('{% url user-suspend user.user_name %}', '_self')
-	}
-})
+var restoreTitle = '{% trans "Restore user" %}';
+var restoreContent = '{% trans "Are you sure want to restore selected user?" %}';
+var restoreUrl = '{% url user-restore user.user_name %}';
+var dialogRestore = cr.snippets.userRestoreDialog(restoreTitle, restoreContent, restoreUrl);
 
-var dialogRestore = new goog.ui.Dialog()
-dialogRestore.setTitle('{% trans "Restore user" %}')
-dialogRestore.setContent('{% trans "Are you sure want to restore selected user?" %}')
-dialogRestore.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
-
-goog.events.listen(dialogRestore, goog.ui.Dialog.EventType.SELECT, function(e) {
-	if (e.key == 'yes') {
-		open('{% url user-restore user.user_name %}', '_self')
-	}
-})
-
-goog.events.listen(window, 'unload', function() {
-	goog.events.removeAll()
-})
-
-function showDialog(dialog) {
-	dialog.setVisible(true)
-}
+cr.snippets.setUpListener();
 </script>
 
 {% include "snippets/saved_warning.html" %}
 <form action="" method="POST" class="details">
 	{% include "snippets/user_header.html" %}
 	{% if user.suspended %}
-	<a href="#" onclick="showDialog(dialogRestore)">{% trans "Restore" %}</a>
+	<a href="#" onclick="cr.snippets.userShowDialog(dialogRestore)">{% trans "Restore" %}</a>
 	{% else %}
-	<a href="#" onclick="showDialog(dialogSuspend)">{% trans "Suspend" %}</a>
+	<a href="#" onclick="cr.snippets.userShowDialog(dialogSuspend)">{% trans "Suspend" %}</a>
 	{% endif %}
 	<table class="details" width="100%">
 		<tbody>

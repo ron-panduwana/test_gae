@@ -8,21 +8,10 @@
     {% if auth.perms.add_sharedcontact %}
 	<a href="{% url shared-contact-add %}" class="action-link">{% trans "Add shared contact" %}</a>
     {% endif %}
-	<script type="text/javascript">
-	function toggleSearch() {
-		var f1 = goog.dom.$('shared-contact-search')
-		var f2 = goog.dom.$('shared-contact-advanced-search')
-		
-		var vis = (f1.style.display == 'none')
-		
-		f1.style.display = vis ? 'block' : 'none'
-		f2.style.display = vis ? 'none' : 'block'
-	}
-	</script>
 	<form id="shared-contact-search" action="{% url shared-contacts %}"
 			style="{% if advanced_search %}display: none; {% endif %}margin-top: 2em">
 		<b>{% trans "quick search" %}</b>&nbsp;&nbsp;&nbsp;
-		<a href="#" onclick="toggleSearch()">{% trans "advanced search" %}</a><br/>
+		<a href="#" onclick="cr.snippets.toggleSearch()">{% trans "advanced search" %}</a><br/>
 		<table>
 			<col width="60"/>
 			<col width="*"/>
@@ -38,7 +27,7 @@
 	</form>
 	<form id="shared-contact-advanced-search" action="{% url shared-contacts %}"
 			style="{% if not advanced_search %}display: none; {% endif %}margin-top: 2em">
-		<a href="#" onclick="toggleSearch()">{% trans "quick search" %}</a>
+		<a href="#" onclick="cr.snippets.toggleSearch()">{% trans "quick search" %}</a>
 		&nbsp;&nbsp;&nbsp;<b>{% trans "advanced search" %}</b><br/>
 		<table>
 			<col width="60"/>

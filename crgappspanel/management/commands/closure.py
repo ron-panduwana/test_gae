@@ -16,7 +16,7 @@ PATHS = {
 
 COMMAND = ("""
 python "%(calc_deps)s" -i "%(closure_deps)s" -p "%(closure_dir)s"
--p "%(scripts_dir)s"
+-p "%(scripts_dir)s" -f "--compilation_level=ADVANCED_OPTIMIZATIONS"
 -o compiled -c "%(compiler_jar)s" --output_file="%(output)s"
 """ % PATHS).strip().replace('\n', ' ')
 
