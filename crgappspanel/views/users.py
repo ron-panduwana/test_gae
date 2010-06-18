@@ -464,12 +464,12 @@ def user_email_vacation(request, name):
             enabled = form.cleaned_data['state'] == 'true'
             if enabled:
                 user.email_settings.update_vacation(
-                    form.cleaned_data['state'],
+                    enabled,
                     subject=form.cleaned_data['subject'],
                     message=form.cleaned_data['message'],
-                    contacts_only=form.cleaned_data['contacts_only'])
+                    contacts_only=form.cleaned_data['contacts_only'] == 'true')
             else:
-                user.email_settings.update_vacation(form.cleaned_data['state'])
+                user.email_settings.update_vacation(enabled)
             return redirect_saved('user-email-vacation', request,
                                   name=user.user_name)
     else:

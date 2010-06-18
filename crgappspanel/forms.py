@@ -407,18 +407,21 @@ class UserEmailVacationForm(forms.Form):
         if enabled and not self.cleaned_data['subject']:
             raise forms.ValidationError(
                 _('Subject field is required'))
+        return self.cleaned_data['subject']
 
     def clean_message(self):
         enabled = self.cleaned_data.get('state', 'true') == 'true'
         if enabled and not self.cleaned_data['message']:
             raise forms.ValidationError(
                 _('Message field is required'))
+        return self.cleaned_data['message']
 
     def clean_contacts_only(self):
         enabled = self.cleaned_data.get('state', 'true') == 'true'
         if enabled and not self.cleaned_data['contacts_only']:
             raise forms.ValidationError(
                 _('Message field is required'))
+        return self.cleaned_data['contacts_only']
 
 
 reply_to_c = 'Set %(link_start)sanother%(link_end)s reply to address'
