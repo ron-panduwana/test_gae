@@ -399,7 +399,8 @@ class UserEmailVacationForm(forms.Form):
         }))
     subject = forms.CharField(max_length=500, required=False)
     message = forms.CharField(widget=forms.Textarea, required=False)
-    contacts_only = forms.ChoiceField(choices=VACATION_CONTACTS_ONLY_CHOICES)
+    contacts_only = forms.ChoiceField(
+        choices=VACATION_CONTACTS_ONLY_CHOICES, required=False)
 
     def clean_subject(self):
         enabled = self.cleaned_data.get('state', 'true') == 'true'
@@ -410,6 +411,12 @@ class UserEmailVacationForm(forms.Form):
     def clean_message(self):
         enabled = self.cleaned_data.get('state', 'true') == 'true'
         if enabled and not self.cleaned_data['message']:
+            raise forms.ValidationError(
+                _('Message field is required'))
+
+    def clean_contacts_only(self):
+        enabled = self.cleaned_data.get('state', 'true') == 'true'
+        if enabled and not self.cleaned_data['contacts_only']:
             raise forms.ValidationError(
                 _('Message field is required'))
 
