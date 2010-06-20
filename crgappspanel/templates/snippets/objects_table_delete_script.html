@@ -1,20 +1,7 @@
 {% load i18n %}
 <script type="text/javascript">
-cr.table.deletes['table'] = function(list, removeUrl) {
-	var dialogDelete = new goog.ui.Dialog()
-	dialogDelete.setTitle('{% trans "Remove" %} {{ entities_name|escapejs }}')
-	dialogDelete.setContent('{% trans "Are you sure want to remove selected" %} {{ entities_name|escapejs }}')
-	dialogDelete.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
-	
-	goog.events.listenOnce(dialogDelete, goog.ui.Dialog.EventType.SELECT, function(e) {
-		if (e.key == 'yes') {
-			window.open(removeUrl, '_self')
-		}
-	})
-	dialogDelete.setVisible(true)
-}
-
-goog.events.listen(window, 'unload', function() {
-	goog.events.removeAll()
-})
+var title = '{% trans "Remove" %} {{ entities_name|escapejs }}';
+var content = '{% trans "Are you sure want to remove selected" %} {{ entities_name|escapejs }}';
+cr.table.deletes['table'] = cr.snippets.removeSelectedHandler(title, content);
+cr.snippets.setUpListener();
 </script>

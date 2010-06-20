@@ -1,4 +1,7 @@
 goog.provide('cr.snippets');
+goog.require('goog.async.Delay')
+goog.require('goog.fx.dom.FadeOutAndHide')
+goog.require('cr.table');
 
 cr.snippets.vacationStateChanged = function(value) {
     if (!value) {
@@ -15,5 +18,86 @@ cr.snippets.vacationStateChanged = function(value) {
     }
 }
 goog.exportProperty(cr.snippets, 'vacationStateChanged', cr.snippets.vacationStateChanged);
+
+
+cr.snippets.toggleSearch = function() {
+    var f1 = goog.dom.$('shared-contact-search')
+    var f2 = goog.dom.$('shared-contact-advanced-search')
+    
+    var vis = (f1.style.display == 'none')
+    
+    f1.style.display = vis ? 'block' : 'none'
+    f2.style.display = vis ? 'none' : 'block'
+}
+goog.exportProperty(cr.snippets, 'toggleSearch', cr.snippets.toggleSearch);
+
+
+cr.snippets.groupAutoComplete = function(suggestions) {
+    new goog.ui.AutoComplete.Basic(suggestions, goog.dom.$('owner'), false)
+    new goog.ui.AutoComplete.Basic(suggestions, goog.dom.$('member'), false)
+}
+goog.exportProperty(cr.snippets, 'groupAutoComplete', cr.snippets.groupAutoComplete);
+
+
+cr.snippets.userDialog = function(title, content, url) {
+    var dialog= new goog.ui.Dialog()
+    dialog.setTitle(title)
+    dialog.setContent(content)
+    dialog.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+
+    goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
+        if (e.key == 'yes') {
+            open(url, '_self')
+        }
+    })
+    return dialog;
+}
+goog.exportProperty(cr.snippets, 'userDialog', cr.snippets.userDialog);
+
+
+cr.snippets.setUpListener = function() {
+    goog.events.listen(window, 'unload', function() {
+        goog.events.removeAll()
+    })
+}
+goog.exportProperty(cr.snippets, 'setUpListener', cr.snippets.setUpListener);
+
+
+cr.snippets.userShowDialog = function(dialog) {
+    dialog.setVisible(true)
+}
+goog.exportProperty(cr.snippets, 'userShowDialog', cr.snippets.userShowDialog);
+
+
+cr.snippets.removeSelectedHandler = function(title, content) {
+    return function(list, removeUrl) {
+        var dialogDelete = new goog.ui.Dialog()
+        dialogDelete.setTitle(title)
+        dialogDelete.setContent(content)
+        dialogDelete.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+        
+        goog.events.listenOnce(dialogDelete, goog.ui.Dialog.EventType.SELECT, function(e) {
+            if (e.key == 'yes') {
+                window.open(removeUrl, '_self')
+            }
+        })
+        dialogDelete.setVisible(true)
+    }
+}
+goog.exportProperty(cr.snippets, 'removeSelectedHandler', cr.snippets.removeSelectedHandler);
+
+
+cr.snippets.savedWarning = function() {
+    var hideSavedWarning = function() {
+        var elem = goog.dom.$('saved-warning')
+        var fadeOut = new goog.fx.dom.FadeOutAndHide(elem, 1000)
+        fadeOut.play()
+    }
+
+    delay = new goog.async.Delay(hideSavedWarning, 5000);
+    delay.start()
+}
+goog.exportProperty(cr.snippets, 'savedWarning', cr.snippets.savedWarning);
+
 
 goog.exportSymbol('cr.snippets', cr.snippets);
