@@ -611,6 +611,9 @@ class AtomMapper(object):
 
         domain = user.domain_name
         service = self.create_service(domain)
+        if isinstance(service, GDataService):
+            from gdata.alt.appengine import AppEngineHttpClient
+            service.http_client = AppEngineHttpClient(deadline=10)
         auth_method = getattr(self, 'auth_method', 'client_login')
         if auth_method == 'oauth':
             user.oauth_login(service)
