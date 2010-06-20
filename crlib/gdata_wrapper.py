@@ -629,7 +629,7 @@ class AtomMapper(object):
             return parse(atom.to_string(), atom.__class__)
         else:
             # Old version
-            return CreateClassFromXMLString(atom.__class__, unicode(atom))
+            return CreateClassFromXMLString(atom.__class__, str(atom))
 
     def retrieve_all(self, use_cache=True):
         import hashlib
