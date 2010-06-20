@@ -447,8 +447,8 @@ reply_to_c = 'Set %(link_start)sanother%(link_end)s reply to address'
 reply_to_e = '%(widget)s %(link_start)sCancel%(link_end)s'
 
 
-class UserEmailAliasesForm(forms.Form):
-    name = forms.CharField(label=_('Name'))
+class UserEmailAliasesForm(Form):
+    name = forms.CharField(label=_('Name'), max_length=250)
     address = forms.EmailField(label=_('Email address'),
         widget=forms.TextInput(attrs={'class':'long'}))
     reply_to = forms.EmailField(label=_('Reply to'), required=False,

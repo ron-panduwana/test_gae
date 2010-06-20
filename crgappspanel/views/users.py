@@ -439,9 +439,20 @@ def user_email_aliases(request, name=None):
         if form.is_valid():
             data = dict((key, value) for key, value in form.cleaned_data.iteritems() if value)
             
-            user.email_settings.create_send_as_alias(**data)
-            return redirect_saved('user-email-aliases',
-                request, name=user.user_name)
+            try:
+                user.email_settings.create_send_as_alias(**data)
+                return redirect_saved('user-email-aliases',
+                    request, name=user.user_name)
+            except errors.EntityDoesNotExistError:
+                form.add_error(
+                    'address',
+                    _('Email address has to exist as a user or an alias on '
+                      '%s domain.' % crauth.users.get_current_domain().domain))
+            except errors.EntityNameNotValidError:
+                form.add_error(
+                    'address',
+                    _('Email address has to be of form username@%s.' % (
+                        crauth.users.get_current_domain().domain)))
     else:
         form = UserEmailAliasesForm(auto_id=True)
     

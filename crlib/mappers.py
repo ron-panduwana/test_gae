@@ -470,6 +470,7 @@ class _EmailSettingsWrapper(object):
 
     def __getattr__(self, name):
         if name in self._OPERATIONS:
+            @apps_for_your_domain_exception_wrapper
             def fun(*args, **kwargs):
                 _orig_fun = getattr(self._service, self._OPERATIONS[name])
                 return _orig_fun(self._user_name, *args, **kwargs)
