@@ -28,11 +28,18 @@ class EntityDoesNotExistError(GDataError):
     """
 
 
+class EntityNameNotValidError(GDataError):
+    """ The request provides an invalid name for a requested resource.
+
+    """
+
+
 APPS_FOR_YOUR_DOMAIN_ERROR_CODES = {
     1100: EntityDeletedRecentlyError,
     1200: DomainUserLimitExceededError,
     1300: EntityExistsError,
     1301: EntityDoesNotExistError,
+    1303: EntityNameNotValidError,
 }
 
 
