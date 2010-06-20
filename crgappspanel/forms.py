@@ -189,6 +189,12 @@ class UserForm(Form):
     def get_nickname(self):
         return self.cleaned_data['nicknames']
 
+    def clean_password(self):
+        pass_a, pass_b = self.cleaned_data['password']
+        if pass_a != pass_b:
+            raise forms.ValidationError(_('These passwords don\'t match.'))
+        return [pass_a, pass_b]
+
 
 roles_c = '%(link_start)sAdd role%(link_end)s'
 roles_e = 'Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
