@@ -53,9 +53,7 @@ def precache_domain(request):
     users._set_current_user(apps_domain.admin_email, domain)
     mapper_class = _MAPPERS_DICT[mapper]
     try:
-        mapper_obj = mapper_class()
-        mapper_obj.retrieve_all(use_cache=False)
-        memcache.delete('%s:retrieve_all' % domain, namespace=mapper)
+        mapper_class().retrieve_all(use_cache=False)
     except gdata_wrapper.RetryError:
         taskqueue.add(url=request.get_full_path(), params={
             'domain': domain,
