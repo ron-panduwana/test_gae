@@ -257,8 +257,8 @@ class GroupEntryMapper(AtomMapper):
     def delete(self, atom):
         self.service.DeleteGroup(atom.groupId)
 
-    def retrieve_all(self):
-        entries = super(GroupEntryMapper, self).retrieve_all()
+    def retrieve_all(self, use_cache=True):
+        entries = super(GroupEntryMapper, self).retrieve_all(use_cache)
         properties_list = []
         for property_entry in entries:
             properties_list.append(
