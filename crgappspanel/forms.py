@@ -6,6 +6,7 @@ import crauth
 from crgappspanel import consts, models
 from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
+from crlib import regexps
 
 __all__ = ('UserForm', 'UserEmailSettingsForm', 'UserEmailFiltersForm',
     'SharedContactForm', 'CalendarResourceForm')
@@ -153,12 +154,21 @@ nicknames_c = '%(link_start)sAdd nickname%(link_end)s'
 nicknames_e = 'Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 
 
+full_name_kwargs = {
+    'regex': regexps.RE_FIRST_LAST_NAME,
+    'error_messages': {'invalid': regexps.ERROR_FIRST_LAST_NAME},
+}
+
 class UserForm(Form):
-    user_name = forms.CharField(label=_('Username'))
+    user_name = forms.RegexField(
+        regex=regexps.RE_USERNAME, label=_('Username'),
+        error_messages={'invalid': regexps.ERROR_USERNAME})
     password = fields.CharField2(label=_('Password'), required=False, widget=password_2)
     change_password = forms.BooleanField(label=_('Password'), required=False,
         help_text='Require a change of password in the next sign in')
-    full_name = fields.CharField2(label=_('Full name'))
+    full_name = fields.RegexField2(
+        label=_('Full name'), kwargs1=full_name_kwargs,
+        kwargs2=full_name_kwargs)
     nicknames = forms.CharField(label=_('Nicknames'), required=False,
         widget=widgets.SwapWidget(nicknames_c, forms.TextInput(), nicknames_e))
     
@@ -190,7 +200,10 @@ class UserForm(Form):
         return self.cleaned_data['nicknames']
 
     def clean_password(self):
-        pass_a, pass_b = self.cleaned_data['password']
+        password = self.cleaned_data['password']
+        if not password:
+            return password
+        pass_a, pass_b = password
         if pass_a != pass_b:
             raise forms.ValidationError(_('These passwords don\'t match.'))
         return [pass_a, pass_b]
