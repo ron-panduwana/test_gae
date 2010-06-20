@@ -430,7 +430,8 @@ class _GDataModelMetaclass(db.PropertiedClass):
         if hasattr(new_cls, 'Meta'):
             del new_cls.Meta
         del new_cls.Mapper
-        new_cls._cache = _MemcacheDict(name, 60 * 60)
+        new_cls._cache = _MemcacheDict(new_cls._mapper.__class__.__name__,
+                                       60 * 60)
         class_prepared.send(sender=new_cls)
 
         return new_cls

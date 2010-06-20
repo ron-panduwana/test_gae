@@ -8,7 +8,7 @@ from google.appengine.api.labs import taskqueue
 from crauth import users
 from crauth.models import AppsDomain
 from crlib.models import LastCacheUpdate
-from crlib import mappers
+from crlib import mappers, gdata_wrapper
 
 
 _CACHE_UPDATE_INTERVAL = 5 * 60 # 5 minutes
@@ -45,14 +45,18 @@ def precache_all_domains(request):
 def precache_domain(request):
     domain = request.POST['domain']
     mapper = request.POST['mapper']
+    if not _MAPPERS_DICT.has_key(mapper):
+        return HttpResponse('No such mapper: %s' % mapper)
     apps_domain = AppsDomain.get_by_key_name(domain)
     key_name = '%s-%s' % (mapper, domain)
     last_updated = LastCacheUpdate.get_or_insert(key_name)
     users._set_current_user(apps_domain.admin_email, domain)
     mapper_class = _MAPPERS_DICT[mapper]
     try:
-        mapper_class().retrieve_all(use_cache=False)
-    except mapper.RetryError:
+        mapper_obj = mapper_class()
+        mapper_obj.retrieve_all(use_cache=False)
+        memcache.delete('%s:retrieve_all' % domain, namespace=mapper)
+    except gdata_wrapper.RetryError:
         taskqueue.add(url=request.get_full_path(), params={
             'domain': domain,
             'mapper': mapper,
