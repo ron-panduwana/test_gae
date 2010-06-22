@@ -1,3 +1,6 @@
+{% if field.errors|length %}
+	<div style="color: red">{{ field.errors|first }}</div>
+{% endif %}
 {% if field.help_text %}
 	<label for="{{ field.html_name }}">
 {% endif %}
@@ -6,6 +9,3 @@
 	{{ field.help_text }}</label>
 {% endif %}
 
-{% if field.errors|length %}
-	<span style="color: red">{{ field.errors|first }}</span>
-{% endif %}

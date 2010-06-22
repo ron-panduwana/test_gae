@@ -5,7 +5,10 @@
 
 {% block content %}
 {% include "snippets/exists_error.html" %}
-<form action="{% url user-create %}" method="POST" class="create">
+{% for error in form.non_field_errors %}
+<div class="error">{{ error }}</div>
+{% endfor %}
+<form action="" method="POST" class="create">
 	<h1>{% trans "Create new user" %}</h1><br/>
 	
 	<label for="user_name">{% trans "Username" %}</label><br/>

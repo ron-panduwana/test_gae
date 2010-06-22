@@ -23,6 +23,14 @@ handlers:
   script: main.py
   login: admin
 
+- url: /__precache_all_domains/
+  script: main.py
+  login: admin
+
+- url: /__precache_domain/
+  script: main.py
+  login: admin
+
 - url: /login/.*
   script: main.py
   secure: always
@@ -41,6 +49,8 @@ skip_files:
 - ^(.*/)?.*/RCS/.*
 - ^(.*/)?\..*
 - ^(.*/)?django/.*
+- ^(.*/)?lib/Crypto/.*
+- ^(.*/)?static/closure-library/.*
 - ^(.*/)?marketplace/.*
 - ^(.*/)?util/.*
 - ^(.*/)*tests.py

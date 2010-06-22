@@ -2,3 +2,6 @@ cron:
 - description: Receive and process licensing notifications
   url: /openid/__cron_check_licenses/
   schedule: every 10 minutes
+- description: Precache domain GData feeds
+  url: /__precache_all_domains/
+  schedule: every 3 minutes
