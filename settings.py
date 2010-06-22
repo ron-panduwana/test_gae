@@ -27,9 +27,9 @@ SESSION_LOGIN_INFO_KEY = '_client_login_info'
 LOGIN_REDIRECT_URL = '/'
 CLIENT_LOGIN_SOURCE = 'cloudreach-powerpanel-v1'
 
-OAUTH_APP_ID = '285282688156'
-OAUTH_CONSUMER = '285282688156.apps.googleusercontent.com'
-OAUTH_SECRET = '4lWcvnOC8jnj2KbBI6REl6JN'
+OAUTH_APP_ID = '485625222107'
+OAUTH_CONSUMER = '485625222107.apps.googleusercontent.com'
+OAUTH_SECRET = '6wh+zwYVysV46gPghMCHbPVA'
 
 NAVIGATION = (
     'crgappspanel.navigation.base',
