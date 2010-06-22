@@ -21,7 +21,6 @@
 </form>
 <script type="text/javascript">
 var suggestions = [{% for x in suggestions %}'{{ x|escapejs }}',{% endfor %}]
-new goog.ui.AutoComplete.Basic(suggestions, goog.dom.$('owner'), false)
-new goog.ui.AutoComplete.Basic(suggestions, goog.dom.$('member'), false)
+cr.snippets.groupAutoComplete(suggestions);
 </script>
 {% endblock %}

@@ -53,3 +53,6 @@ cr.swapWidget.swap = function(id) {
 		}
 	}
 }
+goog.exportProperty(cr.swapWidget, 'swap', cr.swapWidget.swap);
+
+goog.exportSymbol('cr.swapWidget', cr.swapWidget);

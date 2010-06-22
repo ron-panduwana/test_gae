@@ -39,6 +39,26 @@ a.desc {
 	padding-right: 10px;
 }
 
+#footer {
+    border-top: 1px solid #999;
+    text-align: center;
+    margin: 2em 0 0;
+    padding: 0.5em 0 0;
+    clear: both;
+    color: #999;
+}
+
+form#feedback table td {
+        padding: 1em;
+        text-align: left;
+}
+
+form#feedback table th {
+        padding: 1em;
+        font-weight: bold;
+        text-align: right;
+}
+
 
 /*******************************************************************************
 *                                  NAVIGATION                                  *
@@ -162,6 +182,7 @@ div.warning {
 div.error {
 	background-color: #ffdbdb;
 	border: 1px solid #ff8080;
+    text-align: center;
 }
 
 
@@ -213,12 +234,21 @@ table.objects_table tr.data td {
 }
 
 table.objects_table tr.header th, table.objects_table tr.data td {
-	padding: 2px 5px;
-	
+	/*padding: 2px 5px;*/
 	text-align: left;
 }
 
-table.objects_table tr.data:hover td {
+table.objects_table tr.header th,
+table.objects_table tr.data td {
+    padding: 5px 5px;
+}
+
+table.objects_table tr.header.can_change th,
+table.objects_table tr.data.can_change td {
+	padding: 2px 5px;
+}
+
+table.objects_table tr.data.can_change:hover td {
 	background-color: #ffc;
 	cursor: pointer;
 }

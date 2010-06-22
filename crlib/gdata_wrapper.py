@@ -1,6 +1,7 @@
 import datetime
 import logging
 import operator
+import os
 import re
 from django.conf import settings
 from google.appengine.ext import db
@@ -9,6 +10,7 @@ from atom import AtomBase
 from gdata.data import ExtendedProperty
 from gdata.client import GDClient
 from gdata.service import GDataService
+from crlib.models import recache_current_domain
 from crlib.signals import class_prepared
 
 
@@ -337,9 +339,8 @@ class EmbeddedModelProperty(StringProperty):
             return self.reference_class._from_atom(value)
 
     def set_value_on_atom(self, atom, value):
-        if value is not None:
-            super(EmbeddedModelProperty, self).set_value_on_atom(
-                atom, value._atom)
+        super(EmbeddedModelProperty, self).set_value_on_atom(
+            atom, value and value._atom or None)
 
 
 class ListProperty(StringProperty):
@@ -527,6 +528,7 @@ class Model(object):
 
         del self._cache['item:%s' % self.key()]
         del self._cache['retrieve_all']
+        recache_current_domain(self._mapper)
         return self
     put = save
 
@@ -534,6 +536,7 @@ class Model(object):
         self._mapper.delete(self._atom)
         del self._cache['item:%s' % self.key()]
         del self._cache['retrieve_all']
+        recache_current_domain(self._mapper)
         del self
 
     def is_saved(self):
@@ -575,6 +578,9 @@ class Model(object):
         return cls(**props)
 
 
+class RetryError(Exception): pass
+
+
 class AtomMapper(object):
     """Subclasses of this class implement actual interaction with GData APIs.
 
@@ -605,6 +611,9 @@ class AtomMapper(object):
 
         domain = user.domain_name
         service = self.create_service(domain)
+        if isinstance(service, GDataService):
+            from gdata.alt.appengine import AppEngineHttpClient
+            service.http_client = AppEngineHttpClient(deadline=10)
         auth_method = getattr(self, 'auth_method', 'client_login')
         if auth_method == 'oauth':
             user.oauth_login(service)
@@ -623,7 +632,43 @@ class AtomMapper(object):
             return parse(atom.to_string(), atom.__class__)
         else:
             # Old version
-            return CreateClassFromXMLString(atom.__class__, unicode(atom))
+            return CreateClassFromXMLString(atom.__class__, str(atom))
+
+    def retrieve_all(self, use_cache=True):
+        import hashlib
+        from google.appengine.api.urlfetch import DownloadError
+        from google.appengine.runtime import DeadlineExceededError
+        from crauth import users
+        from crlib.models import LastCacheUpdate
+
+        domain = os.environ.get(users._ENVIRON_DOMAIN)
+
+        main_key = '%s-%s' % (self.__class__.__name__, domain)
+        if use_cache:
+            feed = memcache.get(main_key)
+        if not use_cache or not feed:
+            feed = self.retrieve_page()
+            LastCacheUpdate.get_or_insert(main_key)
+            memcache.set(main_key, feed)
+        users = feed
+
+        while feed:
+            hsh = hashlib.sha1(str(feed)).hexdigest()
+            memcache_key = '%s-%s' % (self.__class__.__name__, hsh)
+            if use_cache:
+                cached = memcache.get(memcache_key)
+                if cached is not None:
+                    feed = cached
+            if not use_cache or cached is None:
+                try:
+                    feed = self.retrieve_page(feed)
+                except (DownloadError, DeadlineExceededError):
+                    raise RetryError
+                memcache.set(memcache_key, feed)
+            if feed:
+                users.entry.extend(feed.entry)
+
+        return users.entry
 
 
 def simple_mapper(atom, key):

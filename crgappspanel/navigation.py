@@ -6,9 +6,10 @@ from crauth import users
 
 def base(request):
     nav = (
-        Section('users', _('Users and Groups'), reverse('users'), (
-            Section('groups', _('Groups'), reverse('groups')),
+        Section('dashboard', _('Dashboard'), reverse('dashboard')),
+        Section('users', _('Users, Groups and Roles'), reverse('users'), (
             Section('users', _('Users'), reverse('users')),
+            Section('groups', _('Groups'), reverse('groups')),
             Section('roles', _('Roles'), reverse('roles')),
         )),
         Section('shared_contacts', _('Shared Contacts'),
@@ -22,7 +23,7 @@ def base(request):
         domain_setup_url = reverse('domain_setup', args=(domain,))
         return nav + (
             Section(
-                'domain_settings', _('Additional Management'),
+                'domain_settings', _('Settings'),
                 domain_setup_url, (
                     Section(
                         'panel_config', _('Panel Configuration'),
@@ -64,6 +65,11 @@ def user_nav(user):
         Section(
             'aliases', _('Aliases'),
             reverse('user-email-aliases', args=(user,)),
+            parent=parent
+        ),
+        Section(
+            'vacation', _('Vacation responder'),
+            reverse('user-email-vacation', args=(user,)),
             parent=parent
         ),
     )

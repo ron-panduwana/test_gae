@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext as _
 
+from crauth import users
 from crauth.decorators import has_perm
 from crgappspanel.forms import CalendarResourceForm
 from crgappspanel.helpers.tables import Table, Column
@@ -34,7 +35,9 @@ def calendar_resources(request):
     return render_with_nav(request, 'calendar_resources_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
-            widths=_table_widths, singular='calendar resource'),
+            widths=_table_widths, singular='calendar resource',
+            can_change=users.get_current_user().has_perm(
+                'change_calendarresource')),
         'saved': request.session.pop('saved', False),
     })
 

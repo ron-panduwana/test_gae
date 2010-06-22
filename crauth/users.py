@@ -266,7 +266,7 @@ def is_current_user_admin():
     return user.is_admin()
 
 
-def _set_testing_user(email, domain):
+def _set_current_user(email, domain):
     os.environ[_ENVIRON_EMAIL] = email
     os.environ[_ENVIRON_DOMAIN] = domain
 

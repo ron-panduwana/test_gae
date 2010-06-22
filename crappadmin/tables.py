@@ -33,4 +33,6 @@ def domains_table(request, domains):
     
     table = tables.Table(_DOMAINS_TABLE_COLUMNS,
         _DOMAINS_TABLE_ID, sortby=sortby, asc=asc)
-    return table.generate(domains, widths=_DOMAINS_TABLE_WIDTHS, singular='domain')
+    return table.generate(
+        domains, widths=_DOMAINS_TABLE_WIDTHS, singular='domain',
+        can_change=True)

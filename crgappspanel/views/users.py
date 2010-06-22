@@ -3,19 +3,22 @@ from itertools import imap
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
+from django.http import Http404
 
 import crauth
 from crauth.decorators import login_required, admin_required, has_perm
 from crauth.models import Role, UserPermissions
 from crgappspanel import consts
 from crgappspanel.forms import UserForm, UserRolesForm, UserGroupsForm, \
-    UserEmailSettingsForm, UserEmailFiltersForm, UserEmailAliasesForm
+    UserEmailSettingsForm, UserEmailFiltersForm, UserEmailAliasesForm, \
+    UserEmailVacationForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAUser, GANickname, GAGroup, GAGroupOwner, GAGroupMember
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
-        secure_random_chars, redirect_saved, render, exists_goto
+        secure_random_chars, redirect_saved, render
 from crlib.navigation import render_with_nav
+from crlib import errors
 from crgappspanel.navigation import user_nav
 
 
@@ -96,7 +99,8 @@ _table_widths = ['%d%%' % x for x in (5, 20, 30, 15, 20, 10)]
 
 @has_perm('read_gauser')
 def users(request):
-    domain = crauth.users.get_current_user().domain_name
+    user = crauth.users.get_current_user()
+    domain = user.domain_name
     _table_fields = _table_fields_gen(domain)
     sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
@@ -112,13 +116,13 @@ def users(request):
     return render_with_nav(request, 'users_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
-            widths=_table_widths, singular='user'),
+            widths=_table_widths, singular='user',
+            can_change=user.has_perm('change_gauser')),
         'saved': request.session.pop('saved', False),
     })
 
 
 @has_perm('add_gauser')
-@exists_goto('user-create')
 def user_create(request):
     domain = crauth.users.get_current_user().domain_name
     
@@ -126,8 +130,24 @@ def user_create(request):
         form = UserForm(request.POST, auto_id=True)
         if form.is_valid():
             user = form.create()
-            user.save()
-            return redirect_saved('user-details', request, name=user.user_name)
+            try:
+                user.save()
+                return redirect_saved('user-details', request,
+                                      name=user.user_name)
+            except errors.EntityExistsError:
+                form.add_error(
+                    'user_name',
+                    _('Either user or nick with this name already exists.'))
+            except errors.EntityDeletedRecentlyError:
+                form.add_error(
+                    'user_name',
+                    _('User with such name was recently deleted and this name '
+                      'cannot be currently used.'))
+            except errors.DomainUserLimitExceededError:
+                form.add_error(
+                    '__all__',
+                    _('Your domain user limit has been reached, you cannot '
+                      'create more users.'))
     else:
         form = UserForm(auto_id=True)
         form.fields['user_name'].help_text = '@%s' % domain
@@ -155,10 +175,27 @@ def user_details(request, name=None):
         form = UserForm(request.POST, auto_id=True)
         if form.is_valid():
             form.populate(user)
-            user.save()
-            if form.get_nickname():
-                GANickname(user=user, nickname=form.get_nickname()).save()
-            return redirect_saved('user-details', request, name=user.user_name)
+            try:
+                user.save()
+                try:
+                    if form.get_nickname():
+                        GANickname(
+                            user=user,nickname=form.get_nickname()).save()
+                    return redirect_saved('user-details', request,
+                                          name=user.user_name)
+                except errors.EntityExistsError:
+                    form.add_error(
+                        'nicknames',
+                        _('This name is already reserved.'))
+            except errors.EntityExistsError:
+                form.add_error(
+                    'user_name',
+                    _('Either user or nick with this name already exists.'))
+            except errors.EntityDeletedRecentlyError:
+                form.add_error(
+                    'user_name',
+                    _('User with such name was recently deleted and this name '
+                      'cannot be currently used.'))
     else:
         form = UserForm(initial={
             'user_name': user.user_name,
@@ -182,7 +219,6 @@ def user_details(request, name=None):
         'form': form,
         'full_nicknames': full_nicknames,
         'saved': request.session.pop('saved', False),
-        'scripts': ['swap-widget'],
     }, extra_nav=user_nav(name))
 
 
@@ -236,7 +272,6 @@ def user_roles(request, name=None):
         'form': form,
         'roles': roles_with_remove,
         'saved': request.session.pop('saved', False),
-        'scripts': ['swap-widget'],
     }, extra_nav=user_nav(name))
 
 
@@ -404,9 +439,20 @@ def user_email_aliases(request, name=None):
         if form.is_valid():
             data = dict((key, value) for key, value in form.cleaned_data.iteritems() if value)
             
-            user.email_settings.create_send_as_alias(**data)
-            return redirect_saved('user-email-aliases',
-                request, name=user.user_name)
+            try:
+                user.email_settings.create_send_as_alias(**data)
+                return redirect_saved('user-email-aliases',
+                    request, name=user.user_name)
+            except errors.EntityDoesNotExistError:
+                form.add_error(
+                    'address',
+                    _('Email address has to exist as a user or an alias on '
+                      '%s domain.' % crauth.users.get_current_domain().domain))
+            except errors.EntityNameNotValidError:
+                form.add_error(
+                    'address',
+                    _('Email address has to be of form username@%s.' % (
+                        crauth.users.get_current_domain().domain)))
     else:
         form = UserEmailAliasesForm(auto_id=True)
     
@@ -414,7 +460,36 @@ def user_email_aliases(request, name=None):
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-        'scripts': ['swap-widget'],
+    }, extra_nav=user_nav(name))
+
+
+@has_perm('change_gauser')
+def user_email_vacation(request, name):
+    user = GAUser.get_by_key_name(name)
+    if not user:
+        raise Http404
+
+    if request.method == 'POST':
+        form = UserEmailVacationForm(request.POST)
+        if form.is_valid():
+            enabled = form.cleaned_data['state'] == 'true'
+            if enabled:
+                user.email_settings.update_vacation(
+                    enabled,
+                    subject=form.cleaned_data['subject'],
+                    message=form.cleaned_data['message'],
+                    contacts_only=form.cleaned_data['contacts_only'] == 'true')
+            else:
+                user.email_settings.update_vacation(enabled)
+            return redirect_saved('user-email-vacation', request,
+                                  name=user.user_name)
+    else:
+        form = UserEmailVacationForm()
+
+    return render_with_nav(request, 'user_email_vacation.html', {
+        'user': user,
+        'form': form,
+        'saved': request.session.pop('saved', False),
     }, extra_nav=user_nav(name))
 
 

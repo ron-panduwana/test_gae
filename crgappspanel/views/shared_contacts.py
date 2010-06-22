@@ -2,12 +2,13 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 
+from crauth import users
 from crauth.decorators import has_perm
 from crgappspanel.forms import SharedContactForm
 from crgappspanel.helpers.filters import SharedContactFilter, \
         SharedContactAdvancedFilter, NullFilter
 from crgappspanel.helpers.tables import Table, Column
-from crgappspanel.models import SharedContact
+from crgappspanel.models import SharedContact, Organization
 from crgappspanel.views.utils import get_sortby_asc, list_attrs, \
         get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch, render
 from crlib.navigation import render_with_nav
@@ -32,19 +33,17 @@ def _get_real_name(x):
     return '%s %s' % (_get_given_name(x) or '', _get_family_name(x) or '')
 
 def _get_company_role(x):
-    company = x.extended_properties.get('company')
-    if not company:
+    if x.organization:
+        return '%s/%s' % (x.organization.name, x.organization.title)
+    else:
         return ''
-    role = x.extended_properties.get('role')
-    if not role:
-        return company
-    return '%s/%s' % (company, role)
 
 
 _table_fields = [
     Column(_('Display name'), 'full_name', getter=_get_full_name, link=True),
     Column(_('Real name'), 'real_name', getter=_get_real_name),
-    Column(_('Company'), 'company', getter=lambda x: x.extended_properties.get('company', '')),
+    Column(_('Company'), 'company', getter=lambda x: x.organization and
+           x.organization.name or ''),
     Column(_('Phone numbers'), 'phone_numbers',
         getter=lambda x: list_attrs(x.phone_numbers, 'number')),
     Column(_('Emails'), 'emails',
@@ -97,7 +96,9 @@ def shared_contacts(request):
     return render_with_nav(request, 'shared_contacts_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
-            widths=_table_widths, singular='shared contact'),
+            widths=_table_widths, singular='shared contact',
+            can_change=users.get_current_user().has_perm(
+                'change_sharedcontact')),
         'advanced_search': advanced_search,
         'filters': filters,
         'query': dict(general=query, advanced=query_adv.search_by),
@@ -150,11 +151,18 @@ def shared_contact_details(request, key=None):
                 phone_number.save()
                 shared_contact.phone_numbers.append(phone_number)
             
-            company_str = new_objects.get('company_str', '')
-            shared_contact.extended_properties['company'] = company_str
-            
-            role_str = new_objects.get('role_str', '')
-            shared_contact.extended_properties['role'] = role_str
+            company = new_objects.get('company_str', '')
+            role = new_objects.get('role_str', '')
+            if company or role:
+                if not shared_contact.organization:
+                    shared_contact.organization = Organization(
+                        name=company, title=role)
+                else:
+                    shared_contact.organization.name = company
+                    shared_contact.organization.title = role
+                shared_contact.organization.save()
+            else:
+                shared_contact.organization = None
             
             shared_contact.save()
             return redirect_saved('shared-contact-details',
@@ -165,8 +173,10 @@ def shared_contact_details(request, key=None):
         form = SharedContactForm(initial={
             'full_name': shared_contact.name.full_name,
             'real_name': real_name,
-            'company': shared_contact.extended_properties.get('company', ''),
-            'role': shared_contact.extended_properties.get('role', ''),
+            'company': shared_contact.organization and \
+                shared_contact.organization.name or '',
+            'role': shared_contact.organization and \
+                shared_contact.organization.title or '',
             'notes': shared_contact.notes,
             'emails': '',
         }, auto_id=True)
@@ -200,7 +210,6 @@ def shared_contact_details(request, key=None):
         'full_emails': full_emails,
         'full_phones': full_phones,
         'saved': request.session.pop('saved', False),
-        'scripts': ['swap-widget'],
     }, in_section='shared_contacts')
 
 

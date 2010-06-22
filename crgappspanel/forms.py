@@ -6,6 +6,7 @@ import crauth
 from crgappspanel import consts, models
 from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
+from crlib import regexps
 
 __all__ = ('UserForm', 'UserEmailSettingsForm', 'UserEmailFiltersForm',
     'SharedContactForm', 'CalendarResourceForm')
@@ -27,6 +28,14 @@ def create_exact_keep(*values):
     ret = [('', _('Don\'t change'))]
     ret.extend((v, v) for v in values)
     return ret
+
+
+class Form(forms.Form):
+    def add_error(self, field, msg):
+        if self._errors.has_key(field):
+            self._errors[field].append(msg)
+        else:
+            self._errors[field] = ErrorList([msg])
 
 
 ################################################################################
@@ -145,12 +154,21 @@ nicknames_c = '%(link_start)sAdd nickname%(link_end)s'
 nicknames_e = 'Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
 
 
-class UserForm(forms.Form):
-    user_name = forms.CharField(label=_('Username'))
+full_name_kwargs = {
+    'regex': regexps.RE_FIRST_LAST_NAME,
+    'error_messages': {'invalid': regexps.ERROR_FIRST_LAST_NAME},
+}
+
+class UserForm(Form):
+    user_name = forms.RegexField(
+        regex=regexps.RE_USERNAME, label=_('Username'),
+        error_messages={'invalid': regexps.ERROR_USERNAME})
     password = fields.CharField2(label=_('Password'), required=False, widget=password_2)
     change_password = forms.BooleanField(label=_('Password'), required=False,
         help_text='Require a change of password in the next sign in')
-    full_name = fields.CharField2(label=_('Full name'))
+    full_name = fields.RegexField2(
+        label=_('Full name'), kwargs1=full_name_kwargs,
+        kwargs2=full_name_kwargs)
     nicknames = forms.CharField(label=_('Nicknames'), required=False,
         widget=widgets.SwapWidget(nicknames_c, forms.TextInput(), nicknames_e))
     
@@ -180,6 +198,15 @@ class UserForm(forms.Form):
     
     def get_nickname(self):
         return self.cleaned_data['nicknames']
+
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        if not password:
+            return password
+        pass_a, pass_b = password
+        if pass_a != pass_b:
+            raise forms.ValidationError(_('These passwords don\'t match.'))
+        return [pass_a, pass_b]
 
 
 roles_c = '%(link_start)sAdd role%(link_end)s'
@@ -373,12 +400,55 @@ class UserEmailFiltersForm(forms.Form):
         return enforce_invalid(value, other='[]()$&*')
 
 
+VACATION_STATE_CHOICES = (
+    ('true', _('Enabled')),
+    ('false', _('Disabled')),
+)
+
+VACATION_CONTACTS_ONLY_CHOICES = (
+    ('true', _('Only send a response to people in my Contacts')),
+    ('false', _('Send to all')),
+)
+
+class UserEmailVacationForm(forms.Form):
+    state = forms.ChoiceField(
+        label=_('Out of Office AutoReply'), choices=VACATION_STATE_CHOICES,
+        widget=forms.Select(attrs={
+            'onchange': 'return cr.snippets.vacationStateChanged(this.value);',
+        }))
+    subject = forms.CharField(max_length=500, required=False)
+    message = forms.CharField(widget=forms.Textarea, required=False)
+    contacts_only = forms.ChoiceField(
+        choices=VACATION_CONTACTS_ONLY_CHOICES, required=False)
+
+    def clean_subject(self):
+        enabled = self.cleaned_data.get('state', 'true') == 'true'
+        if enabled and not self.cleaned_data['subject']:
+            raise forms.ValidationError(
+                _('Subject field is required'))
+        return self.cleaned_data['subject']
+
+    def clean_message(self):
+        enabled = self.cleaned_data.get('state', 'true') == 'true'
+        if enabled and not self.cleaned_data['message']:
+            raise forms.ValidationError(
+                _('Message field is required'))
+        return self.cleaned_data['message']
+
+    def clean_contacts_only(self):
+        enabled = self.cleaned_data.get('state', 'true') == 'true'
+        if enabled and not self.cleaned_data['contacts_only']:
+            raise forms.ValidationError(
+                _('Message field is required'))
+        return self.cleaned_data['contacts_only']
+
+
 reply_to_c = 'Set %(link_start)sanother%(link_end)s reply to address'
 reply_to_e = '%(widget)s %(link_start)sCancel%(link_end)s'
 
 
-class UserEmailAliasesForm(forms.Form):
-    name = forms.CharField(label=_('Name'))
+class UserEmailAliasesForm(Form):
+    name = forms.CharField(label=_('Name'), max_length=250)
     address = forms.EmailField(label=_('Email address'),
         widget=forms.TextInput(attrs={'class':'long'}))
     reply_to = forms.EmailField(label=_('Reply to'), required=False,
@@ -392,7 +462,7 @@ class UserEmailAliasesForm(forms.Form):
 ################################################################################
 
 
-class GroupForm(forms.Form):
+class GroupForm(Form):
     id = forms.CharField(label=_('Email address'))
     name = forms.CharField(label=_('Name'))
     email_permission = forms.ChoiceField(label=_('Email permission'),
@@ -601,13 +671,15 @@ class SharedContactForm(forms.Form):
         phone_number = data['phone_number']
         phone_numbers = [self._phone_number(phone_number)] if phone_number else []
         
-        contact = models.SharedContact(name=name, notes=data['notes'],
+        contact = models.SharedContact(
+            name=name, notes=data['notes'],
             emails=emails, phone_numbers=phone_numbers)
-        contact.extended_properties = contact.extended_properties or dict()
-        if data['company']:
-            contact.extended_properties['company'] = data['company']
-        if data['role']:
-            contact.extended_properties['role'] = data['role']
+
+        company, role = data['company'], data['role']
+        if company or role:
+            contact.organization = Organization(name=company, title=role)
+            contact.organization.save()
+
         return contact
     
     def populate(self, shared_contact):

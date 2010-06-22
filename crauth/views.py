@@ -185,7 +185,7 @@ def domain_setup(request, domain, template='domain_setup.html'):
     else:
         token = None
         user = users.get_current_user()
-        if user is None:
+        if user is None or user.domain_name != domain:
             return HttpResponseRedirect(
                 reverse('openid_start', args=(domain,)) +'?%s' % urllib.urlencode({
                     settings.REDIRECT_FIELD_NAME: request.get_full_path(),
@@ -207,7 +207,7 @@ def domain_setup(request, domain, template='domain_setup.html'):
             if not redirect_to and token:
                 redirect_to = reverse('installation_instructions',
                                       args=(domain,))
-            else:
+            elif not redirect_to:
                 redirect_to = settings.LOGIN_REDIRECT_URL
             return HttpResponseRedirect(redirect_to)
         else:
@@ -293,7 +293,7 @@ def handle_license_updates(request):
 def generate_manifest(request):
     abs = lambda x: urllib.unquote(request.build_absolute_uri(x))
     setup_url = reverse('domain_setup', args=('example.com',)).replace(
-        'example.com', '${DOMAIN_NAME}')
+        'example.com', '${DOMAIN_NAME}') + '?from=google'
     login_url = reverse('openid_start', args=('example.com',)).replace(
         'example.com', '${DOMAIN_NAME}')
     ctx = {

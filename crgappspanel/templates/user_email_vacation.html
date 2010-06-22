@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Vacation responder" %}: {{ user.given_name }} {{ user.family_name }}{% endblock %}
+
+{% block content %}
+{% include "snippets/saved_warning.html" %}
+{% include "snippets/form_errors.html" %}
+<form action="" method="POST" class="details">
+	{% include "snippets/user_header.html" %}
+	<table class="details" width="100%">
+		<tbody>
+			{% with form.state as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.subject as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.message as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.contacts_only as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% include "snippets/form_save_reset.html" %}
+		</tbody>
+	</table>
+</form>
+<script type="text/javascript">cr.snippets.vacationStateChanged();</script>
+{% endblock %}
