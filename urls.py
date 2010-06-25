@@ -103,9 +103,7 @@ urlpatterns += patterns('crgappspanel.views.calendar_resources',
 urlpatterns += patterns('',
     url(r'^openid/', include('crauth.urls')),
     url(r'^appadmin/', include('crappadmin.urls')),
-    url(r'^__precache_all_domains/$', 'crlib.views.precache_all_domains'),
-    url(r'^__precache_domain/$', 'crlib.views.precache_domain',
-        name='precache_domain'),
+    url('', include('crlib.urls')),
 )
 
 urlpatterns += patterns(
