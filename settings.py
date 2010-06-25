@@ -18,11 +18,13 @@ import os
 import sys
 import logging
 
-sys.path.insert(1, os.path.join(sys.path[0], 'lib'))
+lib_path = os.path.join(sys.path[0], 'lib')
+if not lib_path in sys.path:
+    sys.path.insert(1, lib_path)
 
 REDIRECT_FIELD_NAME = 'next'
 SESSION_LOGIN_INFO_KEY = '_client_login_info'
-LOGIN_REDIRECT_URL = '/users/list/'
+LOGIN_REDIRECT_URL = '/'
 CLIENT_LOGIN_SOURCE = 'cloudreach-powerpanel-v1'
 
 OAUTH_APP_ID = '285282688156'
@@ -108,6 +110,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'crauth.users.UsersMiddleware',
+    'crlib.middleware.PrecacheRetryMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 #    'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'django.middleware.doc.XViewMiddleware',

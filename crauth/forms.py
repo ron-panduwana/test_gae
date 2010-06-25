@@ -8,12 +8,7 @@ from gdata.service import CaptchaRequired, BadAuthentication
 from crauth.users import SetupRequiredError, _SERVICE_MEMCACHE_TOKEN_KEY
 from crauth.models import AppsDomain
 from crlib import forms as crforms
-
-
-RE_DOMAIN = re.compile(r'^(?:[-\w]+\.)+[a-z]{2,6}$')
-# Look at http://www.google.com/support/a/bin/answer.py?answer=33386 for
-# description of allowed characters in usernames and passwords
-RE_USERNAME = re.compile(r'^[a-z0-9\-_\.\']+$')
+from crlib import regexps
 
 
 class VerbatimWidget(forms.Widget):
@@ -23,8 +18,8 @@ class VerbatimWidget(forms.Widget):
 
 class DomainNameForm(forms.Form):
     domain = forms.RegexField(
-        required=True, regex=RE_DOMAIN, label='www.',
-        error_messages={'invalid': _('Please enter valid domain name')})
+        required=True, regex=regexps.RE_DOMAIN, label='www.',
+        error_messages={'invalid': regexps.ERROR_DOMAIN})
 
 
 class ChooseDomainForm(forms.Form):
@@ -38,8 +33,8 @@ class ChooseDomainForm(forms.Form):
     def clean_domain(self):
         main, other = self.cleaned_data['domain']
         if main == 'other':
-            if not RE_DOMAIN.match(other):
-                raise forms.ValidationError('Please enter valid domain name')
+            if not regexps.RE_DOMAIN.match(other):
+                raise forms.ValidationError(regexps.ERROR_DOMAIN)
             return other
         return main
 
@@ -79,11 +74,8 @@ class CaptchaForm(forms.Form):
 
 class DomainSetupForm(CaptchaForm):
     account = forms.RegexField(
-        regex=RE_USERNAME, label=_('Administrator account'),
-        error_messages={'invalid': _(
-            'Usernames may contain letters (a-z), numbers (0-9), dashes (-), '
-            'underscores (_), periods (.), and apostrophes (\'), and may not '
-            'contain an equal sign (=) or brackets (<,>).')})
+        regex=regexps.RE_USERNAME, label=_('Administrator account'),
+        error_messages={'invalid': regexps.ERROR_USERNAME})
     password = forms.CharField(
         label=_('Administrator password'),
         required=True, widget=forms.PasswordInput, min_length=6)

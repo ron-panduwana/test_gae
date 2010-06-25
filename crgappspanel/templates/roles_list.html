@@ -5,7 +5,9 @@
 
 {% block content %}
 	{% include "snippets/saved_warning.html" %}
+    {% if auth.perms.add_role %}
 	<a href="{% url role-create %}" class="action-link">{% trans "Create new role" %}</a>
+    {% endif %}
 	{% with "roles" as entities_name %}
 		{% include "snippets/objects_table_delete_script.html" %}
 	{% endwith %}

@@ -10,8 +10,9 @@ from crgappspanel.helpers.tables import Table, Column
 from crgappspanel.models import GAGroup, GAGroupOwner, GAGroupMember
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
         render, redirect_saved
-from crlib.navigation import render_with_nav
 from crgappspanel.navigation import group_nav
+from crlib.navigation import render_with_nav
+from crlib import errors
 
 _table_fields = (
     Column(_('Name'), 'name', link=True),
@@ -38,7 +39,8 @@ def groups(request):
     return render_with_nav(request, 'groups_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
-            widths=_table_widths, singular='group'),
+            widths=_table_widths, singular='group',
+            can_change=users.get_current_user().has_perm('change_gagroup')),
         'saved': request.session.pop('saved', False),
     })
 
@@ -49,9 +51,13 @@ def group_create(request):
         form = GroupForm(request.POST, auto_id=True)
         if form.is_valid():
             group = form.create()
-            group.save()
-            return redirect_saved('group-details',
-                request, name=group.get_pure_id())
+            try:
+                group.save()
+                return redirect_saved('group-details',
+                    request, name=group.get_pure_id())
+            except errors.EntityExistsError:
+                form.add_error(
+                    'id', _('User or group with this name already exists.'))
     else:
         form = GroupForm(auto_id=True)
     
@@ -170,7 +176,6 @@ def group_members(request, name=None):
         'members': members,
         'suggestions': suggestions,
         'saved': request.session.pop('saved', False),
-        'scripts': ['swap-widget'],
     }, extra_nav=group_nav(name))
 
 

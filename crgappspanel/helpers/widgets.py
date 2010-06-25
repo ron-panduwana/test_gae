@@ -62,13 +62,15 @@ class SwapWidget(forms.Widget):
             'id': self.id,
             'content_c': self.text_c % d,
             'content_e': self.text_e % dict(d, widget=self.widget.render(name, value)),
+            'display_c': value and 'none' or 'block',
+            'display_e': value and 'block' or 'none',
         }
         
         return mark_safe(u'''
-            <div id="swapWidget_%(id)s_c" style="margin: 0; padding: 0; display: block">
+            <div id="swapWidget_%(id)s_c" style="margin: 0; padding: 0; display: %(display_c)s">
                 %(content_c)s
             </div>
-            <div id="swapWidget_%(id)s_e" style="margin: 0; padding: 0; display: none">
+            <div id="swapWidget_%(id)s_e" style="margin: 0; padding: 0; display: %(display_e)s">
                 %(content_e)s
             </div>
             ''' % ctx)

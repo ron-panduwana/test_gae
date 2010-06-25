@@ -1,5 +1,6 @@
 import logging
 import re
+from google.appengine.api import memcache
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from gdata import contacts, data
@@ -10,6 +11,7 @@ from gdata.apps.groups import service as groups
 from atom import AtomBase
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
 from crlib.signals import gauser_renamed
+from crlib.errors import apps_for_your_domain_exception_wrapper
 
 
 # Constants
@@ -74,8 +76,7 @@ GROUP_EMAIL_PERMISSIONS = (
 )
 
 
-class UserDeletedRecentlyError(Exception): pass
-
+# Mappers
 
 class UserEntryMapper(AtomMapper):
     @classmethod
@@ -93,18 +94,14 @@ class UserEntryMapper(AtomMapper):
             quota=apps.Quota(),
         )
 
+    @apps_for_your_domain_exception_wrapper
     def create(self, atom):
-        from gdata.apps.service import AppsForYourDomainException
-        try:
-            return self.service.CreateUser(
-                atom.login.user_name, atom.name.family_name,
-                atom.name.given_name, atom.login.password,
-                atom.login.suspended, password_hash_function='SHA-1')
-        except AppsForYourDomainException, e:
-            if e.reason == 'UserDeletedRecently':
-                raise UserDeletedRecentlyError()
-            raise
+        return self.service.CreateUser(
+            atom.login.user_name, atom.name.family_name,
+            atom.name.given_name, atom.login.password,
+            atom.login.suspended, password_hash_function='SHA-1')
 
+    @apps_for_your_domain_exception_wrapper
     def update(self, atom, old_atom):
         atom.login.hash_function_name = 'SHA-1'
         new_atom = self.service.UpdateUser(old_atom.login.user_name, atom)
@@ -114,8 +111,16 @@ class UserEntryMapper(AtomMapper):
                                 new_name=atom.login.user_name)
         return new_atom
 
-    def retrieve_all(self):
-        return self.service.RetrieveAllUsers().entry
+    def retrieve_page(self, previous=None):
+        if previous:
+            next = previous.GetNextLink()
+            if next:
+                from gdata.apps import UserFeedFromString
+                return self.service.Get(next.href, converter=UserFeedFromString)
+            else:
+                return False
+        else:
+            return self.service.RetrievePageOfUsers()
 
     def retrieve(self, user_name):
         return self.service.RetrieveUser(user_name)
@@ -216,6 +221,7 @@ class GroupEntryMapper(AtomMapper):
     def clone_atom(self, atom):
         return GroupEntry(self, atom)
 
+    @apps_for_your_domain_exception_wrapper
     def create(self, atom):
         new_group = self.service.CreateGroup(
             atom.groupId, atom.groupName, atom.description,
@@ -257,9 +263,26 @@ class GroupEntryMapper(AtomMapper):
     def delete(self, atom):
         self.service.DeleteGroup(atom.groupId)
 
-    def retrieve_all(self):
-        groups = self.service.RetrieveAllGroups()
-        return [GroupEntry(self, entry) for entry in groups]
+    def retrieve_all(self, use_cache=True):
+        entries = super(GroupEntryMapper, self).retrieve_all(use_cache)
+        properties_list = []
+        for property_entry in entries:
+            properties_list.append(
+                self.service._PropertyEntry2Dict(property_entry))
+        return [GroupEntry(self, entry) for entry in properties_list]
+
+    def retrieve_page(self, previous=None):
+        if previous:
+            next = previous.GetNextLink()
+            if next:
+                from gdata.apps import PropertyFeedFromString
+                return self.service.Get(
+                    next.href, converter=PropertyFeedFromString)
+            else:
+                return False
+        else:
+            uri = self.service._ServiceUrl('group', True, '', '', '')
+            return self.service._GetPropertyFeed(uri)
 
     def retrieve(self, group_id):
         return GroupEntry(self, self.service.RetrieveGroup(group_id))
@@ -279,12 +302,22 @@ class NicknameEntryMapper(AtomMapper):
             login=apps.Login(),
         )
 
+    @apps_for_your_domain_exception_wrapper
     def create(self, atom):
         return self.service.CreateNickname(
             atom.login.user_name, atom.nickname.name)
 
-    def retrieve_all(self):
-        return self.service.RetrieveAllNicknames().entry
+    def retrieve_page(self, previous=None):
+        if previous:
+            next = previous.GetNextLink()
+            if next:
+                from gdata.apps import NicknameFeedFromString
+                return self.service.Get(
+                    next.href, converter=NicknameFeedFromString)
+            else:
+                return False
+        else:
+            return self.service.RetrievePageOfNicknames()
 
     def retrieve(self, nickname):
         return self.service.RetrieveNickname(nickname)
@@ -297,10 +330,6 @@ class NicknameEntryMapper(AtomMapper):
 
     def delete(self, atom):
         self.service.DeleteNickname(atom.nickname.name)
-
-    #@filter('user')
-    #def filter_by_user(self, user_name):
-    #    return self.service.RetrieveNicknames(user_name).entry
 
 
 PhoneNumberMapper = simple_mapper(data.PhoneNumber, 'text')
@@ -356,6 +385,7 @@ class SharedContactEntryMapper(AtomMapper):
         r'http://www.google.com/m8/feeds/contacts/'
         r'(?:[^/]+)/full/(?P<id>[a-f0-9]+)$')
     SELF_LINK = 'http://www.google.com/m8/feeds/contacts/%s/full/%s'
+    ITEMS_PER_PAGE = 100
 
     @classmethod
     def create_service(cls, domain):
@@ -386,21 +416,32 @@ class SharedContactEntryMapper(AtomMapper):
         return self.service.get_entry(
             link, desired_class=contacts.data.ContactEntry)
 
-    def retrieve_all(self):
-        return self.retrieve_subset()
+    def retrieve_page(self, previous=None):
+        if previous:
+            total_results = int(previous.total_results.text)
+            start_index = int(previous.start_index.text)
+            if start_index - 1 + len(previous.entry) < total_results:
+                next_start = start_index + self.ITEMS_PER_PAGE
+                return self._retrieve_subset(
+                    limit=self.ITEMS_PER_PAGE, offset=next_start)
+            else:
+                return False
+        else:
+            return self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
 
-    def retrieve_subset(self, limit=1000, offset=0):
+    def _retrieve_subset(self, limit=1000, offset=1):
         from gdata.contacts.client import ContactsQuery
         query = ContactsQuery()
         query.max_results = limit
-        query.start_index = offset + 1
+        query.start_index = offset
         feed = self.service.get_contacts(query=query)
-        return feed.entry
+        return feed
 
 
 class RelProperty(StringProperty):
-    def __init__(self, choices=MAIN_TYPES):
-        super(RelProperty, self).__init__('rel', required=False, choices=choices)
+    def __init__(self, choices=MAIN_TYPES, **kwargs):
+        super(RelProperty, self).__init__(
+            'rel', required=False, choices=choices, **kwargs)
 
 
 class _EmailSettingsWrapper(object):
@@ -435,6 +476,7 @@ class _EmailSettingsWrapper(object):
 
     def __getattr__(self, name):
         if name in self._OPERATIONS:
+            @apps_for_your_domain_exception_wrapper
             def fun(*args, **kwargs):
                 _orig_fun = getattr(self._service, self._OPERATIONS[name])
                 return _orig_fun(self._user_name, *args, **kwargs)
@@ -467,10 +509,16 @@ class CalendarResourceEntryMapper(AtomMapper):
         return atom.resource_id
 
     def create(self, atom):
-        return self.service.create_resource(
-            atom.resource_id, atom.resource_common_name,
-            atom.resource_description, atom.resource_type,
-        )
+        from gdata.client import RequestError
+        try:
+            return self.service.create_resource(
+                atom.resource_id, atom.resource_common_name,
+                atom.resource_description, atom.resource_type,
+            )
+        except RequestError, e:
+            if 'EntityExists' in e.body:
+                raise EntityExistsError()
+            raise
 
     def update(self, atom, old_atom):
         # There is a bug in Calendar Resources GData API: if

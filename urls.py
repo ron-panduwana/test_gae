@@ -20,9 +20,10 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('crgappspanel.views.general',
-    url(r'^$', 'index', name='index'),
+    url(r'^$', 'dashboard', name='dashboard'),
     url(r'^language/$', 'language', name='language'),
-    url(r'^test/$', 'test', name='test'), # TODO remove in the future
+    url(r'^feedback/$', 'feedback_thanks', name='feedback_thanks'),
+    #url(r'^test/$', 'test', name='test'), # TODO remove in the future
 )
 
 urlpatterns += patterns('crgappspanel.views.users',
@@ -38,6 +39,8 @@ urlpatterns += patterns('crgappspanel.views.users',
         'user_email_filters', name='user-email-filters'),
     url(r'^users/aliases/(?P<name>[^/]+)/$',
         'user_email_aliases', name='user-email-aliases'),
+    url(r'^users/vacation/(?P<name>[^/]+)/$',
+        'user_email_vacation', name='user-email-vacation'),
     url(r'^users/suspend/(?P<name>[^/]+)/$',
         'user_suspend', name='user-suspend'),
     url(r'^users/restore/(?P<name>[^/]+)/$',
@@ -100,6 +103,7 @@ urlpatterns += patterns('crgappspanel.views.calendar_resources',
 urlpatterns += patterns('',
     url(r'^openid/', include('crauth.urls')),
     url(r'^appadmin/', include('crappadmin.urls')),
+    url('', include('crlib.urls')),
 )
 
 urlpatterns += patterns(
