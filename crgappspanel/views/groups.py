@@ -7,7 +7,8 @@ from crauth.decorators import has_perm
 from crgappspanel.forms import GroupForm, GroupMembersForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
-from crgappspanel.models import GAGroup, GAGroupOwner, GAGroupMember
+from crgappspanel.models import Preferences, GAGroup, GAGroupOwner, \
+        GAGroupMember
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
         render, redirect_saved
 from crgappspanel.navigation import group_nav
@@ -34,7 +35,8 @@ def groups(request):
     table.sort(groups)
     
     # selecting particular page
-    page = get_page(request, groups, 20)
+    per_page = Preferences.for_current_user().items_per_page
+    page = get_page(request, groups, per_page)
     
     return render_with_nav(request, 'groups_list.html', {
         'table': table.generate(

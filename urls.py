@@ -23,6 +23,7 @@ urlpatterns += patterns('crgappspanel.views.general',
     url(r'^$', 'dashboard', name='dashboard'),
     url(r'^language/$', 'language', name='language'),
     url(r'^feedback/$', 'feedback_thanks', name='feedback_thanks'),
+    url(r'^settings/$', 'settings', name='settings'),
     #url(r'^test/$', 'test', name='test'), # TODO remove in the future
 )
 

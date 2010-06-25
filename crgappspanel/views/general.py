@@ -1,10 +1,12 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 
 import crauth
 from crauth import users
 from crauth.decorators import login_required
-from crgappspanel.models import GAUser, GAGroup
+from crgappspanel.views.utils import redirect_saved
+from crgappspanel.models import Preferences, GAUser, GAGroup
+from crgappspanel import forms
 from crlib.navigation import render_with_nav
 
 
@@ -20,6 +22,28 @@ def feedback_thanks(request):
 
 def language(request):
     return render(request, 'language.html', {'LANGUAGES': LANGUAGES})
+
+
+@login_required
+def settings(request):
+    prefs = Preferences.for_current_user()
+
+    if request.method == 'POST':
+        if '_cancel' in request.POST:
+            return HttpResponseRedirect(request.path)
+
+        form = forms.SettingsForm(request.POST, instance=prefs)
+
+        if form.is_valid():
+            form.save()
+            return redirect_saved('settings', request)
+
+    form = forms.SettingsForm(instance=prefs)
+    ctx = {
+        'form': form,
+        'saved': request.session.pop('saved', False),
+    }
+    return render_with_nav(request, 'settings.html', ctx)
 
 
 @login_required

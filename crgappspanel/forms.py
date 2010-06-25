@@ -747,3 +747,24 @@ class CalendarResourceForm(forms.Form):
         resource.common_name = data['common_name']
         resource.type = data['type']
         resource.description = data['description']
+
+
+################################################################################
+#                              SETTINGS                                        #
+################################################################################
+
+
+class SettingsForm(forms.ModelForm):
+    class Meta:
+        model = models.Preferences
+        fields = ('items_per_page',)
+
+    ITEMS_PER_PAGE_CHOICES = (
+        (20, '20'),
+        (50, '50'),
+        (100, '100'),
+    )
+    items_per_page = forms.TypedChoiceField(
+        choices=ITEMS_PER_PAGE_CHOICES, coerce=int,
+        help_text=_('How many items to show at once on listing pages.'))
+
