@@ -10,7 +10,6 @@ from atom import AtomBase
 from gdata.data import ExtendedProperty
 from gdata.client import GDClient
 from gdata.service import GDataService
-from crlib.models import recache_current_domain
 from crlib.signals import class_prepared
 
 
@@ -528,7 +527,7 @@ class Model(object):
 
         del self._cache['item:%s' % self.key()]
         del self._cache['retrieve_all']
-        recache_current_domain(self._mapper)
+        self._mapper.recache_current_domain()
         return self
     put = save
 
@@ -536,7 +535,7 @@ class Model(object):
         self._mapper.delete(self._atom)
         del self._cache['item:%s' % self.key()]
         del self._cache['retrieve_all']
-        recache_current_domain(self._mapper)
+        self._mapper.recache_current_domain()
         del self
 
     def is_saved(self):
@@ -633,6 +632,20 @@ class AtomMapper(object):
         else:
             # Old version
             return CreateClassFromXMLString(atom.__class__, str(atom))
+
+    def recache_current_domain(self):
+        from django.core.urlresolvers import reverse
+        from google.appengine.api.labs import taskqueue
+        from crauth import users
+
+        domain = users.get_current_domain().domain
+        mapper = self.__class__.__name__
+        memcache.delete('%s-%s' % (mapper, domain))
+        if domain:
+            taskqueue.add(url=reverse('precache_domain'), params={
+                'domain': domain,
+                'mapper': mapper,
+            })
 
     def retrieve_all(self, use_cache=True):
         import hashlib
