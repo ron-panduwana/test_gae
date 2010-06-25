@@ -28,6 +28,7 @@ for mapper in _MAPPERS_LIST:
     _MAPPERS_DICT[mapper.__name__] = mapper
 
 
+# This view is run as a cron job
 def precache_all_domains(request):
     treshold = datetime.datetime.now() - datetime.timedelta(
         seconds=_CACHE_UPDATE_INTERVAL)
@@ -42,6 +43,7 @@ def precache_all_domains(request):
     return HttpResponse(str(len(to_update)))
 
 
+# This view is run as a taskqueue job
 def precache_domain(request):
     domain = request.POST['domain']
     mapper = request.POST['mapper']
@@ -61,5 +63,34 @@ def precache_domain(request):
         })
     last_updated.last_updated = datetime.datetime.now()
     last_updated.put()
+    return HttpResponse('ok')
+
+
+def add_user_to_group(request):
+    from crgappspanel import models
+
+    if request.method != 'POST':
+        raise Http404
+
+    email = request.POST['email']
+    user_name, _, domain = email.rpartition('@')
+    group_id = request.POST['group_id']
+    hashed = request.POST['hashed']
+    as_owner = request.POST['as_owner'] == 'True'
+
+    users._set_current_user(email, domain)
+    user = models.GAUser.get_by_key_name(user_name)
+    gagroup = models.GAGroup.get_by_key_name(group_id)
+    group_owner = models.GAGroupOwner.from_user(user)
+    group_member = models.GAGroupMember.from_user(user)
+
+    if gagroup:
+        if as_owner:
+            gagroup.owners.append(group_owner)
+        gagroup.members.append(group_member)
+        gagroup.save()
+
+    memcache.incr(hashed, initial_value=0)
+
     return HttpResponse('ok')
 
