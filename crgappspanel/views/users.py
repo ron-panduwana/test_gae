@@ -1,9 +1,14 @@
+import hashlib
+import time
+import urllib
 from itertools import imap
 
+from google.appengine.api import memcache
+from google.appengine.api.labs import taskqueue
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
-from django.http import Http404
+from django.http import HttpResponseRedirect, Http404
 
 import crauth
 from crauth.decorators import login_required, admin_required, has_perm
@@ -279,6 +284,28 @@ def user_roles(request, name=None):
 def user_groups(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)
+
+    wait_for = request.GET.get('wait_for')
+    if wait_for:
+        from google.appengine.runtime import DeadlineExceededError
+        retry = int(request.GET.get('retry', 0))
+        items_len = int(request.GET.get('len', 0))
+        items_cur = memcache.get(wait_for)
+        if items_cur is None:
+            items_cur = items_len
+        try:
+            while items_cur < items_len:
+                time.sleep(1)
+                items_cur = memcache.get(wait_for)
+        except DeadlineExceededError:
+            if retry < 3:
+                return HttpResponseRedirect(
+                    request.path + '?' + urllib.urlencode({
+                        'wait_for': wait_for,
+                        'len': items_len,
+                        'retry': retry + 1,
+                    }))
+        memcache.delete(wait_for)
     
     user = GAUser.get_by_key_name(name)
     if not user:
@@ -296,21 +323,29 @@ def user_groups(request, name=None):
             group_owner = GAGroupOwner.from_user(user)
             group_member = GAGroupMember.from_user(user)
             
+            email = '%s@%s' % (user.user_name,
+                               crauth.users.get_current_domain().domain)
+            hashed = hashlib.sha1(email + str(as_owner)).hexdigest()
+            memcache.set(hashed, 0)
             for group_id in data['groups']:
-                group = [group for group in groups if group.id == group_id]
-                if group and user not in group[0].members:
-                    if as_owner:
-                        group[0].owners.append(group_owner)
-                    group[0].members.append(group_member)
-                    group[0].save()
-            
-            return redirect_saved('user-groups',
-                request, name=user.user_name)
+                params = {
+                    'email': email,
+                    'group_id': group_id,
+                    'as_owner': str(as_owner),
+                    'hashed': hashed,
+                }
+                taskqueue.add(
+                    url=reverse('add_user_to_group'),
+                    params=params)
+            return HttpResponseRedirect(
+                request.path + '?wait_for=%s&len=%d' % (
+                    hashed, len(data['groups'])))
     else:
         form = UserGroupsForm(auto_id=True)
         form.fields['groups'].choices = [(group.id, group.name) for group in groups]
     
-    member_of = GAGroup.all().filter('members', GAGroupMember.from_user(user)).fetch(1000)
+    member_of = GAGroup.all().filter(
+        'members', GAGroupMember.from_user(user)).fetch(1000)
     
     return render_with_nav(request, 'user_groups.html', {
         'user': user,
