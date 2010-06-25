@@ -576,35 +576,27 @@ class RoleForm(forms.Form):
         
         for section in OBJECT_TYPES:
             self._add_section(section, perms)
+
+    def _data_to_permissions(self):
+        data = self.cleaned_data
+
+        permissions = set()
+        for perm in PERMISSION_NAMES:
+            if perm in data and data[perm]:
+                permissions.add(perm)
+                if perm.startswith('change_') or perm.startswith('add_'):
+                    permissions.add(perm.replace('change_', 'read_').replace(
+                        'add_', 'read_'))
+        return list(permissions)
     
     def create(self, domain):
-        data = self.cleaned_data
-        
-        permissions = set()
-        for perm in PERMISSION_NAMES:
-            if perm in data and data[perm]:
-                permissions.add(perm)
-                if perm.startswith('change_') or perm.startswith('add_'):
-                    permissions.add(perm.replace('change_', 'read_').replace(
-                        'add_', 'read_'))
-        
         return crauth.models.Role(
-            parent=domain, name=data['name'],
-            permissions=list(permissions))
+            parent=domain, name=self.cleaned_data['name'],
+            permissions=self._data_to_permissions())
     
     def populate(self, role):
-        data = self.cleaned_data
-        
-        permissions = set()
-        for perm in PERMISSION_NAMES:
-            if perm in data and data[perm]:
-                permissions.add(perm)
-                if perm.startswith('change_') or perm.startswith('add_'):
-                    permissions.add(perm.replace('change_', 'read_').replace(
-                        'add_', 'read_'))
-        
-        role.name = data['name']
-        role.permissions = list(permissions)
+        role.name = self.cleaned_data['name']
+        role.permissions = self._data_to_permissions()
     
     def _add_section(self, section, perms):
         section_obj = dict(name=section[1], groups=[])
