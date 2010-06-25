@@ -580,25 +580,31 @@ class RoleForm(forms.Form):
     def create(self, domain):
         data = self.cleaned_data
         
-        permissions = []
+        permissions = set()
         for perm in PERMISSION_NAMES:
             if perm in data and data[perm]:
-                permissions.append(perm)
+                permissions.add(perm)
+                if perm.startswith('change_') or perm.startswith('add_'):
+                    permissions.add(perm.replace('change_', 'read_').replace(
+                        'add_', 'read_'))
         
         return crauth.models.Role(
             parent=domain, name=data['name'],
-            permissions=permissions)
+            permissions=list(permissions))
     
     def populate(self, role):
         data = self.cleaned_data
         
-        permissions = []
+        permissions = set()
         for perm in PERMISSION_NAMES:
             if perm in data and data[perm]:
-                permissions.append(perm)
+                permissions.add(perm)
+                if perm.startswith('change_') or perm.startswith('add_'):
+                    permissions.add(perm.replace('change_', 'read_').replace(
+                        'add_', 'read_'))
         
         role.name = data['name']
-        role.permissions = permissions
+        role.permissions = list(permissions)
     
     def _add_section(self, section, perms):
         section_obj = dict(name=section[1], groups=[])
@@ -619,7 +625,12 @@ class RoleForm(forms.Form):
     
     def _add_field(self, obj_type, action):
         field_name = '%s_%s' % (action, obj_type)
-        field = forms.BooleanField(required=False)
+        field = forms.BooleanField(
+            required=False, widget=forms.CheckboxInput(
+                attrs={
+                    'class': 'perm_%s' % action,
+                    'onchange': 'cr.snippets.createRolePermissionChanged(this);',
+                }))
         self.fields[field_name] = field
         return field
 
