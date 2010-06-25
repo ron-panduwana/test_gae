@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
-from crlib.navigation import Section
+from crlib.navigation import Section, _get_section
 from crauth import users
 
 
@@ -16,25 +16,22 @@ def base(request):
             reverse('shared-contacts')),
         Section('calendar_resources', _('Calendar Resources'),
             reverse('calendar-resources')),
+        Section('settings', _('Settings'), reverse('settings'), (
+            Section('general-settings', _('General'), reverse('settings')),
+        )),
     )
 
     if users.is_current_user_admin():
         domain = users.get_current_domain().domain
         domain_setup_url = reverse('domain_setup', args=(domain,))
-        return nav + (
+        settings = _get_section('settings', nav)
+        settings.children += (
             Section(
-                'domain_settings', _('Settings'),
-                domain_setup_url, (
-                    Section(
-                        'panel_config', _('Panel Configuration'),
-                        domain_setup_url),
-                    Section(
-                        'installation_instructions', _('Additional Setup'),
-                        reverse('installation_instructions', args=(domain,))),
-                )),
+                'panel_config', _('Panel Configuration'), domain_setup_url),
+            Section('installation_instructions', _('Additional Setup'),
+                    reverse('installation_instructions', args=(domain,))),
         )
-    else:
-        return nav
+    return nav
 
 
 def user_nav(user):

@@ -8,7 +8,7 @@ from crgappspanel.forms import SharedContactForm
 from crgappspanel.helpers.filters import SharedContactFilter, \
         SharedContactAdvancedFilter, NullFilter
 from crgappspanel.helpers.tables import Table, Column
-from crgappspanel.models import SharedContact, Organization
+from crgappspanel.models import Preferences, SharedContact, Organization
 from crgappspanel.views.utils import get_sortby_asc, list_attrs, \
         get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch, render
 from crlib.navigation import render_with_nav
@@ -91,7 +91,8 @@ def shared_contacts(request):
     table.sort(shared_contacts)
     
     # selecting particular page
-    page = get_page(request, shared_contacts, 20)
+    per_page = Preferences.for_current_user().items_per_page
+    page = get_page(request, shared_contacts, per_page)
     
     return render_with_nav(request, 'shared_contacts_list.html', {
         'table': table.generate(

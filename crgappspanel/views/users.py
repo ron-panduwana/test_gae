@@ -19,7 +19,8 @@ from crgappspanel.forms import UserForm, UserRolesForm, UserGroupsForm, \
     UserEmailVacationForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
-from crgappspanel.models import GAUser, GANickname, GAGroup, GAGroupOwner, GAGroupMember
+from crgappspanel.models import Preferences, GAUser, GANickname, GAGroup, \
+        GAGroupOwner, GAGroupMember
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
         secure_random_chars, redirect_saved, render
 from crlib.navigation import render_with_nav
@@ -116,7 +117,8 @@ def users(request):
     table.sort(users)
     
     # selecting particular page
-    page = get_page(request, users, 20)
+    per_page = Preferences.for_current_user().items_per_page
+    page = get_page(request, users, per_page)
     
     return render_with_nav(request, 'users_list.html', {
         'table': table.generate(
