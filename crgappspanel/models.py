@@ -41,6 +41,7 @@ def gauser_renamed_callback(sender, **kwargs):
     if preferences:
         new_preferences = Preferences(
             key_name=new_email,
+            items_per_page=preferences.items_per_page,
             language=preferences.language)
         new_preferences.put()
         preferences.delete()
