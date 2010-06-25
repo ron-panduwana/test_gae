@@ -11,7 +11,7 @@ from crauth import users
 # Datastore models
 
 class Preferences(BaseModel):
-    items_per_page = db.IntegerProperty(default=20)
+    items_per_page = db.IntegerProperty(default=50)
     language = db.StringProperty(default='en')
 
     @classmethod
