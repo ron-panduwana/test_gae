@@ -29,9 +29,6 @@ def settings(request):
     prefs = Preferences.for_current_user()
 
     if request.method == 'POST':
-        if '_cancel' in request.POST:
-            return HttpResponseRedirect(request.path)
-
         form = forms.SettingsForm(request.POST, instance=prefs)
 
         if form.is_valid():
