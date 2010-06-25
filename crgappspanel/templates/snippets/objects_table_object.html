@@ -1,6 +1,6 @@
 {% load tags_filters %}
 {% spaceless %}
-{% if can_change and obj.link %}<a href="../details/{{ row.id }}/">{% endif %}
+{% if can_change and row.can_change and obj.link %}<a href="../details/{{ row.id }}/">{% endif %}
 {% for data in obj.data|iterable %}
 	{% with data as value %}
 		{% include "snippets/value.html" %}

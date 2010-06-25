@@ -23,11 +23,18 @@ _table_id = _table_fields[0]
 _table_widths = tuple('%d%%' % x for x in (5, 20, 75))
 
 
+class _AdminRole(object):
+    name = _('Administrator')
+    permissions = ['admin']
+    cant_change = True
+
 @has_perm('read_role')
 def roles(request):
     sortby, asc = get_sortby_asc(request, _table_field_names)
     
     roles = Role.for_domain(users.get_current_domain()).fetch(1000)
+
+    roles.insert(0, _AdminRole)
     
     table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
     table.sort(roles)
