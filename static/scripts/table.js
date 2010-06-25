@@ -60,16 +60,21 @@ cr.table.showDetails = function(obj) {
 goog.exportProperty(cr.table, 'showDetails', cr.table.showDetails);
 
 cr.table.onSelectAll = function(obj) {
-	var tableName = cr.table.getTableName(obj.id)
-	var count = cr.table.getElementCount(tableName)
+	var tableName = cr.table.getTableName(obj.id);
+	var count = cr.table.getElementCount(tableName);
 	
+    var checkbox_len = 0;
 	for (var i = 0 ; i < count ; ++i) {
-		cr.table.getCheckbox(tableName, i).checked = obj.checked
+        var checkbox = cr.table.getCheckbox(tableName, i);
+        if (checkbox) {
+            checkbox.checked = obj.checked;
+            checkbox_len++;
+        }
 		cr.table.getTableRow(tableName, i).className = (obj.checked) ? 'data selected' : 'data'
 	}
 	
-	cr.table.getDeleteButton(tableName, 1).disabled = !obj.checked
-	cr.table.getDeleteButton(tableName, 2).disabled = !obj.checked
+	cr.table.getDeleteButton(tableName, 1).disabled = !obj.checked || !checkbox_len;
+	cr.table.getDeleteButton(tableName, 2).disabled = !obj.checked || !checkbox_len;
 }
 goog.exportProperty(cr.table, 'onSelectAll', cr.table.onSelectAll);
 
@@ -81,7 +86,10 @@ cr.table.onSelectRow = function(obj) {
 	
 	var selCount = 0
 	for (var i = 0 ; i < count ; ++i) {
-		if (cr.table.getCheckbox(tableName, i).checked) ++selCount
+        var checkbox = cr.table.getCheckbox(tableName, i);
+        if (checkbox && checkbox.checked) {
+            ++selCount;
+        }
 	}
 	
 	cr.table.getCheckbox(tableName, null).checked = (selCount == count)
@@ -96,7 +104,8 @@ cr.table.onDeleteClicked = function(obj) {
 	
 	var list = ''
 	for (var i = 0 ; i < count ; ++i) {
-		if (cr.table.getCheckbox(tableName, i).checked) {
+        var checkbox = cr.table.getCheckbox(tableName, i);
+		if (checkbox && checkbox.checked) {
 			if (list != '') list += '/'
 			list += cr.table.tables[tableName][i]
 		}

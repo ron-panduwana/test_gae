@@ -7,5 +7,5 @@
 		{% if not forloop.last %}<br/>{% endif %}
 	{% endwith %}
 {% endfor %}
-{% if obj.link %}</a>{% endif %}
+{% if can_change and row_can_change and obj.link %}</a>{% endif %}
 {% endspaceless %}
