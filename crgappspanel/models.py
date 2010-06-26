@@ -4,8 +4,52 @@ from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from crlib import gdata_wrapper as gd
 from crlib import mappers
+from crlib.signals import gauser_renamed
 from crauth import users
 
+
+# Datastore models
+
+class Preferences(BaseModel):
+    items_per_page = db.IntegerProperty(default=50)
+    language = db.StringProperty(default='en')
+
+    @classmethod
+    def for_current_user(cls):
+        user = users.get_current_user()
+        if user:
+            return cls.for_user(user)
+
+    @classmethod
+    def for_user(cls, user):
+        return cls.get_or_insert(key_name=user.email())
+
+    @classmethod
+    def for_email(cls, email):
+        return cls.get_or_insert(key_name=email)
+
+def gauser_renamed_callback(sender, **kwargs):
+    """ Copy Preferences model instance of old user to the new instance.
+
+    `sender` parameter denotes domain name of the user.
+    `**kwargs` contains `old_name` and `new_name` parameters.
+
+    """
+    old_email = '%s@%s' % (kwargs['old_name'], sender)
+    new_email = '%s@%s' % (kwargs['new_name'], sender)
+    preferences = Preferences.get_by_key_name(old_email)
+    if preferences:
+        new_preferences = Preferences(
+            key_name=new_email,
+            items_per_page=preferences.items_per_page,
+            language=preferences.language)
+        new_preferences.put()
+        preferences.delete()
+
+gauser_renamed.connect(gauser_renamed_callback)
+
+
+# GData pseudo-models
 
 class GAUser(gd.Model):
     Mapper = mappers.UserEntryMapper()
@@ -39,9 +83,6 @@ class GAUser(gd.Model):
         if user:
             return cls.get_by_key_name(user.email().rpartition('@')[0])
 
-    def has_perm(self, permission):
-        pass
-    
     def get_full_name(self):
         return '%s %s' % (self.given_name, self.family_name)
 

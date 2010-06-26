@@ -4,7 +4,7 @@ from crauth import users
 from crauth.decorators import has_perm
 from crgappspanel.forms import CalendarResourceForm
 from crgappspanel.helpers.tables import Table, Column
-from crgappspanel.models import CalendarResource
+from crgappspanel.models import Preferences, CalendarResource
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
         secure_random_chars, redirect_saved
 from crlib.navigation import render_with_nav
@@ -30,7 +30,8 @@ def calendar_resources(request):
     table.sort(resources)
     
     # selecting particular page
-    page = get_page(request, resources, 20);
+    per_page = Preferences.for_current_user().items_per_page
+    page = get_page(request, resources, per_page);
     
     return render_with_nav(request, 'calendar_resources_list.html', {
         'table': table.generate(

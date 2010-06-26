@@ -576,29 +576,27 @@ class RoleForm(forms.Form):
         
         for section in OBJECT_TYPES:
             self._add_section(section, perms)
+
+    def _data_to_permissions(self):
+        data = self.cleaned_data
+
+        permissions = set()
+        for perm in PERMISSION_NAMES:
+            if perm in data and data[perm]:
+                permissions.add(perm)
+                if perm.startswith('change_') or perm.startswith('add_'):
+                    permissions.add(perm.replace('change_', 'read_').replace(
+                        'add_', 'read_'))
+        return list(permissions)
     
     def create(self, domain):
-        data = self.cleaned_data
-        
-        permissions = []
-        for perm in PERMISSION_NAMES:
-            if perm in data and data[perm]:
-                permissions.append(perm)
-        
         return crauth.models.Role(
-            parent=domain, name=data['name'],
-            permissions=permissions)
+            parent=domain, name=self.cleaned_data['name'],
+            permissions=self._data_to_permissions())
     
     def populate(self, role):
-        data = self.cleaned_data
-        
-        permissions = []
-        for perm in PERMISSION_NAMES:
-            if perm in data and data[perm]:
-                permissions.append(perm)
-        
-        role.name = data['name']
-        role.permissions = permissions
+        role.name = self.cleaned_data['name']
+        role.permissions = self._data_to_permissions()
     
     def _add_section(self, section, perms):
         section_obj = dict(name=section[1], groups=[])
@@ -619,7 +617,12 @@ class RoleForm(forms.Form):
     
     def _add_field(self, obj_type, action):
         field_name = '%s_%s' % (action, obj_type)
-        field = forms.BooleanField(required=False)
+        field = forms.BooleanField(
+            required=False, widget=forms.CheckboxInput(
+                attrs={
+                    'class': 'perm_%s' % action,
+                    'onchange': 'cr.snippets.createRolePermissionChanged(this);',
+                }))
         self.fields[field_name] = field
         return field
 
@@ -677,7 +680,8 @@ class SharedContactForm(forms.Form):
 
         company, role = data['company'], data['role']
         if company or role:
-            contact.organization = Organization(name=company, title=role)
+            contact.organization = models.Organization(
+                name=company, title=role)
             contact.organization.save()
 
         return contact
@@ -747,3 +751,24 @@ class CalendarResourceForm(forms.Form):
         resource.common_name = data['common_name']
         resource.type = data['type']
         resource.description = data['description']
+
+
+################################################################################
+#                              SETTINGS                                        #
+################################################################################
+
+
+class SettingsForm(forms.ModelForm):
+    class Meta:
+        model = models.Preferences
+        fields = ('items_per_page',)
+
+    ITEMS_PER_PAGE_CHOICES = (
+        (20, '20'),
+        (50, '50'),
+        (100, '100'),
+    )
+    items_per_page = forms.TypedChoiceField(
+        choices=ITEMS_PER_PAGE_CHOICES, coerce=int,
+        help_text=_('How many items to show at once on listing pages.'))
+

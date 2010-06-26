@@ -58,6 +58,7 @@ class Table(object):
             rows.append({
                 'id': self.id_column.value(obj),
                 'data': data,
+                'can_change': not hasattr(obj, 'cant_change'),
             })
         
         plural = plural or ('%ss' % singular)
