@@ -62,6 +62,10 @@ class GAUser(gd.Model):
             ('change_gauserfilters', _('Modify users in your domain')),
             ('change_gausersendas', _('Modify users in your domain')),
         )
+        cache_model = crlib_models.UserCache
+        cache_fields_exlude = (
+            'password', 'email_settings',
+        )
 
     id = gd.StringProperty('id.text', read_only=True)
     title = gd.StringProperty('title.text', read_only=True)
