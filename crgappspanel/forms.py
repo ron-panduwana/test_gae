@@ -680,7 +680,8 @@ class SharedContactForm(forms.Form):
 
         company, role = data['company'], data['role']
         if company or role:
-            contact.organization = Organization(name=company, title=role)
+            contact.organization = models.Organization(
+                name=company, title=role)
             contact.organization.save()
 
         return contact

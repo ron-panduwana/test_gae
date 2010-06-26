@@ -53,7 +53,7 @@ def _clone(sections):
     return [section.clone() for section in sections]
 
 
-def _mark_sections(path, sections, parents=[], user=None):
+def _mark_sections(path, sections, parents=[], user=None, has_in_section=False):
     sections = list(sections)
     for section in sections[:]:
         if section.perm_list:
@@ -66,7 +66,7 @@ def _mark_sections(path, sections, parents=[], user=None):
             section.selected = True
             for parent in parents:
                 parent.selected = True
-        else:
+        elif not has_in_section:
             section.selected = False
         section.children = _mark_sections(
             path, section.children, parents + [section], user=user)
@@ -98,8 +98,8 @@ def render_with_nav(request, template, ctx={}, extra_nav=None, in_section=None):
         for i in range(len(path)):
             _get_section('/'.join(path[:i+1]), sections).selected = True
         ctx['back_link'] = _get_section(in_section, sections).url
-    else:
-        sections = _mark_sections(request.path, sections)
+    sections = _mark_sections(request.path, sections,
+                              has_in_section=bool(in_section))
     ctx['sections'] = sections
     ctx['sel_section'] = _get_selected(sections)
     if ctx['sel_section']:
