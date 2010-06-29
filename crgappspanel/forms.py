@@ -558,7 +558,7 @@ class ObjectTypeFields(object):
             return None
 
 
-class RoleForm(forms.Form):
+class RoleForm(Form):
     name = forms.CharField(label=_('Name'))
     
     def __init__(self, *args, **kwargs):
