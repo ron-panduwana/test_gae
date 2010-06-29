@@ -155,6 +155,10 @@ def user_create(request):
                     '__all__',
                     _('Your domain user limit has been reached, you cannot '
                       'create more users.'))
+            except errors.UnknownGDataError:
+                form.add_error(
+                    'user_name',
+                    _('Either user or nick with this name already exists.'))
     else:
         form = UserForm(auto_id=True)
         form.fields['user_name'].help_text = '@%s' % domain
