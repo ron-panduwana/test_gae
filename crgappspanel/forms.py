@@ -633,7 +633,7 @@ class RoleForm(forms.Form):
             role = Role.for_domain(crauth.users.get_current_domain()).filter(
                 'name', name).get()
             if role:
-                raise forms.ValidationError('Role with this name already exists.')
+                raise forms.ValidationError(_('Role with this name already exists.'))
         return name
 
 
