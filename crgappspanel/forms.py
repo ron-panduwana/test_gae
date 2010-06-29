@@ -3,6 +3,7 @@ from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
 
 import crauth
+from crauth.models import Role
 from crgappspanel import consts, models
 from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
@@ -558,7 +559,7 @@ class ObjectTypeFields(object):
             return None
 
 
-class RoleForm(Form):
+class RoleForm(forms.Form):
     name = forms.CharField(label=_('Name'))
     
     def __init__(self, *args, **kwargs):
@@ -625,6 +626,15 @@ class RoleForm(Form):
                 }))
         self.fields[field_name] = field
         return field
+    
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        if not hasattr(self, 'old_name') or name != self.old_name:
+            role = Role.for_domain(crauth.users.get_current_domain()).filter(
+                'name', name).get()
+            if role:
+                raise forms.ValidationError('Role with this name already exists.')
+        return name
 
 
 ################################################################################

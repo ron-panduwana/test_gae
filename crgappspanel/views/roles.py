@@ -53,13 +53,8 @@ def role_create(request):
         form = RoleForm(request.POST, auto_id=True)
         if form.is_valid():
             role = form.create(users.get_current_domain())
-            exist_role = Role.for_domain(users.get_current_domain()).filter(
-                'name', role.name).get()
-            if not exist_role:
-                role.save()
-                return redirect_saved('role-details', request, name=role.name)
-            form.add_error(
-                    'name', 'Role with this name already exists.')
+            role.save()
+            return redirect_saved('role-details', request, name=role.name)
     else:
         form = RoleForm(auto_id=True)
     
@@ -80,6 +75,7 @@ def role_details(request, name=None):
     
     if request.method == 'POST':
         form = RoleForm(request.POST, auto_id=True)
+        form.old_name = name
         if form.is_valid():
             form.populate(role)
             role.save()
