@@ -632,7 +632,7 @@ class RoleForm(forms.Form):
         if not hasattr(self, 'old_name') or name != self.old_name:
             role = Role.for_domain(crauth.users.get_current_domain()).filter(
                 'name', name).get()
-            if role:
+            if role or name == _('Administrator'):
                 raise forms.ValidationError(_('Role with this name already exists.'))
         return name
 
