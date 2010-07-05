@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}Setup domain{% endblock %}
+{% block title %}{% trans 'Setup domain' %}{% endblock %}
 
 {% block content %}
-<h1>Setup domain</h1>
+<h1>{% trans 'Setup domain' %}</h1>
 {% if fix %}
 <div class="error">
 {% blocktrans %}
@@ -18,7 +18,7 @@ Please enter <strong>valid credentials</strong> to continue using this applicati
 <form method="POST" action="">
         {{ form.callback }}
         {% if email %}
-        <p>{{ form.account.label_tag }}: <strong>{{ email }}</strong> <a href="?other_user">[ use different user ]</a></p>
+        <p>{{ form.account.label_tag }}: <strong>{{ email }}</strong> <a href="?other_user">[ {% trans 'use different user' %} ]</a></p>
         {% else %}
         {% for error in form.account.errors %}
         <div class="error">{{ error }}</div>

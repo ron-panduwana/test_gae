@@ -1,3 +1,4 @@
+{% load i18n %}
 <tr>
 	<th>{{ field.label_tag }}</th>
 	<td{% if field_class %} class="{{ field_class }}"{% endif %}>
@@ -6,7 +7,7 @@
 			{% for value in items %}
 				{% include "snippets/value.html" %}
 				{% if value.remove_link %}
-					&ndash; <a href="{{ value.remove_link }}">Remove</a>
+                    &ndash; <a href="{{ value.remove_link }}">{% trans 'Remove' %}</a>
 				{% endif %}
 				{% if not forloop.last %}<br/>{% endif %}
 			{% endfor %}

@@ -65,10 +65,9 @@ LANGUAGE_CODE = 'en-us'
 
 # LANGUAGES presented as suggested here:
 # http://docs.djangoproject.com/en/dev/ref/settings/
-gettext = lambda s: s
 LANGUAGES = (
-    ('en', gettext('English')),
-    ('pl', gettext('Polish')),
+    ('en', 'English'),
+    ('pl', 'Polski'),
 )
 
 SITE_ID = 1

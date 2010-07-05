@@ -1,7 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.forms.util import ErrorList
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import string_concat, ugettext_lazy as _
 
 import crauth
 from crgappspanel import consts, models
@@ -10,7 +10,7 @@ from crgappspanel.helpers import fields, widgets
 from crlib import regexps
 
 __all__ = ('UserForm', 'UserEmailSettingsForm', 'UserEmailFiltersForm',
-    'SharedContactForm', 'CalendarResourceForm')
+           'SharedContactForm', 'CalendarResourceForm')
 
 
 ENABLE = 'e'
@@ -146,13 +146,16 @@ def enforce_some_alnum(value):
 ################################################################################
 
 
-password_c = '%(widget)s%(link_start)sChange password%(link_end)s WARNING: dangerous, without confirmation yet!'
+password_c = _('%(widget)s%(link_start)sChange password%(link_end)s WARNING: '
+               'dangerous, without confirmation yet!')
 password_1 = widgets.DoubleWidget(forms.HiddenInput(), forms.HiddenInput())
-password_e = 'Enter new password:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+password_e = _('Enter new password:<br/>%(widget)s '
+               '%(link_start)sCancel%(link_end)s')
 password_2 = widgets.DoubleWidget(forms.PasswordInput(), forms.PasswordInput())
 
-nicknames_c = '%(link_start)sAdd nickname%(link_end)s'
-nicknames_e = 'Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+nicknames_c = _('%(link_start)sAdd nickname%(link_end)s')
+nicknames_e = _('Enter nickname:<br/>%(widget)s '
+                '%(link_start)sCancel%(link_end)s')
 
 
 full_name_kwargs = {
@@ -166,7 +169,7 @@ class UserForm(Form):
         error_messages={'invalid': regexps.ERROR_USERNAME})
     password = fields.CharField2(label=_('Password'), required=False, widget=password_2)
     change_password = forms.BooleanField(label=_('Password'), required=False,
-        help_text='Require a change of password in the next sign in')
+        help_text=_('Require a change of password in the next sign in'))
     full_name = fields.RegexField2(
         label=_('Full name'), kwargs1=full_name_kwargs,
         kwargs2=full_name_kwargs)
@@ -210,8 +213,8 @@ class UserForm(Form):
         return [pass_a, pass_b]
 
 
-roles_c = '%(link_start)sAdd role%(link_end)s'
-roles_e = 'Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+roles_c = _('%(link_start)sAdd role%(link_end)s')
+roles_e = _('Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s')
 
 
 class UserRolesForm(forms.Form):
@@ -381,17 +384,17 @@ class UserEmailFiltersForm(forms.Form):
     def clean(self):
         data = self.cleaned_data
         filter_fields = ('from_', 'to', 'subject', 'has_the_word',
-            'does_not_have_the_word', 'has_attachment')
+                         'does_not_have_the_word', 'has_attachment')
         action_fields = ('label', 'should_mark_as_read', 'should_archive')
         
         if not any(data.get(key) for key in filter_fields):
             msg = _('At least one of fields: from, to, subject, has words, '
-                'doesn\'t have, has attachment must be filled.')
+                    'doesn\'t have, has attachment must be filled.')
             raise forms.ValidationError(msg)
         
         if not any(data.get(key) for key in action_fields):
             msg = _('At least one of fields apply label, mark as read, '
-                'archive must be filled.')
+                    'archive must be filled.')
             raise forms.ValidationError(msg)
         
         return data
@@ -417,10 +420,13 @@ class UserEmailVacationForm(forms.Form):
         widget=forms.Select(attrs={
             'onchange': 'return cr.snippets.vacationStateChanged(this.value);',
         }))
-    subject = forms.CharField(max_length=500, required=False)
-    message = forms.CharField(widget=forms.Textarea, required=False)
+    subject = forms.CharField(
+        label=_('Subject'), max_length=500, required=False)
+    message = forms.CharField(
+        label=_('Message'), widget=forms.Textarea, required=False)
     contacts_only = forms.ChoiceField(
-        choices=VACATION_CONTACTS_ONLY_CHOICES, required=False)
+        label=_('Send to'), choices=VACATION_CONTACTS_ONLY_CHOICES,
+        required=False)
 
     def clean_subject(self):
         enabled = self.cleaned_data.get('state', 'true') == 'true'
@@ -444,8 +450,8 @@ class UserEmailVacationForm(forms.Form):
         return self.cleaned_data['contacts_only']
 
 
-reply_to_c = 'Set %(link_start)sanother%(link_end)s reply to address'
-reply_to_e = '%(widget)s %(link_start)sCancel%(link_end)s'
+reply_to_c = _('Set %(link_start)sanother%(link_end)s reply to address')
+reply_to_e = _('%(widget)s %(link_start)sCancel%(link_end)s')
 
 
 class UserEmailAliasesForm(Form):
@@ -496,10 +502,10 @@ class GroupForm(Form):
         return id
 
 
-owner_c = '%(link_start)sAdd%(link_end)s another owner'
-owner_e = '%(widget)s %(link_start)sCancel%(link_end)s'
-member_c = '%(link_start)sAdd%(link_end)s another member'
-member_e = '%(widget)s %(link_start)sCancel%(link_end)s'
+owner_c = _('%(link_start)sAdd%(link_end)s another owner')
+owner_e = _('%(widget)s %(link_start)sCancel%(link_end)s')
+member_c = _('%(link_start)sAdd%(link_end)s another member')
+member_e = _('%(widget)s %(link_start)sCancel%(link_end)s')
 
 
 class GroupMembersForm(forms.Form):
@@ -522,7 +528,7 @@ OBJECT_TYPES = (
         ('gauser', _('General')),
         ('gausersettings', _('Settings')),
         ('gauserfilters', _('Filters')),
-        ('gausersendas', _('Send as')),
+        ('gausersendas', _('Aliases')),
         ('gauservacation', _('Vacation responder')),
     )),
     ('groups', _('Manage Groups'), (
@@ -639,10 +645,11 @@ class RoleForm(forms.Form):
 ################################################################################
 
 
-emails_c = '%(link_start)sAdd email%(link_end)s'
-emails_e = 'Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
-phone_numbers_c = '%(link_start)sAdd phone number%(link_end)s'
-phone_numbers_e = 'Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+emails_c = _('%(link_start)sAdd email%(link_end)s')
+emails_e = _('Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s')
+phone_numbers_c = _('%(link_start)sAdd phone number%(link_end)s')
+phone_numbers_e = _('Enter phone number:<br/>%(widget)s '
+                    '%(link_start)sCancel%(link_end)s')
 
 
 class SharedContactForm(forms.Form):

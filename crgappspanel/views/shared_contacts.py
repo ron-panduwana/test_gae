@@ -98,6 +98,7 @@ def shared_contacts(request):
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
             widths=_table_widths, singular='shared contact',
+            delete_link_title=_('Delete shared contacts'),
             can_change=users.get_current_user().has_perm(
                 'change_sharedcontact')),
         'advanced_search': advanced_search,

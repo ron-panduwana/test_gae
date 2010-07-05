@@ -42,6 +42,7 @@ def roles(request):
     return render_with_nav(request, 'roles_list.html', {
         'table': table.generate(
             roles, widths=_table_widths, singular='role',
+            delete_link_title=_('Delete roles'),
             can_change=users.get_current_user().has_perm('change_role')),
         'saved': request.session.pop('saved', False),
     })

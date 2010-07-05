@@ -124,6 +124,7 @@ def users(request):
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
             widths=_table_widths, singular='user',
+            delete_link_title=_('Delete users'),
             can_change=user.has_perm('change_gauser')),
         'saved': request.session.pop('saved', False),
     })

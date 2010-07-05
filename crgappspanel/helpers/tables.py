@@ -34,7 +34,7 @@ class Table(object):
     
     def generate(self, objs, page=None, qs_wo_page=None, widths=None,
                  table_name='table', singular='object', plural=None,
-                 can_change=False):
+                 delete_link_title='', can_change=False):
         """Generates table html (using appropriate HTML template).
         
         Arguments:
@@ -62,6 +62,7 @@ class Table(object):
             })
         
         plural = plural or ('%ss' % singular)
+        delete_link_title = delete_link_title or 'Delete %s' % plural
         
         return render_to_string('snippets/objects_table.html', {
             'columns': self.columns,
@@ -74,6 +75,7 @@ class Table(object):
             'table_name': table_name,
             'object_singular': singular,
             'object_plural': plural,
+            'delete_link_title': delete_link_title,
             'can_change': can_change,
         })
     

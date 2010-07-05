@@ -37,7 +37,7 @@ msgstr "Strona domowa"
 
 #: mappers.py:34
 msgid "Blog"
-msgstr ""
+msgstr "Blog"
 
 #: mappers.py:35
 msgid "Profile"
@@ -49,7 +49,7 @@ msgstr "FTP"
 
 #: mappers.py:44
 msgid "Car"
-msgstr "Samochód"
+msgstr "W samochodzie"
 
 #: mappers.py:45
 msgid "Fax"
@@ -57,7 +57,7 @@ msgstr "Faks"
 
 #: mappers.py:46
 msgid "General"
-msgstr "Ogólne"
+msgstr "Ogólny"
 
 #: mappers.py:48
 msgid "Home Fax"
@@ -101,7 +101,7 @@ msgstr "Główny"
 
 #: mappers.py:60
 msgid "Assistant"
-msgstr ""
+msgstr "Asystent"
 
 #: mappers.py:61
 msgid "Callback"
@@ -109,15 +109,15 @@ msgstr ""
 
 #: mappers.py:62
 msgid "Company Main"
-msgstr ""
+msgstr "Numer główny do firmy"
 
 #: mappers.py:63
 msgid "ISDN"
-msgstr ""
+msgstr "ISDN"
 
 #: mappers.py:64
 msgid "Other Fax"
-msgstr ""
+msgstr "Inny faks"
 
 #: mappers.py:65
 msgid "Radio"
@@ -157,6 +157,9 @@ msgid ""
 "(_), periods (.), and apostrophes ('), and may not contain an equal sign (=) "
 "or brackets (<,>)."
 msgstr ""
+"Nazwa użytkownika może zawierać litery (a-z), cyfry (0-9), myślnik (-), "
+"podkreślenie (_), kropkę (.) oraz apostrof ('). Nie może zawierać "
+"znaku równości (=) ani nawiasów (<,>)."
 
 #: regexps.py:20
 msgid ""
@@ -164,3 +167,6 @@ msgid ""
 "spaces, letters (a-z), numbers (0-9), dashes (-), forward slashes (/), and "
 "periods (.), with a maximum of 40 characters."
 msgstr ""
+"Imię i nazwysko może zawierać znaki unikodu/UTF-8, spacje, litery (a-z), "
+"cyfry (0-9), myślnik (-), ukośnik (/) oraz kropkę (.), i może mieć "
+"długość do 40 znaków."

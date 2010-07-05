@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-05 12:56+0200\n"
+"POT-Creation-Date: 2010-07-06 01:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms:  nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%"
-"100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms:  nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n"
+"%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: forms.py:31
 msgid "Please select Google apps domain you want to log in to:"
@@ -45,7 +45,7 @@ msgstr "Upewnij się, że wprowadziłeś nazwę i hasło administratora domeny"
 
 #: forms.py:130
 msgid "Please provide correct authentication credentials"
-msgstr "Proszę wprowadzić poprawne nazwę i hasło"
+msgstr "Proszę wprowadzić poprawną nazwę i hasło"
 
 #: permissions.py:13
 msgid "Is Administrator"
@@ -76,6 +76,10 @@ msgstr "Inna, proszę wprowadzić: www."
 msgid "Change Domain"
 msgstr "Zmień domenę"
 
+#: templates/domain_setup.html:3 templates/domain_setup.html.py:6
+msgid "Setup domain"
+msgstr "Ustawienia dla domeny Google Apps"
+
 #: templates/domain_setup.html:9
 msgid ""
 "\n"
@@ -84,9 +88,14 @@ msgid ""
 "application.\n"
 msgstr ""
 "\n"
-"Nazwa i hasło administratora dla tej domeny <strong>nie są prawidłowe</strong>.\n"
+"Nazwa i hasło administratora dla tej domeny <strong>nie są prawidłowe</"
+"strong>.\n"
 "Proszę wprowadzić <strong>prawidłowe dane</strong> aby móc kontynuować "
 "używanie tej aplikacji.\n"
+
+#: templates/domain_setup.html:21
+msgid "use different user"
+msgstr "użyj innego użytkownika"
 
 #: templates/instructions.html:5
 msgid "Setup Google Apps domain"
@@ -98,6 +107,9 @@ msgid ""
 "For better experience we invite you to perform additional setup step in\n"
 "your Google Apps dashboard.\n"
 msgstr ""
+"\n"
+"Dla lepszego wykorzystania możliwości naszego panelu, zapraszamy do "
+"wykonania dodatkowych kroków w konsoli Twojej domeny Google Apps.\n"
 
 #: templates/instructions.html:13
 #, python-format
@@ -108,3 +120,8 @@ msgid ""
 "and add the following information to the list of <strong>Authorized API "
 "clients</strong>:\n"
 msgstr ""
+"\n"
+"Proszę udać się pod adres <a href=\"%(oauth_settings_url)s\" target=\"_blank\">"
+"%(oauth_settings_url)s</a>\n"
+"i dodać następujące informacje do listy <strong>Autoryzowanych klientów API"
+"</strong>:\n"

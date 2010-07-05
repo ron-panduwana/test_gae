@@ -53,7 +53,7 @@ msgstr "Adres email administratora"
 
 #: tables.py:17
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: views.py:20
 msgid "Superadmin Panel"
