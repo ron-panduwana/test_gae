@@ -15,6 +15,7 @@ urlpatterns = patterns(
         name='installation_instructions'),
     url(r'captcha/$', 'handle_captcha_challenge', name='captcha'),
     url(r'__cron_check_licenses/$', 'handle_license_updates'),
+    url(r'__cron_notify_of_expired_domains/$', 'notify_of_expired_domains'),
     url(r'__manifest/$', 'generate_manifest'),
 )
 

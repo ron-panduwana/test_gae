@@ -1,5 +1,7 @@
+import datetime
 import logging
 from appengine_django.models import BaseModel
+from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from google.appengine.ext import db
 from google.appengine.api import memcache
@@ -15,6 +17,10 @@ class Association(db.Model):
     url = db.LinkProperty()
     handle = db.StringProperty()
     association = db.TextProperty()
+
+
+def default_expiration_date(days=30):
+    return datetime.date.today() + datetime.timedelta(days=days)
 
 
 class AppsDomain(BaseModel):
@@ -37,18 +43,30 @@ class AppsDomain(BaseModel):
     #: This property takes precedence before both :attr:`is_independent` and
     #: :attr:`license_state`. If set to ``False`` the domain will not be able to
     #: accees the application.
-    is_enabled = db.BooleanProperty(default=False)
+    is_enabled = db.BooleanProperty(verbose_name=_('Enabled'), default=False)
     #: If set to ``True`` the domain is managed manually and Licensing API is
     #: not used.
-    is_independent = db.BooleanProperty(default=False)
+    is_independent = db.BooleanProperty(
+        verbose_name=_('Independent'), default=False)
     #: Security token which should be sent to Google Apps domain administrator
     #: for him to perform Powerpanel installation w/o Google Marketplace
     #: machinery.
     installation_token = db.StringProperty()
+    #: If set to ``True`` the ``expiration_date`` property becomes active.
+    is_on_trial = db.BooleanProperty(default=True, required=False)
+    #: Expiration date of the trial period (usually 30 days).
+    expiration_date = db.DateProperty(required=False)
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('expiration_date', default_expiration_date())
+        super(AppsDomain, self).__init__(*args, **kwargs)
 
     def is_active(self):
         return self.is_enabled and (
             self.is_independent or self.license_state == STATE_ACTIVE)
+
+    def is_expired(self):
+        return self.is_on_trial and datetime.date.today() > self.expiration_date
 
     def installation_link(self, request):
         if self.installation_token:

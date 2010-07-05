@@ -23,6 +23,10 @@ handlers:
   script: main.py
   login: admin
 
+- url: /openid/__cron_notify_of_expired_domains/
+  script: main.py
+  login: admin
+
 - url: /__precache_all_domains/
   script: main.py
   login: admin

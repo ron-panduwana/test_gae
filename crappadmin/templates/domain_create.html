@@ -7,24 +7,30 @@
 <form action="{% url domain-create %}" method="POST" class="create">
 	<h1>{% trans "Create new domain" %}</h1>
 	
-	<label for="domain">{% trans "Domain" %}</label><br/>
+    {{ form.domain.label_tag }}<br/>
 	{% with form.domain as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
 	
 	<br/><br/>
-	<label for="admin_email">{% trans "Administrator email" %}</label><br/>
+    {{ form.admin_email.label_tag }}<br/>
 	{% with form.admin_email as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
 	
 	<br/><br/>
-	<label for="admin_password">{% trans "Administrator password" %}</label><br/>
+    {{ form.admin_password.label_tag }}<br/>
 	{% with form.admin_password as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
 	
 	<br/><br/>
-	<label for="is_enabled">{% trans "Enabled" %}</label>:
+    {{ form.is_enabled.label_tag }}:
 	{% with form.is_enabled as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
 	
 	<br/><br/>
-	<label for="Independent">{% trans "Independent" %}</label>:
+    {{ form.is_independent.label_tag }}:
 	{% with form.is_independent as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
+    <br/><br/>
+    {{ form.is_on_trial.label_tag }}:
+	{% with form.is_on_trial as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
+    <br/><br/>
+    {{ form.expiration_date.label_tag }}:
+	{% with form.expiration_date as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
 	
 	<br/><br/>
 	<input type="submit" value="{% trans "create" %}" class="default"/>

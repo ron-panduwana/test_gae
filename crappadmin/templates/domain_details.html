@@ -9,21 +9,22 @@
 	{% include "snippets/domain_header.html" %}
 	<table class="details" width="100%">
 		<tbody>
-			{% with form.domain as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.admin_email as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.admin_password as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			<tr>
-				<th>License</th>
+                <th>{% trans 'License' %}</th>
 				<td>{{ domain.license_state }}</td>
 			</tr>
 			{% with form.is_enabled as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.is_independent as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.is_on_trial as field %}{% include "snippets/form_field.html" %}{% endwith %}
+			{% with form.expiration_date as field %}{% include "snippets/form_field.html" %}{% endwith %}
             {% if installation_link %}
             <tr>
-                <th>Installation link</th>
+                <th>{% trans 'Installation link' %}</th>
                 <td>
                         <a href="{{ installation_link }}">{{ installation_link }}</a>
-                        [ <a href="{% url domain-change-installation-link domain.domain %}">Change</a> ]
+                        [ <a href="{% url domain-change-installation-link domain.domain %}">{% trans 'Change' %}</a> ]
                 </td>
             </tr>
             {% endif %}

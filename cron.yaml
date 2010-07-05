@@ -5,3 +5,6 @@ cron:
 - description: Precache domain GData feeds
   url: /__precache_all_domains/
   schedule: every 3 minutes
+- description: Send notifications about expired domains
+  url: /openid/__cron_notify_of_expired_domains/
+  schedule: every 24 hours
