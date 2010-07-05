@@ -328,6 +328,8 @@ class NicknameEntryMapper(AtomMapper):
     def filter_by_user_name(self, user_name):
         return self.service.RetrieveNicknames(user_name).entry
 
+    filter_by_user = filter_by_user_name
+
     def delete(self, atom):
         self.service.DeleteNickname(atom.nickname.name)
 
