@@ -199,7 +199,13 @@ class UserForm(Form):
     
     def get_nickname(self):
         return self.cleaned_data['nicknames']
-
+    
+    def clean_nicknames(self):
+        data = self.cleaned_data['nicknames']
+        if not regexps.RE_USERNAME.match(data):
+            raise forms.ValidationError(regexps.ERROR_NICKNAME)
+        return data
+    
     def clean_password(self):
         password = self.cleaned_data['password']
         if not password:
