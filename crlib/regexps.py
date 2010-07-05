@@ -13,6 +13,10 @@ ERROR_USERNAME = _(
     'Usernames may contain letters (a-z), numbers (0-9), dashes (-), '
     'underscores (_), periods (.), and apostrophes (\'), and may not '
     'contain an equal sign (=) or brackets (<,>).')
+ERROR_NICKNAME = _(
+    'Nicknames may contain letters (a-z), numbers (0-9), dashes (-), '
+    'underscores (_), periods (.), and apostrophes (\'), and may not '
+    'contain an equal sign (=) or brackets (<,>).')
 
 RE_FIRST_LAST_NAME = re.compile(r'^((?!_)[\w\ \-\/\.]){1,40}$',
                                 re.UNICODE | re.IGNORECASE)
