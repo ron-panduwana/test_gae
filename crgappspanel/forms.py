@@ -1,6 +1,7 @@
 from django import forms
+from django.conf import settings
 from django.forms.util import ErrorList
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 import crauth
 from crgappspanel import consts, models
@@ -739,9 +740,9 @@ class SharedContactForm(forms.Form):
 
 
 class CalendarResourceForm(forms.Form):
-    common_name = forms.CharField(_('Name'))
-    type = forms.CharField(_('Type'), required=False)
-    description = forms.CharField(_('Description'), required=False,
+    common_name = forms.CharField(label=_('Name'))
+    type = forms.CharField(label=_('Type'), required=False)
+    description = forms.CharField(label=_('Description'), required=False,
         widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
     
     def create(self, id):
@@ -767,14 +768,17 @@ class CalendarResourceForm(forms.Form):
 class SettingsForm(forms.ModelForm):
     class Meta:
         model = models.Preferences
-        fields = ('items_per_page',)
+        fields = ('language', 'items_per_page',)
 
     ITEMS_PER_PAGE_CHOICES = (
         (20, '20'),
         (50, '50'),
         (100, '100'),
     )
+    language = forms.ChoiceField(
+        label=_('Language'), choices=settings.LANGUAGES)
     items_per_page = forms.TypedChoiceField(
+        label=_('Items per page'),
         choices=ITEMS_PER_PAGE_CHOICES, coerce=int,
         help_text=_('How many items to show at once on listing pages.'))
 

@@ -6,7 +6,7 @@
 {% block content %}
 	{% include "snippets/saved_warning.html" %}
     {% if auth.perms.add_gauser %}
-	<a href="{% url user-create %}" class="action-link">Create new user</a>
+    <a href="{% url user-create %}" class="action-link">{% trans 'Create new user' %}</a>
     {% endif %}
 	{% with "users" as entities_name %}
 		{% include "snippets/objects_table_delete_script.html" %}
