@@ -98,6 +98,12 @@
                 - <a href="http://www.cloudreach.com/privacy" target="_blank">Privacy policy</a>
                 - <strong><a href="#" onclick="return feedback('Feedback');">Feedback</a></strong>
                 - <a href="#" onclick="return feedback('Incident');">Report a problem</a>
+                {% if auth.is_on_trial %}
+                - <strong><a href="#" onclick="return buyNow();">Buy now</a></strong>
+                {% endif %}
         </div>
+        {% if auth.is_expired %}
+        <script type="text/javascript">buyNow();</script>
+        {% endif %}
 	</body>
 </html>

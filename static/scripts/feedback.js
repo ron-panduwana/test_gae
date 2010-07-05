@@ -53,5 +53,46 @@ function feedback(type) {
     });
     return false;
 }
-
 goog.exportSymbol('feedback', feedback);
+
+
+function buyNow() {
+    var dialog = new goog.ui.Dialog();
+    dialog.setTitle('Buy now');
+    dialog.setContent(
+            '<form id="feedback" method="POST" action="' + ACTION + '">' +
+            '<input type="hidden" name="orgid" value="' + ORG_ID + '"/>' +
+            '<input type="hidden" name="retURL" value="' + feedback_url + '"/>' +
+            '<input type="hidden" name="external" value="1"/>' +
+            '<table><tr><th>' +
+            '<label for="name">Name:</label> ' +
+            '</th><td>' +
+            '<input id="name" maxlength="80" name="name" size="20"/>' +
+            '</td></tr><tr><th>' +
+            '<label for="company">Company:</label> ' +
+            '</th><td>' +
+            '<input id="company" maxlength="80" name="company" size="20"/>' +
+            '</td></tr><tr><th>' +
+            '<label for="company">Phone:</label> ' +
+            '</th><td>' +
+            '<input id="phone" maxlength="80" name="phone" size="20"/>' +
+            '</td></tr><tr><th>' +
+            '<label for="email">Email address:</label> ' +
+            '</th><td>' +
+            '<input id="email" maxlength="80" name="email" size="20" value="' + email + '"/>' +
+            '</td></tr><tr><th>' +
+            '<label for="address">Address:</label> ' +
+            '</th><td>' +
+            '<textarea rows="4" cols="30" name="address" ' +
+            'id="address"></textarea>' +
+            '</td></tr></table>' +
+            '</form>'
+            );
+    dialog.setButtonSet(goog.ui.Dialog.ButtonSet.OK_CANCEL);
+    dialog.setVisible(true);
+    goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
+        dialog.dispose();
+    });
+    return false;
+}
+goog.exportSymbol('buyNow', buyNow);

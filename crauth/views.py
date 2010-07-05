@@ -163,6 +163,8 @@ def openid_return(request):
     if not redirect_to or '//' in redirect_to or ' ' in redirect_to:
         redirect_to = settings.LOGIN_REDIRECT_URL
 
+    request.session['just_logged_in'] = True
+
     return HttpResponseRedirect(redirect_to)
 
 
