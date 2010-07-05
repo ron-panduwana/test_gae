@@ -521,15 +521,21 @@ OBJECT_TYPES = (
         ('gauser', _('General')),
         ('gausersettings', _('Settings')),
         ('gauserfilters', _('Filters')),
-        ('gausersendas', _('Send as')))),
+        ('gausersendas', _('Send as')),
+        ('gauservacation', _('Vacation responder')),
+    )),
     ('groups', _('Manage Groups'), (
-        ('gagroup', _('General')),)),
+        ('gagroup', _('General')),
+    )),
     ('roles', _('Manage Roles'), (
-        ('role', _('General')),)),
+        ('role', _('General')),
+    )),
     ('shared_contacts', _('Manage Shared Contacts'), (
-        ('sharedcontact', _('General')),)),
+        ('sharedcontact', _('General')),
+    )),
     ('calendar_resources', _('Manage Calendar Resources'), (
-        ('calendarresource', _('General')),)),
+        ('calendarresource', _('General')),
+    )),
 )
 
 
