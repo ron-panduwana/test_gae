@@ -7,5 +7,6 @@ urlpatterns = patterns(
     url(r'^__precache_domain/$', 'precache_domain', name='precache_domain'),
     url(r'^__add_user_to_group/$', 'add_user_to_group',
         name='add_user_to_group'),
+    url(r'^new_cache_domain/$', 'new_cache_domain'),
 )
 

@@ -7,12 +7,16 @@ class LastCacheUpdate(BaseModel):
 
 
 class GDataIndex(BaseModel):
+    # key_name consists of: domain_name:mapper_class[:page]
+    # where page part is to be omitted for the first page
     page_hash = db.StringProperty(indexed=False)
     hashes = db.StringListProperty(indexed=False)
     keys = db.StringListProperty()
 
 
 class UserCache(BaseModel):
+    # key_name consists of: domain_name:atom_hash
+    # or atom_hash alone
     id = db.StringProperty()
     title = db.StringProperty()
     user_name = db.StringProperty(required=True)
@@ -24,6 +28,30 @@ class UserCache(BaseModel):
     quota = db.IntegerProperty()
     change_password = db.BooleanProperty(default=False)
     updated_on = db.DateTimeProperty(auto_now=True)
+
+
+class SharedContactNameCache(BaseModel):
+    given_name = db.StringProperty()
+    family_name = db.StringProperty()
+    additional_name = db.StringProperty()
+    name_prefix = db.StringProperty()
+    name_suffix = db.StringProperty()
+    full_name = db.StringProperty()
+
+
+class SharedContactEmailCache(BaseModel):
+    address = db.EmailProperty()
+    label = db.StringProperty()
+    rel = db.StringProperty()
+    primary = db.BooleanProperty(default=False)
+
+
+class SharedContactCache(BaseModel):
+    name = db.ReferenceProperty(SharedContactNameCache)
+    title = db.StringProperty()
+    notes = db.StringProperty()
+    birthday = db.DateProperty()
+    emails = db.ListProperty(db.Key)
 
 
 class NicknameCache(BaseModel):

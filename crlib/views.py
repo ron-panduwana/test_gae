@@ -28,6 +28,42 @@ for mapper in _MAPPERS_LIST:
     _MAPPERS_DICT[mapper.__name__] = mapper
 
 
+def new_cache_domain(request):
+    import hashlib
+    from crgappspanel.models import GAUser
+    from crlib.models import GDataIndex, UserCache
+    index = GDataIndex.get_or_insert(
+        key_name='red.lab.cloudreach.co.uk:GAUser',
+    )
+    users, page = GAUser.all().retrieve_page()
+    page_xml = str(page)
+    hashed = hashlib.sha1(page_xml).hexdigest()
+    if hashed == index.page_hash:
+        return HttpResponse('Sie zgadza!')
+    index.page_hash = hashed
+    for user in users:
+        user_xml = str(user._atom)
+        hashed = hashlib.sha1(user_xml).hexdigest()
+        user_cache = UserCache(
+            key_name=hashed,
+            id=user.id,
+            title=user.title,
+            user_name=user.user_name,
+            given_name=user.given_name,
+            family_name=user.family_name,
+            suspended=user.suspended,
+            admin=user.admin,
+            agreed_to_terms=user.agreed_to_terms,
+            quota=user.quota,
+            change_password=user.change_password,
+        )
+        user_cache.put()
+        index.hashes.append(hashed)
+        index.keys.append(user.user_name)
+    index.put()
+    return HttpResponse('ok')
+
+
 # This view is run as a cron job
 def precache_all_domains(request):
     treshold = datetime.datetime.now() - datetime.timedelta(

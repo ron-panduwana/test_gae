@@ -115,6 +115,11 @@ class GDataQuery(object):
         """
         return list(self._retrieve_filtered(limit, offset))
 
+    def retrieve_page(self, token=None):
+        page = self._model._mapper.retrieve_page(token)
+        gen = (self._model._from_atom(item) for item in page.entry)
+        return (gen, page)
+
 
 class StringProperty(db.Property):
     """This and below classes are equivalents of respective db.Property classes.
