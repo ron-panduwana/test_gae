@@ -500,7 +500,7 @@ def user_email_aliases(request, name=None):
     }, extra_nav=user_nav(name))
 
 
-@has_perm('change_gauser')
+@has_perm('change_gauservacation')
 def user_email_vacation(request, name):
     user = GAUser.get_by_key_name(name)
     if not user:

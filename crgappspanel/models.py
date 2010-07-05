@@ -61,6 +61,7 @@ class GAUser(gd.Model):
             ('change_gausersettings', _('Modify users in your domain')),
             ('change_gauserfilters', _('Modify users in your domain')),
             ('change_gausersendas', _('Modify users in your domain')),
+            ('change_gauservacation', _('Change vacation responder settings')),
         )
 
     id = gd.StringProperty('id.text', read_only=True)
