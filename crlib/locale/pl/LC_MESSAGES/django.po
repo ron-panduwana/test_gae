@@ -1,0 +1,166 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-05 17:06+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms:  nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%"
+"100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: mappers.py:20 mappers.py:47
+msgid "Home"
+msgstr "Dom"
+
+#: mappers.py:21 mappers.py:27 mappers.py:37 mappers.py:55
+msgid "Work"
+msgstr "Praca"
+
+#: mappers.py:22 mappers.py:28 mappers.py:38 mappers.py:51
+msgid "Other"
+msgstr "Inne"
+
+#: mappers.py:33 mappers.py:36
+msgid "Home Page"
+msgstr "Strona domowa"
+
+#: mappers.py:34
+msgid "Blog"
+msgstr ""
+
+#: mappers.py:35
+msgid "Profile"
+msgstr "Profil"
+
+#: mappers.py:39
+msgid "FTP"
+msgstr "FTP"
+
+#: mappers.py:44
+msgid "Car"
+msgstr "Samochód"
+
+#: mappers.py:45
+msgid "Fax"
+msgstr "Faks"
+
+#: mappers.py:46
+msgid "General"
+msgstr "Ogólne"
+
+#: mappers.py:48
+msgid "Home Fax"
+msgstr "Faks domowy"
+
+#: mappers.py:49
+msgid "Internal"
+msgstr "Wewnętrzny"
+
+#: mappers.py:50
+msgid "Mobile"
+msgstr "Komórkowy"
+
+#: mappers.py:52
+msgid "Pager"
+msgstr ""
+
+#: mappers.py:53
+msgid "Satellite"
+msgstr "Satelitarny"
+
+#: mappers.py:54
+msgid "VOIP"
+msgstr ""
+
+#: mappers.py:56
+msgid "Work Fax"
+msgstr "Faks służbowy"
+
+#: mappers.py:57
+msgid "Work Mobile"
+msgstr "Komórkowy służbowy"
+
+#: mappers.py:58
+msgid "Work Pager"
+msgstr "Pager służbowy"
+
+#: mappers.py:59
+msgid "Main"
+msgstr "Główny"
+
+#: mappers.py:60
+msgid "Assistant"
+msgstr ""
+
+#: mappers.py:61
+msgid "Callback"
+msgstr ""
+
+#: mappers.py:62
+msgid "Company Main"
+msgstr ""
+
+#: mappers.py:63
+msgid "ISDN"
+msgstr ""
+
+#: mappers.py:64
+msgid "Other Fax"
+msgstr ""
+
+#: mappers.py:65
+msgid "Radio"
+msgstr ""
+
+#: mappers.py:66
+msgid "Telex"
+msgstr ""
+
+#: mappers.py:67
+msgid "TTY TDD"
+msgstr ""
+
+#: mappers.py:72
+msgid "Owner"
+msgstr "Właściciel"
+
+#: mappers.py:73
+msgid "Member"
+msgstr "Członek"
+
+#: mappers.py:74
+msgid "Domain"
+msgstr "Domena"
+
+#: mappers.py:75
+msgid "Anyone"
+msgstr "Ktokolwiek"
+
+#: regexps.py:6
+msgid "Please enter valid domain name"
+msgstr "Proszę wprowadzić prawidłową nazwę domeny"
+
+#: regexps.py:13
+msgid ""
+"Usernames may contain letters (a-z), numbers (0-9), dashes (-), underscores "
+"(_), periods (.), and apostrophes ('), and may not contain an equal sign (=) "
+"or brackets (<,>)."
+msgstr ""
+
+#: regexps.py:20
+msgid ""
+"First and last name support unicode/UTF-8 characters, and may contain "
+"spaces, letters (a-z), numbers (0-9), dashes (-), forward slashes (/), and "
+"periods (.), with a maximum of 40 characters."
+msgstr ""
