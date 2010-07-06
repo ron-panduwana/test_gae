@@ -109,7 +109,7 @@ def group_members(request, name=None):
         raise ValueError('name = %s' % name)
     
     domain = users.get_current_user().domain_name
-    group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
+    group = GAGroup.get_by_key_name('%s@%s' % (name, domain))
     if not group:
         return redirect('groups')
     
@@ -156,11 +156,17 @@ def group_members(request, name=None):
     domain_name = current_user.domain_name
     
     if current_user.has_perm('read_gauser'):
-        from crgappspanel.models import GAUser
+        from gdata.service import RanOutOfTries
+        from crgappspanel.models import GAUser, GANickname
         for user in GAUser.all().fetch(1000):
             suggestions.add('%s@%s' % (user.user_name, domain_name))
-            for nick in user.nicknames:
+        try:
+            for nick in GANickname.all().fetch(1000):
                 suggestions.add('%s@%s' % (nick.nickname, domain_name))
+        except RanOutOfTries:
+            # Fetching nicknames feed is very slow and usually throws
+            # RanOutOfTries, but it's not fatal so let's simply ignore it.
+            pass
     
     if current_user.has_perm('read_sharedcontact'):
         from crgappspanel.models import SharedContact
