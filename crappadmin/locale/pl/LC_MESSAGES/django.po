@@ -1,0 +1,108 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-05 13:08+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms:  nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n"
+"%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: forms.py:24 tables.py:15 templates/domain_create.html:10
+msgid "Domain"
+msgstr "Domena"
+
+#: forms.py:26
+msgid "Admin email"
+msgstr "Adres email administratora"
+
+#: forms.py:28
+msgid "Admin password"
+msgstr "Hasło administratora"
+
+#: forms.py:30 tables.py:10 templates/domain_create.html:22
+msgid "Enabled"
+msgstr "Włączona"
+
+#: forms.py:31 templates/domain_create.html:26
+msgid "Independent"
+msgstr "Zarządzana niezależnie"
+
+#: forms.py:77
+msgid "Passwords do not match."
+msgstr "Podane hasła nie są identyczne."
+
+#: tables.py:12
+msgid "Disabled"
+msgstr "Wyłączona"
+
+#: tables.py:16
+msgid "Administrator Email"
+msgstr "Adres email administratora"
+
+#: tables.py:17
+msgid "Status"
+msgstr "Status"
+
+#: views.py:20
+msgid "Superadmin Panel"
+msgstr "Panel Superadministratora"
+
+#: views.py:21
+msgid "All Domains"
+msgstr "Wszystkie domeny"
+
+#: views.py:22 templates/tools.html:4
+msgid "Tools"
+msgstr "Narzędzia"
+
+#: views.py:23
+msgid "Appengine Dashboard"
+msgstr "Konsola Appengine"
+
+#: views.py:25
+msgid "Documentation"
+msgstr "Dokumentacja"
+
+#: views.py:26
+msgid "Logout"
+msgstr "Wyloguj"
+
+#: templates/domain_create.html:4
+msgid "Create domain"
+msgstr "Dodaj domenę"
+
+#: templates/domain_create.html:8 templates/domains_list.html:7
+msgid "Create new domain"
+msgstr "Dodaj domenę"
+
+#: templates/domain_create.html:14
+msgid "Administrator email"
+msgstr "Adres email administratora"
+
+#: templates/domain_create.html:18
+msgid "Administrator password"
+msgstr "Hasło administratora"
+
+#: templates/domain_create.html:30
+msgid "create"
+msgstr "utwórz"
+
+#: templates/domain_create.html:31
+msgid "cancel"
+msgstr "anuluj"
+
+#: templates/domains_list.html:4
+msgid "Google Apps Domains"
+msgstr "Domeny Google Apps"

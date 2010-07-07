@@ -6,7 +6,7 @@
 {% block content %}
 	{% include "snippets/saved_warning.html" %}
     {% if auth.perms.add_gagroup %}
-	<a href="{% url group-create %}" class="action-link">Create new group</a>
+    <a href="{% url group-create %}" class="action-link">{% trans 'Create new group' %}</a>
     {% endif %}
 	{% with "groups" as entities_name %}
 		{% include "snippets/objects_table_delete_script.html" %}

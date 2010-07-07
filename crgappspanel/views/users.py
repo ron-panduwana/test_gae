@@ -7,7 +7,7 @@ from google.appengine.api import memcache
 from google.appengine.api.labs import taskqueue
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect, Http404
 
 import crauth
@@ -93,7 +93,7 @@ def _get_user_roles(domain):
 
 def _table_fields_gen(domain):
     return [
-        Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
+        Column(_('Full name'), 'name', getter=lambda x: x.get_full_name(), link=True),
         Column(_('Username'), 'username', getter=_get_user_email(domain)),
         Column(_('Status'), 'status', getter=_get_status),
         Column(_('Roles'), 'roles', getter=_get_user_roles(domain)),
@@ -124,6 +124,7 @@ def users(request):
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
             widths=_table_widths, singular='user',
+            delete_link_title=_('Delete users'),
             can_change=user.has_perm('change_gauser')),
         'saved': request.session.pop('saved', False),
     })

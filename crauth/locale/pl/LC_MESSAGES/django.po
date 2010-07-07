@@ -1,0 +1,127 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-06 01:08+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms:  nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n"
+"%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: forms.py:31
+msgid "Please select Google apps domain you want to log in to:"
+msgstr "Proszę wybrać domenę Google Apps, do której chcesz się zalogować:"
+
+#: forms.py:55
+msgid "You have to type captcha"
+msgstr "Prosze wprowadzić słowo z obrazka CAPTCHA"
+
+#: forms.py:71
+msgid "Please enter the CAPTCHA"
+msgstr "Proszę wprowadzić słowo z obrazka CAPTCHA"
+
+#: forms.py:77
+msgid "Administrator account"
+msgstr "Konto administratora"
+
+#: forms.py:80
+msgid "Administrator password"
+msgstr "Hasło administratora"
+
+#: forms.py:125
+msgid "Make sure to provide credentials for administrator of your domain"
+msgstr "Upewnij się, że wprowadziłeś nazwę i hasło administratora domeny"
+
+#: forms.py:130
+msgid "Please provide correct authentication credentials"
+msgstr "Proszę wprowadzić poprawną nazwę i hasło"
+
+#: permissions.py:13
+msgid "Is Administrator"
+msgstr "Administrator"
+
+#: permissions.py:14
+msgid "Can add Role objects"
+msgstr "Może dodawać obiekty typu Rola"
+
+#: permissions.py:15
+msgid "Can change Role objects"
+msgstr "Może zmieniać obiekty typu Rola"
+
+#: permissions.py:16
+msgid "Can read Role objects"
+msgstr "Może odczytywać obiekty typu Rola"
+
+#: permissions.py:44
+#, python-format
+msgid "Can %(perm)s %(model_name)s objects"
+msgstr ""
+
+#: views.py:47
+msgid "Other, please specify: www."
+msgstr "Inna, proszę wprowadzić: www."
+
+#: templates/change_domain.html:4
+msgid "Change Domain"
+msgstr "Zmień domenę"
+
+#: templates/domain_setup.html:3 templates/domain_setup.html.py:6
+msgid "Setup domain"
+msgstr "Ustawienia dla domeny Google Apps"
+
+#: templates/domain_setup.html:9
+msgid ""
+"\n"
+"Administrator credentials for this domain <strong>are not correct</strong>.\n"
+"Please enter <strong>valid credentials</strong> to continue using this "
+"application.\n"
+msgstr ""
+"\n"
+"Nazwa i hasło administratora dla tej domeny <strong>nie są prawidłowe</"
+"strong>.\n"
+"Proszę wprowadzić <strong>prawidłowe dane</strong> aby móc kontynuować "
+"używanie tej aplikacji.\n"
+
+#: templates/domain_setup.html:21
+msgid "use different user"
+msgstr "użyj innego użytkownika"
+
+#: templates/instructions.html:5
+msgid "Setup Google Apps domain"
+msgstr "Ustawienia dla domeny Google Apps"
+
+#: templates/instructions.html:9
+msgid ""
+"\n"
+"For better experience we invite you to perform additional setup step in\n"
+"your Google Apps dashboard.\n"
+msgstr ""
+"\n"
+"Dla lepszego wykorzystania możliwości naszego panelu, zapraszamy do "
+"wykonania dodatkowych kroków w konsoli Twojej domeny Google Apps.\n"
+
+#: templates/instructions.html:13
+#, python-format
+msgid ""
+"\n"
+"Please go to <a href=\"%(oauth_settings_url)s\" target=\"_blank\">"
+"%(oauth_settings_url)s</a>\n"
+"and add the following information to the list of <strong>Authorized API "
+"clients</strong>:\n"
+msgstr ""
+"\n"
+"Proszę udać się pod adres <a href=\"%(oauth_settings_url)s\" target=\"_blank\">"
+"%(oauth_settings_url)s</a>\n"
+"i dodać następujące informacje do listy <strong>Autoryzowanych klientów API"
+"</strong>:\n"

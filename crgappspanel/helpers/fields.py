@@ -1,3 +1,4 @@
+from django.utils.translation import string_concat, ugettext_lazy as _
 from django import forms
 
 from crgappspanel.helpers import widgets
@@ -25,10 +26,18 @@ class RegexField2(forms.MultiValueField):
 
 
 class RealNameField(forms.MultiValueField):
+    REAL_NAME_CHOICES = (
+        (u'-', u''),
+        (u'mr', _('Mr.')),
+        (u'mrs', _('Mrs.')),
+        (u'miss', _('Miss')),
+        (u'ms', _('Ms.'))
+    )
+
     def __init__(self, *args, **kwargs):
-        choices = ((u'-', u''), (u'mr', u'Mr.'), (u'mrs', u'Mrs.'), (u'miss', 'Miss'), (u'ms', u'Ms.'))
         widget = widgets.TripleWidget(
-            forms.Select(choices=choices, attrs={'class':'vshort'}),
+            forms.Select(
+                choices=self.REAL_NAME_CHOICES, attrs={'class':'vshort'}),
             forms.TextInput(), forms.TextInput())
         fields = tuple(forms.CharField() for x in xrange(3))
         super(RealNameField, self).__init__(fields, widget=widget, *args, **kwargs)

@@ -65,10 +65,9 @@ LANGUAGE_CODE = 'en-us'
 
 # LANGUAGES presented as suggested here:
 # http://docs.djangoproject.com/en/dev/ref/settings/
-gettext = lambda s: s
 LANGUAGES = (
-    ('en', gettext('English')),
-    ('pl', gettext('Polish')),
+    ('en', 'English'),
+    ('pl', 'Polski'),
 )
 
 SITE_ID = 1
@@ -110,8 +109,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'crauth.users.UsersMiddleware',
+    'crlib.middleware.LocaleMiddleware',
     'crlib.middleware.PrecacheRetryMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
 #    'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'django.middleware.doc.XViewMiddleware',
 )
