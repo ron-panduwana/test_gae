@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-06 01:08+0200\n"
+"POT-Creation-Date: 2010-07-07 18:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -97,6 +96,18 @@ msgstr ""
 msgid "use different user"
 msgstr "użyj innego użytkownika"
 
+#: templates/get_domain.html:4
+msgid "Enter your Google Apps domain name"
+msgstr "Wprowadź nazwę swojej domeny Google Apps"
+
+#: templates/get_domain.html:9
+msgid "Enter your Google Apps domain name:"
+msgstr "Wprowadź nazwę swojej domeny Google Apps:"
+
+#: templates/get_domain.html:15
+msgid "Login"
+msgstr "Login"
+
 #: templates/instructions.html:5
 msgid "Setup Google Apps domain"
 msgstr "Ustawienia dla domeny Google Apps"
@@ -121,7 +132,7 @@ msgid ""
 "clients</strong>:\n"
 msgstr ""
 "\n"
-"Proszę udać się pod adres <a href=\"%(oauth_settings_url)s\" target=\"_blank\">"
-"%(oauth_settings_url)s</a>\n"
-"i dodać następujące informacje do listy <strong>Autoryzowanych klientów API"
-"</strong>:\n"
+"Proszę udać się pod adres <a href=\"%(oauth_settings_url)s\" target=\"_blank"
+"\">%(oauth_settings_url)s</a>\n"
+"i dodać następujące informacje do listy <strong>Autoryzowanych klientów API</"
+"strong>:\n"
