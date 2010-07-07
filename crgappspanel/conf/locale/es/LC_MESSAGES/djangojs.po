@@ -18,28 +18,28 @@ msgstr ""
 
 #: media/js/feedback.js:13
 msgid "Feedback"
-msgstr ""
+msgstr "Feedback"
 
 #: media/js/feedback.js:15
 msgid "Report a problem"
-msgstr ""
+msgstr "Reporte un problema"
 
 #: media/js/feedback.js:25
 msgid "Subject"
-msgstr ""
+msgstr "Asunto"
 
 #: media/js/feedback.js:29
 msgid "Description"
-msgstr ""
+msgstr "Descripcion"
 
 #: media/js/feedback.js:37
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: media/js/feedback.js:39
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: media/js/feedback.js:52
 msgid "Please enter both subject and description."
-msgstr ""
+msgstr "Por favor introduce asunto y descripcion."
