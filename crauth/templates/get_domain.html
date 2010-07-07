@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Enter your Google Apps domain name{% endblock %}
+{% block title %}{% trans 'Enter your Google Apps domain name' %}{% endblock %}
 
 {% block content %}
 <form method="POST" action="" class="login">
         {% if not with_domains %}
-        <p>Enter your Google Apps domain name:</p>
+        <p>{% trans 'Enter your Google Apps domain name:' %}</p>
         {% endif %}
         {% for error in form.domain.errors %}
         <div class="error">{{ error }}</div>
         {% endfor %}
         <p>{{ form.domain.label_tag }} {{ form.domain }}</p>
-        <p><input type="submit" class="default" value="Login"></p>
+        <p><input type="submit" class="default" value="{% trans 'Login' %}"></p>
 </form>
 {% endblock %}

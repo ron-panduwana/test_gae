@@ -17,6 +17,7 @@
                 var email = 'anonymous';
                 {% endif %}
         {% endspaceless %}</script>
+        <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
 		<script type="text/javascript" src="/static/scripts/all-closure.js"></script>
 		{% for script in scripts %}
 		<script type="text/javascript" src="/static/scripts/{{ script }}.js"></script>

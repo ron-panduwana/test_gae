@@ -647,7 +647,7 @@ msgstr "Zgłoś problem"
 #: templates/calendar_resource_add.html:8
 #: templates/calendar_resources_list.html:9
 msgid "Add calendar resource"
-msgstr "Dodaj zasób kalendarza"
+msgstr "Utwórz zasób kalendarza"
 
 #: templates/calendar_resource_add.html:22 templates/group_create.html:26
 #: templates/role_create.html:44 templates/user_create.html:28
