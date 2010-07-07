@@ -68,6 +68,7 @@ LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
     ('en', 'English'),
     ('pl', 'Polski'),
+    ('es', 'Español'),
 )
 
 SITE_ID = 1

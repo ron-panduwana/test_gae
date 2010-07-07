@@ -370,7 +370,7 @@ msgstr "Compania"
 
 #: forms.py:653 templates/shared_contacts_list.html:48
 msgid "Role"
-msgstr "Role"
+msgstr "Rol"
 
 #: forms.py:656
 msgid "Email"
