@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # Copyright 2008 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,7 +69,7 @@ LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
     ('en', 'English'),
     ('pl', 'Polski'),
-    ('es', 'Español'),
+    ('es', u'Espa\xf1ol'),
 )
 
 SITE_ID = 1
