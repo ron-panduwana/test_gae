@@ -202,7 +202,7 @@ class UserForm(Form):
     
     def clean_nicknames(self):
         data = self.cleaned_data['nicknames']
-        if not regexps.RE_USERNAME.match(data):
+        if data and not regexps.RE_USERNAME.match(data):
             raise forms.ValidationError(regexps.ERROR_NICKNAME)
         return data
     
