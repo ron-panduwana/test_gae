@@ -155,6 +155,10 @@ def user_create(request):
                     '__all__',
                     _('Your domain user limit has been reached, you cannot '
                       'create more users.'))
+            except errors.UnknownGDataError:
+                form.add_error(
+                    'user_name',
+                    _('Either user or nick with this name already exists.'))
     else:
         form = UserForm(auto_id=True)
         form.fields['user_name'].help_text = '@%s' % domain
@@ -268,7 +272,7 @@ def user_roles(request, name=None):
         kwargs = dict(name=user.user_name, role_name=x)
         return reverse('user-remove-role', kwargs=kwargs)
     roles = _get_roles(role_keys)
-    roles_with_remove = [ValueWithRemoveLink(role.name, remove_role_link(role.name))
+    roles_with_remove = [ValueWithRemoveLink(unicode(role.name).encode('UTF-8'), remove_role_link(role.name))
         for role in roles]
     if user.admin:
         obj = ValueWithRemoveLink(_('Administrator'), remove_role_link('admin'))

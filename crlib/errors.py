@@ -34,12 +34,19 @@ class EntityNameNotValidError(GDataError):
     """
 
 
+class UnknownGDataError(GDataError):
+    """ This is temporary used to validate existing group emails when creating
+    new user. Please refer to story 4055432.
+    """ 
+
+
 APPS_FOR_YOUR_DOMAIN_ERROR_CODES = {
     1100: EntityDeletedRecentlyError,
     1200: DomainUserLimitExceededError,
     1300: EntityExistsError,
     1301: EntityDoesNotExistError,
     1303: EntityNameNotValidError,
+    1000: UnknownGDataError,
 }
 
 

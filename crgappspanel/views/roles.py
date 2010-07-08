@@ -75,6 +75,7 @@ def role_details(request, name=None):
     
     if request.method == 'POST':
         form = RoleForm(request.POST, auto_id=True)
+        form.old_name = name
         if form.is_valid():
             form.populate(role)
             role.save()

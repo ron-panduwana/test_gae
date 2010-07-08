@@ -3,6 +3,7 @@ from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
 
 import crauth
+from crauth.models import Role
 from crgappspanel import consts, models
 from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
@@ -198,7 +199,13 @@ class UserForm(Form):
     
     def get_nickname(self):
         return self.cleaned_data['nicknames']
-
+    
+    def clean_nicknames(self):
+        data = self.cleaned_data['nicknames']
+        if data and not regexps.RE_USERNAME.match(data):
+            raise forms.ValidationError(regexps.ERROR_NICKNAME)
+        return data
+    
     def clean_password(self):
         password = self.cleaned_data['password']
         if not password:
@@ -631,6 +638,15 @@ class RoleForm(forms.Form):
                 }))
         self.fields[field_name] = field
         return field
+    
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        if not hasattr(self, 'old_name') or name != self.old_name:
+            role = Role.for_domain(crauth.users.get_current_domain()).filter(
+                'name', name).get()
+            if role or name == _('Administrator'):
+                raise forms.ValidationError(_('Role with this name already exists.'))
+        return name
 
 
 ################################################################################
