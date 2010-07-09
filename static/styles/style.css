@@ -57,8 +57,8 @@ a.desc {
 #footer {
     border-top: 1px solid #999;
     text-align: center;
-    /* margin: 2em 0 0;
-    padding: 0.5em 0 0; */
+    /* margin: 2em 0 0; */
+    padding: 0.5em 0 0;
     clear: both;
     color: #999;
     position: relative;
@@ -167,7 +167,7 @@ div#tabs li.selected {
 }
 
 div#content {
-	/* padding: 1.5em; */
+	padding: 1.5em;
 	clear: both;
 	overflow:auto;
 	padding-bottom: 50px;
