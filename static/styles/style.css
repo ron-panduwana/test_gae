@@ -57,13 +57,13 @@ a.desc {
 #footer {
     border-top: 1px solid #999;
     text-align: center;
-    margin: 2em 0 0;
-    padding: 0.5em 0 0;
+    /* margin: 2em 0 0;
+    padding: 0.5em 0 0; */
     clear: both;
     color: #999;
     position: relative;
-	margin-top: -150px; /* negative value of footer height */
-	height: 150px;
+	margin-top: -50px; /* negative value of footer height */
+	height: 50px;
 }
 
 form#feedback table td {
@@ -167,10 +167,10 @@ div#tabs li.selected {
 }
 
 div#content {
-	padding: 1.5em;
+	/* padding: 1.5em; */
 	clear: both;
 	overflow:auto;
-	padding-bottom: 150px;
+	padding-bottom: 50px;
 }
 
 div.back-link {
