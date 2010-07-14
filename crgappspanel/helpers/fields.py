@@ -35,9 +35,7 @@ class RealNameField(forms.MultiValueField):
     )
 
     def __init__(self, *args, **kwargs):
-        widget = widgets.TripleWidget(
-            forms.Select(
-                choices=self.REAL_NAME_CHOICES, attrs={'class':'vshort'}),
+        widget = widgets.DoubleWidget(
             forms.TextInput(), forms.TextInput())
         fields = tuple(forms.CharField() for x in xrange(3))
         super(RealNameField, self).__init__(fields, widget=widget, *args, **kwargs)
