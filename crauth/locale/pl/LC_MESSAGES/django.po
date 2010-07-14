@@ -106,7 +106,7 @@ msgstr "Wprowadź nazwę swojej domeny Google Apps:"
 
 #: templates/get_domain.html:15
 msgid "Login"
-msgstr "Login"
+msgstr "Zaloguj"
 
 #: templates/instructions.html:5
 msgid "Setup Google Apps domain"
