@@ -60,7 +60,7 @@ def user_nav(user):
             parent=parent
         ),
         Section(
-            'aliases', _('Aliases'),
+            'aliases', _('Send as'),
             reverse('user-email-aliases', args=(user,)),
             parent=parent
         ),
