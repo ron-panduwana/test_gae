@@ -170,8 +170,8 @@ def shared_contact_details(request, key=None):
             return redirect_saved('shared-contact-details',
                 request, key=key)
     else:
-        real_name = [shared_contact.name.name_prefix,
-                shared_contact.name.given_name, shared_contact.name.family_name]
+        real_name = (shared_contact.name.given_name,
+                     shared_contact.name.family_name)
         form = SharedContactForm(initial={
             'full_name': shared_contact.name.full_name,
             'real_name': real_name,

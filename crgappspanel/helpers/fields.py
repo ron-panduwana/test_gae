@@ -37,7 +37,7 @@ class RealNameField(forms.MultiValueField):
     def __init__(self, *args, **kwargs):
         widget = widgets.DoubleWidget(
             forms.TextInput(), forms.TextInput())
-        fields = tuple(forms.CharField() for x in xrange(3))
+        fields = tuple(forms.CharField() for x in xrange(2))
         super(RealNameField, self).__init__(fields, widget=widget, *args, **kwargs)
     
     def compress(self, data_list):

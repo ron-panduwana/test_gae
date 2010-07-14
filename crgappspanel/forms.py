@@ -679,8 +679,8 @@ class SharedContactForm(forms.Form):
         data = self.cleaned_data
         
         name = models.Name(
-            full_name=data['full_name'], name_prefix=data['real_name'][0],
-            given_name=data['real_name'][1], family_name=data['real_name'][2])
+            full_name=data['full_name'],
+            given_name=data['real_name'][0], family_name=data['real_name'][1])
         
         email = data['email']
         emails = [self._email(email)] if email else []
@@ -707,9 +707,8 @@ class SharedContactForm(forms.Form):
         phone_number = data['phone_numbers']
         
         shared_contact.name.full_name = data['full_name']
-        shared_contact.name.name_prefix = data['real_name'][0]
-        shared_contact.name.given_name = data['real_name'][1]
-        shared_contact.name.family_name = data['real_name'][2]
+        shared_contact.name.given_name = data['real_name'][0]
+        shared_contact.name.family_name = data['real_name'][1]
         shared_contact.notes = data['notes']
         
         return {
