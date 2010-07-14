@@ -90,6 +90,7 @@ div#header {
 
 div#header ul {
         float: right;
+        padding-top: 30px;
         list-style: none outside none;
 }
 
