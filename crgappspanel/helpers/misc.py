@@ -3,5 +3,5 @@ class ValueWithRemoveLink(object):
         self.value = value
         self.remove_link = remove_link
     
-    def __str__(self):
+    def __unicode__(self):
         return self.value
