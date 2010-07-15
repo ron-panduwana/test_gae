@@ -4,4 +4,4 @@ class ValueWithRemoveLink(object):
         self.remove_link = remove_link
     
     def __unicode__(self):
-        return self.value
+        return unicode(self.value)
