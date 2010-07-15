@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-15 10:20+0200\n"
+"POT-Creation-Date: 2010-07-15 10:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,6 +54,10 @@ msgstr "Adres email administratora"
 msgid "Status"
 msgstr "Status"
 
+#: tables.py:38 views.py:39
+msgid "Delete domains"
+msgstr "Usuń domeny"
+
 #: views.py:20
 msgid "Superadmin Panel"
 msgstr "Panel Superadministratora"
@@ -77,6 +81,10 @@ msgstr "Dokumentacja"
 #: views.py:26
 msgid "Logout"
 msgstr "Wyloguj"
+
+#: views.py:40
+msgid "Are you sure you want to delete selected domains?"
+msgstr "Czy jesteś pewny, że chcesz usunąć zaznaczone domeny?"
 
 #: templates/domain_create.html:4
 msgid "Create domain"

@@ -8,8 +8,6 @@
     {% if auth.perms.add_calendarresource %}
 	<a href="{% url calendar-resource-add %}" class="action-link">{% trans "Add calendar resource" %}</a>
     {% endif %}
-	{% with "calendar resources" as entities_name %}
-		{% include "snippets/objects_table_delete_script.html" %}
-	{% endwith %}
+    {% include "snippets/objects_table_delete_script.html" %}
 	{{ table }}
 {% endblock %}

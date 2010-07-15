@@ -33,14 +33,18 @@ def calendar_resources(request):
     per_page = Preferences.for_current_user().items_per_page
     page = get_page(request, resources, per_page);
     
+    delete_link_title = _('Delete calendar resources')
     return render_with_nav(request, 'calendar_resources_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
             widths=_table_widths, singular='calendar resource',
-            delete_link_title=_('Delete calendar resources'),
+            delete_link_title=delete_link_title,
             can_change=users.get_current_user().has_perm(
                 'change_calendarresource')),
         'saved': request.session.pop('saved', False),
+        'delete_link_title': delete_link_title,
+        'delete_question': _('Are you sure you want to delete selected '
+                             'calendar resources?'),
     })
 
 

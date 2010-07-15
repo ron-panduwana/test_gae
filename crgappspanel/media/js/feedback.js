@@ -35,8 +35,7 @@ function feedback(type) {
             );
     var button_set = new goog.ui.Dialog.ButtonSet()
         .set(goog.ui.Dialog.DefaultButtonKeys.OK, gettext('OK'), true)
-        .set(goog.ui.Dialog.DefaultButtonKeys.CANCEL,
-            gettext('Cancel'), false, true);
+        .set(goog.ui.Dialog.DefaultButtonKeys.CANCEL, gettext('Cancel'), false, true);
     feedbackDialog.setButtonSet(button_set);
     feedbackDialog.setVisible(true);
     document.getElementById('subject').focus();

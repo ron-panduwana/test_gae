@@ -74,8 +74,6 @@
 		<a href="{% url shared-contacts %}">{% trans "Remove filters" %}</a>
 	</div>
 	{% endif %}
-	{% with "shared contacts" as entities_name %}
-		{% include "snippets/objects_table_delete_script.html" %}
-	{% endwith %}
+    {% include "snippets/objects_table_delete_script.html" %}
 	{{ table }}
 {% endblock %}

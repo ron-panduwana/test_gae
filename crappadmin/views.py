@@ -36,6 +36,9 @@ def domains(request):
     return render_with_nav(request, 'domains_list.html', {
         'table': domains_table(request, domains),
         'saved': request.session.pop('saved', False),
+        'delete_link_title': _('Delete domains'),
+        'delete_question': _('Are you sure you want to delete selected '
+                             'domains?'),
     })
 
 

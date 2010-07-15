@@ -120,13 +120,17 @@ def users(request):
     per_page = Preferences.for_current_user().items_per_page
     page = get_page(request, users, per_page)
     
+    delete_link_title = _('Delete users')
     return render_with_nav(request, 'users_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
             widths=_table_widths, singular='user',
-            delete_link_title=_('Delete users'),
+            delete_link_title=delete_link_title,
             can_change=user.has_perm('change_gauser')),
         'saved': request.session.pop('saved', False),
+        'delete_question': _('Are you sure you want to delete selected '
+                             'users?'),
+        'delete_link_title': delete_link_title,
     })
 
 
