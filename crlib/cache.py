@@ -48,7 +48,7 @@ class _CacheUpdater(object):
         db.delete(to_delete)
 
 
-DEFAULT_KEY_NAME = 'red.lab.cloudreach.co.uk:SharedContact'
+DEFAULT_KEY_NAME = 'red.lab.cloudreach.co.uk:GAUser'
 
 def update_cache(post_data):
     key_name = post_data.get('key_name', DEFAULT_KEY_NAME)

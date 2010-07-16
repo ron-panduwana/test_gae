@@ -119,7 +119,7 @@ class UserEntryMapper(AtomMapper):
             feed = self.service.RetrievePageOfUsers()
         cursor = feed.GetNextLink()
         cursor = cursor and cursor.href
-        return (feed, cursor)
+        return (feed.entry, cursor)
 
     def retrieve(self, user_name):
         return self.service.RetrieveUser(user_name)
@@ -270,18 +270,18 @@ class GroupEntryMapper(AtomMapper):
                 self.service._PropertyEntry2Dict(property_entry))
         return [GroupEntry(self, entry) for entry in properties_list]
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            next = previous.GetNextLink()
-            if next:
-                from gdata.apps import PropertyFeedFromString
-                return self.service.Get(
-                    next.href, converter=PropertyFeedFromString)
-            else:
-                return False
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            from gdata.apps import PropertyFeedFromString
+            feed = self.service.Get(cursor, converter=PropertyFeedFromString)
         else:
             uri = self.service._ServiceUrl('group', True, '', '', '')
-            return self.service._GetPropertyFeed(uri)
+            feed = self.service._GetPropertyFeed(uri)
+        cursor = feed.GetNextLink()
+        cursor = cursor and cursor.href
+        feed = [GroupEntry(self, self.service._PropertyEntry2Dict(entry))
+                for entry in feed.entry]
+        return (feed, cursor)
 
     def retrieve(self, group_id):
         return GroupEntry(self, self.service.RetrieveGroup(group_id))
@@ -314,7 +314,7 @@ class NicknameEntryMapper(AtomMapper):
             feed = self.service.RetrievePageOfNicknames()
         cursor = feed.GetNextLink()
         cursor = cursor and cursor.href
-        return (feed, cursor)
+        return (feed.entry, cursor)
 
     def retrieve(self, nickname):
         return self.service.RetrieveNickname(nickname)
@@ -425,7 +425,7 @@ class SharedContactEntryMapper(AtomMapper):
             cursor = start_index + self.ITEMS_PER_PAGE
         else:
             cursor = None
-        return (feed, cursor)
+        return (feed.entry, cursor)
 
     def _retrieve_subset(self, limit=1000, offset=1):
         from gdata.contacts.client import ContactsQuery

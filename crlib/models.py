@@ -17,6 +17,8 @@ class GDataIndex(BaseModel):
     last_updated = db.DateTimeProperty()
 
 
+# Cache models
+
 class UserCache(BaseModel):
     # key_name consists of: domain_name:atom_hash
     # or atom_hash alone
@@ -49,6 +51,27 @@ class UserCache(BaseModel):
             agreed_to_terms=model_instance.agreed_to_terms,
             quota=model_instance.quota,
             change_password=model_instance.change_password,
+            **kwargs
+        )
+
+
+class GroupCache(BaseModel):
+    domain = db.StringProperty()
+    _gdata_key_name = db.StringProperty()
+    atom = db.BlobProperty()
+
+    id = db.StringProperty()
+    name = db.StringProperty()
+    description = db.StringProperty()
+    email_permission = db.StringProperty()
+
+    @classmethod
+    def from_model(cls, model_instance, **kwargs):
+        return cls(
+            id=model_instance.id,
+            name=model_instance.name,
+            description=model_instance.description,
+            email_permission=model_instance.email_permission,
             **kwargs
         )
 
@@ -100,6 +123,7 @@ class SharedContactCache(BaseModel):
             organization = model_instance.organization.name
         else:
             organization = None
+
         return cls(
             name=name,
             title=model_instance.title,

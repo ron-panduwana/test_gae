@@ -65,11 +65,6 @@ class GAUser(gd.Model):
             ('change_gausersendas', _('Modify users in your domain')),
         )
         cache_model = crlib_models.UserCache
-        # moze nawet list fieldow nie potrzebna?
-        #cache_excluded = (
-        #    'password', 'email_settings',
-        #)
-        #cache_fields = ()
 
     id = gd.StringProperty('id.text', read_only=True)
     title = gd.StringProperty('title.text', read_only=True)
@@ -155,6 +150,7 @@ class GAGroup(gd.Model):
             ('add_gagroup', _('Create groups in your domain')),
             ('change_gagroup', _('Modify groups in your domain')),
         )
+        cache_model = crlib_models.GroupCache
 
     id = gd.StringProperty('groupId', required=True)
     name = gd.StringProperty('groupName', required=True)
@@ -184,6 +180,8 @@ class GAGroup(gd.Model):
     
     def get_pure_id(self):
         return self.id.partition('@')[0]
+
+cache.register(GAGroup)
 
 
 class GANickname(gd.Model):

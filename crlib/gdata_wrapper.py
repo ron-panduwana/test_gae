@@ -102,7 +102,12 @@ class GDataQuery(object):
             return True
 
     def _retrieve_filtered(self, limit=1000, offset=0):
-        if hasattr(self._model._meta, 'cache_model'):
+        use_cache = hasattr(self._model._meta, 'cache_model')
+        for prop, _, _ in self._filters:
+            if not hasattr(self._model._meta.cache_model, prop):
+                use_cache = False
+                break
+        if use_cache:
             from crauth import users
 
             cache_model = self._model._meta.cache_model
@@ -131,7 +136,7 @@ class GDataQuery(object):
 
     def retrieve_page(self, cursor=None):
         page, cursor = self._model._mapper.retrieve_page(cursor)
-        gen = (self._model._from_atom(item) for item in page.entry)
+        gen = (self._model._from_atom(item) for item in page)
         return (gen, page, cursor)
 
 
