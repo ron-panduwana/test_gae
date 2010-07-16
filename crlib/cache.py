@@ -2,6 +2,8 @@ import datetime
 import hashlib
 import logging
 from google.appengine.ext import db
+from google.appengine.api.labs import taskqueue
+from django.core.urlresolvers import reverse
 from crlib.models import GDataIndex
 
 
@@ -11,7 +13,7 @@ def register(cls):
     _MODELS_DICT[cls.__name__] = cls
 
 
-class CacheUpdater(object):
+class _CacheUpdater(object):
     def __init__(self, items_dict, cache_model, model_class):
         self.items_dict = items_dict
         self.cache_model = cache_model
@@ -27,7 +29,10 @@ class CacheUpdater(object):
 
         for key in keys:
             if key in kw:
-                to_set[key] = kw[key]
+                if isinstance(kw[key], str):
+                    to_set[key] = kw[key].decode('utf-8')
+                else:
+                    to_set[key] = kw[key]
         return to_set
 
     def add(self, hashes):
@@ -52,8 +57,8 @@ class CacheUpdater(object):
 
 
 def update_cache(post_data):
-    key_name = post_data.get('key_name', 'red.lab.cloudreach.co.uk:GANickname')
-    page = post_data.get('page', 0)
+    key_name = post_data.get('key_name', 'red.lab.cloudreach.co.uk:GAUser')
+    page = int(post_data.get('page', 0))
 
     if page:
         key_name += ':%s' % page
@@ -65,7 +70,8 @@ def update_cache(post_data):
         key_name=key_name,
     )
 
-    domain, model = key_name.split(':')
+    domain, model = post_data.get(
+        'key_name', 'red.lab.cloudreach.co.uk:GAUser').split(':')
     model_class = _MODELS_DICT[model]
     items, feed, cursor = model_class.all().retrieve_page(cursor)
 
@@ -86,7 +92,7 @@ def update_cache(post_data):
             new_hashes.append(hsh)
             items_dict[hsh] = item
 
-        updater = CacheUpdater(items_dict, cache_model, model_class)
+        updater = _CacheUpdater(items_dict, cache_model, model_class)
 
         old_s, new_s = set(old_hashes), set(new_hashes)
         common = old_s.intersection(new_s)
@@ -95,12 +101,12 @@ def update_cache(post_data):
 
         if cursor and common:
             leftover = _update_middle_page(
-                common, old_hashes, new_hashes, updater)
+                updater, common, old_hashes, new_hashes)
         elif not cursor:
             _update_last_page(
-                new_s - old_s, old_s - new_s, key_name, page, updater)
+                updater, new_s - old_s, old_s - new_s, key_name, page)
         else:
-            leftover = _update_whole_page(old_hashes, new_hashes, updater)
+            leftover = _update_whole_page(updater, old_hashes, new_hashes)
 
     if not page:
         index.last_updated = datetime.datetime.now()
@@ -109,14 +115,15 @@ def update_cache(post_data):
 
     if cursor:
         taskqueue.add(url=reverse('new_cache_domain'), params={
-            'key_name': request.POST.get('key_name'),
+            'key_name': post_data.get('key_name',
+                                      'red.lab.cloudreach.co.uk:GAUser'),
             'page': page + 1,
             'cursor': cursor,
             'hashes': leftover,
         })
 
 
-def _update_middle_page(common, old_hashes, new_hashes, updater):
+def _update_middle_page(updater, common, old_hashes, new_hashes):
     for item in reversed(new_hashes):
         if item in common:
             last_common = item
@@ -149,9 +156,7 @@ def _update_middle_page(common, old_hashes, new_hashes, updater):
     return leftover
 
 
-def _update_last_page(added, deleted, key_name, page, updater):
-    logging.warning('added: %s' % str(added))
-    logging.warning('deleted: %s' % str(deleted))
+def _update_last_page(updater, added, deleted, key_name, page):
     updater.add(added)
     updater.delete(deleted)
 
@@ -161,7 +166,7 @@ def _update_last_page(added, deleted, key_name, page, updater):
         db.delete(indexes)
 
 
-def _update_whole_page(old_hashes, new_hashes, updater):
+def _update_whole_page(updater, old_hashes, new_hashes):
     existing = updater.get(new_hashes)
 
     leftover = []
