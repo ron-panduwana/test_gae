@@ -111,16 +111,25 @@ class UserEntryMapper(AtomMapper):
                                 new_name=atom.login.user_name)
         return new_atom
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            next = previous.GetNextLink()
-            if next:
-                from gdata.apps import UserFeedFromString
-                return self.service.Get(next.href, converter=UserFeedFromString)
-            else:
-                return False
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            from gdata.apps import UserFeedFromString
+            feed = self.service.Get(cursor, converter=UserFeedFromString)
         else:
-            return self.service.RetrievePageOfUsers()
+            feed = self.service.RetrievePageOfUsers()
+        cursor = feed.GetNextLink()
+        cursor = cursor and cursor.href
+        return (feed, cursor)
+    #def retrieve_page(self, previous=None):
+    #    if previous:
+    #        next = previous.GetNextLink()
+    #        if next:
+    #            from gdata.apps import UserFeedFromString
+    #            return self.service.Get(next.href, converter=UserFeedFromString)
+    #        else:
+    #            return False
+    #    else:
+    #        return self.service.RetrievePageOfUsers()
 
     def retrieve(self, user_name):
         return self.service.RetrieveUser(user_name)

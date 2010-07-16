@@ -4,6 +4,7 @@ from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from crlib import gdata_wrapper as gd
 from crlib import mappers
+from crlib import models as crlib_models
 from crlib.signals import gauser_renamed
 from crauth import users
 
@@ -62,10 +63,12 @@ class GAUser(gd.Model):
             ('change_gauserfilters', _('Modify users in your domain')),
             ('change_gausersendas', _('Modify users in your domain')),
         )
-        #cache_model = crlib_models.UserCache
-        #cache_fields_exlude = (
+        cache_model = crlib_models.UserCache
+        # moze nawet list fieldow nie potrzebna?
+        #cache_excluded = (
         #    'password', 'email_settings',
         #)
+        #cache_fields = ()
 
     id = gd.StringProperty('id.text', read_only=True)
     title = gd.StringProperty('title.text', read_only=True)

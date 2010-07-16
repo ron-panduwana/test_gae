@@ -10,8 +10,11 @@ class GDataIndex(BaseModel):
     # key_name consists of: domain_name:mapper_class[:page]
     # where page part is to be omitted for the first page
     page_hash = db.StringProperty(indexed=False)
+    etag = db.StringProperty(indexed=False)
     hashes = db.StringListProperty(indexed=False)
     keys = db.StringListProperty()
+    last_updated = db.DateTimeProperty()
+    #cursor = db.StringProperty(indexed=False)
 
 
 class UserCache(BaseModel):

@@ -115,10 +115,10 @@ class GDataQuery(object):
         """
         return list(self._retrieve_filtered(limit, offset))
 
-    def retrieve_page(self, token=None):
-        page = self._model._mapper.retrieve_page(token)
+    def retrieve_page(self, cursor=None):
+        page, cursor = self._model._mapper.retrieve_page(cursor)
         gen = (self._model._from_atom(item) for item in page.entry)
-        return (gen, page)
+        return (gen, page, cursor)
 
 
 class StringProperty(db.Property):
@@ -657,16 +657,17 @@ class AtomMapper(object):
         from google.appengine.api.urlfetch import DownloadError
         from google.appengine.runtime import DeadlineExceededError
         from crauth import users
-        from crlib.models import LastCacheUpdate
+        from crlib.models import GDataIndex
 
         domain = os.environ.get(users._ENVIRON_DOMAIN)
 
-        main_key = '%s-%s' % (self.__class__.__name__, domain)
+        #main_key = '%s-%s' % (self.__class__.__name__, domain)
+        main_key = '%s:%s' % (domain, self.__class__.__name__)
         if use_cache:
             feed = memcache.get(main_key)
         if not use_cache or not feed:
             feed = self.retrieve_page()
-            LastCacheUpdate.get_or_insert(main_key)
+            GDataIndex.get_or_insert(main_key)
             memcache.set(main_key, feed)
         users = feed
 
