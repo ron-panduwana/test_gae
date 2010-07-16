@@ -386,7 +386,6 @@ class ListProperty(StringProperty):
         value = [value._atom for value in value]
         super(ListProperty, self).set_value_on_atom(atom, value)
 
-
 class ExtendedPropertyMapping(StringProperty):
     MAX_EXTENDED_PROPERTIES = 10
 
@@ -606,14 +605,10 @@ class Model(object):
 
     @classmethod
     def _from_cached(cls, cached):
+        import pickle
         if not cached:
             return None
-        props = {'_cached': cached}
-        for key, value in cached._properties.iteritems():
-            props[key] = getattr(cached, key)
-        obj = cls(**props)
-        obj._atom = obj._get_updated_atom()
-        return obj
+        return cls._from_atom(pickle.loads(cached.atom))
 
 
 class RetryError(Exception): pass

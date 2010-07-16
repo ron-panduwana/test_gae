@@ -273,6 +273,7 @@ class SharedContact(gd.Model):
             ('change_sharedcontact',
              _('Modify shared contacts in your domain')),
         )
+        cache_model = crlib_models.SharedContactCache
 
     name = gd.EmbeddedModelProperty(Name, 'name', required=False)
     title = gd.StringProperty('title.text', required=False, read_only=True)
@@ -291,6 +292,8 @@ class SharedContact(gd.Model):
     
     def __unicode__(self):
         return u'<SharedContact: %s>' % self.title
+
+cache.register(SharedContact)
 
 
 class CalendarResource(gd.Model):

@@ -120,16 +120,6 @@ class UserEntryMapper(AtomMapper):
         cursor = feed.GetNextLink()
         cursor = cursor and cursor.href
         return (feed, cursor)
-    #def retrieve_page(self, previous=None):
-    #    if previous:
-    #        next = previous.GetNextLink()
-    #        if next:
-    #            from gdata.apps import UserFeedFromString
-    #            return self.service.Get(next.href, converter=UserFeedFromString)
-    #        else:
-    #            return False
-    #    else:
-    #        return self.service.RetrievePageOfUsers()
 
     def retrieve(self, user_name):
         return self.service.RetrieveUser(user_name)
@@ -316,18 +306,6 @@ class NicknameEntryMapper(AtomMapper):
         return self.service.CreateNickname(
             atom.login.user_name, atom.nickname.name)
 
-    #def retrieve_page(self, previous=None):
-    #    if previous:
-    #        next = previous.GetNextLink()
-    #        if next:
-    #            from gdata.apps import NicknameFeedFromString
-    #            return self.service.Get(
-    #                next.href, converter=NicknameFeedFromString)
-    #        else:
-    #            return False
-    #    else:
-    #        return self.service.RetrievePageOfNicknames()
-
     def retrieve_page(self, cursor=None):
         if cursor:
             from gdata.apps import NicknameFeedFromString
@@ -435,18 +413,19 @@ class SharedContactEntryMapper(AtomMapper):
         return self.service.get_entry(
             link, desired_class=contacts.data.ContactEntry)
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            total_results = int(previous.total_results.text)
-            start_index = int(previous.start_index.text)
-            if start_index - 1 + len(previous.entry) < total_results:
-                next_start = start_index + self.ITEMS_PER_PAGE
-                return self._retrieve_subset(
-                    limit=self.ITEMS_PER_PAGE, offset=next_start)
-            else:
-                return False
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            feed = self._retrieve_subset(
+                limit=self.ITEMS_PER_PAGE, offset=cursor)
         else:
-            return self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
+            feed = self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
+        total_results = int(feed.total_results.text)
+        start_index = int(feed.start_index.text)
+        if start_index - 1 + len(feed.entry) < total_results:
+            cursor = start_index + self.ITEMS_PER_PAGE
+        else:
+            cursor = None
+        return (feed, cursor)
 
     def _retrieve_subset(self, limit=1000, offset=1):
         from gdata.contacts.client import ContactsQuery

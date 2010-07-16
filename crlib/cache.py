@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import logging
+import pickle
 from google.appengine.ext import db
 from google.appengine.api.labs import taskqueue
 from django.core.urlresolvers import reverse
@@ -22,24 +23,6 @@ class _CacheUpdater(object):
         self.model_class = model_class
         self.domain = domain
 
-    def _item_kwargs(self, item):
-        kw = self.model_class._atom_to_kwargs(item._atom)
-        to_set = {}
-
-        keys = self.cache_model._properties.keys()
-        if 'updated_on' in keys:
-            keys.remove('updated_on')
-
-        for key in keys:
-            if key in kw:
-                if isinstance(kw[key], str):
-                    to_set[key] = kw[key].decode('utf-8')
-                else:
-                    to_set[key] = kw[key]
-        to_set['domain'] = self.domain
-        to_set['_gdata_key_name'] = item.key()
-        return to_set
-
     def add(self, hashes):
         created = []
         for hsh in hashes:
@@ -47,10 +30,14 @@ class _CacheUpdater(object):
         db.put(created)
 
     def create(self, hsh):
-        kw = self._item_kwargs(self.items_dict[hsh])
-        return self.cache_model(
+        item = self.items_dict[hsh]
+        atom = pickle.dumps(item._atom, pickle.HIGHEST_PROTOCOL)
+        return self.cache_model.from_model(
+            item,
             key_name=hsh,
-            **kw
+            domain=self.domain,
+            atom=atom,
+            _gdata_key_name=item.key(),
         )
 
     def get(self, hashes):
@@ -61,7 +48,7 @@ class _CacheUpdater(object):
         db.delete(to_delete)
 
 
-DEFAULT_KEY_NAME = 'red.lab.cloudreach.co.uk:GAUser'
+DEFAULT_KEY_NAME = 'red.lab.cloudreach.co.uk:SharedContact'
 
 def update_cache(post_data):
     key_name = post_data.get('key_name', DEFAULT_KEY_NAME)

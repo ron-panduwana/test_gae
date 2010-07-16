@@ -1,3 +1,4 @@
+import logging
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 
@@ -21,6 +22,8 @@ class UserCache(BaseModel):
     # or atom_hash alone
     domain = db.StringProperty()
     _gdata_key_name = db.StringProperty()
+    atom = db.BlobProperty()
+
     id = db.StringProperty()
     title = db.StringProperty()
     user_name = db.StringProperty(required=True)
@@ -33,41 +36,79 @@ class UserCache(BaseModel):
     change_password = db.BooleanProperty(default=False)
     updated_on = db.DateTimeProperty(auto_now=True)
 
+    @classmethod
+    def from_model(cls, model_instance, **kwargs):
+        return cls(
+            id=model_instance.id,
+            title=model_instance.title,
+            user_name=model_instance.user_name,
+            given_name=model_instance.given_name,
+            family_name=model_instance.family_name,
+            suspended=model_instance.suspended,
+            admin=model_instance.admin,
+            agreed_to_terms=model_instance.agreed_to_terms,
+            quota=model_instance.quota,
+            change_password=model_instance.change_password,
+            **kwargs
+        )
+
 
 class NicknameCache(BaseModel):
     domain = db.StringProperty()
+    _gdata_key_name = db.StringProperty()
+    atom = db.BlobProperty()
+
     nickname = db.StringProperty()
     user_name = db.StringProperty()
     user = db.StringProperty()
 
-
-class SharedContactNameCache(BaseModel):
-    given_name = db.StringProperty()
-    family_name = db.StringProperty()
-    additional_name = db.StringProperty()
-    name_prefix = db.StringProperty()
-    name_suffix = db.StringProperty()
-    full_name = db.StringProperty()
-
-
-class SharedContactEmailCache(BaseModel):
-    address = db.EmailProperty()
-    label = db.StringProperty()
-    rel = db.StringProperty()
-    primary = db.BooleanProperty(default=False)
+    @classmethod
+    def from_model(cls, model_instance, **kwargs):
+        return cls(
+            nickname=model_instance.nickname,
+            user_name=model_instance.user_name,
+            user=model_instance.user_name,
+            **kwargs
+        )
 
 
 class SharedContactCache(BaseModel):
-    name = db.ReferenceProperty(SharedContactNameCache)
+    domain = db.StringProperty()
+    _gdata_key_name = db.StringProperty()
+    atom = db.BlobProperty()
+    name = db.StringListProperty()
     title = db.StringProperty()
     notes = db.StringProperty()
     birthday = db.DateProperty()
-    emails = db.ListProperty(db.Key)
+    emails = db.StringListProperty()
+    phone_numbers = db.StringListProperty()
+    postal_addresses = db.StringListProperty()
+    organization = db.StringProperty()
 
-
-#class NicknameCache(BaseModel):
-#    nickname = db.StringProperty(required=True)
-#    user_name = db.StringProperty()
-#    user = db.ReferenceProperty(UserCache)
-#    updated_on = db.DateTimeProperty(auto_now=True)
+    @classmethod
+    def from_model(cls, model_instance, **kwargs):
+        name = model_instance.name and [
+            getattr(model_instance.name, attr)
+            for attr in ('given_name', 'family_name')] or []
+        name = [x for x in name if x]
+        emails = [email.address for email in model_instance.emails]
+        phone_numbers = [number.number
+                         for number in model_instance.phone_numbers]
+        addresses = [address.address
+                     for address in model_instance.postal_addresses]
+        if model_instance.organization:
+            organization = model_instance.organization.name
+        else:
+            organization = None
+        return cls(
+            name=name,
+            title=model_instance.title,
+            notes=model_instance.notes,
+            birthday=model_instance.birthday,
+            emails=emails,
+            phone_numbers=phone_numbers,
+            postal_addresses=addresses,
+            organization=organization,
+            **kwargs
+        )
 
