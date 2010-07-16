@@ -14,7 +14,6 @@ class GDataIndex(BaseModel):
     hashes = db.StringListProperty(indexed=False)
     keys = db.StringListProperty()
     last_updated = db.DateTimeProperty()
-    #cursor = db.StringProperty(indexed=False)
 
 
 class UserCache(BaseModel):
@@ -31,6 +30,11 @@ class UserCache(BaseModel):
     quota = db.IntegerProperty()
     change_password = db.BooleanProperty(default=False)
     updated_on = db.DateTimeProperty(auto_now=True)
+
+
+class NicknameCache(BaseModel):
+    nickname = db.StringProperty()
+    user_name = db.StringProperty()
 
 
 class SharedContactNameCache(BaseModel):
@@ -57,9 +61,9 @@ class SharedContactCache(BaseModel):
     emails = db.ListProperty(db.Key)
 
 
-class NicknameCache(BaseModel):
-    nickname = db.StringProperty(required=True)
-    user_name = db.StringProperty()
-    user = db.ReferenceProperty(UserCache)
-    updated_on = db.DateTimeProperty(auto_now=True)
+#class NicknameCache(BaseModel):
+#    nickname = db.StringProperty(required=True)
+#    user_name = db.StringProperty()
+#    user = db.ReferenceProperty(UserCache)
+#    updated_on = db.DateTimeProperty(auto_now=True)
 

@@ -1,9 +1,10 @@
+import logging
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from crlib import gdata_wrapper as gd
-from crlib import mappers
+from crlib import mappers, cache
 from crlib import models as crlib_models
 from crlib.signals import gauser_renamed
 from crauth import users
@@ -92,6 +93,8 @@ class GAUser(gd.Model):
 
     def get_full_name(self):
         return '%s %s' % (self.given_name, self.family_name)
+
+cache.register(GAUser)
 
 
 class GAGroupMember(gd.Model):
@@ -187,6 +190,7 @@ class GANickname(gd.Model):
     Mapper = mappers.NicknameEntryMapper()
     class Meta:
         permissions = ()
+        cache_model = crlib_models.NicknameCache
 
     nickname = gd.StringProperty('nickname.name', required=True)
     user_name = gd.StringProperty('login.user_name')
@@ -195,6 +199,8 @@ class GANickname(gd.Model):
     
     def __unicode__(self):
         return self.nickname
+
+cache.register(GANickname)
 
 
 class Email(gd.Model):

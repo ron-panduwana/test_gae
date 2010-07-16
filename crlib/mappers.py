@@ -316,17 +316,27 @@ class NicknameEntryMapper(AtomMapper):
         return self.service.CreateNickname(
             atom.login.user_name, atom.nickname.name)
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            next = previous.GetNextLink()
-            if next:
-                from gdata.apps import NicknameFeedFromString
-                return self.service.Get(
-                    next.href, converter=NicknameFeedFromString)
-            else:
-                return False
+    #def retrieve_page(self, previous=None):
+    #    if previous:
+    #        next = previous.GetNextLink()
+    #        if next:
+    #            from gdata.apps import NicknameFeedFromString
+    #            return self.service.Get(
+    #                next.href, converter=NicknameFeedFromString)
+    #        else:
+    #            return False
+    #    else:
+    #        return self.service.RetrievePageOfNicknames()
+
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            from gdata.apps import NicknameFeedFromString
+            feed = self.service.Get(cursor, converter=NicknameFeedFromString)
         else:
-            return self.service.RetrievePageOfNicknames()
+            feed = self.service.RetrievePageOfNicknames()
+        cursor = feed.GetNextLink()
+        cursor = cursor and cursor.href
+        return (feed, cursor)
 
     def retrieve(self, nickname):
         return self.service.RetrieveNickname(nickname)
