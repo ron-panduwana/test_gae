@@ -19,6 +19,8 @@ class GDataIndex(BaseModel):
 class UserCache(BaseModel):
     # key_name consists of: domain_name:atom_hash
     # or atom_hash alone
+    domain = db.StringProperty()
+    _gdata_key_name = db.StringProperty()
     id = db.StringProperty()
     title = db.StringProperty()
     user_name = db.StringProperty(required=True)
@@ -33,8 +35,10 @@ class UserCache(BaseModel):
 
 
 class NicknameCache(BaseModel):
+    domain = db.StringProperty()
     nickname = db.StringProperty()
     user_name = db.StringProperty()
+    user = db.StringProperty()
 
 
 class SharedContactNameCache(BaseModel):

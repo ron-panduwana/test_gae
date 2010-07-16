@@ -102,9 +102,23 @@ class GDataQuery(object):
             return True
 
     def _retrieve_filtered(self, limit=1000, offset=0):
-        for item in self._retrieve_ordered(limit, offset):
-            if self._matches_filter(item):
-                yield item
+        if hasattr(self._model._meta, 'cache_model'):
+            from crauth import users
+
+            cache_model = self._model._meta.cache_model
+            domain = users.get_current_domain().domain
+            query = cache_model.all().filter('domain', domain)
+
+            for prop, operator, value in self._filters:
+                query.filter('%s %s' % (prop, operator), value)
+
+            cached = query.fetch(limit, offset)
+            for item in cached:
+                yield self._model._from_cached(item)
+        else:
+            for item in self._retrieve_ordered(limit, offset):
+                if self._matches_filter(item):
+                    yield item
 
     __iter__ = _retrieve_filtered
 
@@ -468,6 +482,7 @@ class Model(object):
 
     def __init__(self, **kwargs):
         self._atom = kwargs.pop('_atom', None)
+        self._cached = kwargs.pop('_cached', None)
 
         for prop in self._properties.values():
             if prop.name in kwargs:
@@ -554,11 +569,19 @@ class Model(object):
     def get_by_key_name(cls, key_name):
         atom = cls._cache['item:%s' % key_name]
         if atom is None:
-            try:
-                atom = cls._mapper.retrieve(key_name)
-                cls._cache['item:%s' % key_name] = atom
-            except Exception, e:
-                return None
+            if hasattr(cls._meta, 'cache_model'):
+                from crauth import users
+                domain = users.get_current_domain().domain
+                cached = cls._meta.cache_model.all().filter(
+                    'domain', domain).filter(
+                        '_gdata_key_name', key_name).get()
+                return cls._from_cached(cached)
+            else:
+                try:
+                    atom = cls._mapper.retrieve(key_name)
+                    cls._cache['item:%s' % key_name] = atom
+                except Exception, e:
+                    return None
         return atom and cls._from_atom(atom) or None
 
     @classmethod
@@ -580,6 +603,17 @@ class Model(object):
         props = {'_atom' : atom}
         props.update(cls._atom_to_kwargs(atom))
         return cls(**props)
+
+    @classmethod
+    def _from_cached(cls, cached):
+        if not cached:
+            return None
+        props = {'_cached': cached}
+        for key, value in cached._properties.iteritems():
+            props[key] = getattr(cached, key)
+        obj = cls(**props)
+        obj._atom = obj._get_updated_atom()
+        return obj
 
 
 class RetryError(Exception): pass
