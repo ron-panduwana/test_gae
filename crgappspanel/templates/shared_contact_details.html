@@ -6,7 +6,7 @@
 {% block content %}
 {% include "snippets/saved_warning.html" %}
 <form action="{% url shared-contact-details shared_contact.key %}" method="POST" class="details">
-	<input type="hidden" name="email" value="_"/>
+	<input type="hidden" name="email" value=""/>
 	<h1 style="display: inline">{{ shared_contact.name.full_name }}</h1>
 	<br/>
 	<table class="details" width="100%">

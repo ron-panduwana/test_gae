@@ -671,10 +671,10 @@ class SharedContactForm(forms.Form):
     role = forms.CharField(label=_('Role'), required=False)
     
     # email field to show when creating contact
-    email = forms.CharField(label=_('Email'), required=False,
+    email = forms.EmailField(label=_('Email'), required=False,
         widget=forms.TextInput(attrs={'class':'long'}))
     # emails filed to show when editing contact
-    emails = forms.CharField(label=_('Emails'), required=False,
+    emails = forms.EmailField(label=_('Emails'), required=False,
         widget=widgets.SwapWidget(emails_c,
             forms.TextInput(attrs={'class':'long'}), emails_e))
     
