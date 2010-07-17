@@ -572,7 +572,7 @@ class ObjectTypeFields(object):
 
 
 class RoleForm(forms.Form):
-    name = forms.CharField(label=_('Name'))
+    name = forms.CharField(label=_('Name'), required=True)
     
     def __init__(self, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)
@@ -640,7 +640,9 @@ class RoleForm(forms.Form):
         return field
     
     def clean_name(self):
-        name = self.cleaned_data['name']
+        name = self.cleaned_data['name'].strip()
+        if name == '':
+            raise forms.ValidationError(_('Role name is required.'))
         if not hasattr(self, 'old_name') or name != self.old_name:
             role = Role.for_domain(crauth.users.get_current_domain()).filter(
                 'name', name).get()
