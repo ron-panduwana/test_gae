@@ -200,6 +200,16 @@ class UserForm(Form):
     def get_nickname(self):
         return self.cleaned_data['nicknames']
     
+    def clean_full_name(self):
+        data = self.cleaned_data['full_name']
+        first_name = data[0].strip()
+        family_name = data[1].strip()
+        if first_name == '':
+            raise forms.ValidationError(_('First name is required.'))
+        if family_name == '':
+            raise forms.ValidationError(_('Family name is required.'))
+        return [first_name, family_name]
+        
     def clean_nicknames(self):
         data = self.cleaned_data['nicknames']
         if data and not regexps.RE_USERNAME.match(data):
