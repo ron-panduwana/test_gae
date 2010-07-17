@@ -598,7 +598,7 @@ def user_remove_role(request, name=None, role_name=None):
         user.admin = False
         user.save()
     else:
-        perms.roles = [rk for rk in perms.roles if _get_role(rk).name != role_name]
+        perms.roles = [rk for rk in perms.roles if _get_role(rk) and _get_role(rk).name != role_name]
         perms.save()
     
     return redirect_saved('user-roles', request, name=user.user_name)
