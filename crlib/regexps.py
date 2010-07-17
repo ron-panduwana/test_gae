@@ -8,7 +8,7 @@ ERROR_DOMAIN = _('Please enter valid domain name')
 # Look at http://www.google.com/support/a/bin/answer.py?answer=33386 for
 # description of allowed characters in usernames, first and last names
 # and passwords
-RE_USERNAME = re.compile(r'^[a-z0-9\-_\.\']+$', re.IGNORECASE)
+RE_USERNAME = re.compile(r'^[a-z0-9][a-z0-9\-_\.\']+$', re.IGNORECASE)
 ERROR_USERNAME = _(
     'Usernames may contain letters (a-z), numbers (0-9), dashes (-), '
     'underscores (_), periods (.), and apostrophes (\'), and may not '
