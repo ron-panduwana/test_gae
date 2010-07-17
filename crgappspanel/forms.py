@@ -471,7 +471,7 @@ class UserEmailAliasesForm(Form):
 
 class GroupForm(Form):
     id = forms.CharField(label=_('Email address'))
-    name = forms.CharField(label=_('Name'))
+    name = forms.CharField(label=_('Name'), required=True)
     email_permission = forms.ChoiceField(label=_('Email permission'),
         choices=consts.GROUP_EMAIL_PERMISSION_CHOICES)
     description = forms.CharField(label=_('Description'), required=False,
@@ -500,6 +500,12 @@ class GroupForm(Form):
         enforce_valid(id, lower=True, upper=True, digits=True, other='_.-+')
         enforce_some_alnum(id)
         return id
+    
+    def clean_name(self):
+        data = self.cleaned_data['name'].strip()
+        if data == '':
+            raise forms.ValidationError(_('Group name is required.'))
+        return data
 
 
 owner_c = '%(link_start)sAdd%(link_end)s another owner'
