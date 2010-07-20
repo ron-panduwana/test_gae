@@ -91,7 +91,11 @@ class GDataQuery(object):
         return items
 
     def _matches_filter(self, item):
-        for property, operator, value in self._filters:
+        for i, (property, operator, value) in enumerate(self._filters):
+            # Skip the check if the mapper has filter_by_xxx method
+            if i == 0 and \
+               hasattr(self._model._mapper, 'filter_by_%s' % property):
+                continue
             item_value = getattr(item, property)
             item_value = self._normalize_parameter(item_value)
             if hasattr(item_value, '__iter__') and operator in ('=', 'in'):
