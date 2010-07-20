@@ -52,7 +52,7 @@ def group_create(request):
     if request.method == 'POST':
         form = GroupForm(request.POST, auto_id=True)
         if form.is_valid():
-            group = form.create()
+            group = form.create(users.get_current_domain().domain)
             try:
                 group.save()
                 return redirect_saved('group-details',
