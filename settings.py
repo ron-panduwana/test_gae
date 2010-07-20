@@ -27,6 +27,7 @@ SESSION_LOGIN_INFO_KEY = '_client_login_info'
 LOGIN_REDIRECT_URL = '/'
 CLIENT_LOGIN_SOURCE = 'cloudreach-powerpanel-v1'
 CACHE_UPDATE_INTERVAL = 10 * 60 # in seconds
+READ_ONLY = False
 
 OAUTH_APP_ID = '285282688156'
 OAUTH_CONSUMER = '285282688156.apps.googleusercontent.com'

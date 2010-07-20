@@ -552,6 +552,9 @@ class Model(object):
         return atom
 
     def save(self):
+        if settings.READ_ONLY:
+            return self
+
         atom = self._get_updated_atom()
 
         if self.is_saved():
@@ -573,11 +576,12 @@ class Model(object):
     put = save
 
     def delete(self):
-        self._mapper.delete(self._atom)
-        self._delete_cache()
-        del self._cache['item:%s' % self.key()]
-        del self._cache['retrieve_all']
-        del self
+        if not settings.READ_ONLY:
+            self._mapper.delete(self._atom)
+            self._delete_cache()
+            del self._cache['item:%s' % self.key()]
+            del self._cache['retrieve_all']
+            del self
 
     def is_saved(self):
         return self._atom is not None
