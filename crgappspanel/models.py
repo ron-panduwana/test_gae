@@ -89,8 +89,6 @@ class GAUser(gd.Model):
     def get_full_name(self):
         return '%s %s' % (self.given_name, self.family_name)
 
-cache.register(GAUser)
-
 
 class GAGroupMember(gd.Model):
     Mapper = mappers.MemberEntryMapper()
@@ -181,8 +179,6 @@ class GAGroup(gd.Model):
     def get_pure_id(self):
         return self.id.partition('@')[0]
 
-cache.register(GAGroup)
-
 
 class GANickname(gd.Model):
     Mapper = mappers.NicknameEntryMapper()
@@ -197,8 +193,6 @@ class GANickname(gd.Model):
     
     def __unicode__(self):
         return self.nickname
-
-cache.register(GANickname)
 
 
 class Email(gd.Model):
@@ -290,8 +284,6 @@ class SharedContact(gd.Model):
     
     def __unicode__(self):
         return u'<SharedContact: %s>' % self.title
-
-cache.register(SharedContact)
 
 
 class CalendarResource(gd.Model):

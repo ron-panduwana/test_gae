@@ -16,12 +16,41 @@ def register(cls):
     _MODELS_DICT[cls.__name__] = cls
 
 
+def ensure_has_cache(domain, model_class):
+    if model_class in _MODELS_DICT:
+        key_name = '%s:%s' % (domain, model_class)
+        index = GDataIndex.get_by_key_name(key_name)
+        if not index:
+            index = GDataIndex(
+                key_name=key_name,
+                domain=domain,
+                model_class=model_class,
+                last_updated=datetime.datetime.min,
+            )
+            index.put()
+            taskqueue.add(url=reverse('precache_domain_item'), params={
+                'key_name': key_name,
+            })
+
+
+def prepare_indexes(domain):
+    for key in _MODELS_DICT.iterkeys():
+        key_name = '%s:%s' % (domain, key)
+        GDataIndex.get_or_insert(
+            key_name=key_name,
+            domain=domain,
+            model_class=key,
+            last_updated=datetime.datetime.min,
+        )
+
+
 class _CacheUpdater(object):
-    def __init__(self, items_dict, cache_model, model_class, domain):
+    def __init__(self, items_dict, cache_model, model_class, domain, index):
         self.items_dict = items_dict
         self.cache_model = cache_model
         self.model_class = model_class
         self.domain = domain
+        self.index = index
 
     def add(self, hashes):
         created = []
@@ -31,12 +60,12 @@ class _CacheUpdater(object):
 
     def create(self, hsh):
         item = self.items_dict[hsh]
-        atom = pickle.dumps(item._atom, pickle.HIGHEST_PROTOCOL)
         return self.cache_model.from_model(
             item,
             key_name=hsh,
-            domain=self.domain,
-            atom=atom,
+            _domain=self.domain,
+            _atom=item._atom,
+            _index=self.index,
             _gdata_key_name=item.key(),
         )
 
@@ -48,7 +77,7 @@ class _CacheUpdater(object):
         db.delete(to_delete)
 
 
-DEFAULT_KEY_NAME = 'red.lab.cloudreach.co.uk:GAUser'
+DEFAULT_KEY_NAME = 'red.lab.cloudreach.co.uk:SharedContact'
 
 def update_cache(post_data):
     key_name = post_data.get('key_name', DEFAULT_KEY_NAME)
@@ -60,12 +89,14 @@ def update_cache(post_data):
     cursor = post_data.get('cursor')
     prev_hashes = post_data.get('hashes', [])
 
-    index = GDataIndex.get_or_insert(
-        key_name=key_name,
-    )
-
     domain, model = post_data.get(
         'key_name', DEFAULT_KEY_NAME).split(':')
+
+    index = GDataIndex.get_or_insert(
+        key_name=key_name,
+        domain=domain,
+        model_class=model,
+    )
 
     apps_domain = AppsDomain.get_by_key_name(domain)
     users._set_current_user(apps_domain.admin_email, domain)
@@ -92,7 +123,8 @@ def update_cache(post_data):
             items_dict[hsh] = item
             new_keys.append(item.key())
 
-        updater = _CacheUpdater(items_dict, cache_model, model_class, domain)
+        updater = _CacheUpdater(items_dict, cache_model, model_class, domain,
+                                index)
 
         old_s, new_s = set(old_hashes), set(new_hashes)
         common = old_s.intersection(new_s)
@@ -186,5 +218,4 @@ def _update_whole_page(updater, old_hashes, new_hashes):
     db.put(created)
 
     return leftover
-
 

@@ -1,7 +1,7 @@
 import logging
 import re
 from google.appengine.api import memcache
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from gdata import contacts, data
 from gdata.contacts import data as contacts_data

@@ -26,6 +26,7 @@ REDIRECT_FIELD_NAME = 'next'
 SESSION_LOGIN_INFO_KEY = '_client_login_info'
 LOGIN_REDIRECT_URL = '/'
 CLIENT_LOGIN_SOURCE = 'cloudreach-powerpanel-v1'
+CACHE_UPDATE_INTERVAL = 10 * 60 # in seconds
 
 OAUTH_APP_ID = '285282688156'
 OAUTH_CONSUMER = '285282688156.apps.googleusercontent.com'
@@ -110,10 +111,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'crauth.users.UsersMiddleware',
-    'crlib.middleware.PrecacheRetryMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-#    'django.contrib.auth.middleware.AuthenticationMiddleware',
-#    'django.middleware.doc.XViewMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

@@ -1,7 +1,9 @@
 import datetime
+import hashlib
 import logging
 import operator
 import os
+import pickle
 import re
 from django.conf import settings
 from google.appengine.ext import db
@@ -10,7 +12,10 @@ from atom import AtomBase
 from gdata.data import ExtendedProperty
 from gdata.client import GDClient
 from gdata.service import GDataService
+from crauth import users
 from crlib.signals import class_prepared
+from crlib import cache
+from crlib.models import GDataIndex
 
 
 BadValueError = db.BadValueError
@@ -34,6 +39,8 @@ class GDataQuery(object):
         self._filters = []
         self._orders = []
         self._model = model_class
+        cache.ensure_has_cache(
+            users.get_current_user().domain_name, model_class.__name__)
 
     def order(self, property):
         self._orders.append((
@@ -92,7 +99,7 @@ class GDataQuery(object):
 
     def _matches_filter(self, item):
         for i, (property, operator, value) in enumerate(self._filters):
-            # Skip the check if the mapper has filter_by_xxx method
+            # Skip the check if the mapper has filter_by_property method
             if i == 0 and \
                hasattr(self._model._mapper, 'filter_by_%s' % property):
                 continue
@@ -105,6 +112,18 @@ class GDataQuery(object):
         else:
             return True
 
+    def _retrieve_cached(self, limit=1000, offset=0):
+        cache_model = self._model._meta.cache_model
+        domain = users.get_current_domain().domain
+        query = cache_model.all().filter('_domain', domain)
+
+        for prop, operator, value in self._filters:
+            if isinstance(value, Model):
+                value = value.key()
+            query.filter('%s %s' % (prop, operator), value)
+
+        return query.fetch(limit, offset)
+
     def _retrieve_filtered(self, limit=1000, offset=0):
         use_cache = hasattr(self._model._meta, 'cache_model')
         for prop, _, _ in self._filters:
@@ -112,17 +131,7 @@ class GDataQuery(object):
                 use_cache = False
                 break
         if use_cache:
-            from crauth import users
-
-            cache_model = self._model._meta.cache_model
-            domain = users.get_current_domain().domain
-            query = cache_model.all().filter('domain', domain)
-
-            for prop, operator, value in self._filters:
-                query.filter('%s %s' % (prop, operator), value)
-
-            cached = query.fetch(limit, offset)
-            for item in cached:
+            for item in self._retrieve_cached(limit, offset):
                 yield self._model._from_cached(item)
         else:
             for item in self._retrieve_ordered(limit, offset):
@@ -427,7 +436,6 @@ class _MemcacheDict(object):
         self.time = time
 
     def _key(self, key):
-        from crauth import users
         domain = users.get_current_user().domain_name
         return '%s:%s' % (domain, key)
 
@@ -456,6 +464,10 @@ class _GDataModelMetaclass(db.PropertiedClass):
         if hasattr(new_cls, 'Meta'):
             del new_cls.Meta
         del new_cls.Mapper
+
+        if hasattr(new_cls._meta, 'cache_model'):
+            cache.register(new_cls)
+
         new_cls._cache = _MemcacheDict(name, 60 * 60)
         class_prepared.send(sender=new_cls)
 
@@ -547,27 +559,77 @@ class Model(object):
                 self._atom = self._mapper.update(atom, self._atom)
             else:
                 self._atom = atom
+            self._update_cache()
         else:
             if hasattr(self._mapper, 'create'):
                 self._atom = self._mapper.create(atom)
             else:
                 self._atom = atom
+            self._create_cache()
 
         del self._cache['item:%s' % self.key()]
         del self._cache['retrieve_all']
-        self._mapper.recache_current_domain()
         return self
     put = save
 
     def delete(self):
         self._mapper.delete(self._atom)
+        self._delete_cache()
         del self._cache['item:%s' % self.key()]
         del self._cache['retrieve_all']
-        self._mapper.recache_current_domain()
         del self
 
     def is_saved(self):
         return self._atom is not None
+
+    def _update_cache(self):
+        if self._cached:
+            self._cached.update(self)
+            self._cached._index.page_hash = '!'
+            db.put([self._cached, self._cached._index])
+
+    def _get_index_for_new_cache(self, domain):
+        model_class = self.__class__.__name__
+        index = GDataIndex.all().filter('domain', domain).filter(
+            'model_class', model_class).filter(
+                'keys >', self.key()).order('keys').get()
+        if not index:
+            index = GDataIndex.all().filter('domain', domain).filter(
+                'model_class', model_class).order('-keys').get()
+        return index
+
+    def _create_cache(self):
+        if hasattr(self._meta, 'cache_model'):
+            new_key = self.key()
+            hsh = hashlib.sha1(str(self._atom)).hexdigest()
+            domain = users.get_current_domain().domain
+            index = self._get_index_for_new_cache(domain)
+            cached = self._meta.cache_model.from_model(
+                self,
+                key_name=hsh,
+                _domain=domain,
+                _atom=self._atom,
+                _index=index,
+                _gdata_key_name=new_key,
+            )
+            for i, key in enumerate(index.keys):
+                if key > new_key:
+                    break
+            index.keys.insert(i, new_key)
+            index.hashes.insert(i, hsh)
+            index.page_has = '!'
+            db.put([cached, index])
+            return cached
+
+    def _delete_cache(self):
+        if self._cached:
+            index = self._cached._index
+            index.page_hash = '!'
+            idx = index.keys.index(self.key())
+            del index.keys[idx]
+            del index.hashes[idx]
+            index.put()
+            self._cached.delete()
 
     @classmethod
     def kind(cls):
@@ -578,10 +640,9 @@ class Model(object):
         atom = cls._cache['item:%s' % key_name]
         if atom is None:
             if hasattr(cls._meta, 'cache_model'):
-                from crauth import users
                 domain = users.get_current_domain().domain
                 cached = cls._meta.cache_model.all().filter(
-                    'domain', domain).filter(
+                    '_domain', domain).filter(
                         '_gdata_key_name', key_name).get()
                 return cls._from_cached(cached)
             else:
@@ -617,10 +678,9 @@ class Model(object):
         import pickle
         if not cached:
             return None
-        return cls._from_atom(pickle.loads(cached.atom))
-
-
-class RetryError(Exception): pass
+        instance = cls._from_atom(pickle.loads(cached._atom))
+        instance._cached = cached
+        return instance
 
 
 class AtomMapper(object):
@@ -646,7 +706,6 @@ class AtomMapper(object):
         if not hasattr(self, 'create_service'):
             return None
 
-        from crauth import users
         user = users.get_current_user()
         if not user:
             raise users.LoginRequiredError()
@@ -675,57 +734,6 @@ class AtomMapper(object):
         else:
             # Old version
             return CreateClassFromXMLString(atom.__class__, str(atom))
-
-    def recache_current_domain(self):
-        from django.core.urlresolvers import reverse
-        from google.appengine.api.labs import taskqueue
-        from crauth import users
-
-        domain = users.get_current_domain().domain
-        mapper = self.__class__.__name__
-        memcache.delete('%s-%s' % (mapper, domain))
-        if domain:
-            taskqueue.add(url=reverse('precache_domain'), params={
-                'domain': domain,
-                'mapper': mapper,
-            })
-
-    def retrieve_all(self, use_cache=True):
-        import hashlib
-        from google.appengine.api.urlfetch import DownloadError
-        from google.appengine.runtime import DeadlineExceededError
-        from crauth import users
-        from crlib.models import GDataIndex
-
-        domain = os.environ.get(users._ENVIRON_DOMAIN)
-
-        #main_key = '%s-%s' % (self.__class__.__name__, domain)
-        main_key = '%s:%s' % (domain, self.__class__.__name__)
-        if use_cache:
-            feed = memcache.get(main_key)
-        if not use_cache or not feed:
-            feed = self.retrieve_page()
-            GDataIndex.get_or_insert(main_key)
-            memcache.set(main_key, feed)
-        users = feed
-
-        while feed:
-            hsh = hashlib.sha1(str(feed)).hexdigest()
-            memcache_key = '%s-%s' % (self.__class__.__name__, hsh)
-            if use_cache:
-                cached = memcache.get(memcache_key)
-                if cached is not None:
-                    feed = cached
-            if not use_cache or cached is None:
-                try:
-                    feed = self.retrieve_page(feed)
-                except (DownloadError, DeadlineExceededError):
-                    raise RetryError
-                memcache.set(memcache_key, feed)
-            if feed:
-                users.entry.extend(feed.entry)
-
-        return users.entry
 
 
 def simple_mapper(atom, key):
