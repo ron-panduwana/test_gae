@@ -52,30 +52,33 @@ def _get_quota(x):
     else:
         return '%s MB' % quota
 
-def _cached_roles(roles_map=dict()):
-    if len(roles_map) == 0:
-        for role in Role.for_domain(crauth.users.get_current_domain()).fetch(1000):
-            roles_map[str(role.key())] = role
+def _get_roles_map():
+    """
+    This method needs data access, make sure you don't call this method too many times to create
+    performance issues.
+    """
+    roles_map=dict()
+    for role in Role.for_domain(crauth.users.get_current_domain()).fetch(1000):
+        roles_map[str(role.key())] = role
     return roles_map
 
 def _get_role(key):
     key = str(key)
-    if key in _cached_roles():
-        return _cached_roles()[key]
+    roles_map = _get_roles_map()
+    if key in roles_map:
+        return roles_map[key]
     else:
         return None
 
 def _get_roles(keys):
-    res = imap(lambda x: _get_role(x), keys)
-    return [x for x in res if x is not None]
+    roles_map = _get_roles_map()
+    return [roles_map[k] for k in keys if k in roles_map]
 
 def _get_roles_choices(role_keys, is_admin):
     choices = [('', '')]
     if not is_admin:
         choices.append(('admin', _('Administrator')))
-    
-    new_role_keys = [key for key in _cached_roles().iterkeys() if key not in role_keys]
-    choices.extend([(key, _get_role(key).name) for key in new_role_keys])
+    choices.extend([(k, v.name) for k, v in _get_roles_map().iteritems() if k not in role_keys])
     return choices
 
 def _get_user_roles(domain):
@@ -598,7 +601,8 @@ def user_remove_role(request, name=None, role_name=None):
         user.admin = False
         user.save()
     else:
-        perms.roles = [rk for rk in perms.roles if _get_role(rk) and _get_role(rk).name != role_name]
+        roles = _get_roles([str(key) for key in perms.roles])
+        perms.roles = [role.key() for role in roles if role.name != role_name]
         perms.save()
     
     return redirect_saved('user-roles', request, name=user.user_name)
