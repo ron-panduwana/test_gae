@@ -791,6 +791,12 @@ class CalendarResourceForm(forms.Form):
         resource.common_name = data['common_name']
         resource.type = data['type']
         resource.description = data['description']
+        
+    def clean_common_name(self):
+        name = self.cleaned_data['common_name'].strip()
+        if name == '':
+            raise forms.ValidationError(_('Name is required.'))
+        return name
 
 
 ################################################################################
