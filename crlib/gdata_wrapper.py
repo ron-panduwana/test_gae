@@ -126,10 +126,11 @@ class GDataQuery(object):
 
     def _retrieve_filtered(self, limit=1000, offset=0):
         use_cache = hasattr(self._model._meta, 'cache_model')
-        for prop, _, _ in self._filters:
-            if not hasattr(self._model._meta.cache_model, prop):
-                use_cache = False
-                break
+        if use_cache:
+            for prop, _, _ in self._filters:
+                if not hasattr(self._model._meta.cache_model, prop):
+                    use_cache = False
+                    break
         if use_cache:
             for item in self._retrieve_cached(limit, offset):
                 yield self._model._from_cached(item)
