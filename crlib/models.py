@@ -7,7 +7,10 @@ from google.appengine.ext import db
 def _model_kwargs(model_instance, fields):
     kwargs = {}
     for field in fields:
-        kwargs[field] = getattr(model_instance, field)
+        value = getattr(model_instance, field)
+        if isinstance(value, str):
+            value = value.decode('utf8')
+        kwargs[field] = value
     return kwargs
 
 

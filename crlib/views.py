@@ -17,16 +17,24 @@ def precache_everything(request):
     treshold = datetime.datetime.now() - datetime.timedelta(
         seconds=settings.CACHE_UPDATE_INTERVAL)
     to_update = GDataIndex.all().filter(
-        'last_updated <', treshold).order('last_updated').fetch(100)
+        'last_updated <', treshold).filter('last_updated !=', None).order(
+            'last_updated').fetch(100)
     for item in to_update:
+        key_parts = item.key().name().split(':')
+        if len(key_parts) == 3:
+            continue
         taskqueue.add(url=reverse('precache_domain_item'), params={
-            'key_name': item.key().name(),
+            'key_name': ':'.join(key_parts[:2]),
         })
     return HttpResponse(str(len(to_update)))
 
 
 def precache_domain_item(request):
-    cache.update_cache(request.POST)
+    try:
+        cache.update_cache(request.POST)
+    except Exception:
+        logging.exception('wtf')
+        raise
     return HttpResponse('ok')
 
 

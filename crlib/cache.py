@@ -87,7 +87,9 @@ def update_cache(post_data):
         key_name += ':%s' % page
 
     cursor = post_data.get('cursor')
-    prev_hashes = post_data.get('hashes', [])
+    prev_hashes = post_data.get('hashes', []) or []
+    if prev_hashes:
+        prev_hashes = prev_hashes.split(':')
 
     domain, model = post_data.get(
         'key_name', DEFAULT_KEY_NAME).split(':')
@@ -149,11 +151,11 @@ def update_cache(post_data):
     index.put()
 
     if cursor:
-        taskqueue.add(url=reverse('new_cache_domain'), params={
+        taskqueue.add(url=reverse('precache_domain_item'), params={
             'key_name': post_data.get('key_name', DEFAULT_KEY_NAME),
             'page': page + 1,
             'cursor': cursor,
-            'hashes': leftover,
+            'hashes': ':'.join(leftover),
         })
 
 
@@ -168,8 +170,8 @@ def _update_middle_page(updater, common, old_hashes, new_hashes):
     old_s = set(old_hashes[:old_index])
     new_s = set(new_hashes[:new_index])
 
-    updater.add(old_s - new_s)
-    updater.delete(new_s - old_s)
+    updater.add(new_s - old_s)
+    updater.delete(old_s - new_s)
 
     # Check if any of remaining new hashes is in db
     # If it is - we may remove all of the remaining old hashes
