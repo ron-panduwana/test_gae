@@ -10,6 +10,9 @@ from crgappspanel.models import *
 from crlib.gdata_wrapper import GDataQuery
 from crlib.mappers import MAIN_TYPES, PHONE_TYPES, ORGANIZATION_TYPES, \
         WEBSITE_TYPES
+from crlib import cache
+from crlib.models import GDataIndex, UserCache
+from crauth.models import AppsDomain
 from crauth.users import _set_current_user
 
 
@@ -17,6 +20,8 @@ os.environ['SERVER_NAME'] = 'localhost'
 os.environ['SERVER_PORT'] = '8000'
 os.environ['USER_EMAIL'] = 'test@example.com'
 os.environ['USER_IS_ADMIN'] = '1'
+
+TEST_DOMAIN = 'red.lab.cloudreach.co.uk'
 
 
 with open('google_apps.txt') as f:
@@ -26,18 +31,41 @@ _set_current_user(email, domain)
 
 
 class BaseGDataTestCase(unittest.TestCase):
-    USER_NAME = 'bbking'
-    USER_GIVEN_NAME = 'BB'
-    USER_FAMILY_NAME = 'King'
-    NUMBER_OF_USERS = 5
+    USER_NAME = 'test'
+    USER_GIVEN_NAME = 'Test'
+    USER_FAMILY_NAME = 'User2'
+    NUMBER_OF_USERS = 4
+    NUMBER_OF_ADMINS = 2
 
     def setUp(self):
-        from crauth.models import AppsDomain
         AppsDomain.get_or_insert(
             key_name=domain,
             domain=domain,
             admin_email=email,
             admin_password=password)
+
+
+        idx = GDataIndex.get_by_key_name('%s:GAUser' % TEST_DOMAIN)
+        if idx:
+            return
+
+        logging.info('Preparing cache...')
+
+        cache.prepare_indexes(TEST_DOMAIN)
+        indexes = GDataIndex.all().fetch(100)
+        for index in indexes:
+            key_parts = index.key().name().split(':')
+            key_name = ':'.join(key_parts[:2])
+            if len(key_parts) == 3:
+                page = key_parts[2]
+            else:
+                page = 0
+            cache.update_cache({
+                'key_name': key_name,
+                'page': page,
+            })
+
+        logging.info('Done.')
 
 
 class ProvisioningAPITestCase(BaseGDataTestCase):
@@ -63,7 +91,7 @@ class ProvisioningAPITestCase(BaseGDataTestCase):
         user.put()
 
     def testNewUser(self):
-        from crlib.mappers import DomainUserLimitExceededError
+        from crlib.errors import DomainUserLimitExceededError
         new_user = GAUser(
             user_name=self.USER_NAME,
             given_name=self.USER_GIVEN_NAME,
@@ -146,7 +174,7 @@ class ProvisioningAPITestCase(BaseGDataTestCase):
 
     def testGDataQueryFilter(self):
         users = GAUser.all().filter('admin', True).fetch(100)
-        self.assertEqual(len(users), 4)
+        self.assertEqual(len(users), self.NUMBER_OF_ADMINS)
         users = GAUser.all().filter('admin', True).filter(
             'user_name', 'kamil').fetch(100)
         self.assertEqual(len(users), 1)
@@ -165,22 +193,22 @@ class ProvisioningAPITestCase(BaseGDataTestCase):
 class ProvisioningAPIGroupsTestCase(BaseGDataTestCase):
     def testCreateGroup(self):
         existing = GAGroup.all().filter(
-            'id', 'some_group@moroccanholidayrental.com').get()
+            'id', 'some_group@red.lab.cloudreach.co.uk').get()
         if existing is not None:
             existing.delete()
         group = GAGroup(
-            id='some_group',
+            id='some_group@' + TEST_DOMAIN,
             name='some group',
             description='this is some group',
             email_permission='Owner').save()
 
     def testCreateGroupWithMissingProperties(self):
         existing = GAGroup.all().filter(
-            'id', 'some_group@moroccanholidayrental.com').get()
+            'id', 'some_group@' + TEST_DOMAIN).get()
         if existing is not None:
             existing.delete()
         group = GAGroup(
-            id='some_group',
+            id='some_group@' + TEST_DOMAIN,
             name='some group',
             description='',
             email_permission='Owner').save()
@@ -200,8 +228,8 @@ class ProvisioningAPIGroupsTestCase(BaseGDataTestCase):
     def testAddUserToGroups(self):
         user = GAUser.get_by_key_name(self.USER_NAME)
         group_ids = (
-            'agent.pt@moroccanholidayrental.com',
-            'all.polish.speakers@moroccanholidayrental.com',
+            'some_group@red.lab.cloudreach.co.uk',
+            'sap@red.lab.cloudreach.co.uk',
         )
         GAGroup.add_user_to_groups(user, group_ids)
         member = GAGroupMember.from_user(user)
@@ -218,10 +246,10 @@ class ProvisioningAPIGroupsTestCase(BaseGDataTestCase):
 
     def testUpdateGroup(self):
         group = GAGroup.all().filter(
-            'id', 'some_group@moroccanholidayrental.com').get()
+            'id', 'some_group@red.lab.cloudreach.co.uk').get()
         if group is None:
             group = GAGroup(
-                id='some_group',
+                id='some_group@' + TEST_DOMAIN,
                 name='some group',
                 description='this is some group',
                 email_permission='Owner').save()
@@ -232,7 +260,7 @@ class ProvisioningAPIGroupsTestCase(BaseGDataTestCase):
         group.save()
 
         group = GAGroup.all().filter(
-            'id', 'some_group@moroccanholidayrental.com').get()
+            'id', 'some_group@red.lab.cloudreach.co.uk').get()
         self.assertEqual(group.name, 'new name')
         self.assertTrue(member in group.members)
 
@@ -241,15 +269,15 @@ class ProvisioningAPIGroupsTestCase(BaseGDataTestCase):
         group.save()
 
         group = GAGroup.all().filter(
-            'id', 'some_group@moroccanholidayrental.com').get()
+            'id', 'some_group@red.lab.cloudreach.co.uk').get()
         self.assertEqual(len(group.members), 0)
 
     def testOwners(self):
         group = GAGroup.all().filter(
-            'id', 'some_group@moroccanholidayrental.com').get()
+            'id', 'some_group@red.lab.cloudreach.co.uk').get()
         if group is None:
             group = GAGroup(
-                id='some_group',
+                id='some_group@' + TEST_DOMAIN,
                 name='some group',
                 description='this is some group',
                 email_permission='Owner').save()
@@ -260,13 +288,13 @@ class ProvisioningAPIGroupsTestCase(BaseGDataTestCase):
         group.save()
 
         group = GAGroup.all().filter(
-            'id', 'some_group@moroccanholidayrental.com').get()
+            'id', 'some_group@red.lab.cloudreach.co.uk').get()
         self.assertTrue(owner in group.owners)
         group.owners = []
         group.save()
 
         group = GAGroup.all().filter(
-            'id', 'some_group@moroccanholidayrental.com').get()
+            'id', 'some_group@red.lab.cloudreach.co.uk').get()
         self.assertEqual(len(group.owners), 0)
 
 
@@ -401,7 +429,7 @@ class EmailSettingsAPITestCase(BaseGDataTestCase):
 
 class CalendarResourceAPITestCase(BaseGDataTestCase):
     def testCreateDuplicateResource(self):
-        from crlib.mappers import EntityExistsError
+        from crlib.errors import EntityExistsError
         def create_duplicate():
             for i in range(2):
                 resource = CalendarResource(
