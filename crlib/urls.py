@@ -10,5 +10,7 @@ urlpatterns = patterns(
     url(r'^__precache_domain_item/$', 'precache_domain_item',
         name='precache_domain_item'),
     url(r'^__prepare_indexes/$', 'prepare_indexes'),
+    url(r'^__precache_nicknames/$', 'precache_nicknames',
+        name='precache_nicknames'),
 )
 

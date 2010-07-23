@@ -184,7 +184,8 @@ class GANickname(gd.Model):
     Mapper = mappers.NicknameEntryMapper()
     class Meta:
         permissions = ()
-        #cache_model = crlib_models.NicknameCache
+        cache_model = crlib_models.NicknameCache
+        no_auto_cache = True
 
     nickname = gd.StringProperty('nickname.name', required=True)
     user_name = gd.StringProperty('login.user_name')

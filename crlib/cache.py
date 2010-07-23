@@ -3,12 +3,15 @@ import hashlib
 import logging
 import pickle
 from google.appengine.ext import db
+from google.appengine.api import memcache
 from google.appengine.api.labs import taskqueue
 from django.core.urlresolvers import reverse
 from crlib.models import GDataIndex
 from crauth.models import AppsDomain
 from crauth import users
 
+
+MIN_DATETIME = datetime.datetime(1970, 1, 1)
 
 _MODELS_DICT = {}
 
@@ -25,7 +28,7 @@ def ensure_has_cache(domain, model_class):
                 key_name=key_name,
                 domain=domain,
                 model_class=model_class,
-                last_updated=datetime.datetime.min,
+                last_updated=MIN_DATETIME,
             )
             index.put()
             taskqueue.add(url=reverse('precache_domain_item'), params={
@@ -40,7 +43,7 @@ def prepare_indexes(domain):
             key_name=key_name,
             domain=domain,
             model_class=key,
-            last_updated=datetime.datetime.min,
+            last_updated=MIN_DATETIME,
         )
 
 
@@ -86,6 +89,9 @@ def update_cache(post_data):
     if page:
         key_name += ':%s' % page
 
+    if memcache.incr('lock:' + key_name, initial_value=0) > 1:
+        return
+
     cursor = post_data.get('cursor')
     prev_hashes = post_data.get('hashes', []) or []
     if prev_hashes:
@@ -103,8 +109,17 @@ def update_cache(post_data):
     apps_domain = AppsDomain.get_by_key_name(domain)
     users._set_current_user(apps_domain.admin_email, domain)
 
-    model_class = _MODELS_DICT[model]
+    model_class = _MODELS_DICT.get(model)
+    if not model_class or (hasattr(model_class._meta, 'no_auto_cache') and
+                           model_class._meta.no_auto_cache):
+        return
+
     items, feed, cursor = model_class.all().retrieve_page(cursor)
+    items = list(items)
+
+    cache_model = model_class._meta.cache_model
+    if hasattr(cache_model, 'additional_cache'):
+        cache_model.additional_cache(items, index, domain)
 
     new_page_hash = hashlib.sha1(str(feed)).hexdigest()
 
@@ -114,7 +129,6 @@ def update_cache(post_data):
         index.page_hash = new_page_hash
         old_hashes = prev_hashes + index.hashes
         index.keys, index.hashes = [], []
-        cache_model = model_class._meta.cache_model
 
         items_dict = {}
         new_hashes = []
@@ -157,6 +171,8 @@ def update_cache(post_data):
             'cursor': cursor,
             'hashes': ':'.join(leftover),
         })
+
+    memcache.delete('lock:' + key_name)
 
 
 def _update_middle_page(updater, common, old_hashes, new_hashes):

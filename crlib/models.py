@@ -2,6 +2,7 @@ import logging
 import pickle
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
+from google.appengine.api import memcache
 
 
 def _model_kwargs(model_instance, fields):
@@ -69,8 +70,10 @@ class _CacheBase(BaseModel):
 
 
 class UserCache(_CacheBase):
+    USERS_PER_JOB = 5
+
     id = db.StringProperty()
-    title = db.StringProperty()
+    title = db.TextProperty()
     user_name = db.StringProperty(required=True)
     given_name = db.StringProperty(required=True)
     family_name = db.StringProperty(required=True)
@@ -80,11 +83,44 @@ class UserCache(_CacheBase):
     quota = db.IntegerProperty()
     change_password = db.BooleanProperty(default=False)
 
+    @classmethod
+    def additional_cache(cls, items, index, domain):
+        import math
+        from django.core.urlresolvers import reverse
+        from google.appengine.api.labs import taskqueue
+        from crlib import cache
+
+        if memcache.get('nickname_lock:' + index.key().name()):
+            return
+
+        memcache.set('nickname_lock:' + index.key().name(), True, 58 * 60)
+
+        jobs = int(math.ceil(float(len(items)) / cls.USERS_PER_JOB))
+        key_parts = index.key().name().split(':')
+        key_name = '%s:GANickname' % domain
+        if len(key_parts) == 3:
+            key_name += ':' + key_parts[-1]
+        nick_index = GDataIndex.get_or_insert(
+            key_name=key_name,
+            domain=domain,
+            model_class='GANickname',
+            last_updated=cache.MIN_DATETIME,
+        )
+        for i in range(jobs):
+            users = items[i * cls.USERS_PER_JOB:i * cls.USERS_PER_JOB +
+                          cls.USERS_PER_JOB]
+            if users:
+                taskqueue.add(url=reverse('precache_nicknames'), params={
+                    'users': ':'.join([user.user_name for user in users]),
+                    'domain': domain,
+                    'index': key_name,
+                })
+
 
 class GroupCache(_CacheBase):
     id = db.StringProperty()
     name = db.StringProperty()
-    description = db.StringProperty()
+    description = db.TextProperty()
     email_permission = db.StringProperty()
 
 
@@ -106,8 +142,8 @@ class NicknameCache(_CacheBase):
 
 class SharedContactCache(_CacheBase):
     name = db.StringListProperty()
-    title = db.StringProperty()
-    notes = db.StringProperty()
+    title = db.TextProperty()
+    notes = db.TextProperty()
     birthday = db.DateProperty()
     emails = db.StringListProperty()
     phone_numbers = db.StringListProperty()

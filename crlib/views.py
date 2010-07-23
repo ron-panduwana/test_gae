@@ -38,6 +38,47 @@ def precache_domain_item(request):
     return HttpResponse('ok')
 
 
+def precache_nicknames(request):
+    from crlib.models import GDataIndex, NicknameCache
+    domain = request.POST['domain']
+    index = GDataIndex.get_by_key_name(request.POST['index'])
+
+    apps_domain = AppsDomain.get_by_key_name(domain)
+    users._set_current_user(apps_domain.admin_email, domain)
+
+    all_nicknames = []
+    for user in request.POST['users'].split(':'):
+        existing = NicknameCache.all().filter('user_name', user).fetch(100)
+        existing_names = [nick.nickname for nick in existing]
+        nicknames = models.GANickname.all(cached=False).filter(
+            'user_name', user).fetch(100)
+        names = [nick.nickname for nick in nicknames]
+
+        # Delete unneeded nicknames
+        to_delete_names = set(existing_names) - set(names)
+        to_delete = []
+        for name in to_delete_names:
+            to_delete.append(existing[existing_names.index(name)])
+        db.delete(to_delete)
+
+        # Nicknames are immutable, so we only have to create the new ones
+        to_create_names = set(names) - set(existing_names)
+        to_create = []
+        for name in to_create_names:
+            to_create.append(nicknames[names.index(name)])
+
+        for nickname in to_create:
+            all_nicknames.append(NicknameCache.from_model(
+                nickname,
+                key_name='%s:%s' % (domain, nickname.key()),
+                _atom=nickname._atom,
+                _gdata_key_name=nickname.key(),
+                _domain=domain,
+            ))
+    db.put(all_nicknames)
+    return HttpResponse('ok')
+
+
 def prepare_indexes(request):
     count = 0
     for domain in AppsDomain.all():

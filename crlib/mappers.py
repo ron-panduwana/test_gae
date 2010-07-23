@@ -11,7 +11,8 @@ from gdata.apps.groups import service as groups
 from atom import AtomBase
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
 from crlib.signals import gauser_renamed
-from crlib.errors import apps_for_your_domain_exception_wrapper
+from crlib.errors import EntityExistsError, \
+        apps_for_your_domain_exception_wrapper
 
 
 # Constants
@@ -324,6 +325,8 @@ class NicknameEntryMapper(AtomMapper):
 
     def filter_by_user_name(self, user_name):
         return self.service.RetrieveNicknames(user_name).entry
+
+    filter_by_user = filter_by_user_name
 
     def delete(self, atom):
         self.service.DeleteNickname(atom.nickname.name)

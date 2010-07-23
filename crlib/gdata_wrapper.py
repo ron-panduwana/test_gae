@@ -35,12 +35,14 @@ class GDataQuery(object):
         'in': lambda *args: False,
     }
 
-    def __init__(self, model_class):
+    def __init__(self, model_class, cached=True):
         self._filters = []
         self._orders = []
         self._model = model_class
-        cache.ensure_has_cache(
-            users.get_current_user().domain_name, model_class.__name__)
+        self._cached = cached
+        if self._cached:
+            cache.ensure_has_cache(
+                users.get_current_user().domain_name, model_class.__name__)
 
     def order(self, property):
         self._orders.append((
@@ -125,7 +127,7 @@ class GDataQuery(object):
         return query.fetch(limit, offset)
 
     def _retrieve_filtered(self, limit=1000, offset=0):
-        use_cache = hasattr(self._model._meta, 'cache_model')
+        use_cache = self._cached and hasattr(self._model._meta, 'cache_model')
         if use_cache:
             for prop, _, _ in self._filters:
                 if not hasattr(self._model._meta.cache_model, prop):
@@ -525,8 +527,8 @@ class Model(object):
         return self._mapper.key(self._atom)
 
     @classmethod
-    def all(cls):
-        return GDataQuery(cls)
+    def all(cls, cached=True):
+        return GDataQuery(cls, cached=cached)
 
     def _get_updated_atom(self):
         if self._atom:
@@ -590,8 +592,11 @@ class Model(object):
     def _update_cache(self):
         if self._cached:
             self._cached.update(self)
-            self._cached._index.page_hash = '!'
-            db.put([self._cached, self._cached._index])
+            if self._cache._index:
+                self._cached._index.page_hash = '!'
+                db.put([self._cached, self._cached._index])
+            else:
+                self._cached.put()
 
     def _get_index_for_new_cache(self, domain):
         model_class = self.__class__.__name__
@@ -617,23 +622,27 @@ class Model(object):
                 _index=index,
                 _gdata_key_name=new_key,
             )
-            for i, key in enumerate(index.keys):
-                if key > new_key:
-                    break
-            index.keys.insert(i, new_key)
-            index.hashes.insert(i, hsh)
-            index.page_has = '!'
-            db.put([cached, index])
+            if index:
+                for i, key in enumerate(index.keys):
+                    if key > new_key:
+                        break
+                index.keys.insert(i, new_key)
+                index.hashes.insert(i, hsh)
+                index.page_has = '!'
+                db.put([cached, index])
+            else:
+                cached.put()
             return cached
 
     def _delete_cache(self):
         if self._cached:
             index = self._cached._index
-            index.page_hash = '!'
-            idx = index.keys.index(self.key())
-            del index.keys[idx]
-            del index.hashes[idx]
-            index.put()
+            if index:
+                index.page_hash = '!'
+                idx = index.keys.index(self.key())
+                del index.keys[idx]
+                del index.hashes[idx]
+                index.put()
             self._cached.delete()
 
     @classmethod
