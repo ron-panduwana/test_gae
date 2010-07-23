@@ -187,7 +187,10 @@ def user_details(request, name=None):
                 try:
                     if form.get_nickname():
                         GANickname(
-                            user=user,nickname=form.get_nickname()).save()
+                            user=user,
+                            nickname=form.get_nickname(),
+                            user_name=user.user_name,
+                        ).save()
                     return redirect_saved('user-details', request,
                                           name=user.user_name)
                 except errors.EntityExistsError:
