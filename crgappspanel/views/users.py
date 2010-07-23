@@ -19,6 +19,7 @@ from crgappspanel.forms import UserForm, UserRolesForm, UserGroupsForm, \
     UserEmailVacationForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
+from crgappspanel.helpers.paginator import Paginator
 from crgappspanel.models import Preferences, GAUser, GANickname, GAGroup, \
         GAGroupOwner, GAGroupMember
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
@@ -93,11 +94,12 @@ def _get_user_roles(domain):
 
 def _table_fields_gen(domain):
     return [
-        Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
-        Column(_('Username'), 'username', getter=_get_user_email(domain)),
-        Column(_('Status'), 'status', getter=_get_status),
-        Column(_('Roles'), 'roles', getter=_get_user_roles(domain)),
-        Column(_('Email quota'), 'quota'),
+        Column(_('Name'), 'family_name', getter=lambda x: x.get_full_name(), link=True),
+        Column(_('Username'), 'user_name', getter=_get_user_email(domain)),
+        Column(_('Status'), 'suspended', getter=_get_status),
+        Column(_('Roles'), 'admin', getter=_get_user_roles(domain),
+               sortable=False),
+        Column(_('Email quota'), 'quota', sortable=False),
     ]
 _table_id = Column(None, 'user_name')
 _table_widths = ['%d%%' % x for x in (5, 20, 30, 15, 20, 10)]
@@ -108,22 +110,17 @@ def users(request):
     user = crauth.users.get_current_user()
     domain = user.domain_name
     _table_fields = _table_fields_gen(domain)
-    sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
-    users = GAUser.all().fetch(1000)
-    
-    # instantiating table and sorting users
-    table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
-    table.sort(users)
-    
-    # selecting particular page
     per_page = Preferences.for_current_user().items_per_page
-    page = get_page(request, users, per_page)
+    paginator = Paginator(GAUser, request, (
+        'user_name', 'family_name', 'suspended', 'admin',
+    ), per_page)
+    
+    table = Table(_table_fields, _table_id)
     
     return render_with_nav(request, 'users_list.html', {
-        'table': table.generate(
-            page.object_list, page=page, qs_wo_page=qs_wo_page(request),
-            widths=_table_widths, singular='user',
+        'table': table.generate_paginator(
+            paginator, widths=_table_widths,
             can_change=user.has_perm('change_gauser')),
         'saved': request.session.pop('saved', False),
     })

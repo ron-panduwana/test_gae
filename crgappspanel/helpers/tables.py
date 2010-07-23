@@ -76,6 +76,33 @@ class Table(object):
             'object_plural': plural,
             'can_change': can_change,
         })
+
+    def generate_paginator(self, paginator, widths=[],
+                           can_change=False, table_name='table'):
+        objs = list(paginator.objects)
+
+        rows = []
+        for obj in objs:
+            data = [dict(data=col.value(obj), link=col.link) for col in self.columns]
+            rows.append({
+                'id': self.id_column.value(obj),
+                'data': data,
+                'can_change': not hasattr(obj, 'cant_change'),
+            })
+        
+        return render_to_string('snippets/objects_table_paginator.html', {
+            'columns': self.columns,
+            'rows': rows,
+            'paginator': paginator,
+            'prev_link': paginator.prev_link,
+            'next_link': paginator.next_link,
+            'from_to': paginator.from_to,
+            'sortby': paginator.sortby,
+            'asc': paginator.asc,
+            'widths': widths,
+            'table_name': table_name,
+            'can_change': can_change,
+        })
     
     def sort(self, objs):
         def key(x):
@@ -87,12 +114,14 @@ class Table(object):
 
 
 class Column(object):
-    def __init__(self, caption, name, getter=None, default='', link=False):
+    def __init__(self, caption, name, getter=None, default='', link=False,
+                 sortable=True):
         self.caption = caption
         self.name = name
         self.getter = getter
         self.default = default
         self.link = link
+        self.sortable = sortable
     
     def value(self, obj):
         if self.getter:

@@ -40,6 +40,8 @@ class GDataQuery(object):
         self._orders = []
         self._model = model_class
         self._cached = cached
+        self._query = None
+        self._cursor = None
         if self._cached:
             cache.ensure_has_cache(
                 users.get_current_user().domain_name, model_class.__name__)
@@ -117,12 +119,18 @@ class GDataQuery(object):
     def _retrieve_cached(self, limit=1000, offset=0):
         cache_model = self._model._meta.cache_model
         domain = users.get_current_domain().domain
-        query = cache_model.all().filter('_domain', domain)
+        self._query = query = cache_model.all().filter('_domain', domain)
+        if self._cursor:
+            self._query.with_cursor(self._cursor)
 
         for prop, operator, value in self._filters:
             if isinstance(value, Model):
                 value = value.key()
             query.filter('%s %s' % (prop, operator), value)
+        for prop, asc in self._orders:
+            if not asc:
+                prop = '-' + prop
+            query.order(prop)
 
         return query.fetch(limit, offset)
 
@@ -149,6 +157,14 @@ class GDataQuery(object):
 
         """
         return list(self._retrieve_filtered(limit, offset))
+
+    def cursor(self):
+        if self._query:
+            return self._query.cursor()
+
+    def with_cursor(self, cursor):
+        self._cursor = cursor
+        return self
 
     def retrieve_page(self, cursor=None):
         page, cursor = self._model._mapper.retrieve_page(cursor)
