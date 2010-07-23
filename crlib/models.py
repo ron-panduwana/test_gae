@@ -11,6 +11,8 @@ def _model_kwargs(model_instance, fields):
         value = getattr(model_instance, field)
         if isinstance(value, str):
             value = value.decode('utf8')
+        if isinstance(value, unicode) and len(value) >= 500:
+            value = u''
         kwargs[field] = value
     return kwargs
 
@@ -73,7 +75,6 @@ class UserCache(_CacheBase):
     USERS_PER_JOB = 5
 
     id = db.StringProperty()
-    title = db.TextProperty()
     user_name = db.StringProperty(required=True)
     given_name = db.StringProperty(required=True)
     family_name = db.StringProperty(required=True)
@@ -120,7 +121,6 @@ class UserCache(_CacheBase):
 class GroupCache(_CacheBase):
     id = db.StringProperty()
     name = db.StringProperty()
-    description = db.TextProperty()
     email_permission = db.StringProperty()
 
 
@@ -142,8 +142,8 @@ class NicknameCache(_CacheBase):
 
 class SharedContactCache(_CacheBase):
     name = db.StringListProperty()
-    title = db.TextProperty()
-    notes = db.TextProperty()
+    title = db.StringProperty()
+    #notes = db.TextProperty()
     birthday = db.DateProperty()
     emails = db.StringListProperty()
     phone_numbers = db.StringListProperty()
