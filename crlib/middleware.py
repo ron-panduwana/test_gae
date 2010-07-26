@@ -1,14 +1,7 @@
 from django.utils.cache import patch_vary_headers
 from django.utils import translation
 from django.http import HttpResponseRedirect
-from crlib.gdata_wrapper import RetryError
 from crgappspanel.models import Preferences
-
-
-class PrecacheRetryMiddleware(object):
-    def process_exception(self, request, exception):
-        if isinstance(exception, RetryError):
-            return HttpResponseRedirect(request.get_full_path())
 
 
 class LocaleMiddleware(object):
