@@ -12,11 +12,13 @@ PATHS = {
     'compiler_jar': abs('util/compiler.jar'),
     'output': abs('static/scripts/all-closure.js'),
     'scripts_dir': abs('static/scripts'),
+    'media_dir': abs('crgappspanel/media/js'),
 }
 
 COMMAND = ("""
 python "%(calc_deps)s" -i "%(closure_deps)s" -p "%(closure_dir)s"
--p "%(scripts_dir)s" -f "--compilation_level=ADVANCED_OPTIMIZATIONS"
+-p "%(scripts_dir)s" -p "%(media_dir)s"
+-f "--compilation_level=ADVANCED_OPTIMIZATIONS"
 -o compiled -c "%(compiler_jar)s" --output_file="%(output)s"
 """ % PATHS).strip().replace('\n', ' ')
 

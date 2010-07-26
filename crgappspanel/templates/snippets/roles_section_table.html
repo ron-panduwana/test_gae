@@ -1,3 +1,4 @@
+{% load i18n %}
 <table class="roles">
 	<col width="100"/>
 	<col width="50"/>
@@ -6,9 +7,9 @@
 	{% if show_roles_table_header %}
 	<tr>
 		<td></td>
-		<td style="padding: 0px 5px">Add</td>
-		<td style="padding: 0px 5px">Change</td>
-		<td style="padding: 0px 5px">Read</td>
+        <td style="padding: 0px 5px">{% trans 'Add' %}</td>
+        <td style="padding: 0px 5px">{% trans 'Change' %}</td>
+        <td style="padding: 0px 5px">{% trans 'Read' %}</td>
 	</tr>
 	{% endif %}
 	{% for group in section.groups %}

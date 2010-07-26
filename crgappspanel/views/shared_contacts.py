@@ -94,12 +94,17 @@ def shared_contacts(request):
     per_page = Preferences.for_current_user().items_per_page
     page = get_page(request, shared_contacts, per_page)
     
+    delete_link_title = _('Delete shared contacts')
     return render_with_nav(request, 'shared_contacts_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
             widths=_table_widths, singular='shared contact',
+            delete_link_title=delete_link_title,
             can_change=users.get_current_user().has_perm(
                 'change_sharedcontact')),
+        'delete_question': _('Are you sure you want to delete selected '
+                             'shared contacts?'),
+        'delete_link_title': delete_link_title,
         'advanced_search': advanced_search,
         'filters': filters,
         'query': dict(general=query, advanced=query_adv.search_by),
@@ -169,8 +174,8 @@ def shared_contact_details(request, key=None):
             return redirect_saved('shared-contact-details',
                 request, key=key)
     else:
-        real_name = [shared_contact.name.name_prefix,
-                shared_contact.name.given_name, shared_contact.name.family_name]
+        real_name = (shared_contact.name.given_name,
+                     shared_contact.name.family_name)
         form = SharedContactForm(initial={
             'full_name': shared_contact.name.full_name,
             'real_name': real_name,
