@@ -1,5 +1,6 @@
 import logging
 import pickle
+import re
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from google.appengine.api import memcache
@@ -12,7 +13,7 @@ def _model_kwargs(model_instance, fields):
         if isinstance(value, str):
             value = value.decode('utf8')
         if isinstance(value, unicode) and len(value) >= 500:
-            value = u''
+            value = value[:500]
         kwargs[field] = value
     return kwargs
 
@@ -140,41 +141,68 @@ class NicknameCache(_CacheBase):
         return kwargs
 
 
+RE_SPLIT = re.compile(r'[^\w\d]+', re.UNICODE)
+
 class SharedContactCache(_CacheBase):
-    name = db.StringListProperty()
+    name = db.StringProperty()
     title = db.StringProperty()
-    #notes = db.TextProperty()
     birthday = db.DateProperty()
     emails = db.StringListProperty()
     phone_numbers = db.StringListProperty()
     postal_addresses = db.StringListProperty()
     organization = db.StringProperty()
+    notes = db.StringListProperty()
+    search_index = db.StringListProperty()
+    name_index = db.StringListProperty()
 
     @classmethod
     def model_to_kwargs(cls, model_instance, **kwargs):
         kwargs = dict(kwargs)
-        name = model_instance.name and [
+        name_index = model_instance.name and [
             getattr(model_instance.name, attr)
             for attr in ('given_name', 'family_name')] or []
-        name = [x for x in name if x]
-        emails = [email.address for email in model_instance.emails]
-        phone_numbers = [number.number
-                         for number in model_instance.phone_numbers]
+        name = ' '.join([x.lower() for x in reversed(name_index) if x])
+        name_index = [x.lower() for x in name_index if x] or ['']
+        name = name and name[:500]
+        emails = sorted([email.address for email in model_instance.emails])
+        emails = emails or ['']
+        phone_numbers = sorted([number.number
+                                for number in model_instance.phone_numbers])
+        phone_numbers = phone_numbers or ['']
         addresses = [address.address
                      for address in model_instance.postal_addresses]
         if model_instance.organization:
             organization = model_instance.organization.name
         else:
             organization = None
+        organization = organization and organization.lower() or ''
+
+        def _filter(l):
+            return [item[:500].lower() for item in l if item]
+
+        notes = RE_SPLIT.split(model_instance.notes or '')
+        notes = list(set(_filter(notes)))
+
+        index = []
+        index += RE_SPLIT.split(model_instance.name.full_name or '')
+        index += emails
+        index += phone_numbers
+        index += addresses
+        index += RE_SPLIT.split(organization or '')
+        index = list(set(_filter(index)))
+
         kwargs.update({
             'name': name,
+            'name_index': name_index,
             'emails': emails,
             'phone_numbers': phone_numbers,
             'addresses': addresses,
             'organization': organization,
+            'notes': notes,
+            'search_index': index,
         })
         kwargs.update(_model_kwargs(model_instance, (
-            'title', 'notes', 'birthday',
+            'title', 'birthday',
         )))
         return kwargs
 

@@ -8,7 +8,8 @@ HASH_LEN = 12
 
 
 class Paginator(object):
-    def __init__(self, model_class, request, valid_sortby, per_page=50):
+    def __init__(self, model_class, request, valid_sortby, per_page=50,
+                 query=None):
         self.model_class = model_class
         self.path = request.path
         self.params = request.GET
@@ -21,7 +22,13 @@ class Paginator(object):
         if not self.asc:
             self.order = '-' + self.order
 
-        self.query = model_class.all().order(self.order)
+        def _query_gen():
+            if query:
+                return query()
+            return model_class.all().order(self.order)
+        self.query_gen = _query_gen
+
+        self.query = self.query_gen()
 
         self.start = self.params.get('start')
         if self.start:
@@ -47,8 +54,7 @@ class Paginator(object):
         self.cursor = self.query.cursor()
 
     def has_more(self):
-        return self.model_class.all().order(
-            self.order).with_cursor(self.cursor).get() is not None
+        return self.query_gen().with_cursor(self.cursor).get() is not None
 
     @property
     def next_link(self):
