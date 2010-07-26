@@ -206,6 +206,9 @@ class GroupEntry(_DictAtom):
 
 
 class GroupEntryMapper(AtomMapper):
+    def __repr__(self):
+        return '<GroupEntryMapper>'
+
     def key(self, atom):
         return atom.groupId
 

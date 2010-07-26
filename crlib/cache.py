@@ -15,6 +15,16 @@ MIN_DATETIME = datetime.datetime(1970, 1, 1)
 
 _MODELS_DICT = {}
 
+
+def _serialize_dict(d):
+    val = ''
+    keys = sorted(d.keys())
+    for key in keys:
+        value = unicode(d[key]).encode('utf8')
+        val += '%s:%s' % (key, value)
+    return val
+
+
 def register(cls):
     _MODELS_DICT[cls.__name__] = cls
 
@@ -89,7 +99,7 @@ def update_cache(post_data):
     if page:
         key_name += ':%s' % page
 
-    if memcache.incr('lock:' + key_name, initial_value=0) > 1:
+    if not memcache.add('lock:' + key_name, True, 60):
         return
 
     cursor = post_data.get('cursor')
@@ -125,7 +135,7 @@ def update_cache(post_data):
 
     leftover = []
 
-    if new_page_hash != index.page_hash:
+    if new_page_hash != index.page_hash or prev_hashes:
         index.page_hash = new_page_hash
         old_hashes = prev_hashes + index.hashes
         index.keys, index.hashes = [], []
@@ -133,8 +143,12 @@ def update_cache(post_data):
         items_dict = {}
         new_hashes = []
         new_keys = []
-        for item in items:
-            hsh = hashlib.sha1(str(item._atom)).hexdigest()
+        for i, item in enumerate(items):
+            if isinstance(item._atom, dict):
+                value = _serialize_dict(item._atom)
+            else:
+                value = str(item._atom)
+            hsh = hashlib.sha1(value).hexdigest()
             new_hashes.append(hsh)
             items_dict[hsh] = item
             new_keys.append(item.key())
