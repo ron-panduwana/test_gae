@@ -1,5 +1,4 @@
-from django.utils.translation import ugettext as _
-
+from django.utils.translation import ugettext_lazy as _
 from crauth import users
 from crauth.decorators import has_perm
 from crgappspanel.forms import CalendarResourceForm

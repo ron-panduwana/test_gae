@@ -1,7 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.utils.translation import ugettext as _
-
+from django.utils.translation import ugettext_lazy as _
 from crauth.decorators import has_perm
 from crauth.models import Role
 from crauth import users
