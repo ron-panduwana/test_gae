@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-15 10:51+0200\n"
+"POT-Creation-Date: 2010-07-26 15:41+0200\n"
 "PO-Revision-Date: 2010-07-05 16:59+0100\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,11 +16,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: consts.py:64 forms.py:237
+#: consts.py:64 forms.py:254
 msgid "Owner"
 msgstr "Właściciel"
 
-#: consts.py:65 forms.py:237
+#: consts.py:65 forms.py:254
 msgid "Member"
 msgstr "Członek"
 
@@ -32,32 +32,32 @@ msgstr "Domena"
 msgid "Anyone"
 msgstr "Ktokolwiek"
 
-#: forms.py:23 forms.py:29 forms.py:248 forms.py:252 forms.py:262
+#: forms.py:24 forms.py:30 forms.py:265 forms.py:269 forms.py:279
 msgid "Don't change"
 msgstr "Nie zmieniaj"
 
-#: forms.py:74 forms.py:111
+#: forms.py:75 forms.py:112
 msgid "Lowercase english letters are not allowed."
 msgstr "Małe litery alfabetu łacińskiego są niedozwolone."
 
-#: forms.py:78 forms.py:115
+#: forms.py:79 forms.py:116
 msgid "Uppercase english letters are not allowed."
 msgstr "Wielkie litery alfabetu łacińskiego są niedozwolone."
 
-#: forms.py:82 forms.py:119
+#: forms.py:83 forms.py:120
 msgid "Digits are not allowed."
 msgstr "Cyfry są niedozwolone."
 
-#: forms.py:85 forms.py:107
+#: forms.py:86 forms.py:108
 #, python-format
 msgid "Character '%(char)s' is not allowed."
 msgstr "Znak '%(char)s' jest niedozwolony."
 
-#: forms.py:140
+#: forms.py:141
 msgid "There must be at least one letter or digit."
 msgstr "Conajmniej jedna litera lub cyfra jest wymagana."
 
-#: forms.py:149
+#: forms.py:150
 #, python-format
 msgid ""
 "%(widget)s%(link_start)sChange password%(link_end)s WARNING: dangerous, "
@@ -66,217 +66,225 @@ msgstr ""
 "%(widget)s%(link_start)sZmień hasło%(link_end)s UWAGA: niebezpieczne, "
 "jeszcze bez potwierdzenia!"
 
-#: forms.py:152
+#: forms.py:153
 #, python-format
 msgid "Enter new password:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "Wprowadź nowe hasło:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:156
+#: forms.py:157
 #, python-format
 msgid "%(link_start)sAdd nickname%(link_end)s"
 msgstr "%(link_start)sDodaj pseudonim%(link_end)s"
 
-#: forms.py:157
+#: forms.py:158
 #, python-format
 msgid "Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "Wprowadź pseudonim:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:168 templates/user_create.html:14 views/users.py:97
+#: forms.py:169 templates/user_create.html:14 views/users.py:100
 msgid "Username"
 msgstr "Nazwa użytkownika"
 
-#: forms.py:170 forms.py:171
+#: forms.py:171 forms.py:172
 msgid "Password"
 msgstr "Hasło"
 
-#: forms.py:172
+#: forms.py:173
 msgid "Require a change of password in the next sign in"
 msgstr "Zarządaj zmiany hasła przy następnym logowaniu"
 
-#: forms.py:174 templates/user_create.html:18 views/users.py:96
+#: forms.py:175 templates/user_create.html:18 views/users.py:99
 msgid "Full name"
 msgstr "Imię i nazwisko"
 
-#: forms.py:176
+#: forms.py:177
 msgid "Nicknames"
 msgstr "Pseudonimy"
 
 #: forms.py:212
+msgid "First name is required."
+msgstr "Imię jest wymagane."
+
+#: forms.py:214
+msgid "Family name is required."
+msgstr "Nazwisko jest wymagane."
+
+#: forms.py:229
 msgid "These passwords don't match."
 msgstr "Wpisane hasła nie są identyczne."
 
-#: forms.py:216
+#: forms.py:233
 #, python-format
 msgid "%(link_start)sAdd role%(link_end)s"
 msgstr "%(link_start)sDodaj rolę%(link_end)s"
 
-#: forms.py:217
+#: forms.py:234
 #, python-format
 msgid "Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "Wybierz rolę:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:221 navigation.py:13 navigation.py:45 views/users.py:99
+#: forms.py:238 navigation.py:13 navigation.py:45 views/users.py:102
 msgid "Roles"
 msgstr "Role"
 
-#: forms.py:241
+#: forms.py:258
 msgid "Add to groups"
 msgstr "Dodaj do grup"
 
-#: forms.py:243
+#: forms.py:260
 msgid "Add as"
 msgstr "Dodaj jako"
 
-#: forms.py:246
+#: forms.py:263
 msgid "Enable"
 msgstr "Włącz"
 
-#: forms.py:246 forms.py:265
+#: forms.py:263 forms.py:282
 msgid "Disable"
 msgstr "Wyłącz"
 
-#: forms.py:253
+#: forms.py:270
 msgid "Forward and keep"
 msgstr "Przekaż i zachowaj"
 
-#: forms.py:254
+#: forms.py:271
 msgid "Forward and archive"
 msgstr "Przekaż i zarchiwizuj"
 
-#: forms.py:255
+#: forms.py:272
 msgid "Forward and delete"
 msgstr "Przekaż i usuń"
 
-#: forms.py:256
+#: forms.py:273
 msgid "Don't forward"
 msgstr "Nie przekazuj"
 
-#: forms.py:263
+#: forms.py:280
 msgid "Enable for all emails"
 msgstr "Włącz dla wszystkich wiadomości"
 
-#: forms.py:264
+#: forms.py:281
 msgid "Enable for emails for now on"
 msgstr "Włącz dla wiadomości odebranych od tego momentu"
 
-#: forms.py:271
+#: forms.py:288
 msgid "Use Unicode (UTF-8)"
 msgstr "Używaj Unikodu (UTF-8)"
 
-#: forms.py:271
+#: forms.py:288
 msgid "Use default text encoding"
 msgstr "Używaj domyślnego kodowania znaków"
 
-#: forms.py:278 forms.py:785
+#: forms.py:295 forms.py:825
 msgid "Language"
 msgstr "Język"
 
-#: forms.py:280
+#: forms.py:297
 msgid "Forwarding"
 msgstr "Przekazywanie"
 
-#: forms.py:282
+#: forms.py:299
 msgid "Forward to"
 msgstr "Przekaż do"
 
-#: forms.py:284
+#: forms.py:301
 msgid "POP3"
 msgstr "POP3"
 
-#: forms.py:286
+#: forms.py:303
 msgid "IMAP"
 msgstr "IMAP"
 
-#: forms.py:288
+#: forms.py:305
 msgid "Messages per page"
 msgstr "Wiadomości na stronę"
 
-#: forms.py:290
+#: forms.py:307
 msgid "Web Clips"
 msgstr "Wycinki"
 
-#: forms.py:292
+#: forms.py:309
 msgid "Snippets"
 msgstr "Podgląd wiadomości"
 
-#: forms.py:294
+#: forms.py:311
 msgid "Keyboard shortcuts"
 msgstr "Skróty klawiaturowe"
 
-#: forms.py:296
+#: forms.py:313
 msgid "Personal level indicators"
 msgstr "Znaczniki osobiste"
 
-#: forms.py:298
+#: forms.py:315
 msgid "Outgoing mail encoding"
 msgstr "Kodowanie wiadomości wychodzących"
 
-#: forms.py:300
+#: forms.py:317
 msgid "Signature"
 msgstr "Podpis"
 
-#: forms.py:320
+#: forms.py:337
 msgid "Forwarding address must be specified when enabling forwarding."
 msgstr "Adres przekazywania musi być ustawiony przy włączaniu przekazywania."
 
-#: forms.py:328
+#: forms.py:345
 msgid "Forwarding address must not be specified when not enabling forwarding."
 msgstr ""
 "Adres przekazywania nie może być ustawiony przy wyłączonym przekazywaniu."
 
-#: forms.py:336
+#: forms.py:353
 msgid "Signature must be specified when enabling signature."
 msgstr "Należy ustalić podpis, jeśli ta opcja jest włączona."
 
-#: forms.py:344
+#: forms.py:361
 msgid "Signature must not be specified when not enabling signature."
 msgstr "Nie można wprowadzać podpisu, jeśli ta opcja jest wyłączona."
 
-#: forms.py:354
+#: forms.py:371
 msgid "Doesn't matter"
 msgstr "Nie ma znaczenia"
 
-#: forms.py:355
+#: forms.py:372
 msgid "Must have"
 msgstr "Musi zawierać"
 
-#: forms.py:360
+#: forms.py:377
 msgid "From"
 msgstr "Od"
 
-#: forms.py:362
+#: forms.py:379
 msgid "To"
 msgstr "Do"
 
-#: forms.py:364 forms.py:424
+#: forms.py:381 forms.py:441
 msgid "Subject"
 msgstr "Temat"
 
-#: forms.py:365
+#: forms.py:382
 msgid "Has the words"
 msgstr "Zawiera słowa"
 
-#: forms.py:366
+#: forms.py:383
 msgid "Doesn't have"
 msgstr "Nie zawiera słów"
 
-#: forms.py:368
+#: forms.py:385
 msgid "Has attachment"
 msgstr "Załącznik"
 
-#: forms.py:370
+#: forms.py:387
 msgid "Apply label"
 msgstr "Dodaj etykietę"
 
-#: forms.py:371
+#: forms.py:388
 msgid "Mark as read"
 msgstr "Oznacz jako przeczytane"
 
-#: forms.py:373
+#: forms.py:390
 msgid "Archive"
 msgstr "Zarchiwizuj"
 
-#: forms.py:391
+#: forms.py:408
 msgid ""
 "At least one of fields: from, to, subject, has words, doesn't have, has "
 "attachment must be filled."
@@ -284,219 +292,240 @@ msgstr ""
 "Przynajmniej jedno z pól: od, do, temat, zawiera słowa, nie zawiera słow, "
 "załącznik musi być wypełnione."
 
-#: forms.py:396
+#: forms.py:413
 msgid ""
 "At least one of fields apply label, mark as read, archive must be filled."
 msgstr ""
 "Przynajmniej jedno z pól: dodaj etykietę, oznacz jako przeczytane, "
 "zarchiwizuj musi być wypełnione."
 
-#: forms.py:408
+#: forms.py:425
 msgid "Enabled"
 msgstr "Włączone"
 
-#: forms.py:409
+#: forms.py:426
 msgid "Disabled"
 msgstr "Wyłączone"
 
-#: forms.py:413
+#: forms.py:430
 msgid "Only send a response to people in my Contacts"
 msgstr "Wysyłaj tylko do osób, które znajdują się w mojej książce adresowej"
 
-#: forms.py:414
+#: forms.py:431
 msgid "Send to all"
 msgstr "Wysyłaj do wszystkich"
 
-#: forms.py:419
+#: forms.py:436
 msgid "Out of Office AutoReply"
 msgstr "Wiadomość o nieobecności"
 
-#: forms.py:426
+#: forms.py:443
 msgid "Message"
 msgstr "Wiadomość"
 
-#: forms.py:428
+#: forms.py:445
 msgid "Send to"
 msgstr "Wysyłaj do"
 
-#: forms.py:435
+#: forms.py:452
 msgid "Subject field is required"
 msgstr "Pole tematu jest wymagane"
 
-#: forms.py:442 forms.py:449
+#: forms.py:459 forms.py:466
 msgid "Message field is required"
 msgstr "Pole wiadomości jest wymagane"
 
-#: forms.py:453
+#: forms.py:470
 #, python-format
 msgid "Set %(link_start)sanother%(link_end)s reply to address"
 msgstr "Ustaw %(link_start)sinny%(link_end)s adres zwrotny"
 
-#: forms.py:454 forms.py:506 forms.py:508
+#: forms.py:471 forms.py:529 forms.py:531
 #, python-format
 msgid "%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:458 forms.py:474 forms.py:575 forms.py:749
+#: forms.py:475 forms.py:491 forms.py:598 forms.py:783
 #: templates/calendar_resource_add.html:10 templates/group_create.html:14
 #: templates/role_create.html:10 templates/shared_contacts_list.html:38
 #: views/calendar_resources.py:14 views/groups.py:19 views/roles.py:17
 msgid "Name"
 msgstr "Nazwa"
 
-#: forms.py:459 forms.py:473 templates/group_create.html:10
+#: forms.py:476 forms.py:490 templates/group_create.html:10
 #: templates/group_details.html:13 views/groups.py:20
 msgid "Email address"
 msgstr "Adres e-mail"
 
-#: forms.py:461
+#: forms.py:478
 msgid "Reply to"
 msgstr "Adres zwrotny"
 
-#: forms.py:464
+#: forms.py:481
 msgid "Make default"
 msgstr "Ustaw jako domyślne"
 
-#: forms.py:475 templates/group_create.html:18 views/groups.py:21
+#: forms.py:492 templates/group_create.html:18 views/groups.py:21
 msgid "Email permission"
 msgstr "Uprawnienia email"
 
-#: forms.py:477 forms.py:751 templates/calendar_resource_add.html:18
+#: forms.py:494 forms.py:785 templates/calendar_resource_add.html:18
 #: templates/group_create.html:22 views/calendar_resources.py:16
 msgid "Description"
 msgstr "Opis"
 
-#: forms.py:505
+#: forms.py:524
+msgid "Group name is required."
+msgstr "Nazwa grupy jest wymagana."
+
+#: forms.py:528
 #, python-format
 msgid "%(link_start)sAdd%(link_end)s another owner"
 msgstr "%(link_start)sDodaj%(link_end)s kolejnego właściciela"
 
-#: forms.py:507
+#: forms.py:530
 #, python-format
 msgid "%(link_start)sAdd%(link_end)s another member"
 msgstr "%(link_start)sDodaj%(link_end)s kolejnego członka"
 
-#: forms.py:512
+#: forms.py:535
 msgid "Owners"
 msgstr "Właściciele"
 
-#: forms.py:515 navigation.py:83
+#: forms.py:538 navigation.py:83
 msgid "Members"
 msgstr "Członkowie"
 
-#: forms.py:527 templates/role_create.html:14
+#: forms.py:550 templates/role_create.html:14
 msgid "Manage Users"
 msgstr "Zarządzanie użytkownikami"
 
-#: forms.py:528 forms.py:535 forms.py:538 forms.py:541 forms.py:544
+#: forms.py:551 forms.py:558 forms.py:561 forms.py:564 forms.py:567
 #: navigation.py:20 navigation.py:41 navigation.py:79
 msgid "General"
 msgstr "Ogólne"
 
-#: forms.py:529 navigation.py:19 templates/settings.html:4
+#: forms.py:552 navigation.py:19 templates/settings.html:4
 msgid "Settings"
 msgstr "Ustawienia"
 
-#: forms.py:530 navigation.py:58 templates/shared_contacts_list.html:72
+#: forms.py:553 navigation.py:58 templates/shared_contacts_list.html:72
 msgid "Filters"
 msgstr "Filtry"
 
-#: forms.py:531 navigation.py:63 templates/user_email_aliases.html:4
-msgid "Aliases"
-msgstr "Aliasy"
+#: forms.py:554 navigation.py:63
+msgid "Send as"
+msgstr "Wysyłaj jako"
 
-#: forms.py:532 navigation.py:68 templates/user_email_vacation.html:4
+#: forms.py:555 navigation.py:68 templates/user_email_vacation.html:4
 msgid "Vacation responder"
 msgstr "Wiadomość o niebecności"
 
-#: forms.py:534 templates/role_create.html:20
+#: forms.py:557 templates/role_create.html:20
 msgid "Manage Groups"
 msgstr "Zarządzanie grupami"
 
-#: forms.py:537 templates/role_create.html:26
+#: forms.py:560 templates/role_create.html:26
 msgid "Manage Roles"
 msgstr "Zarządzanie rolami"
 
-#: forms.py:540 templates/role_create.html:32
+#: forms.py:563 templates/role_create.html:32
 msgid "Manage Shared Contacts"
 msgstr "Zarządzanie kontaktami współdzielonymi"
 
-#: forms.py:543 templates/role_create.html:38
+#: forms.py:566 templates/role_create.html:38
 msgid "Manage Calendar Resources"
 msgstr "Zarządzaniem zasobami kalendarza"
 
-#: forms.py:648
+#: forms.py:668
+msgid "Role name is required."
+msgstr "Nazwa roli jest wymagana."
+
+#: forms.py:672 templates/snippets/user_header.html:3 views/roles.py:27
+#: views/users.py:80 views/users.py:87 views/users.py:286
+msgid "Administrator"
+msgstr "Administrator"
+
+#: forms.py:673
+msgid "Role with this name already exists."
+msgstr "Role o podanej nazwie już istnieje."
+
+#: forms.py:682
 #, python-format
 msgid "%(link_start)sAdd email%(link_end)s"
 msgstr "%(link_start)sDodaj adres e-mail%(link_end)s"
 
-#: forms.py:649
+#: forms.py:683
 #, python-format
 msgid "Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "Wprowadź adres e-mail:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:650
+#: forms.py:684
 #, python-format
 msgid "%(link_start)sAdd phone number%(link_end)s"
 msgstr "%(link_start)sDodaj numer telefonu%(link_end)s"
 
-#: forms.py:651
+#: forms.py:685
 #, python-format
 msgid "Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr ""
 "Wprowadź numer telefonu:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:656 views/shared_contacts.py:43
+#: forms.py:690 views/shared_contacts.py:43
 msgid "Display name"
 msgstr "Nazwa wyświetlana"
 
-#: forms.py:657 views/shared_contacts.py:44
+#: forms.py:691 views/shared_contacts.py:44
 msgid "Real name"
 msgstr "Imię i nazwisko"
 
-#: forms.py:658 templates/shared_contacts_list.html:53
+#: forms.py:692 templates/shared_contacts_list.html:53
 msgid "Notes"
 msgstr "Uwagi"
 
-#: forms.py:660 templates/shared_contacts_list.html:43
+#: forms.py:694 templates/shared_contacts_list.html:43
 #: views/shared_contacts.py:45
 msgid "Company"
 msgstr "Firma"
 
-#: forms.py:661 templates/shared_contacts_list.html:48
+#: forms.py:695 templates/shared_contacts_list.html:48
 msgid "Role"
 msgstr "Stanowisko"
 
-#: forms.py:664
+#: forms.py:698
 msgid "Email"
 msgstr "Adres e-mail"
 
-#: forms.py:667 views/shared_contacts.py:49
+#: forms.py:701 views/shared_contacts.py:49
 msgid "Emails"
 msgstr "Adresy e-mail"
 
-#: forms.py:672
+#: forms.py:706
 msgid "Phone number"
 msgstr "Numer telefonu"
 
-#: forms.py:674 views/shared_contacts.py:47
+#: forms.py:708 views/shared_contacts.py:47
 msgid "Phone numbers"
 msgstr "Numery telefonów"
 
-#: forms.py:734
+#: forms.py:768
 msgid "Company is required if role is not empty."
 msgstr "Pole firma jest wymagane, jeśli podano stanowisko."
 
-#: forms.py:750 templates/calendar_resource_add.html:14
+#: forms.py:784 templates/calendar_resource_add.html:14
 #: views/calendar_resources.py:15
 msgid "Type"
 msgstr "Typ"
 
-#: forms.py:787
+#: forms.py:805
+msgid "Name is required."
+msgstr "Nazwa jest wymagana."
+
+#: forms.py:827
 msgid "Items per page"
 msgstr "Wiadomości na stronę"
 
-#: forms.py:789
+#: forms.py:829
 msgid "How many items to show at once on listing pages."
 msgstr "Ile elementów wyświetlać jednocześnie na stronie."
 
@@ -604,43 +633,43 @@ msgstr "Panna"
 msgid "Ms."
 msgstr "Pani"
 
-#: templates/base.html:32
+#: templates/base.html:34
 msgid "Inbox"
 msgstr "Poczta"
 
-#: templates/base.html:33
+#: templates/base.html:35
 msgid "Calendar"
 msgstr "Kalendarz"
 
-#: templates/base.html:34
+#: templates/base.html:36
 msgid "Help"
 msgstr "Pomoc"
 
-#: templates/base.html:35
+#: templates/base.html:37
 msgid "Change domain"
 msgstr "Zmień domenę"
 
-#: templates/base.html:36
+#: templates/base.html:38
 msgid "Sign out"
 msgstr "Wyloguj się"
 
-#: templates/base.html:38
+#: templates/base.html:40
 msgid "Sign in"
 msgstr "Zaloguj się"
 
-#: templates/base.html:54
+#: templates/base.html:56
 msgid "Back to list"
 msgstr "Powrót do listy"
 
-#: templates/base.html:99
+#: templates/base.html:102
 msgid "Privacy policy"
 msgstr "Polityka prywatności (ang.)"
 
-#: templates/base.html:100
+#: templates/base.html:103
 msgid "Feedback"
 msgstr "Twoja opinia"
 
-#: templates/base.html:101
+#: templates/base.html:104
 msgid "Report a problem"
 msgstr "Zgłoś problem"
 
@@ -816,6 +845,10 @@ msgstr "Odblokuj"
 msgid "Suspend"
 msgstr "Zablokuj"
 
+#: templates/user_email_aliases.html:4
+msgid "Aliases"
+msgstr "Aliasy"
+
 #: templates/user_email_filters.html:4
 msgid "User filters"
 msgstr "Filtry użytkownika"
@@ -867,11 +900,6 @@ msgid ""
 msgstr ""
 "Zmiany zostały zapisane, chociaż niektóre z nich mogą zająć do 24 godzin "
 "zanim będą widoczne."
-
-#: templates/snippets/user_header.html:3 views/roles.py:27 views/users.py:75
-#: views/users.py:84 views/users.py:279
-msgid "Administrator"
-msgstr "Administrator"
 
 #: views/calendar_resources.py:36
 msgid "Delete calendar resources"
@@ -925,27 +953,27 @@ msgstr "Zablokowany"
 msgid "Active"
 msgstr "Aktywny"
 
-#: views/users.py:98
+#: views/users.py:101
 msgid "Status"
 msgstr "Status"
 
-#: views/users.py:100
+#: views/users.py:103
 msgid "Email quota"
 msgstr "Limit pojemności"
 
-#: views/users.py:123
+#: views/users.py:126
 msgid "Delete users"
 msgstr "Usuń użytkowników"
 
-#: views/users.py:131
+#: views/users.py:134
 msgid "Are you sure you want to delete selected users?"
 msgstr "Czy jesteś pewny, że chcesz usunąć zaznaczonych użytkowników?"
 
-#: views/users.py:152 views/users.py:205
+#: views/users.py:155 views/users.py:169 views/users.py:212
 msgid "Either user or nick with this name already exists."
 msgstr "Użytkownik lub pseudonim o tej nazwie już istnieje."
 
-#: views/users.py:156 views/users.py:209
+#: views/users.py:159 views/users.py:216
 msgid ""
 "User with such name was recently deleted and this name cannot be currently "
 "used."
@@ -953,24 +981,24 @@ msgstr ""
 "Użytkownik o takiej nazwie został niedawno usunięty, dlatego ta nazwa nie "
 "może być aktualnie użyta."
 
-#: views/users.py:161
+#: views/users.py:164
 msgid "Your domain user limit has been reached, you cannot create more users."
 msgstr ""
 "Limit ilości użytkowników dla Twojej domeny został osiągnięty. Nie możesz "
 "tworzyć więcej użytkowników."
 
-#: views/users.py:201
+#: views/users.py:208
 msgid "This name is already reserved."
 msgstr "Ta nazwa jest już zarezerwowana."
 
-#: views/users.py:491
+#: views/users.py:498
 #, python-format
 msgid "Email address has to exist as a user or an alias on %s domain."
 msgstr ""
 "Podany adres e-mail musi odnosić się do istniejącego użytkownika lub aliasu "
 "w domenie %s."
 
-#: views/users.py:496
+#: views/users.py:503
 #, python-format
 msgid "Email address has to be of form username@%s."
 msgstr "Adres e-mail musi być formatu nazwa_uzytkownika@%s."
@@ -993,9 +1021,6 @@ msgstr "Adres e-mail musi być formatu nazwa_uzytkownika@%s."
 
 #~ msgid "Delete"
 #~ msgstr "Usuń"
-
-#~ msgid "Send as"
-#~ msgstr "Wysyłaj jako"
 
 #~ msgid "User aliases"
 #~ msgstr "Aliasy użytkownika"
