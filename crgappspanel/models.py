@@ -1,9 +1,11 @@
+import logging
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
 from crlib import gdata_wrapper as gd
-from crlib import mappers
+from crlib import mappers, cache
+from crlib import models as crlib_models
 from crlib.signals import gauser_renamed
 from crauth import users
 
@@ -63,6 +65,7 @@ class GAUser(gd.Model):
             ('change_gausersendas', _('Modify users in your domain')),
             ('change_gauservacation', _('Change vacation responder settings')),
         )
+        cache_model = crlib_models.UserCache
 
     id = gd.StringProperty('id.text', read_only=True)
     title = gd.StringProperty('title.text', read_only=True)
@@ -146,6 +149,7 @@ class GAGroup(gd.Model):
             ('add_gagroup', _('Create groups in your domain')),
             ('change_gagroup', _('Modify groups in your domain')),
         )
+        cache_model = crlib_models.GroupCache
 
     id = gd.StringProperty('groupId', required=True)
     name = gd.StringProperty('groupName', required=True)
@@ -181,6 +185,8 @@ class GANickname(gd.Model):
     Mapper = mappers.NicknameEntryMapper()
     class Meta:
         permissions = ()
+        cache_model = crlib_models.NicknameCache
+        no_auto_cache = True
 
     nickname = gd.StringProperty('nickname.name', required=True)
     user_name = gd.StringProperty('login.user_name')
@@ -261,6 +267,7 @@ class SharedContact(gd.Model):
             ('change_sharedcontact',
              _('Modify shared contacts in your domain')),
         )
+        cache_model = crlib_models.SharedContactCache
 
     name = gd.EmbeddedModelProperty(Name, 'name', required=False)
     title = gd.StringProperty('title.text', required=False, read_only=True)

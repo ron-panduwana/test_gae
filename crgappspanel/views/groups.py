@@ -7,6 +7,7 @@ from crauth.decorators import has_perm
 from crgappspanel.forms import GroupForm, GroupMembersForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
+from crgappspanel.helpers.paginator import Paginator
 from crgappspanel.models import Preferences, GAGroup, GAGroupOwner, \
         GAGroupMember
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
@@ -17,8 +18,8 @@ from crlib import errors
 
 _table_fields = (
     Column(_('Name'), 'name', link=True),
-    Column(_('Email address'), 'email', getter=lambda x: x.id),
-    Column(_('Email permission'), 'email_permission'),
+    Column(_('Email address'), 'id', getter=lambda x: x.id),
+    Column(_('Email permission'), 'email_permission', sortable=False),
 )
 _table_id = Column(None, 'id', getter=lambda x: x.id.partition('@')[0])
 _table_widths = ['%d%%' % x for x in (5, 40, 40, 15)]
@@ -26,23 +27,17 @@ _table_widths = ['%d%%' % x for x in (5, 40, 40, 15)]
 
 @has_perm('read_gagroup')
 def groups(request):
-    sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
-    
-    groups = GAGroup.all().fetch(1000)
-    
-    # instantiating table and sorting groups
-    table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
-    table.sort(groups)
-    
-    # selecting particular page
     per_page = Preferences.for_current_user().items_per_page
-    page = get_page(request, groups, per_page)
+    paginator = Paginator(GAGroup, request, (
+        'id', 'name',
+    ), per_page)
+
+    table = Table(_table_fields, _table_id)
     
     delete_link_title = _('Delete groups')
     return render_with_nav(request, 'groups_list.html', {
-        'table': table.generate(
-            page.object_list, page=page, qs_wo_page=qs_wo_page(request),
-            widths=_table_widths, singular='group',
+        'table': table.generate_paginator(
+            paginator, widths=_table_widths,
             delete_link_title=delete_link_title,
             can_change=users.get_current_user().has_perm('change_gagroup')),
         'saved': request.session.pop('saved', False),
@@ -57,7 +52,7 @@ def group_create(request):
     if request.method == 'POST':
         form = GroupForm(request.POST, auto_id=True)
         if form.is_valid():
-            group = form.create()
+            group = form.create(users.get_current_domain().domain)
             try:
                 group.save()
                 return redirect_saved('group-details',
@@ -160,17 +155,11 @@ def group_members(request, name=None):
     domain_name = current_user.domain_name
     
     if current_user.has_perm('read_gauser'):
-        from gdata.service import RanOutOfTries
         from crgappspanel.models import GAUser, GANickname
         for user in GAUser.all().fetch(1000):
             suggestions.add('%s@%s' % (user.user_name, domain_name))
-        try:
-            for nick in GANickname.all().fetch(1000):
-                suggestions.add('%s@%s' % (nick.nickname, domain_name))
-        except RanOutOfTries:
-            # Fetching nicknames feed is very slow and usually throws
-            # RanOutOfTries, but it's not fatal so let's simply ignore it.
-            pass
+        for nick in GANickname.all().fetch(1000):
+            suggestions.add('%s@%s' % (nick.nickname, domain_name))
     
     if current_user.has_perm('read_sharedcontact'):
         from crgappspanel.models import SharedContact

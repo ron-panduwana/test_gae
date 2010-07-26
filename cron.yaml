@@ -3,5 +3,5 @@ cron:
   url: /openid/__cron_check_licenses/
   schedule: every 10 minutes
 - description: Precache domain GData feeds
-  url: /__precache_all_domains/
+  url: /__precache_everything/
   schedule: every 3 minutes

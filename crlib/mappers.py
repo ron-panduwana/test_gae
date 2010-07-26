@@ -1,7 +1,7 @@
 import logging
 import re
 from google.appengine.api import memcache
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from gdata import contacts, data
 from gdata.contacts import data as contacts_data
@@ -11,7 +11,8 @@ from gdata.apps.groups import service as groups
 from atom import AtomBase
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
 from crlib.signals import gauser_renamed
-from crlib.errors import apps_for_your_domain_exception_wrapper
+from crlib.errors import EntityExistsError, \
+        apps_for_your_domain_exception_wrapper
 
 
 # Constants
@@ -111,16 +112,15 @@ class UserEntryMapper(AtomMapper):
                                 new_name=atom.login.user_name)
         return new_atom
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            next = previous.GetNextLink()
-            if next:
-                from gdata.apps import UserFeedFromString
-                return self.service.Get(next.href, converter=UserFeedFromString)
-            else:
-                return False
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            from gdata.apps import UserFeedFromString
+            feed = self.service.Get(cursor, converter=UserFeedFromString)
         else:
-            return self.service.RetrievePageOfUsers()
+            feed = self.service.RetrievePageOfUsers()
+        cursor = feed.GetNextLink()
+        cursor = cursor and cursor.href
+        return (feed.entry, cursor)
 
     def retrieve(self, user_name):
         return self.service.RetrieveUser(user_name)
@@ -206,6 +206,9 @@ class GroupEntry(_DictAtom):
 
 
 class GroupEntryMapper(AtomMapper):
+    def __repr__(self):
+        return '<GroupEntryMapper>'
+
     def key(self, atom):
         return atom.groupId
 
@@ -271,18 +274,18 @@ class GroupEntryMapper(AtomMapper):
                 self.service._PropertyEntry2Dict(property_entry))
         return [GroupEntry(self, entry) for entry in properties_list]
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            next = previous.GetNextLink()
-            if next:
-                from gdata.apps import PropertyFeedFromString
-                return self.service.Get(
-                    next.href, converter=PropertyFeedFromString)
-            else:
-                return False
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            from gdata.apps import PropertyFeedFromString
+            feed = self.service.Get(cursor, converter=PropertyFeedFromString)
         else:
             uri = self.service._ServiceUrl('group', True, '', '', '')
-            return self.service._GetPropertyFeed(uri)
+            feed = self.service._GetPropertyFeed(uri)
+        cursor = feed.GetNextLink()
+        cursor = cursor and cursor.href
+        feed = [GroupEntry(self, self.service._PropertyEntry2Dict(entry))
+                for entry in feed.entry]
+        return (feed, cursor)
 
     def retrieve(self, group_id):
         return GroupEntry(self, self.service.RetrieveGroup(group_id))
@@ -307,17 +310,15 @@ class NicknameEntryMapper(AtomMapper):
         return self.service.CreateNickname(
             atom.login.user_name, atom.nickname.name)
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            next = previous.GetNextLink()
-            if next:
-                from gdata.apps import NicknameFeedFromString
-                return self.service.Get(
-                    next.href, converter=NicknameFeedFromString)
-            else:
-                return False
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            from gdata.apps import NicknameFeedFromString
+            feed = self.service.Get(cursor, converter=NicknameFeedFromString)
         else:
-            return self.service.RetrievePageOfNicknames()
+            feed = self.service.RetrievePageOfNicknames()
+        cursor = feed.GetNextLink()
+        cursor = cursor and cursor.href
+        return (feed.entry, cursor)
 
     def retrieve(self, nickname):
         return self.service.RetrieveNickname(nickname)
@@ -418,18 +419,19 @@ class SharedContactEntryMapper(AtomMapper):
         return self.service.get_entry(
             link, desired_class=contacts.data.ContactEntry)
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            total_results = int(previous.total_results.text)
-            start_index = int(previous.start_index.text)
-            if start_index - 1 + len(previous.entry) < total_results:
-                next_start = start_index + self.ITEMS_PER_PAGE
-                return self._retrieve_subset(
-                    limit=self.ITEMS_PER_PAGE, offset=next_start)
-            else:
-                return False
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            feed = self._retrieve_subset(
+                limit=self.ITEMS_PER_PAGE, offset=cursor)
         else:
-            return self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
+            feed = self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
+        total_results = int(feed.total_results.text)
+        start_index = int(feed.start_index.text)
+        if start_index - 1 + len(feed.entry) < total_results:
+            cursor = start_index + self.ITEMS_PER_PAGE
+        else:
+            cursor = None
+        return (feed.entry, cursor)
 
     def _retrieve_subset(self, limit=1000, offset=1):
         from gdata.contacts.client import ContactsQuery

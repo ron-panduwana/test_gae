@@ -3,9 +3,14 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns(
     'crlib.views',
-    url(r'^__precache_all_domains/$', 'precache_all_domains'),
-    url(r'^__precache_domain/$', 'precache_domain', name='precache_domain'),
     url(r'^__add_user_to_group/$', 'add_user_to_group',
         name='add_user_to_group'),
+    url(r'^__precache_everything/$', 'precache_everything',
+        name='precache_everything'),
+    url(r'^__precache_domain_item/$', 'precache_domain_item',
+        name='precache_domain_item'),
+    url(r'^__prepare_indexes/$', 'prepare_indexes'),
+    url(r'^__precache_nicknames/$', 'precache_nicknames',
+        name='precache_nicknames'),
 )
 
