@@ -608,7 +608,7 @@ class Model(object):
     def _update_cache(self):
         if self._cached:
             self._cached.update(self)
-            if self._cache._index:
+            if self._cached._index:
                 self._cached._index.page_hash = '!'
                 db.put([self._cached, self._cached._index])
             else:
