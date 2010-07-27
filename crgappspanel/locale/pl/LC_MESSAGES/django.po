@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-26 16:42+0200\n"
+"POT-Creation-Date: 2010-07-27 17:31+0200\n"
 "PO-Revision-Date: 2010-07-05 16:59+0100\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -443,7 +443,7 @@ msgid "Role name is required."
 msgstr "Nazwa roli jest wymagana."
 
 #: forms.py:672 templates/snippets/user_header.html:3 views/roles.py:26
-#: views/users.py:81 views/users.py:88 views/users.py:286
+#: views/users.py:81 views/users.py:88 views/users.py:290
 msgid "Administrator"
 msgstr "Administrator"
 
@@ -964,11 +964,11 @@ msgstr "Usuń użytkowników"
 msgid "Are you sure you want to delete selected users?"
 msgstr "Czy jesteś pewny, że chcesz usunąć zaznaczonych użytkowników?"
 
-#: views/users.py:152 views/users.py:166 views/users.py:212
+#: views/users.py:152 views/users.py:166 views/users.py:216
 msgid "Either user or nick with this name already exists."
 msgstr "Użytkownik lub pseudonim o tej nazwie już istnieje."
 
-#: views/users.py:156 views/users.py:216
+#: views/users.py:156 views/users.py:220
 msgid ""
 "User with such name was recently deleted and this name cannot be currently "
 "used."
@@ -982,18 +982,22 @@ msgstr ""
 "Limit ilości użytkowników dla Twojej domeny został osiągnięty. Nie możesz "
 "tworzyć więcej użytkowników."
 
-#: views/users.py:208
+#: views/users.py:170
+msgid "An error occured during the request. Please try again."
+msgstr "Podczas przetwarzania żądania wystąpił błąd. Proszę spróbować jeszcze raz."
+
+#: views/users.py:212
 msgid "This name is already reserved."
 msgstr "Ta nazwa jest już zarezerwowana."
 
-#: views/users.py:498
+#: views/users.py:502
 #, python-format
 msgid "Email address has to exist as a user or an alias on %s domain."
 msgstr ""
 "Podany adres e-mail musi odnosić się do istniejącego użytkownika lub aliasu "
 "w domenie %s."
 
-#: views/users.py:503
+#: views/users.py:507
 #, python-format
 msgid "Email address has to be of form username@%s."
 msgstr "Adres e-mail musi być formatu nazwa_uzytkownika@%s."
