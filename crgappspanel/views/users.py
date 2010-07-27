@@ -338,7 +338,7 @@ def user_groups(request, name=None):
             group_member = GAGroupMember.from_user(user)
             
             email = '%s@%s' % (user.user_name,
-                               crauth.users.get_current_domain().domain)
+                               crauth.users.get_current_user().domain_name)
             hashed = hashlib.sha1(email + str(as_owner)).hexdigest()
             memcache.set(hashed, 0)
             for group_id in data['groups']:
