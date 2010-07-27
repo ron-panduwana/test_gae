@@ -494,11 +494,11 @@ class GroupForm(Form):
     description = forms.CharField(label=_('Description'), required=False,
         widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
     
-    def create(self):
+    def create(self, domain):
         data = self.cleaned_data
         
         return models.GAGroup(
-            id=data['id'],
+            id='%s@%s' % (data['id'], domain),
             name=data['name'],
             email_permission=data['email_permission'],
             description=data['description'])
