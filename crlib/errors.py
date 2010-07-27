@@ -40,6 +40,10 @@ class UnknownGDataError(GDataError):
     """ 
 
 
+class NetworkError(GDataError):
+    pass
+
+
 APPS_FOR_YOUR_DOMAIN_ERROR_CODES = {
     1100: EntityDeletedRecentlyError,
     1200: DomainUserLimitExceededError,
@@ -51,6 +55,7 @@ APPS_FOR_YOUR_DOMAIN_ERROR_CODES = {
 
 
 def apps_for_your_domain_exception_wrapper(func):
+    from google.appengine.api.urlfetch_errors import DownloadError
     from gdata.apps.service import AppsForYourDomainException
     def new(*args, **kwargs):
         try:
@@ -60,6 +65,8 @@ def apps_for_your_domain_exception_wrapper(func):
             if exception:
                 raise exception()
             raise
+        except DownloadError:
+            raise NetworkError
     new.__name__ = func.__name__
     new.__doc__ = func.__doc__
     return new

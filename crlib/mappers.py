@@ -97,10 +97,20 @@ class UserEntryMapper(AtomMapper):
 
     @apps_for_your_domain_exception_wrapper
     def create(self, atom):
-        return self.service.CreateUser(
-            atom.login.user_name, atom.name.family_name,
-            atom.name.given_name, atom.login.password,
-            atom.login.suspended, password_hash_function='SHA-1')
+        from google.appengine.api.urlfetch_errors import DownloadError
+        try:
+            return self.service.CreateUser(
+                atom.login.user_name, atom.name.family_name,
+                atom.name.given_name, atom.login.password,
+                atom.login.suspended, password_hash_function='SHA-1')
+        except DownloadError:
+            from gdata.apps.service import AppsForYourDomainException
+            from crlib.errors import NetworkError
+            # Let's see if the user was created
+            try:
+                return self.service.RetrieveUser(atom.login.user_name)
+            except AppsForYourDomainException:
+                raise NetworkError
 
     @apps_for_your_domain_exception_wrapper
     def update(self, atom, old_atom):

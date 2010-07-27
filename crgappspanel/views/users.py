@@ -164,6 +164,10 @@ def user_create(request):
                 form.add_error(
                     'user_name',
                     _('Either user or nick with this name already exists.'))
+            except errors.NetworkError:
+                form.add_error(
+                    '__all__',
+                    _('An error occured during the request. Please try again.'))
     else:
         form = UserForm(auto_id=True)
         form.fields['user_name'].help_text = '@%s' % domain
