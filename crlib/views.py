@@ -88,6 +88,7 @@ def prepare_indexes(request):
 
 
 def add_user_to_group(request):
+    from google.appengine.api.urlfetch_errors import DownloadError
     if request.method != 'POST':
         raise Http404
 
@@ -98,16 +99,18 @@ def add_user_to_group(request):
     as_owner = request.POST['as_owner'] == 'True'
 
     users._set_current_user(email, domain)
-    user = models.GAUser.get_by_key_name(user_name)
-    gagroup = models.GAGroup.get_by_key_name(group_id)
-    group_owner = models.GAGroupOwner.from_user(user)
-    group_member = models.GAGroupMember.from_user(user)
-
-    if gagroup:
-        if as_owner:
-            gagroup.owners.append(group_owner)
-        gagroup.members.append(group_member)
-        gagroup.save()
+    service = models.GAGroup._mapper.service
+    if as_owner:
+        try:
+            service.AddOwnerToGroup(email, group_id)
+        except DownloadError:
+            # It most probably means that the user is already in this group
+            pass
+    try:
+        service.AddMemberToGroup(email, group_id)
+    except DownloadError:
+        # Same as AddOwnerToGroup
+        pass
 
     memcache.incr(hashed, initial_value=0)
 
