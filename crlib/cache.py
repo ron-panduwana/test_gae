@@ -20,7 +20,10 @@ def _serialize_dict(d):
     val = ''
     keys = sorted(d.keys())
     for key in keys:
-        value = unicode(d[key]).encode('utf8')
+        value = d[key]
+        if isinstance(value, str):
+            value = value.decode('utf8')
+        value = unicode(value).encode('utf8')
         val += '%s:%s' % (key, value)
     return val
 
