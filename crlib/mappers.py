@@ -139,7 +139,19 @@ class UserEntryMapper(AtomMapper):
         return atom.login.user_name
 
     def delete(self, atom):
-        self.service.DeleteUser(atom.login.user_name)
+        from google.appengine.api.urlfetch_errors import DownloadError
+        try:
+            self.service.DeleteUser(atom.login.user_name)
+        except DownloadError:
+            from gdata.apps.service import AppsForYourDomainException
+            from crlib.errors import NetworkError
+            # Let's see if the user is still there
+            try:
+                if self.service.RetrieveUser(atom.login.user_name):
+                    raise NetworkError
+            except AppsForYourDomainException:
+                # It's OK - user is deleted
+                pass
 
 
 class _DictAtom(dict):
