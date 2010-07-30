@@ -1,6 +1,7 @@
 import logging
 from functools import wraps
 from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from crlib.navigation import render_with_nav
 from crauth import users
 
@@ -17,6 +18,7 @@ def admin_required(func):
         if users.is_current_user_admin():
             return func(request, *args, **kwargs)
         return HttpResponseRedirect(reverse('admin_required'))
+    new.perm_list = ['admin']
     return new
 
 
