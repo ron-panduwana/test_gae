@@ -3,7 +3,13 @@
 {% if can_change and row.can_change and obj.link %}<a href="../details/{{ row.id }}/">{% endif %}
 {% for data in obj.data|iterable %}
 	{% with data as value %}
-		{% include "snippets/value.html" %}
+        {% if value|stringformat:"s"|slice:"50:" %}
+                {% with value|slice:":50"|stringformat:"s..." as value %}
+                {% include "snippets/value.html" %}
+                {% endwith %}
+        {% else %}
+                {% include "snippets/value.html" %}
+        {% endif %}
 		{% if not forloop.last %}<br/>{% endif %}
 	{% endwith %}
 {% endfor %}
