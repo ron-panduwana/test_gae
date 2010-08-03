@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-03 23:56+0200\n"
+"POT-Creation-Date: 2010-08-04 00:42+0200\n"
 "PO-Revision-Date: 2010-07-05 16:59+0100\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -230,7 +230,8 @@ msgstr "Adres przekazywania musi być ustawiony przy włączaniu przekazywania."
 #: forms.py:345
 #, python-format
 msgid "Forwarding address must point to %(domain)s or its subdomain."
-msgstr "Adres przekazywania musi znajdować się w domenie lub poddomenie %(domain)s."
+msgstr ""
+"Adres przekazywania musi znajdować się w domenie lub poddomenie %(domain)s."
 
 #: forms.py:354
 msgid "Forwarding address must not be specified when not enabling forwarding."
@@ -678,6 +679,10 @@ msgstr "Twoja opinia"
 #: templates/base.html:104
 msgid "Report a problem"
 msgstr "Zgłoś problem"
+
+#: templates/base.html:106
+msgid "Buy now"
+msgstr "Kup teraz"
 
 #: templates/calendar_resource_add.html:4
 #: templates/calendar_resource_add.html:8

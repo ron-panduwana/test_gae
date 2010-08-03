@@ -1,3 +1,5 @@
+import datetime
+import logging
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect, Http404
@@ -46,14 +48,18 @@ def domain_create(request):
     """Displays the form for creating new domain. 
     """
     if request.method == 'POST':
-        form = DomainForm(request.POST, auto_id=True)
+        data = request.POST.copy()
+        data['key_name'] = data.get('domain')
+        form = DomainForm(data, auto_id=True)
         if form.is_valid():
-            domain = form.create()
+            domain = form.save(commit=False)
             domain.installation_token = AppsDomain.random_token()
             domain.save()
             return redirect_saved('domain-details', request, name=domain.domain)
     else:
-        form = DomainForm(auto_id=True)
+        default_date = datetime.date.today() + datetime.timedelta(days=30)
+        form = DomainForm(
+            auto_id=True, initial={'expiration_date': default_date})
     
     return render_with_nav(request, 'domain_create.html', {
         'form': form,
@@ -84,15 +90,17 @@ def domain_details(request, name=None):
         domain.put()
     
     if request.method == 'POST':
-        form = DomainForm(request.POST, auto_id=True)
+        data = request.POST.copy()
+        data['domain'] = domain.domain
+        form = DomainForm(data, instance=domain)
         if form.is_valid():
-            form.populate(domain)
-            domain.save()
+            domain = form.save()
             return redirect_saved('domain-details', request, name=domain.domain)
+        else:
+            form.data['admin_password'] = ''
     else:
-        form = DomainForm(initial=dict(domain=domain.domain,
-            admin_email=domain.admin_email, is_enabled=domain.is_enabled,
-            is_independent=domain.is_independent), auto_id=True)
+        domain.admin_password = ''
+        form = DomainForm(instance=domain)
     
     return render_with_nav(request, 'domain_details.html', {
         'domain': domain,

@@ -163,6 +163,8 @@ def openid_return(request):
     if not redirect_to or '//' in redirect_to or ' ' in redirect_to:
         redirect_to = settings.LOGIN_REDIRECT_URL
 
+    request.session['just_logged_in'] = True
+
     return HttpResponseRedirect(redirect_to)
 
 
@@ -303,4 +305,24 @@ def generate_manifest(request):
     }
     manifest = render_to_string('manifest.xml', ctx)
     return HttpResponse(manifest, mimetype='text/plain')
+
+
+def notify_of_expired_domains(request):
+    from django.core.mail import mail_admins
+
+    today = datetime.date.today()
+    domains = AppsDomain.all().filter('is_on_trial', True).filter(
+        'expiration_date <', today).fetch(100)
+    domains_list = ''
+    for domain in domains:
+        if domain.is_active():
+            domains_list += '- %s (%s), expired on: %s' % (
+                domain.domain, domain.admin_email, domain.expiration_date)
+    mail_admins(
+        'Cloudreach Powerpanel expired domains notification',
+        """The following domains' trial period has expired:
+        %s
+        """ % domains_list)
+
+    return HttpResponse(domains_list)
 
