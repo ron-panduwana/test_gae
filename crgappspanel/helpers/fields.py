@@ -41,7 +41,7 @@ class RealNameField(forms.MultiValueField):
         super(RealNameField, self).__init__(fields, widget=widget, *args, **kwargs)
     
     def compress(self, data_list):
-        return data_list
+        return data_list or [u'', u'']
 
 
 class PermissionsField(forms.MultiValueField):
