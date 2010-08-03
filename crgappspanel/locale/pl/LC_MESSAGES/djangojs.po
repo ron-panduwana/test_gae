@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-26 16:42+0200\n"
+"POT-Creation-Date: 2010-08-04 00:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,17 +34,41 @@ msgstr "Temat"
 msgid "Description"
 msgstr "Opis"
 
-#: media/js/feedback.js:37
+#: media/js/feedback.js:37 media/js/feedback.js.py:95
 msgid "OK"
 msgstr "OK"
 
-#: media/js/feedback.js:38
+#: media/js/feedback.js:38 media/js/feedback.js.py:96
 msgid "Cancel"
 msgstr "Anuluj"
 
 #: media/js/feedback.js:51
 msgid "Please enter both subject and description."
 msgstr "Proszę wprowadzić zarówno temat jak i opis."
+
+#: media/js/feedback.js:64
+msgid "Buy now"
+msgstr "Kup teraz"
+
+#: media/js/feedback.js:71
+msgid "Name"
+msgstr "Imię i nazwisko"
+
+#: media/js/feedback.js:75
+msgid "Company"
+msgstr "Firma"
+
+#: media/js/feedback.js:79
+msgid "Phone"
+msgstr "Numer telefonu"
+
+#: media/js/feedback.js:83
+msgid "Email address"
+msgstr "Adres email"
+
+#: media/js/feedback.js:87
+msgid "Address"
+msgstr "Adres"
 
 #: media/js/snippets.js:48 media/js/snippets.js.py:82
 msgid "Yes"
