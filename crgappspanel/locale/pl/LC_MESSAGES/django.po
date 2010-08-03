@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-27 17:31+0200\n"
+"POT-Creation-Date: 2010-08-03 23:06+0200\n"
 "PO-Revision-Date: 2010-07-05 16:59+0100\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -443,7 +443,7 @@ msgid "Role name is required."
 msgstr "Nazwa roli jest wymagana."
 
 #: forms.py:672 templates/snippets/user_header.html:3 views/roles.py:26
-#: views/users.py:81 views/users.py:88 views/users.py:290
+#: views/users.py:81 views/users.py:88 views/users.py:291
 msgid "Administrator"
 msgstr "Administrator"
 
@@ -472,11 +472,11 @@ msgid "Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr ""
 "Wprowadź numer telefonu:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:690 views/shared_contacts.py:44
+#: forms.py:690 views/shared_contacts.py:45
 msgid "Display name"
 msgstr "Nazwa wyświetlana"
 
-#: forms.py:691 views/shared_contacts.py:45
+#: forms.py:691 views/shared_contacts.py:46
 msgid "Real name"
 msgstr "Imię i nazwisko"
 
@@ -485,7 +485,7 @@ msgid "Notes"
 msgstr "Uwagi"
 
 #: forms.py:694 templates/shared_contacts_list.html:41
-#: views/shared_contacts.py:46
+#: views/shared_contacts.py:47
 msgid "Company"
 msgstr "Firma"
 
@@ -497,7 +497,7 @@ msgstr "Stanowisko"
 msgid "Email"
 msgstr "Adres e-mail"
 
-#: forms.py:701 views/shared_contacts.py:50
+#: forms.py:701 views/shared_contacts.py:51
 msgid "Emails"
 msgstr "Adresy e-mail"
 
@@ -505,7 +505,7 @@ msgstr "Adresy e-mail"
 msgid "Phone number"
 msgstr "Numer telefonu"
 
-#: forms.py:708 views/shared_contacts.py:48
+#: forms.py:708 views/shared_contacts.py:49
 msgid "Phone numbers"
 msgstr "Numery telefonów"
 
@@ -860,6 +860,11 @@ msgstr "Grupy użytkownika"
 msgid "Member of"
 msgstr "Członek grup"
 
+#: templates/user_roles.html:21
+#: templates/snippets/form_field_with_items.html:10
+msgid "Remove"
+msgstr "Usuń"
+
 #: templates/users_list.html:4
 msgid "Users list"
 msgstr "Lista użytkowników"
@@ -867,10 +872,6 @@ msgstr "Lista użytkowników"
 #: templates/snippets/exists_error.html:5
 msgid "Entity with specified name already exists, please choose another one."
 msgstr "Obiekt o podanej nazwie już istnieje, proszę wybrać inną nazwę."
-
-#: templates/snippets/form_field_with_items.html:10
-msgid "Remove"
-msgstr "Usuń"
 
 #: templates/snippets/form_save_reset.html:3
 msgid "save"
@@ -932,13 +933,17 @@ msgstr "Usuń role"
 msgid "Are you sure you want to delete selected roles?"
 msgstr "Czy jesteś pewny, że chcesz usunąć zaznaczone role?"
 
-#: views/shared_contacts.py:76
+#: views/shared_contacts.py:79
 msgid "Delete shared contacts"
 msgstr "Usuń kontakty współdzielone"
 
-#: views/shared_contacts.py:84
+#: views/shared_contacts.py:87
 msgid "Are you sure you want to delete selected shared contacts?"
 msgstr "Czy jesteś pewny, że chcesz usunąć zaznaczone kontakty współdzielone?"
+
+#: views/shared_contacts.py:110 views/shared_contacts.py:161
+msgid "One or more field is too long."
+msgstr "Jedno lub więcej pól jest zbyt długie."
 
 #: views/users.py:47
 msgid "Suspended"
@@ -984,20 +989,21 @@ msgstr ""
 
 #: views/users.py:170
 msgid "An error occured during the request. Please try again."
-msgstr "Podczas przetwarzania żądania wystąpił błąd. Proszę spróbować jeszcze raz."
+msgstr ""
+"Podczas przetwarzania żądania wystąpił błąd. Proszę spróbować jeszcze raz."
 
 #: views/users.py:212
 msgid "This name is already reserved."
 msgstr "Ta nazwa jest już zarezerwowana."
 
-#: views/users.py:502
+#: views/users.py:506
 #, python-format
 msgid "Email address has to exist as a user or an alias on %s domain."
 msgstr ""
 "Podany adres e-mail musi odnosić się do istniejącego użytkownika lub aliasu "
 "w domenie %s."
 
-#: views/users.py:507
+#: views/users.py:511
 #, python-format
 msgid "Email address has to be of form username@%s."
 msgstr "Adres e-mail musi być formatu nazwa_uzytkownika@%s."

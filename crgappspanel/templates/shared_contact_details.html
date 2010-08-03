@@ -11,6 +11,9 @@
 	<br/>
 	<table class="details" width="100%">
 		<tbody>
+            {% for error in form.non_field_errors %}
+            <div class="error">{{ error }}</div>
+            {% endfor %}
 			{% with form.full_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.real_name as field %}{% include "snippets/form_field.html" %}{% endwith %}
 			{% with form.company as field %}{% include "snippets/form_field.html" %}{% endwith %}

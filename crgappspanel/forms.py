@@ -686,7 +686,7 @@ phone_numbers_e = _('Enter phone number:<br/>%(widget)s '
                     '%(link_start)sCancel%(link_end)s')
 
 
-class SharedContactForm(forms.Form):
+class SharedContactForm(Form):
     full_name = forms.CharField(label=_('Display name'))
     real_name = fields.RealNameField(label=_('Real name'), required=False)
     notes = forms.CharField(label=_('Notes'), required=False,

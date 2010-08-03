@@ -11,7 +11,7 @@ from gdata.apps.groups import service as groups
 from atom import AtomBase
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
 from crlib.signals import gauser_renamed
-from crlib.errors import EntityExistsError, \
+from crlib.errors import EntityExistsError, EntitySizeTooLarge, \
         apps_for_your_domain_exception_wrapper
 
 
@@ -428,10 +428,22 @@ class SharedContactEntryMapper(AtomMapper):
         return match.groups(0)[0]
 
     def create(self, atom):
-        return self.service.create_contact(atom)
+        from gdata.client import RequestError
+        try:
+            return self.service.create_contact(atom)
+        except RequestError, e:
+            if e.body == 'Contact size limit exceeded.':
+                raise EntitySizeTooLarge
+            raise
 
     def update(self, atom, old_atom):
-        return self.service.update(atom)
+        from gdata.client import RequestError
+        try:
+            return self.service.update(atom)
+        except RequestError, e:
+            if e.body == 'Contact size limit exceeded.':
+                raise EntitySizeTooLarge
+            raise
 
     def delete(self, atom):
         self.service.delete(atom)
