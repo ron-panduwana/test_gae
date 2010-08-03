@@ -3,6 +3,7 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns(
     'crlib.views',
+    url(r'^app_not_ready/$', 'cache_not_ready', name='cache_not_ready'),
     url(r'^__add_user_to_group/$', 'add_user_to_group',
         name='add_user_to_group'),
     url(r'^__precache_everything/$', 'precache_everything',

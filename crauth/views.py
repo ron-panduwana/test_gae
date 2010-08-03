@@ -154,7 +154,7 @@ def openid_return(request):
     # Request information about user email and name
     ax_resp = ax.FetchResponse.fromSuccessResponse(info)
     for uri, alias in AX_ATTRS:
-        value = ax_resp.data['%s%s' % (AX_PREFIX, uri)]
+        value = ax_resp.data.get('%s%s' % (AX_PREFIX, uri), '')
         if isinstance(value, list):
             value = value[0]
         session_info[alias] = value

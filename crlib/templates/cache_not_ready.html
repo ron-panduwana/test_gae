@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Application not ready' %}{% endblock %}
+
+{% block content %}
+<h1>{% trans 'Application not ready' %}</h1>
+
+{% blocktrans %}
+<p>The application is not ready yet. We are currently preparing your domain
+to work with <strong>Cloudreach Powerpanel</strong>.</p>
+<p>Please wait a few seconds and <a href="{{ next }}">try again</a>.</p>
+{% endblocktrans %}
+{% endblock %}

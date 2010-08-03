@@ -10,7 +10,15 @@ from crauth import users
 from crauth.models import AppsDomain
 from crgappspanel import models
 from crlib.models import GDataIndex
+from crlib.navigation import render_with_nav
 from crlib import cache
+
+
+def cache_not_ready(request, template='cache_not_ready.html'):
+    ctx = {
+        'next': request.GET.get(settings.REDIRECT_FIELD_NAME),
+    }
+    return render_with_nav(request, template, ctx)
 
 
 def precache_everything(request):
