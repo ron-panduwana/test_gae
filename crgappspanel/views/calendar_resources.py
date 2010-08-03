@@ -7,6 +7,7 @@ from crgappspanel.models import Preferences, CalendarResource
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
         secure_random_chars, redirect_saved
 from crlib.navigation import render_with_nav
+from crlib import errors
 
 
 _table_fields = [
@@ -53,9 +54,15 @@ def calendar_resource_add(request):
         form = CalendarResourceForm(request.POST, auto_id=True)
         if form.is_valid():
             resource = form.create(secure_random_chars(20))
-            resource.save()
-            return redirect_saved('calendar-resource-details', request,
-                id=resource.id)
+            try:
+                resource.save()
+                return redirect_saved('calendar-resource-details', request,
+                    id=resource.id)
+            except errors.EntitySizeTooLarge:
+                form.add_error(
+                    'description',
+                    _('Calendar resource description may contain up to 1,000 '
+                      'characters.'))
     else:
         form = CalendarResourceForm(auto_id=True)
     
@@ -77,9 +84,15 @@ def calendar_resource_details(request, id=None):
         form = CalendarResourceForm(request.POST, auto_id=True)
         if form.is_valid():
             form.populate(resource)
-            resource.save()
-            return redirect_saved('calendar-resource-details', request,
-                id=resource.id)
+            try:
+                resource.save()
+                return redirect_saved('calendar-resource-details', request,
+                    id=resource.id)
+            except errors.EntitySizeTooLarge:
+                form.add_error(
+                    'description',
+                    _('Calendar resource description may contain up to 1,000 '
+                      'characters.'))
     else:
         form = CalendarResourceForm(initial={
             'common_name': resource.common_name,

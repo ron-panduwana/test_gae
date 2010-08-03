@@ -779,7 +779,7 @@ class SharedContactForm(Form):
 ################################################################################
 
 
-class CalendarResourceForm(forms.Form):
+class CalendarResourceForm(Form):
     common_name = forms.CharField(label=_('Name'))
     type = forms.CharField(label=_('Type'), required=False)
     description = forms.CharField(label=_('Description'), required=False,
