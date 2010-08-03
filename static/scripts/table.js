@@ -111,7 +111,9 @@ cr.table.onDeleteClicked = function(obj) {
 		}
 	}
 	
-	cr.table.deletes[tableName](list, String.format('../remove/{0}/', list))
+    var buttons = [
+        goog.dom.$(tableName + '_delete_1'), goog.dom.$(tableName + '_delete_2')];
+	cr.table.deletes[tableName](list, String.format('../remove/{0}/', list), buttons)
 }
 goog.exportProperty(cr.table, 'onDeleteClicked', cr.table.onDeleteClicked);
 
