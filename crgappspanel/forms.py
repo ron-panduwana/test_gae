@@ -331,12 +331,21 @@ class UserEmailSettingsForm(forms.Form):
         forward_to = data.get('forward_to')
         signature = data.get('signature')
         signature_new = data.get('signature_new')
+
+        domain = crauth.users.get_current_user().domain_name
         
         # enabling forwarding => forward_to must be filled
         if forward in FORWARD_ENABLES and not forward_to:
             msg = _('Forwarding address must be specified when enabling forwarding.')
             self._errors['forward_to'] = ErrorList([msg])
             
+            data.pop('forward', None)
+            data.pop('forward_to', None)
+        elif forward in FORWARD_ENABLES and not forward_to.endswith(domain):
+            msg = _('Forwarding address must point to %(domain)s or its '
+                    'subdomain.' % {'domain': domain})
+            self._errors['forward_to'] = ErrorList([msg])
+
             data.pop('forward', None)
             data.pop('forward_to', None)
         
