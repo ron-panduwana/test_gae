@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-05 17:06+0200\n"
+"POT-Creation-Date: 2010-08-03 22:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,134 +15,134 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms:  nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%"
-"100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms:  nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n"
+"%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: mappers.py:20 mappers.py:47
+#: mappers.py:21 mappers.py:48
 msgid "Home"
 msgstr "Dom"
 
-#: mappers.py:21 mappers.py:27 mappers.py:37 mappers.py:55
+#: mappers.py:22 mappers.py:28 mappers.py:38 mappers.py:56
 msgid "Work"
 msgstr "Praca"
 
-#: mappers.py:22 mappers.py:28 mappers.py:38 mappers.py:51
+#: mappers.py:23 mappers.py:29 mappers.py:39 mappers.py:52
 msgid "Other"
 msgstr "Inne"
 
-#: mappers.py:33 mappers.py:36
+#: mappers.py:34 mappers.py:37
 msgid "Home Page"
 msgstr "Strona domowa"
 
-#: mappers.py:34
+#: mappers.py:35
 msgid "Blog"
 msgstr "Blog"
 
-#: mappers.py:35
+#: mappers.py:36
 msgid "Profile"
 msgstr "Profil"
 
-#: mappers.py:39
+#: mappers.py:40
 msgid "FTP"
 msgstr "FTP"
 
-#: mappers.py:44
+#: mappers.py:45
 msgid "Car"
 msgstr "W samochodzie"
 
-#: mappers.py:45
+#: mappers.py:46
 msgid "Fax"
 msgstr "Faks"
 
-#: mappers.py:46
+#: mappers.py:47
 msgid "General"
 msgstr "Ogólny"
 
-#: mappers.py:48
+#: mappers.py:49
 msgid "Home Fax"
 msgstr "Faks domowy"
 
-#: mappers.py:49
+#: mappers.py:50
 msgid "Internal"
 msgstr "Wewnętrzny"
 
-#: mappers.py:50
+#: mappers.py:51
 msgid "Mobile"
 msgstr "Komórkowy"
 
-#: mappers.py:52
+#: mappers.py:53
 msgid "Pager"
 msgstr ""
 
-#: mappers.py:53
+#: mappers.py:54
 msgid "Satellite"
 msgstr "Satelitarny"
 
-#: mappers.py:54
+#: mappers.py:55
 msgid "VOIP"
 msgstr ""
 
-#: mappers.py:56
+#: mappers.py:57
 msgid "Work Fax"
 msgstr "Faks służbowy"
 
-#: mappers.py:57
+#: mappers.py:58
 msgid "Work Mobile"
 msgstr "Komórkowy służbowy"
 
-#: mappers.py:58
+#: mappers.py:59
 msgid "Work Pager"
 msgstr "Pager służbowy"
 
-#: mappers.py:59
+#: mappers.py:60
 msgid "Main"
 msgstr "Główny"
 
-#: mappers.py:60
+#: mappers.py:61
 msgid "Assistant"
 msgstr "Asystent"
 
-#: mappers.py:61
+#: mappers.py:62
 msgid "Callback"
 msgstr ""
 
-#: mappers.py:62
+#: mappers.py:63
 msgid "Company Main"
 msgstr "Numer główny do firmy"
 
-#: mappers.py:63
+#: mappers.py:64
 msgid "ISDN"
 msgstr "ISDN"
 
-#: mappers.py:64
+#: mappers.py:65
 msgid "Other Fax"
 msgstr "Inny faks"
 
-#: mappers.py:65
+#: mappers.py:66
 msgid "Radio"
 msgstr ""
 
-#: mappers.py:66
+#: mappers.py:67
 msgid "Telex"
 msgstr ""
 
-#: mappers.py:67
+#: mappers.py:68
 msgid "TTY TDD"
 msgstr ""
 
-#: mappers.py:72
+#: mappers.py:73
 msgid "Owner"
 msgstr "Właściciel"
 
-#: mappers.py:73
+#: mappers.py:74
 msgid "Member"
 msgstr "Członek"
 
-#: mappers.py:74
+#: mappers.py:75
 msgid "Domain"
 msgstr "Domena"
 
-#: mappers.py:75
+#: mappers.py:76
 msgid "Anyone"
 msgstr "Ktokolwiek"
 
@@ -158,15 +157,42 @@ msgid ""
 "or brackets (<,>)."
 msgstr ""
 "Nazwa użytkownika może zawierać litery (a-z), cyfry (0-9), myślnik (-), "
-"podkreślenie (_), kropkę (.) oraz apostrof ('). Nie może zawierać "
-"znaku równości (=) ani nawiasów (<,>)."
+"podkreślenie (_), kropkę (.) oraz apostrof ('). Nie może zawierać znaku "
+"równości (=) ani nawiasów (<,>)."
 
-#: regexps.py:20
+#: regexps.py:17
+msgid ""
+"Nicknames may contain letters (a-z), numbers (0-9), dashes (-), underscores "
+"(_), periods (.), and apostrophes ('), and may not contain an equal sign (=) "
+"or brackets (<,>)."
+msgstr ""
+"Pseudonim może zawierać litery (a-z), cyfry (0-9), myślnik (-), "
+"podkreślenie (_), kropkę (.) oraz apostrof ('). Nie może zawierać znaku "
+"równości (=) ani nawiasów (<,>)."
+
+#: regexps.py:24
 msgid ""
 "First and last name support unicode/UTF-8 characters, and may contain "
 "spaces, letters (a-z), numbers (0-9), dashes (-), forward slashes (/), and "
 "periods (.), with a maximum of 40 characters."
 msgstr ""
 "Imię i nazwysko może zawierać znaki unikodu/UTF-8, spacje, litery (a-z), "
-"cyfry (0-9), myślnik (-), ukośnik (/) oraz kropkę (.), i może mieć "
-"długość do 40 znaków."
+"cyfry (0-9), myślnik (-), ukośnik (/) oraz kropkę (.), i może mieć długość "
+"do 40 znaków."
+
+#: templates/cache_not_ready.html:4 templates/cache_not_ready.html.py:7
+msgid "Application not ready"
+msgstr "Aplikacja nie jest gotowa"
+
+#: templates/cache_not_ready.html:9
+#, python-format
+msgid ""
+"\n"
+"<p>The application is not ready yet. We are currently preparing your domain\n"
+"to work with <strong>Cloudreach Powerpanel</strong>.</p>\n"
+"<p>Please wait a few seconds and <a href=\"%(next)s\">try again</a>.</p>\n"
+msgstr ""
+"\n"
+"<p>Aplikacja nie jest jeszcze gotowa. Aktualnie przygotowujemy Twoją domenę\n"
+"do współpracy z <strong>Konsolą Cloudreach</strong>.</p>\n"
+"<p>Proszę poczekać kilka sekund i <a href=\"%(next)s\">spróbować ponownie</a>.</p>\n"
