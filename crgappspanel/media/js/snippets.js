@@ -74,7 +74,7 @@ goog.exportProperty(cr.snippets, 'userShowDialog', cr.snippets.userShowDialog);
 
 
 cr.snippets.removeSelectedHandler = function(title, content) {
-    return function(list, removeUrl) {
+    return function(list, removeUrl, buttons) {
         var dialogDelete = new goog.ui.Dialog()
         dialogDelete.setTitle(title)
         dialogDelete.setContent(content)
@@ -86,9 +86,16 @@ cr.snippets.removeSelectedHandler = function(title, content) {
         goog.events.listenOnce(dialogDelete, goog.ui.Dialog.EventType.SELECT, function(e) {
             if (e.key == 'yes') {
                 window.open(removeUrl, '_self')
+            } else {
+                for (var i=0; i < buttons.length; i++) {
+                    buttons[i].disabled = false;
+                }
             }
         })
-        dialogDelete.setVisible(true)
+        for (var i=0; i < buttons.length; i++) {
+            buttons[i].disabled = true;
+        }
+        dialogDelete.setVisible(true);
     }
 }
 goog.exportProperty(cr.snippets, 'removeSelectedHandler', cr.snippets.removeSelectedHandler);
