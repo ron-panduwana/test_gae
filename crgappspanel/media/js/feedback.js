@@ -67,6 +67,7 @@ function buyNow() {
             '<input type="hidden" name="orgid" value="' + ORG_ID + '"/>' +
             '<input type="hidden" name="retURL" value="' + feedback_url + '"/>' +
             '<input type="hidden" name="external" value="1"/>' +
+            '<input type="hidden" name="lead_source" value="CPANEL_PURCHASE_REQUEST"/>' +
             '<table><tr><th>' +
             '<label for="name">' + gettext('Name') + ':</label> ' +
             '</th><td>' +

@@ -18,7 +18,7 @@ class DomainForm(forms.ModelForm):
             'expiration_date',
         )
 
-    key_name = forms.CharField()
+    key_name = forms.CharField(required=False)
 
     def clean_admin_password(self):
         password = self.cleaned_data['admin_password']
