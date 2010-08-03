@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-03 23:06+0200\n"
+"POT-Creation-Date: 2010-08-03 23:16+0200\n"
 "PO-Revision-Date: 2010-07-05 16:59+0100\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -348,7 +348,7 @@ msgstr "%(widget)s %(link_start)sAnuluj%(link_end)s"
 #: forms.py:475 forms.py:491 forms.py:598 forms.py:783
 #: templates/calendar_resource_add.html:10 templates/group_create.html:14
 #: templates/role_create.html:10 templates/shared_contacts_list.html:36
-#: views/calendar_resources.py:13 views/groups.py:20 views/roles.py:16
+#: views/calendar_resources.py:14 views/groups.py:20 views/roles.py:16
 #: views/users.py:100
 msgid "Name"
 msgstr "Nazwa"
@@ -371,7 +371,7 @@ msgid "Email permission"
 msgstr "Uprawnienia email"
 
 #: forms.py:494 forms.py:785 templates/calendar_resource_add.html:18
-#: templates/group_create.html:22 views/calendar_resources.py:15
+#: templates/group_create.html:22 views/calendar_resources.py:16
 msgid "Description"
 msgstr "Opis"
 
@@ -514,7 +514,7 @@ msgid "Company is required if role is not empty."
 msgstr "Pole firma jest wymagane, jeśli podano stanowisko."
 
 #: forms.py:784 templates/calendar_resource_add.html:14
-#: views/calendar_resources.py:14
+#: views/calendar_resources.py:15
 msgid "Type"
 msgstr "Typ"
 
@@ -901,13 +901,17 @@ msgstr ""
 "Zmiany zostały zapisane, chociaż niektóre z nich mogą zająć do 24 godzin "
 "zanim będą widoczne."
 
-#: views/calendar_resources.py:35
+#: views/calendar_resources.py:36
 msgid "Delete calendar resources"
 msgstr "Usuń zasoby kalendarza"
 
-#: views/calendar_resources.py:45
+#: views/calendar_resources.py:46
 msgid "Are you sure you want to delete selected calendar resources?"
 msgstr "Czy jesteś pewny, że chcesz usunąć zaznaczone zasoby kalendarza?"
+
+#: views/calendar_resources.py:64 views/calendar_resources.py:94
+msgid "Calendar resource description may contain up to 1,000 characters."
+msgstr "Opis zasobu kalendarza może zawierać maksymalnie 1000 znaków."
 
 #: views/groups.py:37
 msgid "Delete groups"

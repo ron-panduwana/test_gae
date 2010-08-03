@@ -433,7 +433,7 @@ class SharedContactEntryMapper(AtomMapper):
             return self.service.create_contact(atom)
         except RequestError, e:
             if e.body == 'Contact size limit exceeded.':
-                raise EntitySizeTooLarge
+                raise EntitySizeTooLarge()
             raise
 
     def update(self, atom, old_atom):
@@ -442,7 +442,7 @@ class SharedContactEntryMapper(AtomMapper):
             return self.service.update(atom)
         except RequestError, e:
             if e.body == 'Contact size limit exceeded.':
-                raise EntitySizeTooLarge
+                raise EntitySizeTooLarge()
             raise
 
     def delete(self, atom):
@@ -556,6 +556,8 @@ class CalendarResourceEntryMapper(AtomMapper):
         except RequestError, e:
             if 'EntityExists' in e.body:
                 raise EntityExistsError()
+            elif 'Must be at most' in e.body:
+                raise EntitySizeTooLarge()
             raise
 
     def update(self, atom, old_atom):
@@ -565,12 +567,18 @@ class CalendarResourceEntryMapper(AtomMapper):
         # resource_description returns to its previous non-empty value. To
         # fix this behaviour for now we simply delete the resource and then
         # recreate it with empty resource_description.
+        from gdata.client import RequestError
         if not atom.resource_description:
             self.delete(old_atom)
             return self.create(atom)
-        return self.service.update_resource(
-            old_atom.resource_id, atom.resource_common_name,
-            atom.resource_description, resource_type=atom.resource_type)
+        try:
+            return self.service.update_resource(
+                old_atom.resource_id, atom.resource_common_name,
+                atom.resource_description, resource_type=atom.resource_type)
+        except RequestError, e:
+            if 'Must be at most' in e.body:
+                raise EntitySizeTooLarge()
+            raise
 
     def delete(self, atom):
         self.service.delete_resource(atom.resource_id)
