@@ -330,7 +330,11 @@ def user_groups(request, name=None):
     if not user:
         return redirect('users')
     
-    groups = GAGroup.all().fetch(1000)
+    groups = GAGroup.all().order('name').fetch(1000)
+    member_of = GAGroup.all().filter(
+        'members', GAGroupMember.from_user(user)).fetch(1000)
+    member_of_ids = [group.id for group in member_of]
+
     if request.method == 'POST':
         form = UserGroupsForm(request.POST, auto_id=True)
         form.fields['groups'].choices = [(group.id, group.name) for group in groups]
@@ -361,15 +365,14 @@ def user_groups(request, name=None):
                     hashed, len(data['groups'])))
     else:
         form = UserGroupsForm(auto_id=True)
-        form.fields['groups'].choices = [(group.id, group.name) for group in groups]
-    
-    member_of = GAGroup.all().filter(
-        'members', GAGroupMember.from_user(user)).fetch(1000)
+        form.fields['groups'].choices = [
+            (group.id, group.name) for group in groups
+            if not group.id in member_of_ids]
     
     return render_with_nav(request, 'user_groups.html', {
         'user': user,
         'form': form,
-        'member_of': [group.id for group in member_of],
+        'member_of': member_of,
         'saved': request.session.pop('saved', False),
     }, extra_nav=user_nav(name))
 
