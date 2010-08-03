@@ -12,12 +12,12 @@ cr.swapWidget.swap = function(id) {
 		
 		// finding all INPUT nodes
 		var inputNodes = goog.dom.findNodes(eField, function(node) {
-			if (node.nodeType != Node.ELEMENT_NODE) return false
+			if (node.nodeType != goog.dom.NodeType.ELEMENT) return false
 			return node.nodeName.toLowerCase() == 'input'
 		})
 		// finding all SELECT nodes
 		var selectNodes = goog.dom.findNodes(eField, function(node) {
-			if (node.nodeType != Node.ELEMENT_NODE) return false
+			if (node.nodeType != goog.dom.NodeType.ELEMENT) return false
 			return node.nodeName.toLowerCase() == 'select'
 		})
 		
@@ -43,7 +43,7 @@ cr.swapWidget.swap = function(id) {
 		eField.style.display = 'block'
 		
 		var nodes = goog.dom.findNodes(cField, function(node) {
-			if (node.nodeType != Node.ELEMENT_NODE) return false
+			if (node.nodeType != goog.dom.NodeType.ELEMENT) return false
 			return node.nodeName.toLowerCase() == 'input'
 		})
 		
