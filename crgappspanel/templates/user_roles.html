@@ -10,9 +10,29 @@
 	<table class="details" width="100%">
 		<tbody>
 			{% with form.roles as field %}{% with roles as items %}
-				{% include "snippets/form_field_with_items.html" %}
+                <tr>
+                    <th>{{ field.label_tag }}</th>
+                    <td{% if field_class %} class="{{ field_class }}"{% endif %}>
+                        {% if items %}
+                        <div style="margin-bottom: 0.5em">
+                            {% for value in items %}
+                                {% include "snippets/value.html" %}
+                                {% if value.remove_link and auth.perms.change_role %}
+                                    &ndash; <a href="{{ value.remove_link }}">{% trans 'Remove' %}</a>
+                                {% endif %}
+                                {% if not forloop.last %}<br/>{% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if auth.perms.add_role %}
+                        <div style="margin: 0px">{% include "snippets/form_bare_field.html" %}</div>
+                        {% endif %}
+                    </td>
+                </tr>
 			{% endwith %}{% endwith %}
+            {% if auth.perms.change_role or auth.perms.add_role %}
 			{% include "snippets/form_save_reset.html" %}
+            {% endif %}
 		</tbody>
 	</table>
 </form>

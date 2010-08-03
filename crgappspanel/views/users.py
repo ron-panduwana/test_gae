@@ -245,9 +245,10 @@ def user_details(request, name=None):
     }, extra_nav=user_nav(name))
 
 
-@admin_required
+@has_perm('read_role')
 def user_roles(request, name=None):
     from crauth.models import AppsDomain, Role, UserPermissions
+    auth = crauth.users.get_current_user()
     
     if not name:
         raise ValueError('name = %s' % name)
@@ -261,7 +262,7 @@ def user_roles(request, name=None):
     
     role_keys = [str(role_key) for role_key in perms.roles]
     
-    if request.method == 'POST':
+    if request.method == 'POST' and auth.has_perm('add_role'):
         form = UserRolesForm(request.POST, auto_id=True,
             choices=_get_roles_choices(role_keys, user.admin))
         if form.is_valid():
@@ -591,7 +592,7 @@ def user_remove_nickname(request, name=None, nickname=None):
     return redirect_saved('user-details', request, name=name)
 
 
-@admin_required
+@has_perm('change_role')
 def user_remove_role(request, name=None, role_name=None):
     if not all((name, role_name)):
         raise ValueError('name = %s, role_name = %s' % (name, role_name))
