@@ -34,6 +34,10 @@ class EntityNameNotValidError(GDataError):
     """
 
 
+class EntitySizeTooLarge(GDataError):
+    pass
+
+
 class UnknownGDataError(GDataError):
     """ This is temporary used to validate existing group emails when creating
     new user. Please refer to story 4055432.

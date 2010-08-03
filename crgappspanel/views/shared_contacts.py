@@ -13,6 +13,7 @@ from crgappspanel.models import Preferences, SharedContact, Organization
 from crgappspanel.views.utils import get_sortby_asc, list_attrs, \
         get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch, render
 from crlib.navigation import render_with_nav
+from crlib import errors
 
 
 def _get_full_name(x):
@@ -100,9 +101,13 @@ def shared_contact_add(request):
                 email.save()
             for phone in shared_contact.phone_numbers:
                 phone.save()
-            shared_contact.save()
-            return redirect_saved('shared-contact-details',
-                request, key=shared_contact.key())
+            try:
+                shared_contact.save()
+                return redirect_saved('shared-contact-details',
+                    request, key=shared_contact.key())
+            except errors.EntitySizeTooLarge:
+                form.add_error('__all__',
+                               _('One or more field is too long.'))
     else:
         form = SharedContactForm(auto_id=True)
     
@@ -147,9 +152,13 @@ def shared_contact_details(request, key=None):
             else:
                 shared_contact.organization = None
             
-            shared_contact.save()
-            return redirect_saved('shared-contact-details',
-                request, key=key)
+            try:
+                shared_contact.save()
+                return redirect_saved('shared-contact-details',
+                    request, key=key)
+            except errors.EntitySizeTooLarge:
+                form.add_error('__all__',
+                               _('One or more field is too long.'))
     else:
         real_name = (shared_contact.name.given_name,
                      shared_contact.name.family_name)
