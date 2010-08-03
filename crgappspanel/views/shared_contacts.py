@@ -63,7 +63,7 @@ def shared_contacts(request):
         def query_gen():
             q = SharedContact.all()
             for word in query.split():
-                q.filter('search_index', word)
+                q.filter('search_index', word.lower())
             return q
     else:
         query_gen = None
