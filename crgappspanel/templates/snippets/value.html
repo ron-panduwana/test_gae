@@ -5,7 +5,7 @@
 		<span class="email-username">{{ email.username }}</span>
 		<span class="email-domain">{{ email.at }}{{ email.domain }}</span>
 	{% else %}
-    {{ value|slice:":50" }}{% if value|slice:"50:" %}...{% endif %}
+        {{ value }}
 	{% endif %}
 {% endwith %}
 {% endspaceless %}
