@@ -28,7 +28,7 @@ class AttributeFilter(object):
             if isinstance(obj, (list, tuple)):
                 return list(obj)
             else:
-                return [str(obj)]
+                return [unicode(obj)]
         
         # object is None
         if obj is None:

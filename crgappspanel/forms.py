@@ -1,15 +1,17 @@
 from django import forms
+from django.conf import settings
 from django.forms.util import ErrorList
-from django.utils.translation import ugettext as _
+from django.utils.translation import string_concat, ugettext_lazy as _
 
 import crauth
+from crauth.models import Role
 from crgappspanel import consts, models
 from crgappspanel.consts import EMAIL_RELS, PHONE_RELS
 from crgappspanel.helpers import fields, widgets
 from crlib import regexps
 
 __all__ = ('UserForm', 'UserEmailSettingsForm', 'UserEmailFiltersForm',
-    'SharedContactForm', 'CalendarResourceForm')
+           'SharedContactForm', 'CalendarResourceForm')
 
 
 ENABLE = 'e'
@@ -145,13 +147,16 @@ def enforce_some_alnum(value):
 ################################################################################
 
 
-password_c = '%(widget)s%(link_start)sChange password%(link_end)s WARNING: dangerous, without confirmation yet!'
+password_c = _('%(widget)s%(link_start)sChange password%(link_end)s WARNING: '
+               'dangerous, without confirmation yet!')
 password_1 = widgets.DoubleWidget(forms.HiddenInput(), forms.HiddenInput())
-password_e = 'Enter new password:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+password_e = _('Enter new password:<br/>%(widget)s '
+               '%(link_start)sCancel%(link_end)s')
 password_2 = widgets.DoubleWidget(forms.PasswordInput(), forms.PasswordInput())
 
-nicknames_c = '%(link_start)sAdd nickname%(link_end)s'
-nicknames_e = 'Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+nicknames_c = _('%(link_start)sAdd nickname%(link_end)s')
+nicknames_e = _('Enter nickname:<br/>%(widget)s '
+                '%(link_start)sCancel%(link_end)s')
 
 
 full_name_kwargs = {
@@ -165,7 +170,7 @@ class UserForm(Form):
         error_messages={'invalid': regexps.ERROR_USERNAME})
     password = fields.CharField2(label=_('Password'), required=False, widget=password_2)
     change_password = forms.BooleanField(label=_('Password'), required=False,
-        help_text='Require a change of password in the next sign in')
+        help_text=_('Require a change of password in the next sign in'))
     full_name = fields.RegexField2(
         label=_('Full name'), kwargs1=full_name_kwargs,
         kwargs2=full_name_kwargs)
@@ -198,7 +203,23 @@ class UserForm(Form):
     
     def get_nickname(self):
         return self.cleaned_data['nicknames']
-
+    
+    def clean_full_name(self):
+        data = self.cleaned_data['full_name']
+        first_name = data[0].strip()
+        family_name = data[1].strip()
+        if first_name == '':
+            raise forms.ValidationError(_('First name is required.'))
+        if family_name == '':
+            raise forms.ValidationError(_('Family name is required.'))
+        return [first_name, family_name]
+        
+    def clean_nicknames(self):
+        data = self.cleaned_data['nicknames']
+        if data and not regexps.RE_USERNAME.match(data):
+            raise forms.ValidationError(regexps.ERROR_NICKNAME)
+        return data
+    
     def clean_password(self):
         password = self.cleaned_data['password']
         if not password:
@@ -209,8 +230,8 @@ class UserForm(Form):
         return [pass_a, pass_b]
 
 
-roles_c = '%(link_start)sAdd role%(link_end)s'
-roles_e = 'Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+roles_c = _('%(link_start)sAdd role%(link_end)s')
+roles_e = _('Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s')
 
 
 class UserRolesForm(forms.Form):
@@ -310,12 +331,21 @@ class UserEmailSettingsForm(forms.Form):
         forward_to = data.get('forward_to')
         signature = data.get('signature')
         signature_new = data.get('signature_new')
+
+        domain = crauth.users.get_current_user().domain_name
         
         # enabling forwarding => forward_to must be filled
         if forward in FORWARD_ENABLES and not forward_to:
             msg = _('Forwarding address must be specified when enabling forwarding.')
             self._errors['forward_to'] = ErrorList([msg])
             
+            data.pop('forward', None)
+            data.pop('forward_to', None)
+        elif forward in FORWARD_ENABLES and not forward_to.endswith(domain):
+            msg = _('Forwarding address must point to %(domain)s or its '
+                    'subdomain.' % {'domain': domain})
+            self._errors['forward_to'] = ErrorList([msg])
+
             data.pop('forward', None)
             data.pop('forward_to', None)
         
@@ -380,17 +410,17 @@ class UserEmailFiltersForm(forms.Form):
     def clean(self):
         data = self.cleaned_data
         filter_fields = ('from_', 'to', 'subject', 'has_the_word',
-            'does_not_have_the_word', 'has_attachment')
+                         'does_not_have_the_word', 'has_attachment')
         action_fields = ('label', 'should_mark_as_read', 'should_archive')
         
         if not any(data.get(key) for key in filter_fields):
             msg = _('At least one of fields: from, to, subject, has words, '
-                'doesn\'t have, has attachment must be filled.')
+                    'doesn\'t have, has attachment must be filled.')
             raise forms.ValidationError(msg)
         
         if not any(data.get(key) for key in action_fields):
             msg = _('At least one of fields apply label, mark as read, '
-                'archive must be filled.')
+                    'archive must be filled.')
             raise forms.ValidationError(msg)
         
         return data
@@ -416,10 +446,13 @@ class UserEmailVacationForm(forms.Form):
         widget=forms.Select(attrs={
             'onchange': 'return cr.snippets.vacationStateChanged(this.value);',
         }))
-    subject = forms.CharField(max_length=500, required=False)
-    message = forms.CharField(widget=forms.Textarea, required=False)
+    subject = forms.CharField(
+        label=_('Subject'), max_length=500, required=False)
+    message = forms.CharField(
+        label=_('Message'), widget=forms.Textarea, required=False)
     contacts_only = forms.ChoiceField(
-        choices=VACATION_CONTACTS_ONLY_CHOICES, required=False)
+        label=_('Send to'), choices=VACATION_CONTACTS_ONLY_CHOICES,
+        required=False)
 
     def clean_subject(self):
         enabled = self.cleaned_data.get('state', 'true') == 'true'
@@ -443,8 +476,8 @@ class UserEmailVacationForm(forms.Form):
         return self.cleaned_data['contacts_only']
 
 
-reply_to_c = 'Set %(link_start)sanother%(link_end)s reply to address'
-reply_to_e = '%(widget)s %(link_start)sCancel%(link_end)s'
+reply_to_c = _('Set %(link_start)sanother%(link_end)s reply to address')
+reply_to_e = _('%(widget)s %(link_start)sCancel%(link_end)s')
 
 
 class UserEmailAliasesForm(Form):
@@ -464,17 +497,17 @@ class UserEmailAliasesForm(Form):
 
 class GroupForm(Form):
     id = forms.CharField(label=_('Email address'))
-    name = forms.CharField(label=_('Name'))
+    name = forms.CharField(label=_('Name'), required=True)
     email_permission = forms.ChoiceField(label=_('Email permission'),
         choices=consts.GROUP_EMAIL_PERMISSION_CHOICES)
     description = forms.CharField(label=_('Description'), required=False,
         widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
     
-    def create(self):
+    def create(self, domain):
         data = self.cleaned_data
         
         return models.GAGroup(
-            id=data['id'],
+            id='%s@%s' % (data['id'], domain),
             name=data['name'],
             email_permission=data['email_permission'],
             description=data['description'])
@@ -493,12 +526,18 @@ class GroupForm(Form):
         enforce_valid(id, lower=True, upper=True, digits=True, other='_.-+')
         enforce_some_alnum(id)
         return id
+    
+    def clean_name(self):
+        data = self.cleaned_data['name'].strip()
+        if data == '':
+            raise forms.ValidationError(_('Group name is required.'))
+        return data
 
 
-owner_c = '%(link_start)sAdd%(link_end)s another owner'
-owner_e = '%(widget)s %(link_start)sCancel%(link_end)s'
-member_c = '%(link_start)sAdd%(link_end)s another member'
-member_e = '%(widget)s %(link_start)sCancel%(link_end)s'
+owner_c = _('%(link_start)sAdd%(link_end)s another owner')
+owner_e = _('%(widget)s %(link_start)sCancel%(link_end)s')
+member_c = _('%(link_start)sAdd%(link_end)s another member')
+member_e = _('%(widget)s %(link_start)sCancel%(link_end)s')
 
 
 class GroupMembersForm(forms.Form):
@@ -565,7 +604,7 @@ class ObjectTypeFields(object):
 
 
 class RoleForm(forms.Form):
-    name = forms.CharField(label=_('Name'))
+    name = forms.CharField(label=_('Name'), required=True)
     
     def __init__(self, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)
@@ -631,6 +670,17 @@ class RoleForm(forms.Form):
                 }))
         self.fields[field_name] = field
         return field
+    
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip()
+        if name == '':
+            raise forms.ValidationError(_('Role name is required.'))
+        if not hasattr(self, 'old_name') or name != self.old_name:
+            role = Role.for_domain(crauth.users.get_current_domain()).filter(
+                'name', name).get()
+            if role or name == _('Administrator'):
+                raise forms.ValidationError(_('Role with this name already exists.'))
+        return name
 
 
 ################################################################################
@@ -638,13 +688,14 @@ class RoleForm(forms.Form):
 ################################################################################
 
 
-emails_c = '%(link_start)sAdd email%(link_end)s'
-emails_e = 'Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
-phone_numbers_c = '%(link_start)sAdd phone number%(link_end)s'
-phone_numbers_e = 'Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link_end)s'
+emails_c = _('%(link_start)sAdd email%(link_end)s')
+emails_e = _('Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s')
+phone_numbers_c = _('%(link_start)sAdd phone number%(link_end)s')
+phone_numbers_e = _('Enter phone number:<br/>%(widget)s '
+                    '%(link_start)sCancel%(link_end)s')
 
 
-class SharedContactForm(forms.Form):
+class SharedContactForm(Form):
     full_name = forms.CharField(label=_('Display name'))
     real_name = fields.RealNameField(label=_('Real name'), required=False)
     notes = forms.CharField(label=_('Notes'), required=False,
@@ -653,10 +704,10 @@ class SharedContactForm(forms.Form):
     role = forms.CharField(label=_('Role'), required=False)
     
     # email field to show when creating contact
-    email = forms.CharField(label=_('Email'), required=False,
+    email = forms.EmailField(label=_('Email'), required=False,
         widget=forms.TextInput(attrs={'class':'long'}))
     # emails filed to show when editing contact
-    emails = forms.CharField(label=_('Emails'), required=False,
+    emails = forms.EmailField(label=_('Emails'), required=False,
         widget=widgets.SwapWidget(emails_c,
             forms.TextInput(attrs={'class':'long'}), emails_e))
     
@@ -671,8 +722,8 @@ class SharedContactForm(forms.Form):
         data = self.cleaned_data
         
         name = models.Name(
-            full_name=data['full_name'], name_prefix=data['real_name'][0],
-            given_name=data['real_name'][1], family_name=data['real_name'][2])
+            full_name=data['full_name'],
+            given_name=data['real_name'][0], family_name=data['real_name'][1])
         
         email = data['email']
         emails = [self._email(email)] if email else []
@@ -699,9 +750,8 @@ class SharedContactForm(forms.Form):
         phone_number = data['phone_numbers']
         
         shared_contact.name.full_name = data['full_name']
-        shared_contact.name.name_prefix = data['real_name'][0]
-        shared_contact.name.given_name = data['real_name'][1]
-        shared_contact.name.family_name = data['real_name'][2]
+        shared_contact.name.given_name = data['real_name'][0]
+        shared_contact.name.family_name = data['real_name'][1]
         shared_contact.notes = data['notes']
         
         return {
@@ -738,10 +788,10 @@ class SharedContactForm(forms.Form):
 ################################################################################
 
 
-class CalendarResourceForm(forms.Form):
-    common_name = forms.CharField(_('Name'))
-    type = forms.CharField(_('Type'), required=False)
-    description = forms.CharField(_('Description'), required=False,
+class CalendarResourceForm(Form):
+    common_name = forms.CharField(label=_('Name'))
+    type = forms.CharField(label=_('Type'), required=False)
+    description = forms.CharField(label=_('Description'), required=False,
         widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
     
     def create(self, id):
@@ -757,6 +807,12 @@ class CalendarResourceForm(forms.Form):
         resource.common_name = data['common_name']
         resource.type = data['type']
         resource.description = data['description']
+        
+    def clean_common_name(self):
+        name = self.cleaned_data['common_name'].strip()
+        if name == '':
+            raise forms.ValidationError(_('Name is required.'))
+        return name
 
 
 ################################################################################
@@ -767,14 +823,17 @@ class CalendarResourceForm(forms.Form):
 class SettingsForm(forms.ModelForm):
     class Meta:
         model = models.Preferences
-        fields = ('items_per_page',)
+        fields = ('language', 'items_per_page',)
 
     ITEMS_PER_PAGE_CHOICES = (
         (20, '20'),
         (50, '50'),
         (100, '100'),
     )
+    language = forms.ChoiceField(
+        label=_('Language'), choices=settings.LANGUAGES)
     items_per_page = forms.TypedChoiceField(
+        label=_('Items per page'),
         choices=ITEMS_PER_PAGE_CHOICES, coerce=int,
         help_text=_('How many items to show at once on listing pages.'))
 

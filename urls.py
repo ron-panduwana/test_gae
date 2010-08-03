@@ -15,8 +15,15 @@
 from django.conf.urls.defaults import *
 from crauth.urls import DOMAIN
 
+
+js_info_dict = {
+    'packages': ('crgappspanel',),
+}
+
+
 urlpatterns = patterns('',
     (r'^i18n/', include('django.conf.urls.i18n')),
+    (r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
 )
 
 urlpatterns += patterns('crgappspanel.views.general',

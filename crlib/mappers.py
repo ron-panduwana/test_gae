@@ -1,7 +1,7 @@
 import logging
 import re
 from google.appengine.api import memcache
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from gdata import contacts, data
 from gdata.contacts import data as contacts_data
@@ -11,7 +11,8 @@ from gdata.apps.groups import service as groups
 from atom import AtomBase
 from crlib.gdata_wrapper import AtomMapper, simple_mapper, StringProperty
 from crlib.signals import gauser_renamed
-from crlib.errors import apps_for_your_domain_exception_wrapper
+from crlib.errors import EntityExistsError, EntitySizeTooLarge, \
+        apps_for_your_domain_exception_wrapper
 
 
 # Constants
@@ -96,10 +97,20 @@ class UserEntryMapper(AtomMapper):
 
     @apps_for_your_domain_exception_wrapper
     def create(self, atom):
-        return self.service.CreateUser(
-            atom.login.user_name, atom.name.family_name,
-            atom.name.given_name, atom.login.password,
-            atom.login.suspended, password_hash_function='SHA-1')
+        from google.appengine.api.urlfetch_errors import DownloadError
+        try:
+            return self.service.CreateUser(
+                atom.login.user_name, atom.name.family_name,
+                atom.name.given_name, atom.login.password,
+                atom.login.suspended, password_hash_function='SHA-1')
+        except DownloadError:
+            from gdata.apps.service import AppsForYourDomainException
+            from crlib.errors import NetworkError
+            # Let's see if the user was created
+            try:
+                return self.service.RetrieveUser(atom.login.user_name)
+            except AppsForYourDomainException:
+                raise NetworkError
 
     @apps_for_your_domain_exception_wrapper
     def update(self, atom, old_atom):
@@ -111,16 +122,15 @@ class UserEntryMapper(AtomMapper):
                                 new_name=atom.login.user_name)
         return new_atom
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            next = previous.GetNextLink()
-            if next:
-                from gdata.apps import UserFeedFromString
-                return self.service.Get(next.href, converter=UserFeedFromString)
-            else:
-                return False
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            from gdata.apps import UserFeedFromString
+            feed = self.service.Get(cursor, converter=UserFeedFromString)
         else:
-            return self.service.RetrievePageOfUsers()
+            feed = self.service.RetrievePageOfUsers()
+        cursor = feed.GetNextLink()
+        cursor = cursor and cursor.href
+        return (feed.entry, cursor)
 
     def retrieve(self, user_name):
         return self.service.RetrieveUser(user_name)
@@ -129,7 +139,19 @@ class UserEntryMapper(AtomMapper):
         return atom.login.user_name
 
     def delete(self, atom):
-        self.service.DeleteUser(atom.login.user_name)
+        from google.appengine.api.urlfetch_errors import DownloadError
+        try:
+            self.service.DeleteUser(atom.login.user_name)
+        except DownloadError:
+            from gdata.apps.service import AppsForYourDomainException
+            from crlib.errors import NetworkError
+            # Let's see if the user is still there
+            try:
+                if self.service.RetrieveUser(atom.login.user_name):
+                    raise NetworkError
+            except AppsForYourDomainException:
+                # It's OK - user is deleted
+                pass
 
 
 class _DictAtom(dict):
@@ -206,6 +228,9 @@ class GroupEntry(_DictAtom):
 
 
 class GroupEntryMapper(AtomMapper):
+    def __repr__(self):
+        return '<GroupEntryMapper>'
+
     def key(self, atom):
         return atom.groupId
 
@@ -271,18 +296,18 @@ class GroupEntryMapper(AtomMapper):
                 self.service._PropertyEntry2Dict(property_entry))
         return [GroupEntry(self, entry) for entry in properties_list]
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            next = previous.GetNextLink()
-            if next:
-                from gdata.apps import PropertyFeedFromString
-                return self.service.Get(
-                    next.href, converter=PropertyFeedFromString)
-            else:
-                return False
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            from gdata.apps import PropertyFeedFromString
+            feed = self.service.Get(cursor, converter=PropertyFeedFromString)
         else:
             uri = self.service._ServiceUrl('group', True, '', '', '')
-            return self.service._GetPropertyFeed(uri)
+            feed = self.service._GetPropertyFeed(uri)
+        cursor = feed.GetNextLink()
+        cursor = cursor and cursor.href
+        feed = [GroupEntry(self, self.service._PropertyEntry2Dict(entry))
+                for entry in feed.entry]
+        return (feed, cursor)
 
     def retrieve(self, group_id):
         return GroupEntry(self, self.service.RetrieveGroup(group_id))
@@ -307,17 +332,15 @@ class NicknameEntryMapper(AtomMapper):
         return self.service.CreateNickname(
             atom.login.user_name, atom.nickname.name)
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            next = previous.GetNextLink()
-            if next:
-                from gdata.apps import NicknameFeedFromString
-                return self.service.Get(
-                    next.href, converter=NicknameFeedFromString)
-            else:
-                return False
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            from gdata.apps import NicknameFeedFromString
+            feed = self.service.Get(cursor, converter=NicknameFeedFromString)
         else:
-            return self.service.RetrievePageOfNicknames()
+            feed = self.service.RetrievePageOfNicknames()
+        cursor = feed.GetNextLink()
+        cursor = cursor and cursor.href
+        return (feed.entry, cursor)
 
     def retrieve(self, nickname):
         return self.service.RetrieveNickname(nickname)
@@ -327,6 +350,8 @@ class NicknameEntryMapper(AtomMapper):
 
     def filter_by_user_name(self, user_name):
         return self.service.RetrieveNicknames(user_name).entry
+
+    filter_by_user = filter_by_user_name
 
     def delete(self, atom):
         self.service.DeleteNickname(atom.nickname.name)
@@ -403,10 +428,22 @@ class SharedContactEntryMapper(AtomMapper):
         return match.groups(0)[0]
 
     def create(self, atom):
-        return self.service.create_contact(atom)
+        from gdata.client import RequestError
+        try:
+            return self.service.create_contact(atom)
+        except RequestError, e:
+            if e.body == 'Contact size limit exceeded.':
+                raise EntitySizeTooLarge()
+            raise
 
     def update(self, atom, old_atom):
-        return self.service.update(atom)
+        from gdata.client import RequestError
+        try:
+            return self.service.update(atom)
+        except RequestError, e:
+            if e.body == 'Contact size limit exceeded.':
+                raise EntitySizeTooLarge()
+            raise
 
     def delete(self, atom):
         self.service.delete(atom)
@@ -416,18 +453,19 @@ class SharedContactEntryMapper(AtomMapper):
         return self.service.get_entry(
             link, desired_class=contacts.data.ContactEntry)
 
-    def retrieve_page(self, previous=None):
-        if previous:
-            total_results = int(previous.total_results.text)
-            start_index = int(previous.start_index.text)
-            if start_index - 1 + len(previous.entry) < total_results:
-                next_start = start_index + self.ITEMS_PER_PAGE
-                return self._retrieve_subset(
-                    limit=self.ITEMS_PER_PAGE, offset=next_start)
-            else:
-                return False
+    def retrieve_page(self, cursor=None):
+        if cursor:
+            feed = self._retrieve_subset(
+                limit=self.ITEMS_PER_PAGE, offset=cursor)
         else:
-            return self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
+            feed = self._retrieve_subset(limit=self.ITEMS_PER_PAGE)
+        total_results = int(feed.total_results.text)
+        start_index = int(feed.start_index.text)
+        if start_index - 1 + len(feed.entry) < total_results:
+            cursor = start_index + self.ITEMS_PER_PAGE
+        else:
+            cursor = None
+        return (feed.entry, cursor)
 
     def _retrieve_subset(self, limit=1000, offset=1):
         from gdata.contacts.client import ContactsQuery
@@ -518,6 +556,8 @@ class CalendarResourceEntryMapper(AtomMapper):
         except RequestError, e:
             if 'EntityExists' in e.body:
                 raise EntityExistsError()
+            elif 'Must be at most' in e.body:
+                raise EntitySizeTooLarge()
             raise
 
     def update(self, atom, old_atom):
@@ -527,12 +567,18 @@ class CalendarResourceEntryMapper(AtomMapper):
         # resource_description returns to its previous non-empty value. To
         # fix this behaviour for now we simply delete the resource and then
         # recreate it with empty resource_description.
+        from gdata.client import RequestError
         if not atom.resource_description:
             self.delete(old_atom)
             return self.create(atom)
-        return self.service.update_resource(
-            old_atom.resource_id, atom.resource_common_name,
-            atom.resource_description, resource_type=atom.resource_type)
+        try:
+            return self.service.update_resource(
+                old_atom.resource_id, atom.resource_common_name,
+                atom.resource_description, resource_type=atom.resource_type)
+        except RequestError, e:
+            if 'Must be at most' in e.body:
+                raise EntitySizeTooLarge()
+            raise
 
     def delete(self, atom):
         self.service.delete_resource(atom.resource_id)

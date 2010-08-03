@@ -50,7 +50,7 @@ def user_nav(user):
             parent=parent
         ),
         Section(
-            'settings', _('Settings'),
+            'email_settings', _('Email Settings'),
             reverse('user-email-settings', args=(user,)),
             parent=parent
         ),
@@ -60,7 +60,7 @@ def user_nav(user):
             parent=parent
         ),
         Section(
-            'aliases', _('Aliases'),
+            'aliases', _('Send as'),
             reverse('user-email-aliases', args=(user,)),
             parent=parent
         ),

@@ -10,12 +10,13 @@
 	<table class="details" width="100%">
 		<tbody>
 			<tr>
-				<th>Member of</th>
+                <th>{% trans 'Member of' %}</th>
 				<td>
 					{% for group in member_of %}
-						{% with group as value %}
+						{% with group.name as value %}
 							{% include "snippets/value.html" %}
 						{% endwith %}
+                        ({% with group.id as value %}{% include 'snippets/value.html' %}{% endwith %})
 						{% if not forloop.last %}<br/>{% endif %}
 					{% endfor %}
 				</td>

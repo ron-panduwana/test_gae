@@ -3,5 +3,8 @@ class ValueWithRemoveLink(object):
         self.value = value
         self.remove_link = remove_link
     
-    def __str__(self):
-        return self.value
+    def __unicode__(self):
+        if isinstance(self.value, str):
+            return self.value.decode('utf8')
+        else:
+            return unicode(self.value)

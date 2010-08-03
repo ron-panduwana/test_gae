@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from crauth import users
 from crauth.decorators import has_perm
@@ -8,10 +8,12 @@ from crgappspanel.forms import SharedContactForm
 from crgappspanel.helpers.filters import SharedContactFilter, \
         SharedContactAdvancedFilter, NullFilter
 from crgappspanel.helpers.tables import Table, Column
+from crgappspanel.helpers.paginator import Paginator
 from crgappspanel.models import Preferences, SharedContact, Organization
 from crgappspanel.views.utils import get_sortby_asc, list_attrs, \
         get_page, qs_wo_page, redirect_saved, QueryString, QuerySearch, render
 from crlib.navigation import render_with_nav
+from crlib import errors
 
 
 def _get_full_name(x):
@@ -40,9 +42,9 @@ def _get_company_role(x):
 
 
 _table_fields = [
-    Column(_('Display name'), 'full_name', getter=_get_full_name, link=True),
-    Column(_('Real name'), 'real_name', getter=_get_real_name),
-    Column(_('Company'), 'company', getter=lambda x: x.organization and
+    Column(_('Display name'), 'title', getter=lambda x: x.title, link=True),
+    Column(_('Real name'), 'name', getter=_get_real_name),
+    Column(_('Company'), 'organization', getter=lambda x: x.organization and
            x.organization.name or ''),
     Column(_('Phone numbers'), 'phone_numbers',
         getter=lambda x: list_attrs(x.phone_numbers, 'number')),
@@ -55,55 +57,36 @@ _table_widths = ['%d%%' % x for x in (5, 20, 20, 15, 10, 30)]
 
 @has_perm('read_sharedcontact')
 def shared_contacts(request):
-    sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
-    
-    # getting queries
+    user = users.get_current_user()
+
     query = request.GET.get('q', '')
-    query_adv = QuerySearch()
-    query_adv.add(request, 'name', 'name.full_name')
-    query_adv.add(request, 'notes', 'notes')
-    query_adv.add(request, 'email', 'emails.address')
-    query_adv.add(request, 'phone', 'phone_numbers.number')
-    query_adv.add(request, 'company', None)
-    query_adv.add(request, 'role', None)
-    
-    shared_contacts = SharedContact.all().fetch(1000)
-    
     if query:
-        advanced_search = False
-        filter = SharedContactFilter(query)
-        filters = ['%s:%s' % (_('query'), query)]
-    elif not query_adv.is_empty():
-        advanced_search = True
-        filter = SharedContactAdvancedFilter(query_adv.filter_attrs,
-            query_adv.search_by.get('company', ''), query_adv.search_by.get('role', ''))
-        filters = ['%s:%s' % (_(key), value) for key, value in query_adv.search_by.iteritems()]
+        def query_gen():
+            q = SharedContact.all()
+            for word in query.split():
+                q.filter('search_index', word.lower())
+            return q
     else:
-        advanced_search = False
-        filter = NullFilter()
-        filters = None
-    
-    # filtering shared contacts
-    shared_contacts = [x for x in shared_contacts if filter.match(x)]
-    
-    # instantiating table and sorting shared contacts
-    table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
-    table.sort(shared_contacts)
-    
-    # selecting particular page
+        query_gen = None
+
     per_page = Preferences.for_current_user().items_per_page
-    page = get_page(request, shared_contacts, per_page)
+    paginator = Paginator(SharedContact, request, (
+        'title', 'name', 'organization', 'phone_numbers', 'emails',
+    ), per_page, query=query_gen)
     
+    table = Table(_table_fields, _table_id)
+    
+    delete_link_title = _('Delete shared contacts')
     return render_with_nav(request, 'shared_contacts_list.html', {
-        'table': table.generate(
-            page.object_list, page=page, qs_wo_page=qs_wo_page(request),
-            widths=_table_widths, singular='shared contact',
-            can_change=users.get_current_user().has_perm(
-                'change_sharedcontact')),
-        'advanced_search': advanced_search,
-        'filters': filters,
-        'query': dict(general=query, advanced=query_adv.search_by),
+        'table': table.generate_paginator(
+            paginator, widths=_table_widths,
+            delete_link_title=delete_link_title,
+            can_change=user.has_perm('change_sharedcontact')),
+        'query': dict(general=query),
         'saved': request.session.pop('saved', False),
+        'delete_question': _('Are you sure you want to delete selected '
+                             'shared contacts?'),
+        'delete_link_title': delete_link_title,
     })
 
 
@@ -118,9 +101,13 @@ def shared_contact_add(request):
                 email.save()
             for phone in shared_contact.phone_numbers:
                 phone.save()
-            shared_contact.save()
-            return redirect_saved('shared-contact-details',
-                request, key=shared_contact.key())
+            try:
+                shared_contact.save()
+                return redirect_saved('shared-contact-details',
+                    request, key=shared_contact.key())
+            except errors.EntitySizeTooLarge:
+                form.add_error('__all__',
+                               _('One or more field is too long.'))
     else:
         form = SharedContactForm(auto_id=True)
     
@@ -165,12 +152,16 @@ def shared_contact_details(request, key=None):
             else:
                 shared_contact.organization = None
             
-            shared_contact.save()
-            return redirect_saved('shared-contact-details',
-                request, key=key)
+            try:
+                shared_contact.save()
+                return redirect_saved('shared-contact-details',
+                    request, key=key)
+            except errors.EntitySizeTooLarge:
+                form.add_error('__all__',
+                               _('One or more field is too long.'))
     else:
-        real_name = [shared_contact.name.name_prefix,
-                shared_contact.name.given_name, shared_contact.name.family_name]
+        real_name = (shared_contact.name.given_name,
+                     shared_contact.name.family_name)
         form = SharedContactForm(initial={
             'full_name': shared_contact.name.full_name,
             'real_name': real_name,

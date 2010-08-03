@@ -1,7 +1,13 @@
 import logging
+import urllib
 from functools import wraps
 from django.http import HttpResponseRedirect
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from crgappspanel import models
 from crlib.navigation import render_with_nav
+from crlib.models import GDataIndex
+from crlib.cache import MIN_DATETIME
 from crauth import users
 
 
@@ -17,9 +23,11 @@ def admin_required(func):
         if users.is_current_user_admin():
             return func(request, *args, **kwargs)
         return HttpResponseRedirect(reverse('admin_required'))
+    new.perm_list = ['admin']
     return new
 
 
+GOOGLE_APPS_LOGOUT_URL = 'https://www.google.com/a/cpanel/%s/cpanelLogout'
 def login_required(func):
     """Decorator. Makes sure current user is logged in.
     
@@ -29,8 +37,26 @@ def login_required(func):
     @wraps(func)
     def new(request, *args, **kwargs):
         # TODO: check if user is licensed to use the application
-        if users.get_current_user() is not None:
-            return func(request, *args, **kwargs)
+        user = users.get_current_user()
+        if user:
+            logout_url = GOOGLE_APPS_LOGOUT_URL % user.domain_name
+            if user.is_deleted:
+                return HttpResponseRedirect(logout_url)
+            ga_user = models.GAUser.all().filter(
+                'user_name', user.nickname()).get()
+            if ga_user:
+                return func(request, *args, **kwargs)
+            else:
+                index = GDataIndex.get_by_key_name(
+                    '%s:%s' % (user.domain_name, 'GAUser'))
+                if index and index.last_updated > MIN_DATETIME:
+                    return HttpResponseRedirect(logout_url)
+                else:
+                    return HttpResponseRedirect(
+                        reverse('cache_not_ready') + '?' +
+                        urllib.urlencode({
+                            settings.REDIRECT_FIELD_NAME:
+                            request.get_full_path()}))
         return HttpResponseRedirect(
             users.create_login_url(request.get_full_path()))
     return new

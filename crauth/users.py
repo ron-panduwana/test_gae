@@ -29,7 +29,8 @@ class SetupRequiredError(Exception): pass
 
 class User(object):
     def __init__(self, email, domain):
-        self._email = email
+        self._email = email.lstrip('*')
+        self.is_deleted = email.startswith('*')
         self.domain_name = domain
 
     def nickname(self):

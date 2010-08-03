@@ -1,7 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.utils.translation import ugettext as _
-
+from django.utils.translation import ugettext_lazy as _
 from crauth.decorators import has_perm
 from crauth.models import Role
 from crauth import users
@@ -39,11 +38,16 @@ def roles(request):
     table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
     table.sort(roles)
     
+    delete_link_title = _('Delete roles')
     return render_with_nav(request, 'roles_list.html', {
         'table': table.generate(
             roles, widths=_table_widths, singular='role',
+            delete_link_title=delete_link_title,
             can_change=users.get_current_user().has_perm('change_role')),
         'saved': request.session.pop('saved', False),
+        'delete_link_title': delete_link_title,
+        'delete_question': _('Are you sure you want to delete selected '
+                             'roles?'),
     })
 
 
@@ -75,6 +79,7 @@ def role_details(request, name=None):
     
     if request.method == 'POST':
         form = RoleForm(request.POST, auto_id=True)
+        form.old_name = name
         if form.is_valid():
             form.populate(role)
             role.save()

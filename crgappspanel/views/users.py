@@ -7,7 +7,7 @@ from google.appengine.api import memcache
 from google.appengine.api.labs import taskqueue
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect, Http404
 
 import crauth
@@ -19,6 +19,7 @@ from crgappspanel.forms import UserForm, UserRolesForm, UserGroupsForm, \
     UserEmailVacationForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
 from crgappspanel.helpers.tables import Table, Column
+from crgappspanel.helpers.paginator import Paginator
 from crgappspanel.models import Preferences, GAUser, GANickname, GAGroup, \
         GAGroupOwner, GAGroupMember
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
@@ -52,30 +53,33 @@ def _get_quota(x):
     else:
         return '%s MB' % quota
 
-def _cached_roles(roles_map=dict()):
-    if len(roles_map) == 0:
-        for role in Role.for_domain(crauth.users.get_current_domain()).fetch(1000):
-            roles_map[str(role.key())] = role
+def _get_roles_map():
+    """
+    This method needs data access, make sure you don't call this method too many times to create
+    performance issues.
+    """
+    roles_map=dict()
+    for role in Role.for_domain(crauth.users.get_current_domain()).fetch(1000):
+        roles_map[str(role.key())] = role
     return roles_map
 
 def _get_role(key):
     key = str(key)
-    if key in _cached_roles():
-        return _cached_roles()[key]
+    roles_map = _get_roles_map()
+    if key in roles_map:
+        return roles_map[key]
     else:
         return None
 
 def _get_roles(keys):
-    res = imap(lambda x: _get_role(x), keys)
-    return [x for x in res if x is not None]
+    roles_map = _get_roles_map()
+    return [roles_map[k] for k in keys if k in roles_map]
 
 def _get_roles_choices(role_keys, is_admin):
     choices = [('', '')]
     if not is_admin:
         choices.append(('admin', _('Administrator')))
-    
-    new_role_keys = [key for key in _cached_roles().iterkeys() if key not in role_keys]
-    choices.extend([(key, _get_role(key).name) for key in new_role_keys])
+    choices.extend([(k, v.name) for k, v in _get_roles_map().iteritems() if k not in role_keys])
     return choices
 
 def _get_user_roles(domain):
@@ -93,11 +97,12 @@ def _get_user_roles(domain):
 
 def _table_fields_gen(domain):
     return [
-        Column(_('Name'), 'name', getter=lambda x: x.get_full_name(), link=True),
-        Column(_('Username'), 'username', getter=_get_user_email(domain)),
-        Column(_('Status'), 'status', getter=_get_status),
-        Column(_('Roles'), 'roles', getter=_get_user_roles(domain)),
-        Column(_('Email quota'), 'quota'),
+        Column(_('Name'), 'family_name', getter=lambda x: x.get_full_name(), link=True),
+        Column(_('Username'), 'user_name', getter=_get_user_email(domain)),
+        Column(_('Status'), 'suspended', getter=_get_status),
+        Column(_('Roles'), 'admin', getter=_get_user_roles(domain),
+               sortable=False),
+        Column(_('Email quota'), 'quota', sortable=False),
     ]
 _table_id = Column(None, 'user_name')
 _table_widths = ['%d%%' % x for x in (5, 20, 30, 15, 20, 10)]
@@ -108,24 +113,24 @@ def users(request):
     user = crauth.users.get_current_user()
     domain = user.domain_name
     _table_fields = _table_fields_gen(domain)
-    sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
-    users = GAUser.all().fetch(1000)
-    
-    # instantiating table and sorting users
-    table = Table(_table_fields, _table_id, sortby=sortby, asc=asc)
-    table.sort(users)
-    
-    # selecting particular page
     per_page = Preferences.for_current_user().items_per_page
-    page = get_page(request, users, per_page)
+    paginator = Paginator(GAUser, request, (
+        'user_name', 'family_name', 'suspended', 'admin',
+    ), per_page)
     
+    table = Table(_table_fields, _table_id)
+    
+    delete_link_title = _('Delete users')
     return render_with_nav(request, 'users_list.html', {
-        'table': table.generate(
-            page.object_list, page=page, qs_wo_page=qs_wo_page(request),
-            widths=_table_widths, singular='user',
+        'table': table.generate_paginator(
+            paginator, widths=_table_widths,
+            delete_link_title=delete_link_title,
             can_change=user.has_perm('change_gauser')),
         'saved': request.session.pop('saved', False),
+        'delete_question': _('Are you sure you want to delete selected '
+                             'users?'),
+        'delete_link_title': delete_link_title,
     })
 
 
@@ -155,6 +160,14 @@ def user_create(request):
                     '__all__',
                     _('Your domain user limit has been reached, you cannot '
                       'create more users.'))
+            except errors.UnknownGDataError:
+                form.add_error(
+                    'user_name',
+                    _('Either user or nick with this name already exists.'))
+            except errors.NetworkError:
+                form.add_error(
+                    '__all__',
+                    _('An error occured during the request. Please try again.'))
     else:
         form = UserForm(auto_id=True)
         form.fields['user_name'].help_text = '@%s' % domain
@@ -187,7 +200,10 @@ def user_details(request, name=None):
                 try:
                     if form.get_nickname():
                         GANickname(
-                            user=user,nickname=form.get_nickname()).save()
+                            user=user,
+                            nickname=form.get_nickname(),
+                            user_name=user.user_name,
+                        ).save()
                     return redirect_saved('user-details', request,
                                           name=user.user_name)
                 except errors.EntityExistsError:
@@ -229,9 +245,10 @@ def user_details(request, name=None):
     }, extra_nav=user_nav(name))
 
 
-@admin_required
+@has_perm('read_role')
 def user_roles(request, name=None):
     from crauth.models import AppsDomain, Role, UserPermissions
+    auth = crauth.users.get_current_user()
     
     if not name:
         raise ValueError('name = %s' % name)
@@ -245,7 +262,7 @@ def user_roles(request, name=None):
     
     role_keys = [str(role_key) for role_key in perms.roles]
     
-    if request.method == 'POST':
+    if request.method == 'POST' and auth.has_perm('add_role'):
         form = UserRolesForm(request.POST, auto_id=True,
             choices=_get_roles_choices(role_keys, user.admin))
         if form.is_valid():
@@ -268,7 +285,7 @@ def user_roles(request, name=None):
         kwargs = dict(name=user.user_name, role_name=x)
         return reverse('user-remove-role', kwargs=kwargs)
     roles = _get_roles(role_keys)
-    roles_with_remove = [ValueWithRemoveLink(role.name, remove_role_link(role.name))
+    roles_with_remove = [ValueWithRemoveLink(unicode(role.name).encode('UTF-8'), remove_role_link(role.name))
         for role in roles]
     if user.admin:
         obj = ValueWithRemoveLink(_('Administrator'), remove_role_link('admin'))
@@ -313,7 +330,11 @@ def user_groups(request, name=None):
     if not user:
         return redirect('users')
     
-    groups = GAGroup.all().fetch(1000)
+    groups = GAGroup.all().order('name').fetch(1000)
+    member_of = GAGroup.all().filter(
+        'members', GAGroupMember.from_user(user)).fetch(1000)
+    member_of_ids = [group.id for group in member_of]
+
     if request.method == 'POST':
         form = UserGroupsForm(request.POST, auto_id=True)
         form.fields['groups'].choices = [(group.id, group.name) for group in groups]
@@ -326,7 +347,7 @@ def user_groups(request, name=None):
             group_member = GAGroupMember.from_user(user)
             
             email = '%s@%s' % (user.user_name,
-                               crauth.users.get_current_domain().domain)
+                               crauth.users.get_current_user().domain_name)
             hashed = hashlib.sha1(email + str(as_owner)).hexdigest()
             memcache.set(hashed, 0)
             for group_id in data['groups']:
@@ -344,15 +365,14 @@ def user_groups(request, name=None):
                     hashed, len(data['groups'])))
     else:
         form = UserGroupsForm(auto_id=True)
-        form.fields['groups'].choices = [(group.id, group.name) for group in groups]
-    
-    member_of = GAGroup.all().filter(
-        'members', GAGroupMember.from_user(user)).fetch(1000)
+        form.fields['groups'].choices = [
+            (group.id, group.name) for group in groups
+            if not group.id in member_of_ids]
     
     return render_with_nav(request, 'user_groups.html', {
         'user': user,
         'form': form,
-        'member_of': [group.id for group in member_of],
+        'member_of': member_of,
         'saved': request.session.pop('saved', False),
     }, extra_nav=user_nav(name))
 
@@ -575,7 +595,7 @@ def user_remove_nickname(request, name=None, nickname=None):
     return redirect_saved('user-details', request, name=name)
 
 
-@admin_required
+@has_perm('change_role')
 def user_remove_role(request, name=None, role_name=None):
     if not all((name, role_name)):
         raise ValueError('name = %s, role_name = %s' % (name, role_name))
@@ -594,7 +614,8 @@ def user_remove_role(request, name=None, role_name=None):
         user.admin = False
         user.save()
     else:
-        perms.roles = [rk for rk in perms.roles if _get_role(rk).name != role_name]
+        roles = _get_roles([str(key) for key in perms.roles])
+        perms.roles = [role.key() for role in roles if role.name != role_name]
         perms.save()
     
     return redirect_saved('user-roles', request, name=user.user_name)

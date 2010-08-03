@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # Copyright 2008 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +27,8 @@ REDIRECT_FIELD_NAME = 'next'
 SESSION_LOGIN_INFO_KEY = '_client_login_info'
 LOGIN_REDIRECT_URL = '/'
 CLIENT_LOGIN_SOURCE = 'cloudreach-powerpanel-v1'
+CACHE_UPDATE_INTERVAL = 20 * 60 # in seconds
+READ_ONLY = False
 
 OAUTH_APP_ID = '285282688156'
 OAUTH_CONSUMER = '285282688156.apps.googleusercontent.com'
@@ -65,10 +68,10 @@ LANGUAGE_CODE = 'en-us'
 
 # LANGUAGES presented as suggested here:
 # http://docs.djangoproject.com/en/dev/ref/settings/
-gettext = lambda s: s
 LANGUAGES = (
-    ('en', gettext('English')),
-    ('pl', gettext('Polish')),
+    ('en', 'English'),
+    ('pl', 'Polski'),
+    #('es', u'Espa\xf1ol'),
 )
 
 SITE_ID = 1
@@ -110,10 +113,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'crauth.users.UsersMiddleware',
-    'crlib.middleware.PrecacheRetryMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-#    'django.contrib.auth.middleware.AuthenticationMiddleware',
-#    'django.middleware.doc.XViewMiddleware',
+    'crlib.middleware.LocaleMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

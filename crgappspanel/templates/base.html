@@ -17,24 +17,27 @@
                 var email = 'anonymous';
                 {% endif %}
         {% endspaceless %}</script>
+        <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
 		<script type="text/javascript" src="/static/scripts/all-closure.js"></script>
 		{% for script in scripts %}
 		<script type="text/javascript" src="/static/scripts/{{ script }}.js"></script>
 		{% endfor %}
 	</head>
 	<body style="margin: 0px; padding: 20px">
+		<div id="wrap">
 		{% spaceless %}
         <div id="header">
+        		<a href="http://www.cloudreach.co.uk"><img src="/static/images/logo.gif" border="0" /></a>
                 <ul>
                 {% if auth %}
                         <li><strong>{{ auth.user.email }}</strong></li>
-                        <li><a href="{{ auth.inbox_url }}" target="_blank">Inbox</a></li>
-                        <li><a href="{{ auth.calendar_url }}" target="_blank">Calendar</a></li>
-                        <li><a href="https://sites.google.com/a/cloudreach.co.uk/cloudreach-powerpanel-help/" target="_blank">Help</a></li>
-                        <li><a href="{{ auth.change_domain_url }}">Change domain</a></li>
-                        <li><a href="{{ auth.logout_url }}">Sign out</a></li>
+                        <li><a href="{{ auth.inbox_url }}" target="_blank">{% trans 'Inbox' %}</a></li>
+                        <li><a href="{{ auth.calendar_url }}" target="_blank">{% trans 'Calendar' %}</a></li>
+                        <li><a href="https://sites.google.com/a/cloudreach.co.uk/cloudreach-powerpanel-help/" target="_blank">{% trans 'Help' %}</a></li>
+                        <li><a href="{{ auth.change_domain_url }}">{% trans 'Change domain' %}</a></li>
+                        <li><a href="{{ auth.logout_url }}">{% trans 'Sign out' %}</a></li>
                 {% else %}
-                        <li><a href="{{ login_url }}">Sign in</a></li>
+                        <li><a href="{{ login_url }}">{% trans 'Sign in' %}</a></li>
                 {% endif %}
                 </ul>
         </div>
@@ -92,14 +95,15 @@
 		<div id="content">
 			{% block content %}{% endblock %}
 		</div>
+		</div>
         <div id="footer">
                 &copy;{% now "Y" %}
                 <a href="http://www.cloudreach.com/" target="_blank">Cloudreach</a>
-                - <a href="http://www.cloudreach.com/privacy" target="_blank">Privacy policy</a>
-                - <strong><a href="#" onclick="return feedback('Feedback');">Feedback</a></strong>
-                - <a href="#" onclick="return feedback('Incident');">Report a problem</a>
+                - <a href="http://www.cloudreach.com/privacy" target="_blank">{% trans 'Privacy policy' %}</a>
+                - <strong><a href="#" onclick="return feedback('Feedback');">{% trans 'Feedback' %}</a></strong>
+                - <a href="#" onclick="return feedback('Incident');">{% trans 'Report a problem' %}</a>
                 {% if auth.is_on_trial %}
-                - <strong><a href="#" onclick="return buyNow();">Buy now</a></strong>
+                - <strong><a href="#" onclick="return buyNow();">{% trans 'Buy now' %}</a></strong>
                 {% endif %}
         </div>
         {% if auth.is_expired %}

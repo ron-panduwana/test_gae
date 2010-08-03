@@ -1,7 +1,7 @@
 {% load i18n %}
 <script type="text/javascript">
-var title = '{% trans "Remove" %} {{ entities_name|escapejs }}';
-var content = '{% trans "Are you sure want to remove selected" %} {{ entities_name|escapejs }}';
+var title = '{{ delete_link_title|escapejs }}';
+var content = '{{ delete_question|escapejs }}';
 cr.table.deletes['table'] = cr.snippets.removeSelectedHandler(title, content);
 cr.snippets.setUpListener();
 </script>

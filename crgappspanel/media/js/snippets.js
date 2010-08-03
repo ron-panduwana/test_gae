@@ -44,7 +44,10 @@ cr.snippets.userDialog = function(title, content, url) {
     var dialog= new goog.ui.Dialog()
     dialog.setTitle(title)
     dialog.setContent(content)
-    dialog.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+    var button_set = new goog.ui.Dialog.ButtonSet()
+        .set(goog.ui.Dialog.DefaultButtonKeys.YES, gettext('Yes'), true)
+        .set(goog.ui.Dialog.DefaultButtonKeys.NO, gettext('No'), false, true);
+    dialog.setButtonSet(button_set)
 
     goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
         if (e.key == 'yes') {
@@ -71,18 +74,28 @@ goog.exportProperty(cr.snippets, 'userShowDialog', cr.snippets.userShowDialog);
 
 
 cr.snippets.removeSelectedHandler = function(title, content) {
-    return function(list, removeUrl) {
+    return function(list, removeUrl, buttons) {
         var dialogDelete = new goog.ui.Dialog()
         dialogDelete.setTitle(title)
         dialogDelete.setContent(content)
-        dialogDelete.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO)
+        var button_set = new goog.ui.Dialog.ButtonSet()
+            .set(goog.ui.Dialog.DefaultButtonKeys.YES, gettext('Yes'), true)
+            .set(goog.ui.Dialog.DefaultButtonKeys.NO, gettext('No'), false, true);
+        dialogDelete.setButtonSet(button_set)
         
         goog.events.listenOnce(dialogDelete, goog.ui.Dialog.EventType.SELECT, function(e) {
             if (e.key == 'yes') {
                 window.open(removeUrl, '_self')
+            } else {
+                for (var i=0; i < buttons.length; i++) {
+                    buttons[i].disabled = false;
+                }
             }
         })
-        dialogDelete.setVisible(true)
+        for (var i=0; i < buttons.length; i++) {
+            buttons[i].disabled = true;
+        }
+        dialogDelete.setVisible(true);
     }
 }
 goog.exportProperty(cr.snippets, 'removeSelectedHandler', cr.snippets.removeSelectedHandler);

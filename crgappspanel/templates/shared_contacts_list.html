@@ -10,15 +10,13 @@
     {% endif %}
 	<form id="shared-contact-search" action="{% url shared-contacts %}"
 			style="{% if advanced_search %}display: none; {% endif %}margin-top: 2em">
-		<b>{% trans "quick search" %}</b>&nbsp;&nbsp;&nbsp;
-		<a href="#" onclick="cr.snippets.toggleSearch()">{% trans "advanced search" %}</a><br/>
 		<table>
 			<col width="60"/>
 			<col width="*"/>
 			<col width="*"/>
 			<tbody>
 				<tr>
-					<td>Query</td>
+                    <td>{% trans 'Query' %}</td>
 					<td><input type="text" name="q" value="{{ query.general }}"/></td>
 					<td><input type="submit" value="{% trans "go" %}"/></td>
 				</tr>
@@ -74,8 +72,6 @@
 		<a href="{% url shared-contacts %}">{% trans "Remove filters" %}</a>
 	</div>
 	{% endif %}
-	{% with "shared contacts" as entities_name %}
-		{% include "snippets/objects_table_delete_script.html" %}
-	{% endwith %}
+    {% include "snippets/objects_table_delete_script.html" %}
 	{{ table }}
 {% endblock %}

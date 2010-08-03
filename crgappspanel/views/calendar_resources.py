@@ -1,5 +1,4 @@
-from django.utils.translation import ugettext as _
-
+from django.utils.translation import ugettext_lazy as _
 from crauth import users
 from crauth.decorators import has_perm
 from crgappspanel.forms import CalendarResourceForm
@@ -8,6 +7,7 @@ from crgappspanel.models import Preferences, CalendarResource
 from crgappspanel.views.utils import get_sortby_asc, get_page, qs_wo_page, \
         secure_random_chars, redirect_saved
 from crlib.navigation import render_with_nav
+from crlib import errors
 
 
 _table_fields = [
@@ -33,13 +33,18 @@ def calendar_resources(request):
     per_page = Preferences.for_current_user().items_per_page
     page = get_page(request, resources, per_page);
     
+    delete_link_title = _('Delete calendar resources')
     return render_with_nav(request, 'calendar_resources_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
             widths=_table_widths, singular='calendar resource',
+            delete_link_title=delete_link_title,
             can_change=users.get_current_user().has_perm(
                 'change_calendarresource')),
         'saved': request.session.pop('saved', False),
+        'delete_link_title': delete_link_title,
+        'delete_question': _('Are you sure you want to delete selected '
+                             'calendar resources?'),
     })
 
 
@@ -49,9 +54,15 @@ def calendar_resource_add(request):
         form = CalendarResourceForm(request.POST, auto_id=True)
         if form.is_valid():
             resource = form.create(secure_random_chars(20))
-            resource.save()
-            return redirect_saved('calendar-resource-details', request,
-                id=resource.id)
+            try:
+                resource.save()
+                return redirect_saved('calendar-resource-details', request,
+                    id=resource.id)
+            except errors.EntitySizeTooLarge:
+                form.add_error(
+                    'description',
+                    _('Calendar resource description may contain up to 1,000 '
+                      'characters.'))
     else:
         form = CalendarResourceForm(auto_id=True)
     
@@ -73,9 +84,15 @@ def calendar_resource_details(request, id=None):
         form = CalendarResourceForm(request.POST, auto_id=True)
         if form.is_valid():
             form.populate(resource)
-            resource.save()
-            return redirect_saved('calendar-resource-details', request,
-                id=resource.id)
+            try:
+                resource.save()
+                return redirect_saved('calendar-resource-details', request,
+                    id=resource.id)
+            except errors.EntitySizeTooLarge:
+                form.add_error(
+                    'description',
+                    _('Calendar resource description may contain up to 1,000 '
+                      'characters.'))
     else:
         form = CalendarResourceForm(initial={
             'common_name': resource.common_name,

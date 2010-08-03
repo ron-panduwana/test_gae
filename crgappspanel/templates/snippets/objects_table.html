@@ -1,3 +1,4 @@
+{% load i18n %}
 <script type="text/javascript">
 cr.table.tables['{{ table_name }}'] = [
 {% for row in rows %}{% if not forloop.first %},{% endif %}'{{ row.id }}'{% endfor %}
@@ -17,7 +18,7 @@ cr.table.tables['{{ table_name }}'] = [
 				<table style="margin: 0; padding: 0; width: 100%"><tbody>
 					<tr><td>
                         {% if can_change %}
-						<button id="{{ table_name }}_delete_1" type="button" onclick="cr.table.onDeleteClicked(this)" disabled="disabled">Delete {{ object_plural }}</button>
+                        <button id="{{ table_name }}_delete_1" type="button" onclick="cr.table.onDeleteClicked(this)" disabled="disabled">{{ delete_link_title }}</button>
                         {% endif %}
 					</td><td style="text-align: right">
 						{% if page %}
@@ -63,7 +64,7 @@ cr.table.tables['{{ table_name }}'] = [
 				<table style="margin: 0; padding: 0; width: 100%"><tbody>
 					<tr><td>
                         {% if can_change %}
-						<button id="{{ table_name }}_delete_2" type="button" onclick="cr.table.onDeleteClicked(this)" disabled="disabled">Delete {{ object_plural }}</button>
+                        <button id="{{ table_name }}_delete_2" type="button" onclick="cr.table.onDeleteClicked(this)" disabled="disabled">{{ delete_link_title }}</button>
                         {% endif %}
 					</td><td style="text-align: right">
 						{% if page %}

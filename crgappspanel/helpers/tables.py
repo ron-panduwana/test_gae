@@ -34,7 +34,7 @@ class Table(object):
     
     def generate(self, objs, page=None, qs_wo_page=None, widths=None,
                  table_name='table', singular='object', plural=None,
-                 can_change=False):
+                 delete_link_title='', can_change=False):
         """Generates table html (using appropriate HTML template).
         
         Arguments:
@@ -62,6 +62,7 @@ class Table(object):
             })
         
         plural = plural or ('%ss' % singular)
+        delete_link_title = delete_link_title or 'Delete %s' % plural
         
         return render_to_string('snippets/objects_table.html', {
             'columns': self.columns,
@@ -74,6 +75,36 @@ class Table(object):
             'table_name': table_name,
             'object_singular': singular,
             'object_plural': plural,
+            'delete_link_title': delete_link_title,
+            'can_change': can_change,
+        })
+
+    def generate_paginator(self, paginator, widths=[],
+                           delete_link_title='',
+                           can_change=False, table_name='table'):
+        objs = list(paginator.objects)
+
+        rows = []
+        for obj in objs:
+            data = [dict(data=col.value(obj), link=col.link) for col in self.columns]
+            rows.append({
+                'id': self.id_column.value(obj),
+                'data': data,
+                'can_change': not hasattr(obj, 'cant_change'),
+            })
+        
+        return render_to_string('snippets/objects_table_paginator.html', {
+            'columns': self.columns,
+            'rows': rows,
+            'paginator': paginator,
+            'prev_link': paginator.prev_link,
+            'next_link': paginator.next_link,
+            'from_to': paginator.from_to,
+            'sortby': paginator.sortby,
+            'asc': paginator.asc,
+            'widths': widths,
+            'table_name': table_name,
+            'delete_link_title': delete_link_title,
             'can_change': can_change,
         })
     
@@ -87,12 +118,14 @@ class Table(object):
 
 
 class Column(object):
-    def __init__(self, caption, name, getter=None, default='', link=False):
+    def __init__(self, caption, name, getter=None, default='', link=False,
+                 sortable=True):
         self.caption = caption
         self.name = name
         self.getter = getter
         self.default = default
         self.link = link
+        self.sortable = sortable
     
     def value(self, obj):
         if self.getter:

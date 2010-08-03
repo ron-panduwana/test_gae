@@ -6,11 +6,22 @@ div, h1, h2, h3, h4, h5, h6, p, ul, ol, li, form, fieldset, table, td, th {
 
 html {
 	font-size: 62.5%;
+	height: 97%;
 }
 
 body {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 1.2em;
+	height: 97%;
+}
+
+/*Opera Fix*/
+body:before {
+	content:"";
+	height:100%;
+	float:left;
+	width:0;
+	margin-top:-32767px;/
 }
 
 table, tr, th, td {
@@ -39,13 +50,20 @@ a.desc {
 	padding-right: 10px;
 }
 
+#wrap {
+	min-height: 97%;
+}
+
 #footer {
     border-top: 1px solid #999;
     text-align: center;
-    margin: 2em 0 0;
+    /* margin: 2em 0 0; */
     padding: 0.5em 0 0;
     clear: both;
     color: #999;
+    position: relative;
+	margin-top: -20px; /* negative value of footer height */
+	height: 20px;
 }
 
 form#feedback table td {
@@ -72,6 +90,7 @@ div#header {
 
 div#header ul {
         float: right;
+        padding-top: 30px;
         list-style: none outside none;
 }
 
@@ -151,6 +170,8 @@ div#tabs li.selected {
 div#content {
 	padding: 1.5em;
 	clear: both;
+	overflow:auto;
+	padding-bottom: 20px;
 }
 
 div.back-link {
