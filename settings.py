@@ -39,12 +39,13 @@ NAVIGATION = (
     'crappadmin.views.navigation',
 )
 
-DEBUG = True
+DEBUG = os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
+    ('Kamil Klimkiewicz', 'miGlanz@gmail.com'),
 )
+SERVER_EMAIL = 'miGlanz@gmail.com'
 
 MANAGERS = ADMINS
 
