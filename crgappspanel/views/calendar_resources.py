@@ -60,8 +60,8 @@ def calendar_resource_add(request):
                     id=resource.id)
             except errors.EntitySizeTooLarge:
                 form.add_error(
-                    'description',
-                    _('Calendar resource description may contain up to 1,000 '
+                    '__all__',
+                    _('One or more of the fields contains too many '
                       'characters.'))
     else:
         form = CalendarResourceForm(auto_id=True)
@@ -90,8 +90,8 @@ def calendar_resource_details(request, id=None):
                     id=resource.id)
             except errors.EntitySizeTooLarge:
                 form.add_error(
-                    'description',
-                    _('Calendar resource description may contain up to 1,000 '
+                    '__all__',
+                    _('One or more of the fields contains too many '
                       'characters.'))
     else:
         form = CalendarResourceForm(initial={

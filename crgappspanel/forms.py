@@ -789,10 +789,12 @@ class SharedContactForm(Form):
 
 
 class CalendarResourceForm(Form):
-    common_name = forms.CharField(label=_('Name'))
-    type = forms.CharField(label=_('Type'), required=False)
-    description = forms.CharField(label=_('Description'), required=False,
-        widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
+    common_name = forms.CharField(label=_('Name'), max_length=1000)
+    type = forms.CharField(
+        label=_('Type'), required=False, max_length=100)
+    description = forms.CharField(
+        label=_('Description'), required=False,
+        max_length=1000, widget=forms.Textarea(attrs=dict(rows=3, cols=30)))
     
     def create(self, id):
         data = self.cleaned_data
