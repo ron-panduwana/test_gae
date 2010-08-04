@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-04 00:42+0200\n"
+"POT-Creation-Date: 2010-08-04 20:06+0200\n"
 "PO-Revision-Date: 2010-07-05 16:59+0100\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -175,7 +175,7 @@ msgstr "Używaj Unikodu (UTF-8)"
 msgid "Use default text encoding"
 msgstr "Używaj domyślnego kodowania znaków"
 
-#: forms.py:295 forms.py:834
+#: forms.py:295 forms.py:836
 msgid "Language"
 msgstr "Język"
 
@@ -352,7 +352,7 @@ msgid "%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "%(widget)s %(link_start)sAnuluj%(link_end)s"
 
 #: forms.py:484 forms.py:500 forms.py:607 forms.py:792
-#: templates/calendar_resource_add.html:10 templates/group_create.html:14
+#: templates/calendar_resource_add.html:14 templates/group_create.html:14
 #: templates/role_create.html:10 templates/shared_contacts_list.html:36
 #: views/calendar_resources.py:14 views/groups.py:20 views/roles.py:16
 #: views/users.py:100
@@ -376,7 +376,7 @@ msgstr "Ustaw jako domyślne"
 msgid "Email permission"
 msgstr "Uprawnienia email"
 
-#: forms.py:503 forms.py:794 templates/calendar_resource_add.html:18
+#: forms.py:503 forms.py:796 templates/calendar_resource_add.html:22
 #: templates/group_create.html:22 views/calendar_resources.py:16
 msgid "Description"
 msgstr "Opis"
@@ -519,20 +519,20 @@ msgstr "Numery telefonów"
 msgid "Company is required if role is not empty."
 msgstr "Pole firma jest wymagane, jeśli podano stanowisko."
 
-#: forms.py:793 templates/calendar_resource_add.html:14
+#: forms.py:794 templates/calendar_resource_add.html:18
 #: views/calendar_resources.py:15
 msgid "Type"
 msgstr "Typ"
 
-#: forms.py:814
+#: forms.py:816
 msgid "Name is required."
 msgstr "Nazwa jest wymagana."
 
-#: forms.py:836
+#: forms.py:838
 msgid "Items per page"
 msgstr "Wiadomości na stronę"
 
-#: forms.py:838
+#: forms.py:840
 msgid "How many items to show at once on listing pages."
 msgstr "Ile elementów wyświetlać jednocześnie na stronie."
 
@@ -690,12 +690,12 @@ msgstr "Kup teraz"
 msgid "Add calendar resource"
 msgstr "Utwórz zasób kalendarza"
 
-#: templates/calendar_resource_add.html:22 templates/group_create.html:26
+#: templates/calendar_resource_add.html:26 templates/group_create.html:26
 #: templates/role_create.html:44 templates/user_create.html:28
 msgid "create"
 msgstr "utwórz"
 
-#: templates/calendar_resource_add.html:23 templates/group_create.html:27
+#: templates/calendar_resource_add.html:27 templates/group_create.html:27
 #: templates/role_create.html:45 templates/user_create.html:29
 msgid "cancel"
 msgstr "anuluj"
@@ -920,8 +920,8 @@ msgid "Are you sure you want to delete selected calendar resources?"
 msgstr "Czy jesteś pewny, że chcesz usunąć zaznaczone zasoby kalendarza?"
 
 #: views/calendar_resources.py:64 views/calendar_resources.py:94
-msgid "Calendar resource description may contain up to 1,000 characters."
-msgstr "Opis zasobu kalendarza może zawierać maksymalnie 1000 znaków."
+msgid "One or more of the fields contains too many characters."
+msgstr "Jedno lub więcej pole zawiera zbyt dużo znaków."
 
 #: views/groups.py:37
 msgid "Delete groups"
