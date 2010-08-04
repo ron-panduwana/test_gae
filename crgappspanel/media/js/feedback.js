@@ -63,7 +63,7 @@ function buyNow() {
     var dialog = new goog.ui.Dialog();
     dialog.setTitle(gettext('Buy now'));
     dialog.setContent(
-            '<form id="feedback" method="POST" action="' + ACTION + '">' +
+            '<form id="buynow" method="POST" action="' + ACTION + '">' +
             '<input type="hidden" name="orgid" value="' + ORG_ID + '"/>' +
             '<input type="hidden" name="retURL" value="' + feedback_url + '"/>' +
             '<input type="hidden" name="external" value="1"/>' +
@@ -98,6 +98,15 @@ function buyNow() {
     dialog.setButtonSet(button_set);
     dialog.setVisible(true);
     goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
+        if (e.key == 'ok') {
+            var email = document.getElementById('email').value;
+            if (email) {
+                document.getElementById('buynow').submit();
+            } else {
+                alert(gettext('Please enter your email address.'));
+                return false;
+            }
+        }
         dialog.dispose();
     });
     return false;

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-04 00:40+0200\n"
+"POT-Creation-Date: 2010-08-04 13:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,11 +34,11 @@ msgstr "Temat"
 msgid "Description"
 msgstr "Opis"
 
-#: media/js/feedback.js:37 media/js/feedback.js.py:95
+#: media/js/feedback.js:37 media/js/feedback.js.py:96
 msgid "OK"
 msgstr "OK"
 
-#: media/js/feedback.js:38 media/js/feedback.js.py:96
+#: media/js/feedback.js:38 media/js/feedback.js.py:97
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -50,25 +50,29 @@ msgstr "Proszę wprowadzić zarówno temat jak i opis."
 msgid "Buy now"
 msgstr "Kup teraz"
 
-#: media/js/feedback.js:71
+#: media/js/feedback.js:72
 msgid "Name"
 msgstr "Imię i nazwisko"
 
-#: media/js/feedback.js:75
+#: media/js/feedback.js:76
 msgid "Company"
 msgstr "Firma"
 
-#: media/js/feedback.js:79
+#: media/js/feedback.js:80
 msgid "Phone"
 msgstr "Numer telefonu"
 
-#: media/js/feedback.js:83
+#: media/js/feedback.js:84
 msgid "Email address"
 msgstr "Adres email"
 
-#: media/js/feedback.js:87
+#: media/js/feedback.js:88
 msgid "Address"
 msgstr "Adres"
+
+#: media/js/feedback.js:106
+msgid "Please enter your email address."
+msgstr "Proszę wprowadzić swój adres email."
 
 #: media/js/snippets.js:48 media/js/snippets.js.py:82
 msgid "Yes"
