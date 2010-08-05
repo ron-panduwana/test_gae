@@ -70,6 +70,13 @@ def _mark_sections(path, sections, parents=[], user=None, has_in_section=False):
             section.selected = False
         section.children = _mark_sections(
             path, section.children, parents + [section], user=user)
+        if not section.url and not section.perm_list:
+            if section.children:
+                child = section.children[0]
+                section.url = child.url
+                section.perm_list = child.url
+            else:
+                sections.remove(section)
     return sections
 
 
