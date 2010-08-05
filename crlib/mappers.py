@@ -296,6 +296,7 @@ class GroupEntryMapper(AtomMapper):
         else:
             return atom
 
+    @apps_for_your_domain_exception_wrapper
     def delete(self, atom):
         self.service.DeleteGroup(atom.groupId)
 
@@ -364,6 +365,7 @@ class NicknameEntryMapper(AtomMapper):
 
     filter_by_user = filter_by_user_name
 
+    @apps_for_your_domain_exception_wrapper
     def delete(self, atom):
         self.service.DeleteNickname(atom.nickname.name)
 
@@ -456,6 +458,7 @@ class SharedContactEntryMapper(AtomMapper):
                 raise EntitySizeTooLarge()
             raise
 
+    @apps_for_your_domain_exception_wrapper
     def delete(self, atom):
         self.service.delete(atom)
 
