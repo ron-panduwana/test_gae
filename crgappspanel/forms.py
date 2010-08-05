@@ -558,7 +558,7 @@ PERMISSION_NAMES = crauth.permissions.permission_names(False)
 OBJECT_TYPES = (
     ('users', _('Manage Users'), (
         ('gauser', _('General')),
-        ('gausersettings', _('Settings')),
+        ('gausersettings', _('Email Settings')),
         ('gauserfilters', _('Filters')),
         ('gausersendas', _('Send as')),
         ('gauservacation', _('Vacation responder')),
