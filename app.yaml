@@ -15,31 +15,11 @@ handlers:
   script: main.py
   login: admin
 
-- url: /openid/__manifest/
+- url: /__.*
   script: main.py
   login: admin
 
-- url: /openid/__cron_check_licenses/
-  script: main.py
-  login: admin
-
-- url: /openid/__cron_notify_of_expired_domains/
-  script: main.py
-  login: admin
-
-- url: /__precache_everything/
-  script: main.py
-  login: admin
-
-- url: /__precache_domain_item/
-  script: main.py
-  login: admin
-
-- url: /__precache_nicknames/
-  script: main.py
-  login: admin
-
-- url: /__prepare_indexes/
+- url: /openid/__.*
   script: main.py
   login: admin
 
@@ -66,3 +46,6 @@ skip_files:
 - ^(.*/)?marketplace/.*
 - ^(.*/)?util/.*
 - ^(.*/)*tests.py
+
+derived_file_type:
+- python_precompiled
