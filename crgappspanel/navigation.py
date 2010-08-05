@@ -7,7 +7,7 @@ from crauth import users
 def base(request):
     nav = (
         Section('dashboard', _('Dashboard'), reverse('dashboard')),
-        Section('users', _('Users, Groups and Roles'), reverse('users'), (
+        Section('users', _('Users, Groups and Roles'), children=(
             Section('users', _('Users'), reverse('users')),
             Section('groups', _('Groups'), reverse('groups')),
             Section('roles', _('Roles'), reverse('roles')),
