@@ -248,10 +248,21 @@ class GroupEntryMapper(AtomMapper):
 
     @apps_for_your_domain_exception_wrapper
     def create(self, atom):
-        new_group = self.service.CreateGroup(
-            atom.groupId, atom.groupName, atom.description,
-            atom.emailPermission)
-        return GroupEntry(self, new_group)
+        from google.appengine.api.urlfetch_errors import DownloadError
+        try:
+            new_group = self.service.CreateGroup(
+                atom.groupId, atom.groupName, atom.description,
+                atom.emailPermission)
+            return GroupEntry(self, new_group)
+        except DownloadError:
+            from gdata.apps.service import AppsForYourDomainException
+            from crlib.errors import NetworkError
+            # Let's see if the group was created
+            try:
+                return GroupEntry(
+                    self, self.service.RetrieveGroup(atom.groupId))
+            except AppsForYourDomainException:
+                raise NetworkError
 
     def _update_members(self, atom, old_atom):
         old_members = set(old_atom.members)
