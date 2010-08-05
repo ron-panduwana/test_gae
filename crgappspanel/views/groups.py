@@ -188,7 +188,7 @@ def group_remove(request, names=None):
     
     domain = users.get_current_user().domain_name
     for name in names.split('/'):
-        group = GAGroup.all().filter('id', '%s@%s' % (name, domain)).get()
+        group = GAGroup.get_by_key_name('%s@%s' % (name, domain))
         if group:
             group.delete()
     

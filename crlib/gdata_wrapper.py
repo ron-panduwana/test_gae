@@ -596,7 +596,18 @@ class Model(object):
 
     def delete(self):
         if not settings.READ_ONLY:
-            self._mapper.delete(self._atom)
+            if self._cached:
+                import base64
+                from django.core.urlresolvers import reverse
+                from google.appengine.api.labs import taskqueue
+                domain = users.get_current_user().domain_name
+                taskqueue.add(url=reverse('gdata_delete'), params={
+                    'model': base64.b64encode(
+                        pickle.dumps(self, pickle.HIGHEST_PROTOCOL)),
+                    'domain': domain,
+                })
+            else:
+                self._mapper.delete(self._atom)
             self._delete_cache()
             del self._cache['item:%s' % self.key()]
             del self._cache['retrieve_all']

@@ -124,3 +124,23 @@ def add_user_to_group(request):
 
     return HttpResponse('ok')
 
+
+def gdata_delete(request):
+    import base64
+    import pickle
+    from crlib.errors import EntityDoesNotExistError
+
+    model = pickle.loads(base64.b64decode(request.POST['model']))
+    domain = request.POST['domain']
+    apps_domain = AppsDomain.get_by_key_name(domain)
+    if not apps_domain:
+        logging.warning('No such domain: %s' % domain)
+        return HttpResponse('not ok')
+    
+    users._set_current_user(apps_domain.admin_email, domain)
+    try:
+        model._mapper.delete(model._atom)
+    except EntityDoesNotExistError:
+        pass
+    return HttpResponse('ok')
+
