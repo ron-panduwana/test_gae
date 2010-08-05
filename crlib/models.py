@@ -69,6 +69,7 @@ class _CacheBase(BaseModel):
         kwargs = self.model_to_kwargs(model_instance)
         for key, value in kwargs.iteritems():
             setattr(self, key, value)
+        self._gdata_key_name = model_instance.key()
         self._atom = pickle.dumps(model_instance._atom, pickle.HIGHEST_PROTOCOL)
 
 
