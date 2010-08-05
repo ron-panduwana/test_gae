@@ -482,6 +482,12 @@ class RelProperty(StringProperty):
             'rel', required=False, choices=choices, **kwargs)
 
 
+_SIGNATURE_ATOM = """<?xml version="1.0" encoding="utf-8"?>
+<atom:entry xmlns:atom="http://www.w3.org/2005/Atom" 
+xmlns:apps="http://schemas.google.com/apps/2006">
+    <apps:property name="signature" value="%(signature)s"/>
+</atom:entry>"""
+
 class _EmailSettingsWrapper(object):
     _OPERATIONS = {
         'create_label': 'CreateLabel',
@@ -492,7 +498,7 @@ class _EmailSettingsWrapper(object):
         'update_pop': 'UpdatePop',
         'update_imap': 'UpdateImap',
         'update_vacation': 'UpdateVacation',
-        'update_signature': 'UpdateSignature',
+        #'update_signature': 'UpdateSignature',
         'update_language': 'UpdateLanguage',
         'update_general': 'UpdateGeneral',
     }
@@ -511,6 +517,14 @@ class _EmailSettingsWrapper(object):
         self._service = EmailSettingsService()
         self._service.domain = user.domain_name
         user.client_login(self._service)
+
+    def update_signature(self, signature):
+        # This is a temporary workaround for:
+        # http://code.google.com/p/gdata-python-client/issues/detail?id=190
+        signature = signature.replace('\n', '&#xA;')
+        self._service.Put(
+            _SIGNATURE_ATOM % {'signature': signature},
+            self._service._serviceUrl('signature', self._user_name))
 
     def __getattr__(self, name):
         if name in self._OPERATIONS:
