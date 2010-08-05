@@ -61,10 +61,14 @@ def shared_contacts(request):
 
     query = request.GET.get('q', '')
     if query:
+        query = query.split()[0]
         def query_gen():
             q = SharedContact.all()
-            for word in query.split():
-                q.filter('search_index', word.lower())
+            # This doesn't work as expected on development server, but is OK
+            # on GAE instance.
+            max_word = query[:-1] + chr(ord(query[-1]) + 1)
+            q.filter('search_index >=', query.lower()).filter(
+                'search_index <', max_word.lower())
             return q
     else:
         query_gen = None
