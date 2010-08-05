@@ -72,8 +72,7 @@ def _get_role(key):
         return None
 
 def _get_roles(keys):
-    roles_map = _get_roles_map()
-    return [roles_map[k] for k in keys if k in roles_map]
+    return Role.get(keys)
 
 def _get_roles_choices(role_keys, is_admin):
     choices = [('', '')]
@@ -90,7 +89,7 @@ def _get_user_roles(domain):
         from crauth.models import UserPermissions
         perms = UserPermissions.get_by_key_name(_get_user_email(domain)(x))
         if perms:
-            return ', '.join(role.name for role in _get_roles(perms.roles))
+            return ', '.join(role.name for role in Role.get(perms.roles))
         else:
             return ''
     return new
