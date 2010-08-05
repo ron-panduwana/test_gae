@@ -183,12 +183,14 @@ class SharedContactCache(_CacheBase):
         notes = RE_SPLIT.split(model_instance.notes or '')
         notes = list(set(_filter(notes)))
 
-        index = []
+        index = name_index[:]
         index += RE_SPLIT.split(model_instance.name.full_name or '')
         index += emails
         index += phone_numbers
         index += addresses
         index += RE_SPLIT.split(organization or '')
+        if model_instance.title:
+            index.append(model_instance.title.lower())
         index = list(set(_filter(index)))
 
         kwargs.update({
