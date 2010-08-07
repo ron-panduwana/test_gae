@@ -38,11 +38,14 @@ def precache_everything(request):
 
 
 def precache_domain_item(request):
+    from google.appengine.api.urlfetch_errors import DownloadError
     try:
         cache.update_cache(request.POST)
-    except Exception:
-        logging.exception('wtf')
-        raise
+    except DownloadError:
+        retry_count = int(request.META.get(
+            'HTTP_X_APPENGINE_TASKRETRYCOUNT', 0))
+        if retry_count < 3:
+            taskqueue.add(url=request.get_full_path(), params=request.POST.copy())
     return HttpResponse('ok')
 
 
