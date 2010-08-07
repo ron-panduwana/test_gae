@@ -147,3 +147,33 @@ def gdata_delete(request):
         pass
     return HttpResponse('ok')
 
+
+def email_settings_update(request):
+    from base64 import b64decode
+    from pickle import loads
+    from gdata.apps.emailsettings.service import EmailSettingsService
+    domain = request.POST['domain']
+    apps_domain = AppsDomain.get_by_key_name(domain)
+
+    if not apps_domain:
+        logging.warning('No such domain: %s' % domain)
+        return HttpResponse('not ok')
+
+    users._set_current_user(apps_domain.admin_email, domain)
+    user = models.GAUser.get_by_key_name(request.POST['user_name'])
+    func = getattr(user.email_settings, request.POST['operation'])
+
+    def unpickle(val):
+        return loads(b64decode(val))
+
+    args = request.POST.get('args', ())
+    if args:
+        args = unpickle(args)
+    kwargs = request.POST.get('kwargs', {})
+    if kwargs:
+        kwargs = unpickle(kwargs)
+    kwargs['async'] = False
+    func(*args, **kwargs)
+
+    return HttpResponse('ok')
+

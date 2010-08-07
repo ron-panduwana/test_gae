@@ -544,8 +544,28 @@ class _EmailSettingsWrapper(object):
         if name in self._OPERATIONS:
             @apps_for_your_domain_exception_wrapper
             def fun(*args, **kwargs):
-                _orig_fun = getattr(self._service, self._OPERATIONS[name])
-                return _orig_fun(self._user_name, *args, **kwargs)
+                async = kwargs.pop('async', True)
+                if async:
+                    from base64 import b64encode
+                    from pickle import dumps, HIGHEST_PROTOCOL
+                    from google.appengine.api.labs import taskqueue
+                    from django.core.urlresolvers import reverse
+
+                    def pickle(val):
+                        return b64encode(dumps(val, HIGHEST_PROTOCOL))
+
+                    taskqueue.add(
+                        url=reverse('email_settings_update'),
+                        params = {
+                            'operation': name,
+                            'user_name': self._user_name,
+                            'domain': self._service.domain,
+                            'args': pickle(args),
+                            'kwargs': pickle(kwargs),
+                        })
+                else:
+                    _orig_fun = getattr(self._service, self._OPERATIONS[name])
+                    return _orig_fun(self._user_name, *args, **kwargs)
             fun.__name__ = name
             return fun
         raise AttributeError
