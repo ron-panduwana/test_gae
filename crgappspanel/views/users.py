@@ -496,6 +496,7 @@ def user_email_aliases(request, name=None):
             data = dict((key, value) for key, value in form.cleaned_data.iteritems() if value)
             
             try:
+                data['async'] = False
                 user.email_settings.create_send_as_alias(**data)
                 return redirect_saved('user-email-aliases',
                     request, name=user.user_name)
