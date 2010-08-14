@@ -7,7 +7,7 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 from crauth.licensing import LICENSE_STATES, STATE_ACTIVE
 from crauth.permissions import class_prepared_callback
-from crlib.signals import class_prepared
+from crlib.signals import class_prepared, gauser_renamed
 
 
 class_prepared.connect(class_prepared_callback)
@@ -114,4 +114,20 @@ class UserPermissions(BaseModel):
     roles = db.ListProperty(db.Key)
     #: List of permissions given user is assigned.
     permissions = db.StringListProperty()
+
+def gauser_renamed_callback(sender, **kwargs):
+    old_email = '%s@%s' % (kwargs['old_name'], sender)
+    new_email = '%s@%s' % (kwargs['new_name'], sender)
+    permissions = UserPermissions.get_by_key_name(old_email)
+    if permissions:
+        new_permissions = UserPermissions(
+            key_name=new_email,
+            user_email=new_email,
+            roles=permissions.roles,
+            permissions=permissions.permissions,
+        )
+        new_permissions.put()
+        permissions.delete()
+
+gauser_renamed.connect(gauser_renamed_callback)
 
