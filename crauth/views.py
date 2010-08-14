@@ -320,7 +320,7 @@ def notify_of_expired_domains(request):
                 domain.domain, domain.admin_email, domain.expiration_date)
     if domains:
         mail_admins(
-            'Cloudreach Powerpanel expired domains notification',
+            'Cloudreach Controlpanel expired domains notification',
             """The following domains' trial period has expired:
             %s
             """ % domains_list)

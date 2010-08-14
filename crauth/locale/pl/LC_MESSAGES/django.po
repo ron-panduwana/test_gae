@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-07 18:27+0200\n"
+"POT-Creation-Date: 2010-08-14 10:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,6 +45,14 @@ msgstr "Upewnij się, że wprowadziłeś nazwę i hasło administratora domeny"
 #: forms.py:130
 msgid "Please provide correct authentication credentials"
 msgstr "Proszę wprowadzić poprawną nazwę i hasło"
+
+#: models.py:46
+msgid "Enabled"
+msgstr ""
+
+#: models.py:50
+msgid "Independent"
+msgstr ""
 
 #: permissions.py:13
 msgid "Is Administrator"
@@ -95,6 +103,10 @@ msgstr ""
 #: templates/domain_setup.html:21
 msgid "use different user"
 msgstr "użyj innego użytkownika"
+
+#: templates/domain_setup.html:39
+msgid "Save"
+msgstr ""
 
 #: templates/get_domain.html:4
 msgid "Enter your Google Apps domain name"

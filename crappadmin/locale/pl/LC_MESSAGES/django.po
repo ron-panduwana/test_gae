@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-15 10:54+0200\n"
+"POT-Creation-Date: 2010-08-14 10:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,33 +18,17 @@ msgstr ""
 "Plural-Forms:  nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n"
 "%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: forms.py:24 tables.py:15 templates/domain_create.html:10
-msgid "Domain"
-msgstr "Domena"
-
-#: forms.py:26
-msgid "Admin email"
-msgstr "Adres email administratora"
-
-#: forms.py:28
-msgid "Admin password"
-msgstr "Hasło administratora"
-
-#: forms.py:30 tables.py:10 templates/domain_create.html:22
+#: tables.py:10
 msgid "Enabled"
 msgstr "Włączona"
-
-#: forms.py:31 templates/domain_create.html:26
-msgid "Independent"
-msgstr "Zarządzana niezależnie"
-
-#: forms.py:77
-msgid "Passwords do not match."
-msgstr "Podane hasła nie są identyczne."
 
 #: tables.py:12
 msgid "Disabled"
 msgstr "Wyłączona"
+
+#: tables.py:15
+msgid "Domain"
+msgstr "Domena"
 
 #: tables.py:16
 msgid "Administrator Email"
@@ -54,35 +38,35 @@ msgstr "Adres email administratora"
 msgid "Status"
 msgstr "Status"
 
-#: tables.py:38 views.py:39
+#: tables.py:38 views.py:41
 msgid "Delete domains"
 msgstr "Usuń domeny"
 
-#: views.py:20
+#: views.py:22
 msgid "Superadmin Panel"
 msgstr "Panel Superadministratora"
 
-#: views.py:21
+#: views.py:23
 msgid "All Domains"
 msgstr "Wszystkie domeny"
 
-#: views.py:22 templates/tools.html:4
+#: views.py:24 templates/tools.html:4
 msgid "Tools"
 msgstr "Narzędzia"
 
-#: views.py:23
+#: views.py:25
 msgid "Appengine Dashboard"
 msgstr "Konsola Appengine"
 
-#: views.py:25
+#: views.py:27
 msgid "Documentation"
 msgstr "Dokumentacja"
 
-#: views.py:26
+#: views.py:28
 msgid "Logout"
 msgstr "Wyloguj"
 
-#: views.py:40
+#: views.py:42
 msgid "Are you sure you want to delete selected domains?"
 msgstr "Czy jesteś pewny, że chcesz usunąć zaznaczone domeny?"
 
@@ -94,26 +78,44 @@ msgstr "Dodaj domenę"
 msgid "Create new domain"
 msgstr "Dodaj domenę"
 
-#: templates/domain_create.html:14
-msgid "Administrator email"
-msgstr "Adres email administratora"
-
-#: templates/domain_create.html:18
-msgid "Administrator password"
-msgstr "Hasło administratora"
-
-#: templates/domain_create.html:30
+#: templates/domain_create.html:36
 msgid "create"
 msgstr "utwórz"
 
-#: templates/domain_create.html:31
+#: templates/domain_create.html:37
 msgid "cancel"
 msgstr "anuluj"
 
-#: templates/domain_details.html:23
+#: templates/domain_details.html:15
+msgid "License"
+msgstr ""
+
+#: templates/domain_details.html:24
 msgid "Installation link"
 msgstr "Link instalacyjny"
+
+#: templates/domain_details.html:27
+msgid "Change"
+msgstr ""
 
 #: templates/domains_list.html:4
 msgid "Google Apps Domains"
 msgstr "Domeny Google Apps"
+
+#~ msgid "Admin email"
+#~ msgstr "Adres email administratora"
+
+#~ msgid "Admin password"
+#~ msgstr "Hasło administratora"
+
+#~ msgid "Independent"
+#~ msgstr "Zarządzana niezależnie"
+
+#~ msgid "Passwords do not match."
+#~ msgstr "Podane hasła nie są identyczne."
+
+#~ msgid "Administrator email"
+#~ msgstr "Adres email administratora"
+
+#~ msgid "Administrator password"
+#~ msgstr "Hasło administratora"
