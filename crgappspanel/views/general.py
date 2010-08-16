@@ -40,7 +40,7 @@ def settings(request):
         'form': form,
         'saved': request.session.pop('saved', False),
     }
-    return render_with_nav(request, 'settings.html', ctx)
+    return render_with_nav(request, 'settings.html', ctx, help_url='settings')
 
 
 @login_required
