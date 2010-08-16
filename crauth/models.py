@@ -84,15 +84,20 @@ class AppsDomain(BaseModel):
     def is_arbitrary_domain_active(cls, domain):
         from crauth.licensing import LicensingClient
         apps_domain = AppsDomain.get_by_key_name(domain)
-        if apps_domain is not None and apps_domain.is_active():
-            return True
-        AppsDomain.get_or_insert(
-            key_name=domain,
-            domain=domain,
-        )
+        if apps_domain is not None:
+            return apps_domain.is_active()
         client = LicensingClient()
         result = client.get_domain_info(domain).entry[0]
-        return result.content.entity.state.text == STATE_ACTIVE
+        state = result.content.entity.state.text
+        is_active = state == STATE_ACTIVE
+        apps_domain = AppsDomain(
+            key_name=domain,
+            domain=domain,
+            is_enabled=is_active,
+            license_state=state,
+        )
+        apps_domain.put()
+        return is_active
 
 
 class Role(BaseModel):

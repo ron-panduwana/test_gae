@@ -45,7 +45,10 @@ class User(object):
         User is part of.
 
         """
-        return AppsDomain.get_by_key_name(self.domain_name)
+        return AppsDomain.get_or_insert(
+            key_name=self.domain_name,
+            domain=self.domain_name,
+        )
 
     def _client_login_service(self, service, captcha_token, captcha):
         memcache_key = _SERVICE_MEMCACHE_TOKEN_KEY % (

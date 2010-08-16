@@ -22,7 +22,7 @@ def base(request):
     )
 
     if users.is_current_user_admin():
-        domain = users.get_current_domain().domain
+        domain = users.get_current_user().domain_name
         domain_setup_url = reverse('domain_setup', args=(domain,))
         settings = _get_section('settings', nav)
         settings.children += (

@@ -20,6 +20,7 @@ from crauth.forms import DomainNameForm, ChooseDomainForm, CaptchaForm, \
         DomainSetupForm
 from crauth.ga_openid import discover_google_apps
 from crauth import users
+from crauth.signals import domain_setup_signal
 from crlib.navigation import render_with_nav
 
 
@@ -186,15 +187,18 @@ def domain_setup(request, domain, template='domain_setup.html'):
         user = None
     else:
         token = None
-        user = users.get_current_user()
-        if user is None or user.domain_name != domain:
+        is_from_google = request.GET.get('from', '') == 'google'
+        if is_from_google:
+            redirect_to = request.path + '?%s' % urllib.urlencode({
+                'callback': request.GET.get('callback', ''),
+            })
             return HttpResponseRedirect(
                 reverse('openid_start', args=(domain,)) +'?%s' % urllib.urlencode({
-                    settings.REDIRECT_FIELD_NAME: request.get_full_path(),
-                    'from': 'google',
+                    settings.REDIRECT_FIELD_NAME: redirect_to,
                 }))
-        if not users.is_current_user_admin():
+        elif not users.is_current_user_admin():
             return HttpResponseRedirect(reverse('admin_required'))
+        user = users.get_current_user()
     service = AppsService(domain=domain)
     if request.method == 'POST':
         data = request.POST.copy()
@@ -205,6 +209,7 @@ def domain_setup(request, domain, template='domain_setup.html'):
             user = users.User('%s@%s' % (data['account'], domain), domain)
         form = DomainSetupForm(user, service, data)
         if form.is_valid():
+            domain_setup_signal.send(sender=domain)
             redirect_to = form.cleaned_data['callback']
             if not redirect_to and token:
                 redirect_to = reverse('installation_instructions',
@@ -318,7 +323,7 @@ def notify_of_expired_domains(request):
         if domain.is_active():
             domains_list += '- %s (%s), expired on: %s' % (
                 domain.domain, domain.admin_email, domain.expiration_date)
-    if domains:
+    if domains_list:
         mail_admins(
             'Cloudreach Controlpanel expired domains notification',
             """The following domains' trial period has expired:

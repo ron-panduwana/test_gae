@@ -1,4 +1,6 @@
 from django.conf.urls.defaults import *
+# make sure domain_setup_signal callback handler is imported
+from crlib.cache import ensure_has_full_cache
 
 
 urlpatterns = patterns(

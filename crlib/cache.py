@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from crlib.models import GDataIndex
 from crauth.models import AppsDomain
 from crauth import users
+from crauth.signals import domain_setup_signal
 
 
 MIN_DATETIME = datetime.datetime(1970, 1, 1)
@@ -47,6 +48,13 @@ def ensure_has_cache(domain, model_class):
             taskqueue.add(url=reverse('precache_domain_item'), params={
                 'key_name': key_name,
             })
+
+
+def ensure_has_full_cache(sender, **kwargs):
+    for key in _MODELS_DICT.iterkeys():
+        ensure_has_cache(sender, key)
+
+domain_setup_signal.connect(ensure_has_full_cache)
 
 
 def prepare_indexes(domain):
@@ -121,6 +129,17 @@ def update_cache(post_data):
 
     apps_domain = AppsDomain.get_by_key_name(domain)
     users._set_current_user(apps_domain.admin_email, domain)
+
+    if not users.is_current_user_admin():
+        if not memcache.get('invalid_credentials:%s' % domain):
+            index.last_updated = datetime.datetime.now()
+            index.put()
+            from django.core.mail import mail_admins
+            mail_admins(
+                'Invalid credentials for %s domain' % domain,
+                'The credentials for %s domain are invalid.' % domain)
+            memcache.set('invalid_credentials:%s' % domain, True, 6 * 60 * 60)
+        return
 
     model_class = _MODELS_DICT.get(model)
     if not model_class or (hasattr(model_class._meta, 'no_auto_cache') and
