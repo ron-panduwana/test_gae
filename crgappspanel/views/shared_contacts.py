@@ -90,7 +90,7 @@ def shared_contacts(request):
         'delete_question': _('Are you sure you want to delete selected '
                              'shared contacts?'),
         'delete_link_title': delete_link_title,
-    })
+    }, help_url='shared-contacts/list')
 
 
 @has_perm('add_sharedcontact')
@@ -116,7 +116,7 @@ def shared_contact_add(request):
     
     return render_with_nav(request, 'shared_contact_add.html', {
         'form': form,
-    }, in_section='shared_contacts')
+    }, in_section='shared_contacts', help_url='shared-contacts/add')
 
 
 @has_perm('change_sharedcontact')
@@ -205,7 +205,7 @@ def shared_contact_details(request, key=None):
         'full_emails': full_emails,
         'full_phones': full_phones,
         'saved': request.session.pop('saved', False),
-    }, in_section='shared_contacts')
+    }, in_section='shared_contacts', help_url='shared-contacts/details')
 
 
 @has_perm('change_sharedcontact')

@@ -130,7 +130,7 @@ def users(request):
         'delete_question': _('Are you sure you want to delete selected '
                              'users?'),
         'delete_link_title': delete_link_title,
-    })
+    }, help_url='users/list')
 
 
 @has_perm('add_gauser')
@@ -177,7 +177,7 @@ def user_create(request):
         'form': form,
         'temp_password': temp_password,
         'exists': request.session.pop('exists', False),
-    }, in_section='users/users')
+    }, in_section='users/users', help_url='users/create')
 
 
 @has_perm('change_gauser')
@@ -241,7 +241,7 @@ def user_details(request, name=None):
         'form': form,
         'full_nicknames': full_nicknames,
         'saved': request.session.pop('saved', False),
-    }, extra_nav=user_nav(name))
+    }, extra_nav=user_nav(name), help_url='users/details')
 
 
 @has_perm('read_role')
@@ -295,7 +295,7 @@ def user_roles(request, name=None):
         'form': form,
         'roles': roles_with_remove,
         'saved': request.session.pop('saved', False),
-    }, extra_nav=user_nav(name))
+    }, extra_nav=user_nav(name), help_url='users/roles')
 
 
 @has_perm('change_gauser')
@@ -373,7 +373,7 @@ def user_groups(request, name=None):
         'form': form,
         'member_of': member_of,
         'saved': request.session.pop('saved', False),
-    }, extra_nav=user_nav(name))
+    }, extra_nav=user_nav(name), help_url='users/groups')
 
 
 @has_perm('change_gausersettings')
@@ -447,7 +447,7 @@ def user_email_settings(request, name=None):
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, extra_nav=user_nav(name))
+    }, extra_nav=user_nav(name), help_url='users/email-settings')
 
 
 @has_perm('change_gauserfilters')
@@ -478,7 +478,7 @@ def user_email_filters(request, name=None):
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, extra_nav=user_nav(name))
+    }, extra_nav=user_nav(name), help_url='users/filters')
 
 
 @has_perm('change_gauser')
@@ -517,7 +517,7 @@ def user_email_aliases(request, name=None):
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, extra_nav=user_nav(name))
+    }, extra_nav=user_nav(name), help_url='users/aliases')
 
 
 @has_perm('change_gauservacation')
@@ -547,7 +547,7 @@ def user_email_vacation(request, name):
         'user': user,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, extra_nav=user_nav(name))
+    }, extra_nav=user_nav(name), help_url='users/vacation')
 
 
 @has_perm('change_gauser')

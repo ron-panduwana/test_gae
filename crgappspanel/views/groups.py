@@ -44,7 +44,7 @@ def groups(request):
         'delete_question': _('Are you sure you want to delete selected '
                              'groups?'),
         'delete_link_title': delete_link_title,
-    })
+    }, help_url='groups/list')
 
 
 @has_perm('add_gagroup')
@@ -66,7 +66,7 @@ def group_create(request):
     form.fields['id'].help_text = '@%s' % users.get_current_user().domain_name
     return render_with_nav(request, 'group_create.html', {
         'form': form,
-    }, in_section='users/groups')
+    }, in_section='users/groups', help_url='groups/create')
 
 
 @has_perm('change_gagroup')
@@ -99,7 +99,7 @@ def group_details(request, name=None):
         'group': group,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, extra_nav=group_nav(name))
+    }, extra_nav=group_nav(name), help_url='groups/details')
 
 
 @has_perm('change_gagroup')
@@ -178,7 +178,7 @@ def group_members(request, name=None):
         'members': members,
         'suggestions': suggestions,
         'saved': request.session.pop('saved', False),
-    }, extra_nav=group_nav(name))
+    }, extra_nav=group_nav(name), help_url='groups/members')
 
 
 @has_perm('change_gagroup')
