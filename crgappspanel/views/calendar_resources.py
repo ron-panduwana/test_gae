@@ -45,7 +45,7 @@ def calendar_resources(request):
         'delete_link_title': delete_link_title,
         'delete_question': _('Are you sure you want to delete selected '
                              'calendar resources?'),
-    })
+    }, help_url='calendar-resources/list')
 
 
 @has_perm('add_calendarresource')
@@ -68,7 +68,7 @@ def calendar_resource_add(request):
     
     return render_with_nav(request, 'calendar_resource_add.html', {
         'form': form,
-    }, in_section='calendar_resources')
+    }, in_section='calendar_resources', help_url='calendar-resources/add')
 
 
 @has_perm('change_calendarresource')
@@ -104,7 +104,7 @@ def calendar_resource_details(request, id=None):
         'calendar_resource': resource,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, in_section='calendar_resources')
+    }, in_section='calendar_resources', help_url='calendar-resources/details')
 
 
 @has_perm('change_calendarresource')

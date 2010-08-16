@@ -86,7 +86,8 @@ def _get_selected(sections):
             return section
 
 
-def render_with_nav(request, template, ctx={}, extra_nav=None, in_section=None):
+def render_with_nav(request, template, ctx={}, extra_nav=None,
+                    in_section=None, help_url=None):
     sections = []
     for fun in settings.NAVIGATION:
         fun = get_callable(fun)
@@ -113,6 +114,12 @@ def render_with_nav(request, template, ctx={}, extra_nav=None, in_section=None):
         ctx['sel_subsection'] = _get_selected(ctx['sel_section'].children)
         if ctx['sel_subsection'] and extra_nav:
             ctx['back_link'] = ctx['sel_subsection'].url
+
+    if help_url:
+        help_url = settings.HELP_BASE_URL + help_url
+    else:
+        help_url = settings.HELP_BASE_URL
+    ctx['help_url'] = help_url
     return render_to_response(
         template, ctx, context_instance=RequestContext(request))
 

@@ -230,7 +230,7 @@ def domain_setup(request, domain, template='domain_setup.html'):
     }
     if not token and not 'other_user' in request.GET:
         ctx['email'] = user.email()
-    return render_with_nav(request, template, ctx)
+    return render_with_nav(request, template, ctx, help_url='settings/setup')
 
 
 OAUTH_SETTINGS_URL = 'https://www.google.com/a/cpanel/%s/ManageOauthClients'
@@ -239,7 +239,8 @@ def installation_instructions(request, domain, template='instructions.html'):
         'app_id': settings.OAUTH_CONSUMER,
         'oauth_settings_url': OAUTH_SETTINGS_URL % domain,
     }
-    return render_with_nav(request, template, ctx)
+    return render_with_nav(
+        request, template, ctx, help_url='settings/instructions')
 
 
 def handle_captcha_challenge(request, template='captcha.html'):

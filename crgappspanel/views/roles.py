@@ -48,7 +48,7 @@ def roles(request):
         'delete_link_title': delete_link_title,
         'delete_question': _('Are you sure you want to delete selected '
                              'roles?'),
-    })
+    }, help_url='roles/list')
 
 
 @has_perm('add_role')
@@ -64,7 +64,7 @@ def role_create(request):
     
     return render_with_nav(request, 'role_create.html', {
         'form': form,
-    }, in_section='users/roles')
+    }, in_section='users/roles', help_url='roles/create')
 
 
 @has_perm('change_role')

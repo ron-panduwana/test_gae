@@ -33,7 +33,7 @@
                         <li><strong>{{ auth.user.email }}</strong></li>
                         <li><a href="{{ auth.inbox_url }}" target="_blank">{% trans 'Inbox' %}</a></li>
                         <li><a href="{{ auth.calendar_url }}" target="_blank">{% trans 'Calendar' %}</a></li>
-                        <li><a href="{{ auth.help_url }}" target="_blank">{% trans 'Help' %}</a></li>
+                        <li><a href="{{ help_url }}" target="_blank">{% trans 'Help' %}</a></li>
                         <li><a href="{{ auth.change_domain_url }}">{% trans 'Change domain' %}</a></li>
                         <li><a href="{{ auth.logout_url }}">{% trans 'Sign out' %}</a></li>
                 {% else %}
