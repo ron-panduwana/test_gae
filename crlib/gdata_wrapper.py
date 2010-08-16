@@ -632,7 +632,7 @@ class Model(object):
                 'keys >', self.key()).order('keys').get()
         if not index:
             index = GDataIndex.all().filter('domain', domain).filter(
-                'model_class', model_class).order('-keys').get()
+                'model_class', model_class).get()
         return index
 
     def _create_cache(self):
@@ -653,6 +653,8 @@ class Model(object):
                 for i, key in enumerate(index.keys):
                     if key > new_key:
                         break
+                else:
+                    i = 0
                 index.keys.insert(i, new_key)
                 index.hashes.insert(i, hsh)
                 index.page_has = '!'
