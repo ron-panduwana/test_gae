@@ -94,7 +94,7 @@ def role_details(request, name=None):
         'role': role,
         'form': form,
         'saved': request.session.pop('saved', False),
-    }, in_section='users/roles')
+    }, in_section='users/roles', help_url='roles/details')
 
 
 @has_perm('change_role')
