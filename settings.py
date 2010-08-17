@@ -29,6 +29,7 @@ LOGIN_REDIRECT_URL = '/'
 CLIENT_LOGIN_SOURCE = 'cloudreach-powerpanel-v1'
 CACHE_UPDATE_INTERVAL = 20 * 60 # in seconds
 READ_ONLY = False
+TRIAL_PERIOD = 14 # in days
 
 HELP_BASE_URL = 'https://sites.google.com/a/cloudreach.co.uk/help/' \
         'controlpanel/google-apps/'
