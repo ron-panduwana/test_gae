@@ -1,5 +1,6 @@
 import datetime
 import logging
+import random
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -33,7 +34,7 @@ def precache_everything(request):
             continue
         taskqueue.add(url=reverse('precache_domain_item'), params={
             'key_name': ':'.join(key_parts[:2]),
-        })
+        }, countdown=random.randint(1, 10))
     return HttpResponse(str(len(to_update)))
 
 
