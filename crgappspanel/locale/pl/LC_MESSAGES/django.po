@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-14 10:31+0200\n"
+"POT-Creation-Date: 2010-08-17 11:56+0200\n"
 "PO-Revision-Date: 2010-07-05 16:59+0100\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -712,7 +712,24 @@ msgstr "Zasoby kalendarza"
 msgid "Cloudreach Controlpanel Dashboard"
 msgstr "Konsola Cloudreach Controlpanel"
 
-#: templates/dashboard.html:7
+#: templates/dashboard.html:12
+#, python-format
+msgid ""
+"\n"
+"        <h3>License</h3>\n"
+"        <p>You are using a trial license that is due to expire on "
+"%(expiration_date)s.\n"
+"        <a href=\"#\" onclick=\"return buyNow();\">Buy now</a></p>\n"
+"        "
+msgstr ""
+"\n"
+"       <h3>Licencja</h3>\n"
+"       <p>Używasz licencji tymczasowej, która wygaśnie dnia "
+"%(expiration_date)s.\n"
+"       <a href=\"#\" onclick=\"return buyNow();\">Kup teraz</a></p>\n"
+"       "
+
+#: templates/dashboard.html:28
 msgid "Welcome to Cloudreach Controlpanel"
 msgstr "Witamy w panelu firmy Cloudreach"
 
@@ -1010,14 +1027,14 @@ msgstr ""
 msgid "This name is already reserved."
 msgstr "Ta nazwa jest już zarezerwowana."
 
-#: views/users.py:505
+#: views/users.py:506
 #, python-format
 msgid "Email address has to exist as a user or an alias on %s domain."
 msgstr ""
 "Podany adres e-mail musi odnosić się do istniejącego użytkownika lub aliasu "
 "w domenie %s."
 
-#: views/users.py:510
+#: views/users.py:511
 #, python-format
 msgid "Email address has to be of form username@%s."
 msgstr "Adres e-mail musi być formatu nazwa_uzytkownika@%s."

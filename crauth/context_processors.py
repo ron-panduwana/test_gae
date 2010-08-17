@@ -40,6 +40,7 @@ def users(request):
             'perms': PermWrapper(user),
             'domain': domain_name,
             'is_on_trial': domain.is_on_trial,
+            'expiration_date': domain.expiration_date,
             'is_expired': is_expired,
             'logout_url': _users.create_logout_url(DASHBOARD_URL % domain_name),
             'change_domain_url': reverse('openid_get_domain') + '?force',

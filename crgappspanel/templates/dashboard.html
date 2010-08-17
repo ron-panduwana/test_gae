@@ -4,5 +4,50 @@
 {% block title %}{% trans 'Cloudreach Controlpanel Dashboard' %}{% endblock %}
 
 {% block content %}
+<div class="dashboard">
+
+{% if auth.is_on_trial %}
+<div class="license">
+        {% with auth.expiration_date|date as expiration_date %}
+        {% blocktrans %}
+        <h3>License</h3>
+        <p>You are using a trial license that is due to expire on {{ expiration_date }}.
+        <a href="#" onclick="return buyNow();">Buy now</a></p>
+        {% endblocktrans %}
+        {% endwith %}
+</div>
+{% endif %}
+
+<div class="sidebar">
+        <h3>Status</h3>
+        <p>Active for your yourdomain.com</p>
+        <h3>Known issues</h3>
+        <h3>News</h3>
+        <h3>Support</h3>
+</div>
 <h1>{% trans 'Welcome to Cloudreach Controlpanel' %}</h1>
+<div class="tips_box">
+        <div class="video"><img src="/static/images/01.jpg"></div>
+        <h3>Tips for Administrators</h3>
+        <p>The hints and tips that you need to make the most of the Cloudreach Control Panel in your organisation</p>
+</div>
+
+<div class="tips_box">
+        <div class="video"><img src="/static/images/01.jpg"></div>
+        <h3>Tips for Administrators</h3>
+        <p>The hints and tips that you need to make the most of the Cloudreach Control Panel in your organisation</p>
+</div>
+<div class="tips_box">
+        <div class="video"><img src="/static/images/01.jpg"></div>
+        <h3>Tips for Administrators</h3>
+        <p>The hints and tips that you need to make the most of the Cloudreach Control Panel in your organisation</p>
+</div>
+<div class="tips_box">
+        <div class="video"><img src="/static/images/01.jpg"></div>
+        <h3>Tips for Administrators</h3>
+        <p>The hints and tips that you need to make the most of the Cloudreach Control Panel in your organisation</p>
+</div>
+
+</div> {# .dashboard #}
+
 {% endblock %}
