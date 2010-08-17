@@ -1,0 +1,976 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-15 16:28+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: consts.py:64 forms.py:237
+msgid "Owner"
+msgstr "Possessore"
+
+#: consts.py:65 forms.py:237
+msgid "Member"
+msgstr "Membro"
+
+#: consts.py:66
+msgid "Domain"
+msgstr "Domino"
+
+#: consts.py:67
+msgid "Anyone"
+msgstr "Chiunque"
+
+#: forms.py:23 forms.py:29 forms.py:248 forms.py:252 forms.py:262
+msgid "Don't change"
+msgstr "Non cambiare"
+
+#: forms.py:74 forms.py:111
+msgid "Lowercase english letters are not allowed."
+msgstr "Non sono permesse lettere minuscole"
+
+#: forms.py:78 forms.py:115
+msgid "Uppercase english letters are not allowed."
+msgstr "Non sono permesse lettere maiuscole"
+
+#: forms.py:82 forms.py:119
+msgid "Digits are not allowed."
+msgstr "Non sono permessi numeri"
+
+#: forms.py:85 forms.py:107
+#, python-format
+msgid "Character '%(char)s' is not allowed."
+msgstr "Il carattere '%(char)s' non e’ permesso "
+
+#: forms.py:140
+msgid "There must be at least one letter or digit."
+msgstr "E’ obbligatorio inserire almeno una lettera o un numero"
+
+#: forms.py:149
+#, python-format
+msgid ""
+"%(widget)s%(link_start)sChange password%(link_end)s WARNING: dangerous, "
+"without confirmation yet!"
+msgstr  ""
+"%(widget)s%(link_start)sModifica password%(link_end)s WARNING: pericoloso, "
+"senza previa conferma!"
+
+#: forms.py:152
+#, python-format
+msgid "Enter new password:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr "Inserisci una nuova password:<br/>%(widget)s %(link_start)s Annulla%(link_end)s"
+
+#: forms.py:156
+#, python-format
+msgid "%(link_start)sAdd nickname%(link_end)s"
+msgstr "%(link_start)sAggiungi un soprannome%(link_end)s"
+
+
+#: forms.py:157
+#, python-format
+msgid "Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr "Inserisci il soprannome:<br/>%(widget)s %(link_start)sAnnulla%(link_end)s"
+
+
+#: forms.py:168 templates/user_create.html:14 views/users.py:97
+msgid "Username"
+msgstr "Nome utente"
+
+#: forms.py:170 forms.py:171
+msgid "Password"
+msgstr "Password"
+
+#: forms.py:172
+msgid "Require a change of password in the next sign in"
+msgstr "Richiede un cambio di password al prossimo logon"
+
+#: forms.py:174 templates/user_create.html:18 views/users.py:96
+msgid "Full name"
+msgstr "Nome completo"
+
+#: forms.py:176
+msgid "Nicknames"
+msgstr "Soprannome"
+
+#: forms.py:212
+msgid "These passwords don't match."
+msgstr "Le password non corrispondono"
+
+#: forms.py:216
+#, python-format
+msgid "%(link_start)sAdd role%(link_end)s"
+msgstr "%(link_start)sAggiungi ruolo%(link_end)s"
+
+#: forms.py:217
+#, python-format
+msgid "Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr "Seleziona un ruolo:<br/>%(widget)s %(link_start)sAnnulla%(link_end)s"
+
+
+#: forms.py:221 navigation.py:13 navigation.py:45 views/users.py:99
+msgid "Roles"
+msgstr "Ruoli"
+
+#: forms.py:241
+msgid "Add to groups"
+msgstr "Aggiungi a gruppi"
+
+#: forms.py:243
+msgid "Add as"
+msgstr "Aggiungi come"
+
+#: forms.py:246
+msgid "Enable"
+msgstr "Abilita"
+
+#: forms.py:246 forms.py:265
+msgid "Disable"
+msgstr "Disabilita"
+
+#: forms.py:253
+msgid "Forward and keep"
+msgstr "Inoltra e mantieni"
+
+#: forms.py:254
+msgid "Forward and archive"
+msgstr "Inoltra e archivia"
+
+#: forms.py:255
+msgid "Forward and delete"
+msgstr "Inoltra e cancella"
+
+#: forms.py:256
+msgid "Don't forward"
+msgstr "Non inoltrare"
+
+#: forms.py:263
+msgid "Enable for all emails"
+msgstr "Abilita tutte le email"
+
+#: forms.py:264
+msgid "Enable for emails for now on"
+msgstr "Abilita tutte le email da adesso"
+
+#: forms.py:271
+msgid "Use Unicode (UTF-8)"
+msgstr "Usa Unicode (UTF-8)"
+
+#: forms.py:271
+msgid "Use default text encoding"
+msgstr "Usa encoding predefinito"
+
+#: forms.py:278 forms.py:785
+msgid "Language"
+msgstr "Lingua"
+
+#: forms.py:280
+msgid "Forwarding"
+msgstr "Inoltra"
+
+#: forms.py:282
+msgid "Forward to"
+msgstr "Inoltra a"
+
+#: forms.py:284
+msgid "POP3"
+msgstr "POP3"
+
+#: forms.py:286
+msgid "IMAP"
+msgstr "IMAP"
+
+#: forms.py:288
+msgid "Messages per page"
+msgstr "Messaggi per pagina"
+
+#: forms.py:290
+msgid "Web Clips"
+msgstr "Web Clips"
+
+#: forms.py:292
+msgid "Snippets"
+msgstr "Frammenti"
+
+#: forms.py:294
+msgid "Keyboard shortcuts"
+msgstr "Scorciatoie da tastiere"
+
+#: forms.py:296
+msgid "Personal level indicators"
+msgstr "Indicatori personali"
+
+#: forms.py:298
+msgid "Outgoing mail encoding"
+msgstr "Encoding posta in uscita"
+
+#: forms.py:300
+msgid "Signature"
+msgstr "Firma"
+
+#: forms.py:320
+msgid "Forwarding address must be specified when enabling forwarding."
+msgstr "L’indirizzo a cui inoltrare deve essere specificato quando la funzione inoltro viene abilitata"
+
+#: forms.py:328
+msgid "Forwarding address must not be specified when not enabling forwarding."
+msgstr "L’indirizzo a cui inoltrare non deve essere specificato quando la funzione di  inoltro e’ disabilitata"
+
+#: forms.py:336
+msgid "Signature must be specified when enabling signature."
+msgstr "La firma deve essere specificata quando la funzione firma viene abilitata"
+
+#: forms.py:344
+msgid "Signature must not be specified when not enabling signature."
+msgstr "La firma non deve essere specificata quando la funzione firma e’ disabilitata"
+
+#: forms.py:354
+msgid "Doesn't matter"
+msgstr "Non importa"
+
+#: forms.py:355
+msgid "Must have"
+msgstr "Obbligatorio"
+
+#: forms.py:360
+msgid "From"
+msgstr "Da"
+
+#: forms.py:362
+msgid "To"
+msgstr "A"
+
+#: forms.py:364 forms.py:424
+msgid "Subject"
+msgstr "Oggetto"
+
+#: forms.py:365
+msgid "Has the words"
+msgstr "Contiene le parole"
+
+#: forms.py:366
+msgid "Doesn't have"
+msgstr "Non contiene"
+
+#: forms.py:368
+msgid "Has attachment"
+msgstr "Contiene allegato"
+
+#: forms.py:370
+msgid "Apply label"
+msgstr "Applica etichetta"
+
+#: forms.py:371
+msgid "Mark as read"
+msgstr "Segna come gia’  letto"
+
+#: forms.py:373
+msgid "Archive"
+msgstr "Archivia"
+
+#: forms.py:391
+msgid ""
+"At least one of fields: from, to, subject, has words, doesn't have, has "
+"attachment must be filled."
+msgstr ""
+"Almeno uno dei seguenti campi: da, a, oggetto, contiene, non contiene, contiene"
+"allegato deve essere specificato."
+
+#: forms.py:396
+msgid ""
+"At least one of fields apply label, mark as read, archive must be filled."
+msgstr ""
+"Almeno uno dei seguenti campit: applica etichetta,  segna come gia’ letto, archivia deve essere specificato."
+
+
+#: forms.py:408
+msgid "Enabled"
+msgstr "Abilitato"
+
+#: forms.py:409
+msgid "Disabled"
+msgstr "Disabilitato"
+
+#: forms.py:413
+msgid "Only send a response to people in my Contacts"
+msgstr "Invia la risposta solo ai miei Contatti"
+
+#: forms.py:414
+msgid "Send to all"
+msgstr "Invia a tutti"
+
+#: forms.py:419
+msgid "Out of Office AutoReply"
+msgstr "Risponditore automatico"
+
+#: forms.py:426
+msgid "Message"
+msgstr "Messaggio"
+
+#: forms.py:428
+msgid "Send to"
+msgstr "Invia a"
+
+#: forms.py:435
+msgid "Subject field is required"
+msgstr "Il campo soggetto è richiesto"
+
+#: forms.py:442 forms.py:449
+msgid "Message field is required"
+msgstr "il campo messaggio è richiesto"
+
+#: forms.py:453
+#, python-format
+msgid "Set %(link_start)sanother%(link_end)s reply to address"
+msgstr " Imposta%(link_start)saltra%(link_end)s risposta all’indirizzo"
+
+#: forms.py:454 forms.py:506 forms.py:508
+#, python-format
+msgid "%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr "%(widget)s %(link_start)sCancella%(link_end)s"
+
+#: forms.py:458 forms.py:474 forms.py:575 forms.py:749
+#: templates/calendar_resource_add.html:10 templates/group_create.html:14
+#: templates/role_create.html:10 templates/shared_contacts_list.html:38
+#: views/calendar_resources.py:14 views/groups.py:19 views/roles.py:17
+msgid "Name"
+msgstr "Nome"
+
+#: forms.py:459 forms.py:473 templates/group_create.html:10
+#: templates/group_details.html:13 views/groups.py:20
+msgid "Email address"
+msgstr "Indirizzo email"
+
+#: forms.py:461
+msgid "Reply to"
+msgstr "Rispondi a"
+
+#: forms.py:464
+msgid "Make default"
+msgstr "utilizza come default"
+
+#: forms.py:475 templates/group_create.html:18 views/groups.py:21
+msgid "Email permission"
+msgstr ""
+
+#: forms.py:477 forms.py:751 templates/calendar_resource_add.html:18
+#: templates/group_create.html:22 views/calendar_resources.py:16
+msgid "Description"
+msgstr "Deascrizione"
+
+#: forms.py:505
+#, python-format
+msgid "%(link_start)sAdd%(link_end)s another owner"
+msgstr "%(link_start)sAggiungi%(link_end)s un altro proprietario"
+
+#: forms.py:507
+#, python-format
+msgid "%(link_start)sAdd%(link_end)s another member"
+msgstr "%(link_start)sAggiungi%(link_end)s un altro membro"
+
+#: forms.py:512
+msgid "Owners"
+msgstr "Proprietari"
+
+#: forms.py:515 navigation.py:83
+msgid "Members"
+msgstr "Membri"
+
+#: forms.py:527 templates/role_create.html:14
+msgid "Manage Users"
+msgstr "Gestisci Utenti"
+
+#: forms.py:528 forms.py:535 forms.py:538 forms.py:541 forms.py:544
+#: navigation.py:20 navigation.py:41 navigation.py:79
+msgid "General"
+msgstr "Generale"
+
+#: forms.py:529 navigation.py:19 templates/settings.html:4
+msgid "Settings"
+msgstr "Impostazioni"
+
+#: forms.py:530 navigation.py:58 templates/shared_contacts_list.html:72
+msgid "Filters"
+msgstr "Filtri"
+
+#: forms.py:531 navigation.py:63 templates/user_email_aliases.html:4
+msgid "Aliases"
+msgstr "Pseudonimi"
+
+#: forms.py:532 navigation.py:68 templates/user_email_vacation.html:4
+msgid "Vacation responder"
+msgstr "Risposta automatica"
+
+#: forms.py:534 templates/role_create.html:20
+msgid "Manage Groups"
+msgstr "Gestisci gruppi"
+
+#: forms.py:537 templates/role_create.html:26
+msgid "Manage Roles"
+msgstr "Gestisci ruoli"
+
+#: forms.py:540 templates/role_create.html:32
+msgid "Manage Shared Contacts"
+msgstr "Gestisci Contatti condivisi"
+
+#: forms.py:543 templates/role_create.html:38
+msgid "Manage Calendar Resources"
+msgstr "Gestisci risorse calendario"
+
+#: forms.py:648
+#, python-format
+msgid "%(link_start)sAdd email%(link_end)s"
+msgstr "%(link_start)sAggiungi email%(link_end)s"
+
+
+#: forms.py:649
+#, python-format
+msgid "Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr "Inserisci email:<br/>%(widget)s %(link_start)sAnnulla%(link_end)s"
+
+
+#: forms.py:650
+#, python-format
+msgid "%(link_start)sAdd phone number%(link_end)s"
+msgstr "%(link_start)sAggiungi numero di telefono%(link_end)s"
+
+
+#: forms.py:651
+#, python-format
+msgid "Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr "Inserisci il numero di telefono:<br/>%(widget)s %(link_start)sAnnulla%(link_end)s"
+
+
+#: forms.py:656 views/shared_contacts.py:43
+msgid "Display name"
+msgstr "Nome visualizzato"
+
+#: forms.py:657 views/shared_contacts.py:44
+msgid "Real name"
+msgstr "Nome"
+
+#: forms.py:658 templates/shared_contacts_list.html:53
+msgid "Notes"
+msgstr "Note"
+
+#: forms.py:660 templates/shared_contacts_list.html:43
+#: views/shared_contacts.py:45
+msgid "Company"
+msgstr "Compagnia"
+
+#: forms.py:661 templates/shared_contacts_list.html:48
+msgid "Role"
+msgstr "Ruolo"
+
+#: forms.py:664
+msgid "Email"
+msgstr "Email"
+
+#: forms.py:667 views/shared_contacts.py:49
+msgid "Emails"
+msgstr ""
+
+#: forms.py:672
+msgid "Phone number"
+msgstr "Numero di telefono"
+
+#: forms.py:674 views/shared_contacts.py:47
+msgid "Phone numbers"
+msgstr "Numeri di telefono"
+
+#: forms.py:734
+msgid "Company is required if role is not empty."
+msgstr "La Compagnia e’ richiesta se il Ruolo e’ specificato"
+
+#: forms.py:750 templates/calendar_resource_add.html:14
+#: views/calendar_resources.py:15
+msgid "Type"
+msgstr "Tipo"
+
+#: forms.py:787
+msgid "Items per page"
+msgstr "Elementi per pagina"
+
+#: forms.py:789
+msgid "How many items to show at once on listing pages."
+msgstr "Elementi visualizzati in ogni pagina"
+
+#: models.py:58
+msgid "View users in your domain"
+msgstr "Visualizza utenti nel tuo dominio"
+
+#: models.py:59
+msgid "Create users in your domain"
+msgstr "Creat utenti nel tuo dominio"
+
+#: models.py:60 models.py:61 models.py:62 models.py:63
+msgid "Modify users in your domain"
+msgstr "Modificica utenti nel tuo dominio"
+
+#: models.py:64
+msgid "Change vacation responder settings"
+msgstr "Cambia la risposta automatica"
+
+#: models.py:145
+msgid "View groups in your domain"
+msgstr "Visualizza gruppi nel tuo dominio"
+
+#: models.py:146
+msgid "Create groups in your domain"
+msgstr "Crea gruppi nel tuo dominio"
+
+#: models.py:147
+msgid "Modify groups in your domain"
+msgstr "Modififica gruppi nel tuo dominio"
+
+#: models.py:259
+msgid "View shared contacts in your domain"
+msgstr "Visualizza contatti condivisi nel tuo dominio"
+
+#: models.py:260
+msgid "Create shared contacts in your domain"
+msgstr "Crea contatti condivisi nel tuo dominio"
+
+#: models.py:262
+msgid "Modify shared contacts in your domain"
+msgstr "Modifica contatti condivisi nel tuo dominio"
+
+#: models.py:289
+msgid "View calendar resources in your domain"
+msgstr "Visualizza le risorse calendario nel tuo dominio"
+
+#: models.py:291
+msgid "Create calendar resources in your domain"
+msgstr "Crea risorse calendario nel tuo dominio"
+
+#: models.py:293
+msgid "Modify calendar resources in your domain"
+msgstr "Modifica risorse calendario nel tuo dominio"
+
+#: navigation.py:9
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: navigation.py:10
+msgid "Users, Groups and Roles"
+msgstr "Utenti, Gruppi e Ruoli"
+
+#: navigation.py:11
+msgid "Users"
+msgstr "Utenti"
+
+#: navigation.py:12 navigation.py:49
+msgid "Groups"
+msgstr "Gruppi"
+
+#: navigation.py:15
+msgid "Shared Contacts"
+msgstr "Contatti condivisi"
+
+#: navigation.py:17
+msgid "Calendar Resources"
+msgstr "Risorse calendario"
+
+#: navigation.py:30
+msgid "Panel Configuration"
+msgstr "Configurazione Panel"
+
+#: navigation.py:31
+msgid "Additional Setup"
+msgstr "Impostazioni addizionali"
+
+#: navigation.py:53 templates/user_email_settings.html:4
+msgid "Email Settings"
+msgstr "Impostazioni email"
+
+#: helpers/fields.py:31
+msgid "Mr."
+msgstr "Signor"
+
+#: helpers/fields.py:32
+msgid "Mrs."
+msgstr "Signora"
+
+#: helpers/fields.py:33
+msgid "Miss"
+msgstr "Signorina"
+
+#: helpers/fields.py:34
+msgid "Ms."
+msgstr "Signora"
+
+#: templates/base.html:32
+msgid "Inbox"
+msgstr "Inbox"
+
+#: templates/base.html:33
+msgid "Calendar"
+msgstr "Calendario"
+
+#: templates/base.html:34
+msgid "Help"
+msgstr "Aiuto"
+
+#: templates/base.html:35
+msgid "Change domain"
+msgstr "Cambia dominio"
+
+#: templates/base.html:36
+msgid "Sign out"
+msgstr "Esci"
+
+#: templates/base.html:38
+msgid "Sign in"
+msgstr "Entra"
+
+#: templates/base.html:54
+msgid "Back to list"
+msgstr "Torna a lista"
+
+#: templates/base.html:99
+msgid "Privacy policy"
+msgstr "Info privacy"
+
+#: templates/base.html:100
+msgid "Feedback"
+msgstr "Feedback"
+
+#: templates/base.html:101
+msgid "Report a problem"
+msgstr "Segnala problema"
+
+#: templates/calendar_resource_add.html:4
+#: templates/calendar_resource_add.html:8
+#: templates/calendar_resources_list.html:9
+msgid "Add calendar resource"
+msgstr "Aggiungi risorsa calendario"
+
+#: templates/calendar_resource_add.html:22 templates/group_create.html:26
+#: templates/role_create.html:44 templates/user_create.html:28
+msgid "create"
+msgstr "crea"
+
+#: templates/calendar_resource_add.html:23 templates/group_create.html:27
+#: templates/role_create.html:45 templates/user_create.html:29
+msgid "cancel"
+msgstr "annulla"
+
+#: templates/calendar_resource_details.html:4
+msgid "Calendar resource details"
+msgstr "Dettagli risorse calendario"
+
+#: templates/calendar_resources_list.html:4
+msgid "Calendar resources"
+msgstr "Risorse calendario"
+
+#: templates/dashboard.html:4
+msgid "Cloudreach Powerpanel Dashboard"
+msgstr "Cloudreach Powerpanel Dashboard"
+
+
+#: templates/dashboard.html:7
+msgid "Welcome to Cloudreach Powerpanel"
+msgstr "Benvenuto in Cloudreach Powerpanel"
+
+#: templates/feedback_thanks.html:4
+msgid "Thank you for your feedback"
+msgstr "Grazie per il tuo parere"
+
+#: templates/feedback_thanks.html:7
+msgid "Thank you"
+msgstr "Grazie"
+
+#: templates/feedback_thanks.html:8
+msgid "We received your message. Thank you very much for your feedback."
+msgstr "Il tuo messaggio e’ stato ricevuto. Grazie per il tuo parere."
+
+#: templates/group_create.html:4
+msgid "Create group"
+msgstr "Crea gruppo"
+
+#: templates/group_create.html:8 templates/groups_list.html:9
+msgid "Create new group"
+msgstr "Crea nuovo gruppo"
+
+#: templates/group_details.html:4
+msgid "Group details"
+msgstr "Dettagli gruppo"
+
+#: templates/group_members.html:4
+msgid "Group members"
+msgstr "Membri gruppo"
+
+#: templates/groups_list.html:4
+msgid "Groups list"
+msgstr "Lista gruppi"
+
+#: templates/language.html:4
+msgid "Language settings"
+msgstr "Impostazioni lingua"
+
+#: templates/role_create.html:4
+msgid "Create role"
+msgstr "Crea ruolo"
+
+#: templates/role_create.html:8 templates/roles_list.html:9
+msgid "Create new role"
+msgstr "Crea nuovo ruolo"
+
+#: templates/role_details.html:4
+msgid "Role details"
+msgstr "Dettagli ruolo"
+
+#: templates/roles_list.html:4
+msgid "Roles list"
+msgstr "Lista ruoli"
+
+#: templates/shared_contact_add.html:4 templates/shared_contact_add.html:8
+#: templates/shared_contacts_list.html:9
+msgid "Add shared contact"
+msgstr "Aggiungi contatto condiviso"
+
+#: templates/shared_contact_details.html:4
+msgid "Shared contact details"
+msgstr "Dettagli contatti condivisi"
+
+#: templates/shared_contacts_list.html:4
+msgid "Shared contacts"
+msgstr "Contatti condivisi"
+
+#: templates/shared_contacts_list.html:13
+#: templates/shared_contacts_list.html:30
+msgid "quick search"
+msgstr "Ricerca rapida"
+
+#: templates/shared_contacts_list.html:14
+#: templates/shared_contacts_list.html:31
+msgid "advanced search"
+msgstr "Ricerca avanzata"
+
+#: templates/shared_contacts_list.html:21
+msgid "Query"
+msgstr "Cerca"
+
+#: templates/shared_contacts_list.html:23
+#: templates/shared_contacts_list.html:65
+msgid "go"
+msgstr "vai"
+
+#: templates/shared_contacts_list.html:58
+msgid "E-mail"
+msgstr "E-mail"
+
+#: templates/shared_contacts_list.html:63
+msgid "Phone"
+msgstr "Telefono"
+
+#: templates/shared_contacts_list.html:74
+msgid "Remove filters"
+msgstr "Rimuovi filtri"
+
+#: templates/test.html:4
+msgid "Test"
+msgstr "Test"
+
+#: templates/user_create.html:4
+msgid "Create user"
+msgstr "Crea utente"
+
+#: templates/user_create.html:12 templates/users_list.html:9
+msgid "Create new user"
+msgstr "Crea nuovo utente"
+
+#: templates/user_create.html:22
+msgid "Temporary password"
+msgstr "Password temporanea"
+
+#: templates/user_details.html:4 templates/user_roles.html:4
+msgid "User details"
+msgstr "Dettagli utente"
+
+#: templates/user_details.html:8
+msgid "Suspend user"
+msgstr "Sospendi utente"
+
+#: templates/user_details.html:9
+msgid "Are you sure want to suspend selected user?"
+msgstr "Confermi di voler sospendere l’utente selezionato?"
+
+#: templates/user_details.html:13
+msgid "Restore user"
+msgstr "Ripristina utente"
+
+#: templates/user_details.html:14
+msgid "Are you sure want to restore selected user?"
+msgstr "Confermi di voler ripristinare l’utente selezionato?"
+
+#: templates/user_details.html:25
+msgid "Restore"
+msgstr "Ripristina"
+
+#: templates/user_details.html:27
+msgid "Suspend"
+msgstr "Sospendi"
+
+#: templates/user_email_filters.html:4
+msgid "User filters"
+msgstr "Filtri utente"
+
+#: templates/user_groups.html:4
+msgid "User groups"
+msgstr "Gruppi utenti"
+
+#: templates/user_groups.html:13
+msgid "Member of"
+msgstr "Membro di"
+
+#: templates/users_list.html:4
+msgid "Users list"
+msgstr "Lista utenti"
+
+#: templates/snippets/exists_error.html:5
+msgid "Entity with specified name already exists, please choose another one."
+msgstr "Il nome specificato e’ gia’ presente, segli un altro"
+
+#: templates/snippets/form_field_with_items.html:10
+msgid "Remove"
+msgstr "Rimuovi"
+
+#: templates/snippets/form_save_reset.html:3
+msgid "save"
+msgstr "salva"
+
+#: templates/snippets/form_save_reset.html:4
+msgid "reset"
+msgstr "azzera"
+
+#: templates/snippets/roles_section_table.html:10
+msgid "Add"
+msgstr "Aggiungi"
+
+#: templates/snippets/roles_section_table.html:11
+msgid "Change"
+msgstr "Cambia"
+
+#: templates/snippets/roles_section_table.html:12
+msgid "Read"
+msgstr "Leggi"
+
+#: templates/snippets/saved_warning.html:5
+msgid ""
+"Changes have been saved, although it may take up to 24 hours for new data to "
+"propagate through Google services."
+msgstr "I cambiamenti sono stati salvati. Potrebbero essere necessarie 24 ore prima  che le"
+"informazioni propagate a tutti i servizi Google."
+
+
+#: templates/snippets/user_header.html:3 views/roles.py:27 views/users.py:75
+#: views/users.py:84 views/users.py:279
+msgid "Administrator"
+msgstr "Amministratore"
+
+#: views/calendar_resources.py:36
+msgid "Delete calendar resources"
+msgstr "Rimuovi risorse calendario"
+
+#: views/calendar_resources.py:46
+msgid "Are you sure you want to delete selected calendar resources?"
+msgstr "Confermi di voler eliminare le risorse calendario condivise?"
+
+#: views/groups.py:41
+msgid "Delete groups"
+msgstr "Rimuovi gruppi"
+
+#: views/groups.py:49
+msgid "Are you sure you want to delete selected groups?"
+msgstr "Confermi di voler rimuovere i gruppi selezionati?"
+
+#: views/groups.py:67
+msgid "User or group with this name already exists."
+msgstr "Un utente o gruppo con lo stesso nome esiste di gia’"
+
+#: views/roles.py:18
+msgid "Permissions"
+msgstr "Permessi"
+
+#: views/roles.py:42
+msgid "Delete roles"
+msgstr "Rimuovi ruoli"
+
+#: views/roles.py:50
+msgid "Are you sure you want to delete selected roles?"
+msgstr "Confermi di voler rimuovere i ruoli selezionati?"
+
+#: views/shared_contacts.py:75
+msgid "query"
+msgstr "cerca"
+
+#: views/shared_contacts.py:97
+msgid "Delete shared contacts"
+msgstr "Rimuovi contatti condivisi"
+
+#: views/shared_contacts.py:105
+msgid "Are you sure you want to delete selected shared contacts?"
+msgstr "Confermi di voler rimuovere i contatti condivisi selezionati?"
+
+#: views/users.py:46
+msgid "Suspended"
+msgstr "Sospeso"
+
+#: views/users.py:46
+msgid "Active"
+msgstr "Attivo"
+
+#: views/users.py:98
+msgid "Status"
+msgstr "Stato"
+
+#: views/users.py:100
+msgid "Email quota"
+msgstr "Quota email"
+
+#: views/users.py:123
+msgid "Delete users"
+msgstr "Rimuovi utenti"
+
+#: views/users.py:131
+msgid "Are you sure you want to delete selected users?"
+msgstr "Confermi di voler rimuovere l’utente selezionato?"
+
+#: views/users.py:152 views/users.py:205
+msgid "Either user or nick with this name already exists."
+msgstr "Esiste gia’ un utente con lo stesso nome o soprannome"
+
+#: views/users.py:156 views/users.py:209
+msgid ""
+"User with such name was recently deleted and this name cannot be currently "
+"used."
+msgstr "Un utente con lo stesso nome e’ stato rimosso di recente e al momento non e’ possibile riutilizzare il nome."
+
+#: views/users.py:161
+msgid "Your domain user limit has been reached, you cannot create more users."
+msgstr "Il limite di utenti per dominio e’ stato raggiunto, non puoi creare altri utenti"
+
+#: views/users.py:201
+msgid "This name is already reserved."
+msgstr "Nome gia’ utilizzato"
+
+#: views/users.py:491
+#, python-format
+msgid "Email address has to exist as a user or an alias on %s domain."
+msgstr "L’indirizzo email deve esistere come utente o alias del dominio %s"
+
+#: views/users.py:496
+#, python-format
+msgid "Email address has to be of form username@%s."
+msgstr "L’indirizzo email deve essere nella forma nomeutente@%s"
+

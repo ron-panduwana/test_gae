@@ -80,6 +80,8 @@ LANGUAGES = (
     ('en', 'English'),
     ('pl', 'Polski'),
     #('es', u'Espa\xf1ol'),
+    #('it', 'Italiano'),
+    #('sv', 'Svenska'),
 )
 
 SITE_ID = 1
