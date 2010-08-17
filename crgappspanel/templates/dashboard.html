@@ -1,51 +1,60 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans 'Cloudreach Controlpanel Dashboard' %}{% endblock %}
+{% block title %}{% trans 'Cloudreach Control Panel Dashboard' %}{% endblock %}
 
 {% block content %}
 <div class="dashboard">
 
-{% if auth.is_on_trial %}
 <div class="license">
-        {% with auth.expiration_date|date as expiration_date %}
+<h3>License</h3>
+{% if auth.apps_domain.is_expired %}
         {% blocktrans %}
-        <h3>License</h3>
-        <p>You are using a trial license that is due to expire on {{ expiration_date }}.
-        <a href="#" onclick="return buyNow();">Buy now</a></p>
+        <p>Your current license expired. Please <a href="#" onclick="return buyNow();">renew it</a>
+        or you won't be able to keep using Cloudreach Control Panel shortly.</p>
         {% endblocktrans %}
-        {% endwith %}
-</div>
+{% else %}
+        {% if auth.is_on_trial %}
+                {% with auth.expiration_date|date as expiration_date %}
+                {% blocktrans %}
+                <p>You are using a trial license that is due to expire on {{ expiration_date }}.
+                <a href="#" onclick="return buyNow();">Buy now</a></p>
+                {% endblocktrans %}
+                {% endwith %}
+        {% endif %}
 {% endif %}
+</div>
 
 <div class="sidebar">
         <h3>Status</h3>
-        <p>Active for your yourdomain.com</p>
+        <p>Active for {{ auth.domain }}</p>
         <h3>Known issues</h3>
         <h3>News</h3>
         <h3>Support</h3>
+        <p>To find out how to get support, please read our
+        <a href="https://sites.google.com/a/cloudreach.co.uk/help/controlpanel/support" target="_blank">support guide</a>.</p>
 </div>
-<h1>{% trans 'Welcome to Cloudreach Controlpanel' %}</h1>
+<h1>{% trans 'Welcome to Cloudreach Control Panel' %}</h1>
 <div class="tips_box">
-        <div class="video"><img src="/static/images/01.jpg"></div>
-        <h3>Tips for Administrators</h3>
-        <p>The hints and tips that you need to make the most of the Cloudreach Control Panel in your organisation</p>
+        <div class="video"><img src="/static/images/video_icon_gs2.png"></div>
+        <h3>Getting started</h3>
+        <p>An introduction to the Cloudreach Control Panel</p>
 </div>
 
 <div class="tips_box">
-        <div class="video"><img src="/static/images/01.jpg"></div>
-        <h3>Tips for Administrators</h3>
-        <p>The hints and tips that you need to make the most of the Cloudreach Control Panel in your organisation</p>
+        <div class="video"><a href="#" onclick="return cr.snippets.videoDialog('Tips for Users', '14187039');"><img src="/static/images/video_icon_users2.png"></a></div>
+        <h3>Tips for Users</h3>
+        <p>See how to use the Cloudreach Control Panel in this educational video</p>
 </div>
 <div class="tips_box">
-        <div class="video"><img src="/static/images/01.jpg"></div>
+        <div class="video"><img src="/static/images/video_icon_admins1.png"></div>
         <h3>Tips for Administrators</h3>
-        <p>The hints and tips that you need to make the most of the Cloudreach Control Panel in your organisation</p>
+        <p>The hints and tips that you need to make the most of the Cloudreach Control Panel</p>
 </div>
 <div class="tips_box">
-        <div class="video"><img src="/static/images/01.jpg"></div>
-        <h3>Tips for Administrators</h3>
-        <p>The hints and tips that you need to make the most of the Cloudreach Control Panel in your organisation</p>
+        <div class="video"><img src="/static/images/video_icon_roles1.png"></div>
+        <h3>Setting up roles</h3>
+        <p>A video for Administrators showing how to setup and assign roles for your organisation</p>
 </div>
 
 </div> {# .dashboard #}

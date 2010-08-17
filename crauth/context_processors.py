@@ -39,6 +39,7 @@ def users(request):
             'user': user,
             'perms': PermWrapper(user),
             'domain': domain_name,
+            'apps_domain': domain,
             'is_on_trial': domain.is_on_trial,
             'expiration_date': domain.expiration_date,
             'is_expired': is_expired,
