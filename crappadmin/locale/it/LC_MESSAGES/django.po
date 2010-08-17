@@ -1,0 +1,117 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-15 16:35+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: forms.py:24 tables.py:15 templates/domain_create.html:10
+msgid "Domain"
+msgstr "Dominio"
+
+#: forms.py:26
+msgid "Admin email"
+msgstr "Email amministratore"
+
+#: forms.py:28
+msgid "Admin password"
+msgstr "Password amministratore"
+
+#: forms.py:30 tables.py:10 templates/domain_create.html:22
+msgid "Enabled"
+msgstr "Abilitato"
+
+#: forms.py:31 templates/domain_create.html:26
+msgid "Independent"
+msgstr "Indipendente"
+
+#: forms.py:77
+msgid "Passwords do not match."
+msgstr "Le password non corrispondono"
+
+#: tables.py:12
+msgid "Disabled"
+msgstr "Disabilitato"
+
+#: tables.py:16
+msgid "Administrator Email"
+msgstr "Email amministratore"
+
+#: tables.py:17
+msgid "Status"
+msgstr "Stato"
+
+#: tables.py:38 views.py:39
+msgid "Delete domains"
+msgstr "Rimuovi dominio"
+
+#: views.py:20
+msgid "Superadmin Panel"
+msgstr "Superadmin Panel"
+
+#: views.py:21
+msgid "All Domains"
+msgstr ""
+
+#: views.py:22 templates/tools.html:4
+msgid "Tools"
+msgstr "Tools"
+
+#: views.py:23
+msgid "Appengine Dashboard"
+msgstr "Appengine Dashboard"
+
+#: views.py:25
+msgid "Documentation"
+msgstr "Documentazione"
+
+#: views.py:26
+msgid "Logout"
+msgstr "Esci"
+
+#: views.py:40
+msgid "Are you sure you want to delete selected domains?"
+msgstr "Sei sicuro di voler rimuovere il dominio selezionato?"
+
+#: templates/domain_create.html:4
+msgid "Create domain"
+msgstr "Crea dominio"
+
+#: templates/domain_create.html:8 templates/domains_list.html:7
+msgid "Create new domain"
+msgstr "Crea un nuovo dominio"
+
+#: templates/domain_create.html:14
+msgid "Administrator email"
+msgstr "Email amministratore"
+
+#: templates/domain_create.html:18
+msgid "Administrator password"
+msgstr "Password Amministratore"
+
+#: templates/domain_create.html:30
+msgid "create"
+msgstr "crea"
+
+#: templates/domain_create.html:31
+msgid "cancel"
+msgstr "annulla"
+
+#: templates/domain_details.html:23
+msgid "Installation link"
+msgstr "Link installazione"
+
+#: templates/domains_list.html:4
+msgid "Google Apps Domains"
+msgstr "Dominii Google Apps"
+

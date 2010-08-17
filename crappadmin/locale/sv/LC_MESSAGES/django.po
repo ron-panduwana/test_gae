@@ -1,0 +1,117 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-15 16:35+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: forms.py:24 tables.py:15 templates/domain_create.html:10
+msgid "Domain"
+msgstr "Domän"
+
+#: forms.py:26
+msgid "Admin email"
+msgstr "Administratörs email"
+
+#: forms.py:28
+msgid "Admin password"
+msgstr "Administratörs passord"
+
+#: forms.py:30 tables.py:10 templates/domain_create.html:22
+msgid "Enabled"
+msgstr "Aktiverad"
+
+#: forms.py:31 templates/domain_create.html:26
+msgid "Independent"
+msgstr "Oberoende"
+
+#: forms.py:77
+msgid "Passwords do not match."
+msgstr "Password stämmer ej"
+
+#: tables.py:12
+msgid "Disabled"
+msgstr "Deaktiverad"
+
+#: tables.py:16
+msgid "Administrator Email"
+msgstr "Administratörs email"
+
+#: tables.py:17
+msgid "Status"
+msgstr "Status"
+
+#: tables.py:38 views.py:39
+msgid "Delete domains"
+msgstr "Ta bort domäner"
+
+#: views.py:20
+msgid "Superadmin Panel"
+msgstr "Superadmin Panel"
+
+#: views.py:21
+msgid "All Domains"
+msgstr "Alla domäner"
+
+#: views.py:22 templates/tools.html:4
+msgid "Tools"
+msgstr "Verktyg"
+
+#: views.py:23
+msgid "Appengine Dashboard"
+msgstr "Appengine Dashboard"
+
+#: views.py:25
+msgid "Documentation"
+msgstr "Dokumentation"
+
+#: views.py:26
+msgid "Logout"
+msgstr "Logga ut"
+
+#: views.py:40
+msgid "Are you sure you want to delete selected domains?"
+msgstr "Är du säker på att du vill ta bort valda domäner?"
+
+#: templates/domain_create.html:4
+msgid "Create domain"
+msgstr "Skapa domän"
+
+#: templates/domain_create.html:8 templates/domains_list.html:7
+msgid "Create new domain"
+msgstr "Skapa ny domän"
+
+#: templates/domain_create.html:14
+msgid "Administrator email"
+msgstr "Administratörs email"
+
+#: templates/domain_create.html:18
+msgid "Administrator password"
+msgstr "Administratörs passord"
+
+#: templates/domain_create.html:30
+msgid "create"
+msgstr "skapa"
+
+#: templates/domain_create.html:31
+msgid "cancel"
+msgstr "avbryt"
+
+#: templates/domain_details.html:23
+msgid "Installation link"
+msgstr "Installations länk"
+
+#: templates/domains_list.html:4
+msgid "Google Apps Domains"
+msgstr "Google Apps Domäner"
+

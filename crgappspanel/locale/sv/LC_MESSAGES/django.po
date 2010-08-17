@@ -1,0 +1,970 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-15 16:28+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: consts.py:64 forms.py:237
+msgid "Owner"
+msgstr "Ägare"
+
+#: consts.py:65 forms.py:237
+msgid "Member"
+msgstr "Medlem"
+
+#: consts.py:66
+msgid "Domain"
+msgstr "Domän"
+
+#: consts.py:67
+msgid "Anyone"
+msgstr "Någon"
+
+#: forms.py:23 forms.py:29 forms.py:248 forms.py:252 forms.py:262
+msgid "Don't change"
+msgstr "Ändra inte"
+
+#: forms.py:74 forms.py:111
+msgid "Lowercase english letters are not allowed."
+msgstr "Små bokstäver är ej tillåtna."
+
+#: forms.py:78 forms.py:115
+msgid "Uppercase english letters are not allowed."
+msgstr "Stora bokstäver är ej tillåtna."
+
+#: forms.py:82 forms.py:119
+msgid "Digits are not allowed."
+msgstr "Siffror är ej tillåtna."
+
+#: forms.py:85 forms.py:107
+#, python-format
+msgid "Character '%(char)s' is not allowed."
+msgstr "Tecken '%(char)s' är ej tillåtet."
+
+#: forms.py:140
+msgid "There must be at least one letter or digit."
+msgstr "Måste innehålla åtminstone en bokstav eller siffra"
+
+#: forms.py:149
+#, python-format
+msgid ""
+"%(widget)s%(link_start)sChange password%(link_end)s WARNING: dangerous, "
+"without confirmation yet!"
+msgstr  ""
+"%(widget)s%(link_start)sÄndra password%(link_end)s WARNING: farligt, "
+"ej ännu bekräftat!"
+
+#: forms.py:152
+#, python-format
+msgid "Enter new password:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr "Skapa nytt passord:<br/>%(widget)s %(link_start)sAvbryt%(link_end)s"
+
+#: forms.py:156
+#, python-format
+msgid "%(link_start)sAdd nickname%(link_end)s"
+msgstr "%(link_start)sLägg till alias%(link_end)s"
+
+
+#: forms.py:157
+#, python-format
+msgid "Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr "Skriv alias:<br/>%(widget)s %(link_start)sAvbryt%(link_end)s"
+
+
+#: forms.py:168 templates/user_create.html:14 views/users.py:97
+msgid "Username"
+msgstr "Användarnamn"
+
+#: forms.py:170 forms.py:171
+msgid "Password"
+msgstr "Passord"
+
+#: forms.py:172
+msgid "Require a change of password in the next sign in"
+msgstr "Kräv nytt passord när användaren loggar in nästa gång"
+
+#: forms.py:174 templates/user_create.html:18 views/users.py:96
+msgid "Full name"
+msgstr "Namn"
+
+#: forms.py:176
+msgid "Nicknames"
+msgstr "Alias"
+
+#: forms.py:212
+msgid "These passwords don't match."
+msgstr "Passord ogiltigt"
+
+#: forms.py:216
+#, python-format
+msgid "%(link_start)sAdd role%(link_end)s"
+msgstr "%(link_start)sLägg till roll%(link_end)s"
+
+#: forms.py:217
+#, python-format
+msgid "Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr "Välj roll:<br/>%(widget)s %(link_start)sAvbryt%(link_end)s"
+
+
+#: forms.py:221 navigation.py:13 navigation.py:45 views/users.py:99
+msgid "Roles"
+msgstr "Roll"
+
+#: forms.py:241
+msgid "Add to groups"
+msgstr "Lägg till grupp"
+
+#: forms.py:243
+msgid "Add as"
+msgstr "Lägg till som"
+
+#: forms.py:246
+msgid "Enable"
+msgstr "Aktivera"
+
+#: forms.py:246 forms.py:265
+msgid "Disable"
+msgstr "Inaktivera"
+
+#: forms.py:253
+msgid "Forward and keep"
+msgstr "Vidarebefordra och behåll"
+
+#: forms.py:254
+msgid "Forward and archive"
+msgstr "Vidarebefordra och arkivera"
+
+#: forms.py:255
+msgid "Forward and delete"
+msgstr "Vidarebefordra och ta bort"
+
+#: forms.py:256
+msgid "Don't forward"
+msgstr "Vidarebefordra ej"
+
+#: forms.py:263
+msgid "Enable for all emails"
+msgstr "Aktivera för alla email"
+
+#: forms.py:264
+msgid "Enable for emails for now on"
+msgstr "Aktivera för alla email hädanefter"
+
+#: forms.py:271
+msgid "Use Unicode (UTF-8)"
+msgstr "Använd Unicode (UTF-8)"
+
+#: forms.py:271
+msgid "Use default text encoding"
+msgstr "Använd förvald teckenkodning"
+
+#: forms.py:278 forms.py:785
+msgid "Language"
+msgstr "Språk"
+
+#: forms.py:280
+msgid "Forwarding"
+msgstr "Vidarebefordring"
+
+#: forms.py:282
+msgid "Forward to"
+msgstr "Vidarebefordra till"
+
+#: forms.py:284
+msgid "POP3"
+msgstr "POP3"
+
+#: forms.py:286
+msgid "IMAP"
+msgstr "IMAP"
+
+#: forms.py:288
+msgid "Messages per page"
+msgstr "Meddelanden per sida"
+
+#: forms.py:290
+msgid "Web Clips"
+msgstr "Web Clips"
+
+#: forms.py:292
+msgid "Snippets"
+msgstr "Snuttar"
+
+#: forms.py:294
+msgid "Keyboard shortcuts"
+msgstr "Snabbtangenter"
+
+#: forms.py:296
+msgid "Personal level indicators"
+msgstr "Personliga indikatorer"
+
+#: forms.py:298
+msgid "Outgoing mail encoding"
+msgstr "Utgående email kodning"
+
+#: forms.py:300
+msgid "Signature"
+msgstr "Signatur"
+
+#: forms.py:320
+msgid "Forwarding address must be specified when enabling forwarding."
+msgstr "Vidarebefordrings address måste vara angiven för att aktivera funktionen."
+
+#: forms.py:328
+msgid "Forwarding address must not be specified when not enabling forwarding."
+msgstr "Vidarebefordrings address måste inte vara angiven för att deaktivera funktionen."
+
+#: forms.py:336
+msgid "Signature must be specified when enabling signature."
+msgstr "Signature måste vara angiven för att aktivera funktionen."
+
+#: forms.py:344
+msgid "Signature must not be specified when not enabling signature."
+msgstr "Signature får ej vara angiven för att deaktivera funktionen."
+
+#: forms.py:354
+msgid "Doesn't matter"
+msgstr "Ej viktigt"
+
+#: forms.py:355
+msgid "Must have"
+msgstr "Obligatorisk"
+
+#: forms.py:360
+msgid "From"
+msgstr "Från"
+
+#: forms.py:362
+msgid "To"
+msgstr "Till"
+
+#: forms.py:364 forms.py:424
+msgid "Subject"
+msgstr "Subject"
+
+#: forms.py:365
+msgid "Has the words"
+msgstr "Innehåller orden"
+
+#: forms.py:366
+msgid "Doesn't have"
+msgstr "Innehåller ej"
+
+#: forms.py:368
+msgid "Has attachment"
+msgstr "Har bifogat objekt"
+
+#: forms.py:370
+msgid "Apply label"
+msgstr "Lägg till etikett"
+
+#: forms.py:371
+msgid "Mark as read"
+msgstr "Markera som läst"
+
+#: forms.py:373
+msgid "Archive"
+msgstr "Arkivera"
+
+#: forms.py:391
+msgid ""
+"At least one of fields: from, to, subject, has words, doesn't have, has "
+"attachment must be filled."
+msgstr ""
+"Åtminstone ett fält: från, till, subjekt, innehåller order, innehåller ej, har"
+"bifogat måste fyllas i."
+
+#: forms.py:396
+msgid ""
+"At least one of fields apply label, mark as read, archive must be filled."
+msgstr ""
+"Åtminstone ett av fälten lägg till etikett, markera som läst, arkivera måste fyllas i."
+
+
+#: forms.py:408
+msgid "Enabled"
+msgstr "Aktiverad"
+
+#: forms.py:409
+msgid "Disabled"
+msgstr "Deaktiverad"
+
+#: forms.py:413
+msgid "Only send a response to people in my Contacts"
+msgstr "Skicka bara till mina personliga kontaker"
+
+#: forms.py:414
+msgid "Send to all"
+msgstr "Skicka till alla"
+
+#: forms.py:419
+msgid "Out of Office AutoReply"
+msgstr "Autosvar"
+
+#: forms.py:426
+msgid "Message"
+msgstr "Meddelande"
+
+#: forms.py:428
+msgid "Send to"
+msgstr "Skicka till"
+
+#: forms.py:435
+msgid "Subject field is required"
+msgstr "Subjekt fält krävs"
+
+#: forms.py:442 forms.py:449
+msgid "Message field is required"
+msgstr "Meddelande fält krävs"
+
+#: forms.py:453
+#, python-format
+msgid "Set %(link_start)sanother%(link_end)s reply to address"
+msgstr " Konfigurera%(link_start)sen annan%(link_end)s svarsadress"
+
+#: forms.py:454 forms.py:506 forms.py:508
+#, python-format
+msgid "%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr "%(widget)s %(link_start)sAvbryt%(link_end)s"
+
+#: forms.py:458 forms.py:474 forms.py:575 forms.py:749
+#: templates/calendar_resource_add.html:10 templates/group_create.html:14
+#: templates/role_create.html:10 templates/shared_contacts_list.html:38
+#: views/calendar_resources.py:14 views/groups.py:19 views/roles.py:17
+msgid "Name"
+msgstr "Namn"
+
+#: forms.py:459 forms.py:473 templates/group_create.html:10
+#: templates/group_details.html:13 views/groups.py:20
+msgid "Email address"
+msgstr "Email adress"
+
+#: forms.py:461
+msgid "Reply to"
+msgstr "Svara till"
+
+#: forms.py:464
+msgid "Make default"
+msgstr "Gör som standard"
+
+#: forms.py:475 templates/group_create.html:18 views/groups.py:21
+msgid "Email permission"
+msgstr "Email tillstånd"
+
+#: forms.py:477 forms.py:751 templates/calendar_resource_add.html:18
+#: templates/group_create.html:22 views/calendar_resources.py:16
+msgid "Description"
+msgstr "Beskrivning"
+
+#: forms.py:505
+#, python-format
+msgid "%(link_start)sAdd%(link_end)s another owner"
+msgstr "%(link_start)sLägg till%(link_end)s en annan ägare"
+
+#: forms.py:507
+#, python-format
+msgid "%(link_start)sAdd%(link_end)s another member"
+msgstr "%(link_start)sLägg till%(link_end)s en annan medlem"
+
+#: forms.py:512
+msgid "Owners"
+msgstr "Ägare"
+
+#: forms.py:515 navigation.py:83
+msgid "Members"
+msgstr "Medlemmar"
+
+#: forms.py:527 templates/role_create.html:14
+msgid "Manage Users"
+msgstr "Hantera användare"
+
+#: forms.py:528 forms.py:535 forms.py:538 forms.py:541 forms.py:544
+#: navigation.py:20 navigation.py:41 navigation.py:79
+msgid "General"
+msgstr "Generella"
+
+#: forms.py:529 navigation.py:19 templates/settings.html:4
+msgid "Settings"
+msgstr "Inställningar"
+
+#: forms.py:530 navigation.py:58 templates/shared_contacts_list.html:72
+msgid "Filters"
+msgstr "Filter"
+
+#: forms.py:531 navigation.py:63 templates/user_email_aliases.html:4
+msgid "Aliases"
+msgstr "Alias"
+
+#: forms.py:532 navigation.py:68 templates/user_email_vacation.html:4
+msgid "Vacation responder"
+msgstr "Autosvar"
+
+#: forms.py:534 templates/role_create.html:20
+msgid "Manage Groups"
+msgstr "Hantera Grupper"
+
+#: forms.py:537 templates/role_create.html:26
+msgid "Manage Roles"
+msgstr "Hantera Roller"
+
+#: forms.py:540 templates/role_create.html:32
+msgid "Manage Shared Contacts"
+msgstr "Hantera Delade Kontakter"
+
+#: forms.py:543 templates/role_create.html:38
+msgid "Manage Calendar Resources"
+msgstr "Hantera Kalender Resurser"
+
+#: forms.py:648
+#, python-format
+msgid "%(link_start)sAdd email%(link_end)s"
+msgstr "%(link_start)sLägg till email%(link_end)s"
+
+#: forms.py:649
+#, python-format
+msgid "Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr "Lägg till email:<br/>%(widget)s %(link_start)sAvbryt%(link_end)s"
+
+#: forms.py:650
+#, python-format
+msgid "%(link_start)sAdd phone number%(link_end)s"
+msgstr ""
+
+#: forms.py:651
+#, python-format
+msgid "Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
+msgstr ""
+
+#: forms.py:656 views/shared_contacts.py:43
+msgid "Display name"
+msgstr ""
+
+#: forms.py:657 views/shared_contacts.py:44
+msgid "Real name"
+msgstr ""
+
+#: forms.py:658 templates/shared_contacts_list.html:53
+msgid "Notes"
+msgstr ""
+
+#: forms.py:660 templates/shared_contacts_list.html:43
+#: views/shared_contacts.py:45
+msgid "Company"
+msgstr ""
+
+#: forms.py:661 templates/shared_contacts_list.html:48
+msgid "Role"
+msgstr ""
+
+#: forms.py:664
+msgid "Email"
+msgstr ""
+
+#: forms.py:667 views/shared_contacts.py:49
+msgid "Emails"
+msgstr ""
+
+#: forms.py:672
+msgid "Phone number"
+msgstr ""
+
+#: forms.py:674 views/shared_contacts.py:47
+msgid "Phone numbers"
+msgstr ""
+
+#: forms.py:734
+msgid "Company is required if role is not empty."
+msgstr ""
+
+#: forms.py:750 templates/calendar_resource_add.html:14
+#: views/calendar_resources.py:15
+msgid "Type"
+msgstr ""
+
+#: forms.py:787
+msgid "Items per page"
+msgstr ""
+
+#: forms.py:789
+msgid "How many items to show at once on listing pages."
+msgstr ""
+
+#: models.py:58
+msgid "View users in your domain"
+msgstr ""
+
+#: models.py:59
+msgid "Create users in your domain"
+msgstr ""
+
+#: models.py:60 models.py:61 models.py:62 models.py:63
+msgid "Modify users in your domain"
+msgstr ""
+
+#: models.py:64
+msgid "Change vacation responder settings"
+msgstr ""
+
+#: models.py:145
+msgid "View groups in your domain"
+msgstr ""
+
+#: models.py:146
+msgid "Create groups in your domain"
+msgstr ""
+
+#: models.py:147
+msgid "Modify groups in your domain"
+msgstr ""
+
+#: models.py:259
+msgid "View shared contacts in your domain"
+msgstr ""
+
+#: models.py:260
+msgid "Create shared contacts in your domain"
+msgstr ""
+
+#: models.py:262
+msgid "Modify shared contacts in your domain"
+msgstr ""
+
+#: models.py:289
+msgid "View calendar resources in your domain"
+msgstr ""
+
+#: models.py:291
+msgid "Create calendar resources in your domain"
+msgstr ""
+
+#: models.py:293
+msgid "Modify calendar resources in your domain"
+msgstr ""
+
+#: navigation.py:9
+msgid "Dashboard"
+msgstr ""
+
+#: navigation.py:10
+msgid "Users, Groups and Roles"
+msgstr ""
+
+#: navigation.py:11
+msgid "Users"
+msgstr ""
+
+#: navigation.py:12 navigation.py:49
+msgid "Groups"
+msgstr ""
+
+#: navigation.py:15
+msgid "Shared Contacts"
+msgstr ""
+
+#: navigation.py:17
+msgid "Calendar Resources"
+msgstr ""
+
+#: navigation.py:30
+msgid "Panel Configuration"
+msgstr ""
+
+#: navigation.py:31
+msgid "Additional Setup"
+msgstr ""
+
+#: navigation.py:53 templates/user_email_settings.html:4
+msgid "Email Settings"
+msgstr ""
+
+#: helpers/fields.py:31
+msgid "Mr."
+msgstr ""
+
+#: helpers/fields.py:32
+msgid "Mrs."
+msgstr ""
+
+#: helpers/fields.py:33
+msgid "Miss"
+msgstr ""
+
+#: helpers/fields.py:34
+msgid "Ms."
+msgstr ""
+
+#: templates/base.html:32
+msgid "Inbox"
+msgstr ""
+
+#: templates/base.html:33
+msgid "Calendar"
+msgstr ""
+
+#: templates/base.html:34
+msgid "Help"
+msgstr ""
+
+#: templates/base.html:35
+msgid "Change domain"
+msgstr ""
+
+#: templates/base.html:36
+msgid "Sign out"
+msgstr ""
+
+#: templates/base.html:38
+msgid "Sign in"
+msgstr ""
+
+#: templates/base.html:54
+msgid "Back to list"
+msgstr ""
+
+#: templates/base.html:99
+msgid "Privacy policy"
+msgstr ""
+
+#: templates/base.html:100
+msgid "Feedback"
+msgstr ""
+
+#: templates/base.html:101
+msgid "Report a problem"
+msgstr ""
+
+#: templates/calendar_resource_add.html:4
+#: templates/calendar_resource_add.html:8
+#: templates/calendar_resources_list.html:9
+msgid "Add calendar resource"
+msgstr ""
+
+#: templates/calendar_resource_add.html:22 templates/group_create.html:26
+#: templates/role_create.html:44 templates/user_create.html:28
+msgid "create"
+msgstr ""
+
+#: templates/calendar_resource_add.html:23 templates/group_create.html:27
+#: templates/role_create.html:45 templates/user_create.html:29
+msgid "cancel"
+msgstr ""
+
+#: templates/calendar_resource_details.html:4
+msgid "Calendar resource details"
+msgstr ""
+
+#: templates/calendar_resources_list.html:4
+msgid "Calendar resources"
+msgstr ""
+
+#: templates/dashboard.html:4
+msgid "Cloudreach Powerpanel Dashboard"
+msgstr ""
+
+#: templates/dashboard.html:7
+msgid "Welcome to Cloudreach Powerpanel"
+msgstr ""
+
+#: templates/feedback_thanks.html:4
+msgid "Thank you for your feedback"
+msgstr ""
+
+#: templates/feedback_thanks.html:7
+msgid "Thank you"
+msgstr ""
+
+#: templates/feedback_thanks.html:8
+msgid "We received your message. Thank you very much for your feedback."
+msgstr ""
+
+#: templates/group_create.html:4
+msgid "Create group"
+msgstr ""
+
+#: templates/group_create.html:8 templates/groups_list.html:9
+msgid "Create new group"
+msgstr ""
+
+#: templates/group_details.html:4
+msgid "Group details"
+msgstr ""
+
+#: templates/group_members.html:4
+msgid "Group members"
+msgstr ""
+
+#: templates/groups_list.html:4
+msgid "Groups list"
+msgstr ""
+
+#: templates/language.html:4
+msgid "Language settings"
+msgstr ""
+
+#: templates/role_create.html:4
+msgid "Create role"
+msgstr ""
+
+#: templates/role_create.html:8 templates/roles_list.html:9
+msgid "Create new role"
+msgstr ""
+
+#: templates/role_details.html:4
+msgid "Role details"
+msgstr ""
+
+#: templates/roles_list.html:4
+msgid "Roles list"
+msgstr ""
+
+#: templates/shared_contact_add.html:4 templates/shared_contact_add.html:8
+#: templates/shared_contacts_list.html:9
+msgid "Add shared contact"
+msgstr ""
+
+#: templates/shared_contact_details.html:4
+msgid "Shared contact details"
+msgstr ""
+
+#: templates/shared_contacts_list.html:4
+msgid "Shared contacts"
+msgstr ""
+
+#: templates/shared_contacts_list.html:13
+#: templates/shared_contacts_list.html:30
+msgid "quick search"
+msgstr ""
+
+#: templates/shared_contacts_list.html:14
+#: templates/shared_contacts_list.html:31
+msgid "advanced search"
+msgstr ""
+
+#: templates/shared_contacts_list.html:21
+msgid "Query"
+msgstr ""
+
+#: templates/shared_contacts_list.html:23
+#: templates/shared_contacts_list.html:65
+msgid "go"
+msgstr ""
+
+#: templates/shared_contacts_list.html:58
+msgid "E-mail"
+msgstr ""
+
+#: templates/shared_contacts_list.html:63
+msgid "Phone"
+msgstr ""
+
+#: templates/shared_contacts_list.html:74
+msgid "Remove filters"
+msgstr ""
+
+#: templates/test.html:4
+msgid "Test"
+msgstr ""
+
+#: templates/user_create.html:4
+msgid "Create user"
+msgstr ""
+
+#: templates/user_create.html:12 templates/users_list.html:9
+msgid "Create new user"
+msgstr ""
+
+#: templates/user_create.html:22
+msgid "Temporary password"
+msgstr ""
+
+#: templates/user_details.html:4 templates/user_roles.html:4
+msgid "User details"
+msgstr ""
+
+#: templates/user_details.html:8
+msgid "Suspend user"
+msgstr ""
+
+#: templates/user_details.html:9
+msgid "Are you sure want to suspend selected user?"
+msgstr ""
+
+#: templates/user_details.html:13
+msgid "Restore user"
+msgstr ""
+
+#: templates/user_details.html:14
+msgid "Are you sure want to restore selected user?"
+msgstr ""
+
+#: templates/user_details.html:25
+msgid "Restore"
+msgstr ""
+
+#: templates/user_details.html:27
+msgid "Suspend"
+msgstr ""
+
+#: templates/user_email_filters.html:4
+msgid "User filters"
+msgstr ""
+
+#: templates/user_groups.html:4
+msgid "User groups"
+msgstr ""
+
+#: templates/user_groups.html:13
+msgid "Member of"
+msgstr ""
+
+#: templates/users_list.html:4
+msgid "Users list"
+msgstr ""
+
+#: templates/snippets/exists_error.html:5
+msgid "Entity with specified name already exists, please choose another one."
+msgstr ""
+
+#: templates/snippets/form_field_with_items.html:10
+msgid "Remove"
+msgstr "Ta bort"
+
+#: templates/snippets/form_save_reset.html:3
+msgid "save"
+msgstr "spara"
+
+#: templates/snippets/form_save_reset.html:4
+msgid "reset"
+msgstr "återställ"
+
+#: templates/snippets/roles_section_table.html:10
+msgid "Add"
+msgstr "Lägg till"
+
+#: templates/snippets/roles_section_table.html:11
+msgid "Change"
+msgstr "Ändra"
+
+#: templates/snippets/roles_section_table.html:12
+msgid "Read"
+msgstr "Läs"
+
+#: templates/snippets/saved_warning.html:5
+msgid ""
+"Changes have been saved, although it may take up to 24 hours for new data to "
+"propagate through Google services."
+msgstr "Ändringar har sparas men det kan ta upp till 24 timmar innan nytt data är synligt i Googles tjänster."
+
+
+#: templates/snippets/user_header.html:3 views/roles.py:27 views/users.py:75
+#: views/users.py:84 views/users.py:279
+msgid "Administrator"
+msgstr "Administratör"
+
+#: views/calendar_resources.py:36
+msgid "Delete calendar resources"
+msgstr "Ta bort kalender resurs"
+
+#: views/calendar_resources.py:46
+msgid "Are you sure you want to delete selected calendar resources?"
+msgstr "Är du säker att du vill ta bort kalender resurs?"
+
+#: views/groups.py:41
+msgid "Delete groups"
+msgstr "Ta bort grupp"
+
+#: views/groups.py:49
+msgid "Are you sure you want to delete selected groups?"
+msgstr "Är du säker att du vill ta bort dom valda grupperna?"
+
+#: views/groups.py:67
+msgid "User or group with this name already exists."
+msgstr "Användare eller grupp med detta namn finns redan."
+
+#: views/roles.py:18
+msgid "Permissions"
+msgstr "Tillstånd"
+
+#: views/roles.py:42
+msgid "Delete roles"
+msgstr "Ta bort roller"
+
+#: views/roles.py:50
+msgid "Are you sure you want to delete selected roles?"
+msgstr "Är du säker att du vill ta bort dom valda rollerna?"
+
+#: views/shared_contacts.py:75
+msgid "query"
+msgstr "förfrågning"
+
+#: views/shared_contacts.py:97
+msgid "Delete shared contacts"
+msgstr "Ta bort delade kontakter"
+
+#: views/shared_contacts.py:105
+msgid "Are you sure you want to delete selected shared contacts?"
+msgstr "Är du säker att du vill ta bort dom valda delade kontakerna?"
+
+#: views/users.py:46
+msgid "Suspended"
+msgstr "Suspenderad"
+
+#: views/users.py:46
+msgid "Active"
+msgstr "Aktiv"
+
+#: views/users.py:98
+msgid "Status"
+msgstr "Status"
+
+#: views/users.py:100
+msgid "Email quota"
+msgstr "Email kvot"
+
+#: views/users.py:123
+msgid "Delete users"
+msgstr "Ta bort användare"
+
+#: views/users.py:131
+msgid "Are you sure you want to delete selected users?"
+msgstr "Är du säker att du vill ta bort dom valda användarna?"
+
+#: views/users.py:152 views/users.py:205
+msgid "Either user or nick with this name already exists."
+msgstr "Antingen användare eller alias med detta namn finns redan"
+
+#: views/users.py:156 views/users.py:209
+msgid ""
+"User with such name was recently deleted and this name cannot be currently "
+"used."
+msgstr "Användare med sådant namn togs bort nyligen och kan inte användas för tillfället."
+
+#: views/users.py:161
+msgid "Your domain user limit has been reached, you cannot create more users."
+msgstr "Antalet användare i er domän har nåtts. Ni kan inte skapa mer användare."
+
+#: views/users.py:201
+msgid "This name is already reserved."
+msgstr "Namnet är redan reserverat"
+
+#: views/users.py:491
+#, python-format
+msgid "Email address has to exist as a user or an alias on %s domain."
+msgstr "Email adressen måste finnas som en användare eller alias på %s domänen."
+
+#: views/users.py:496
+#, python-format
+msgid "Email address has to be of form username@%s."
+msgstr "Email adress måste har formen användarnamn@%s"
+
