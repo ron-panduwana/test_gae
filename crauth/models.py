@@ -3,6 +3,7 @@ import logging
 from appengine_django.models import BaseModel
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from crauth.licensing import LICENSE_STATES, STATE_ACTIVE
@@ -19,7 +20,7 @@ class Association(db.Model):
     association = db.TextProperty()
 
 
-def default_expiration_date(days=30):
+def default_expiration_date(days=settings.TRIAL_PERIOD):
     return datetime.date.today() + datetime.timedelta(days=days)
 
 
@@ -54,7 +55,7 @@ class AppsDomain(BaseModel):
     installation_token = db.StringProperty()
     #: If set to ``True`` the ``expiration_date`` property becomes active.
     is_on_trial = db.BooleanProperty(default=True, required=False)
-    #: Expiration date of the trial period (usually 30 days).
+    #: Expiration date of the trial period (``settings.TRIAL_PERIOD``)
     expiration_date = db.DateProperty(required=False)
 
     def __init__(self, *args, **kwargs):
