@@ -28,14 +28,16 @@ def precache_everything(request):
     to_update = GDataIndex.all().filter(
         'last_updated <', treshold).filter('last_updated !=', None).order(
             'last_updated').fetch(100)
+    counter = 0
     for item in to_update:
         key_parts = item.key().name().split(':')
-        if len(key_parts) == 3:
+        if len(key_parts) == 3 or key_parts[1] == 'GANickname':
             continue
+        counter += 1
         taskqueue.add(url=reverse('precache_domain_item'), params={
             'key_name': ':'.join(key_parts[:2]),
         }, countdown=random.randint(1, 10))
-    return HttpResponse(str(len(to_update)))
+    return HttpResponse(str(counter))
 
 
 def precache_domain_item(request):
