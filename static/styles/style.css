@@ -402,3 +402,12 @@ select.vshort {
         border: 0px;
 }
 
+dl {
+        line-height: 1.5;
+}
+
+dt {
+        float: left;
+        clear: left;
+        text-align: right;
+}
