@@ -51,18 +51,18 @@ a.desc {
 }
 
 #wrap {
-	min-height: 97%;
+	min-height: 95%;
 }
 
 #footer {
     border-top: 1px solid #999;
     text-align: center;
-    /* margin: 2em 0 0; */
+    margin: 2em 0 0;
     padding: 0.5em 0 0;
     clear: both;
     color: #999;
     position: relative;
-	margin-top: -20px; /* negative value of footer height */
+	/*margin-top: -20px;*/
 	height: 20px;
 }
 
@@ -349,4 +349,65 @@ input[type="password"].vshort {
 }
 select.vshort {
 	width: 56px;
+}
+
+/* New CSS */
+.license {
+        background-color: #ffffcc;
+        border: 1px solid #ffcd35;
+        padding: 10px;
+        margin-bottom: 2em;
+        line-height: 1.5;
+}
+
+.dashboard {
+        min-width: 980px;
+}
+
+.sidebar {
+        float: right;
+        padding: 10px;
+        background-color: #e3e9ff;
+        border: 1px solid #9db5e5;
+        width: 25%;
+}
+
+.sidebar * + h3 {
+        margin-top: 2em;
+}
+
+.sidebar h3 {
+        margin-bottom: 0.5em;
+}
+
+.tips_box {
+        float: left;
+        width: 33%;
+        padding: 2em 2em 2em 0;
+        line-height: 1.5;
+}
+
+.tips_box h3 {
+        color: #333;
+        margin-bottom: 0.5em;
+}
+
+.tips_box .video {
+        float: left;
+        clear: left;
+        padding-right: 1em;
+}
+
+.tips_box .video img {
+        border: 0px;
+}
+
+dl {
+        line-height: 1.5;
+}
+
+dt {
+        float: left;
+        clear: left;
+        text-align: right;
 }

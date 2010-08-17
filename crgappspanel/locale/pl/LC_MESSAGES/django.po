@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-14 10:31+0200\n"
+"POT-Creation-Date: 2010-08-17 20:20+0200\n"
 "PO-Revision-Date: 2010-07-05 16:59+0100\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -709,12 +709,140 @@ msgid "Calendar resources"
 msgstr "Zasoby kalendarza"
 
 #: templates/dashboard.html:4
-msgid "Cloudreach Controlpanel Dashboard"
-msgstr "Konsola Cloudreach Controlpanel"
+msgid "Cloudreach Control Panel Dashboard"
+msgstr "Konsola Cloudreach Control Panel"
 
-#: templates/dashboard.html:7
-msgid "Welcome to Cloudreach Controlpanel"
+#: templates/dashboard.html:10
+msgid "License"
+msgstr "Licencja"
+
+#: templates/dashboard.html:12
+msgid ""
+"\n"
+"        <p>Your current license expired. Please <a href=\"#\" onclick="
+"\"return buyNow();\">renew it</a>\n"
+"        or you won't be able to keep using Cloudreach Control Panel shortly."
+"</p>\n"
+"        "
+msgstr ""
+"\n"
+"        <p>Twoja licencja wygasła. Proszę ją <a href=\"#\" onclick=\"return "
+"buyNow();\">odnowić</a>\n"
+"        lub dalsze używanie aplikacji Cloudreach Control Panel będzie "
+"niemożliwe.</p>\n"
+"        "
+
+#: templates/dashboard.html:19
+#, python-format
+msgid ""
+"\n"
+"                <p>You are using a trial license that is due to expire on "
+"%(expiration_date)s.\n"
+"                <a href=\"#\" onclick=\"return buyNow();\">Buy now</a></p>\n"
+"                "
+msgstr ""
+"\n"
+"       <p>Używasz licencji tymczasowej, która wygaśnie dnia "
+"%(expiration_date)s.\n"
+"       <a href=\"#\" onclick=\"return buyNow();\">Kup teraz</a></p>\n"
+"       "
+
+#: templates/dashboard.html:29 views/users.py:101
+msgid "Status"
+msgstr "Status"
+
+#: templates/dashboard.html:30
+#, python-format
+msgid "<p>Active for %(domain)s</p>"
+msgstr "<p>Aplikacja aktywna dla %(domain)s</p>"
+
+#: templates/dashboard.html:31
+msgid "Known issues"
+msgstr "Znane problemy"
+
+#: templates/dashboard.html:34
+msgid ""
+"On firts launch the panel takes some time to display all\n"
+"                users and groups"
+msgstr ""
+"Przy pierwszym uruchomieniu panelu może trochę potrwać zanim\n"
+" wszyscy użytkownicy i grupy będą widoczne"
+
+#: templates/dashboard.html:37
+msgid "Server error when try to access \"Calendar Resources\""
+msgstr "Błąd \"Server error\" podczas dostępu do zasobów kalendarza"
+
+#: templates/dashboard.html:39
+msgid "News"
+msgstr "Nowości"
+
+#: templates/dashboard.html:40
+msgid "Version 1.0.1 released to improve speed with larger domains"
+msgstr "Wydano wersję 1.0.1 aplikacji, która poprawia szybkość dla dużych domen"
+
+#: templates/dashboard.html:41
+msgid "Control Panel launched at Google Innovation @Work event"
+msgstr "Start aplikacji Control Panel podczas imprezy Google Innovation @Work"
+
+#: templates/dashboard.html:42
+msgid "Support"
+msgstr "Wsparcie"
+
+#: templates/dashboard.html:43
+msgid ""
+"To find out how to get support, please read our\n"
+"        <a href=\"https://sites.google.com/a/cloudreach.co.uk/help/"
+"controlpanel/support\" target=\"_blank\">support guide</a>."
+msgstr ""
+"Aby dowiedzieć się, jak uzyskać wsparcie, proszę przeczytać nasz\n"
+"        <a href=\"https://sites.google.com/a/cloudreach.co.uk/help/"
+"controlpanel/support\" target=\"_blank\">przewodnik</a> (ang.)."
+
+#: templates/dashboard.html:46
+msgid "Welcome to Cloudreach Control Panel"
 msgstr "Witamy w panelu firmy Cloudreach"
+
+#: templates/dashboard.html:49
+msgid "Getting started"
+msgstr "Zapoznanie z panelem"
+
+#: templates/dashboard.html:50
+msgid "An introduction to the Cloudreach Control Panel"
+msgstr "Wprowadzenie do aplikacji Cloudreach Control Panel"
+
+#: templates/dashboard.html:54 templates/dashboard.html.py:55
+msgid "Tips for Users"
+msgstr "Wskazówki dla użytkowników"
+
+#: templates/dashboard.html:56
+msgid "See how to use the Cloudreach Control Panel in this educational video"
+msgstr ""
+"Dowiedz się jak korzystać z panelu Cloudreach Control Panel z tego materiału "
+"wideo"
+
+#: templates/dashboard.html:60
+msgid "Tips for Administrators"
+msgstr "Wskazówki dla administratorów"
+
+#: templates/dashboard.html:61
+msgid ""
+"The hints and tips that you need to make the most of the Cloudreach Control "
+"Panel"
+msgstr ""
+"Porady i wskazówki, które mogą się okazać przydatne podczas korzystania z "
+"aplikacji Cloudreach Control Panel"
+
+#: templates/dashboard.html:65
+msgid "Setting up roles"
+msgstr "Konfigurowanie ról"
+
+#: templates/dashboard.html:66
+msgid ""
+"A video for Administrators showing how to setup and assign roles for your "
+"organisation"
+msgstr ""
+"Materiał wideo dla administratorów przedstawiający sposób tworzenia i "
+"przydzialania ról w Twojej firmie"
 
 #: templates/feedback_thanks.html:4
 msgid "Thank you for your feedback"
@@ -967,10 +1095,6 @@ msgstr "Zablokowany"
 msgid "Active"
 msgstr "Aktywny"
 
-#: views/users.py:101
-msgid "Status"
-msgstr "Status"
-
 #: views/users.py:104
 msgid "Email quota"
 msgstr "Limit pojemności"
@@ -1010,14 +1134,14 @@ msgstr ""
 msgid "This name is already reserved."
 msgstr "Ta nazwa jest już zarezerwowana."
 
-#: views/users.py:505
+#: views/users.py:506
 #, python-format
 msgid "Email address has to exist as a user or an alias on %s domain."
 msgstr ""
 "Podany adres e-mail musi odnosić się do istniejącego użytkownika lub aliasu "
 "w domenie %s."
 
-#: views/users.py:510
+#: views/users.py:511
 #, python-format
 msgid "Email address has to be of form username@%s."
 msgstr "Adres e-mail musi być formatu nazwa_uzytkownika@%s."

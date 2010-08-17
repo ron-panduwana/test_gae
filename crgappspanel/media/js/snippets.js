@@ -167,4 +167,32 @@ goog.exportProperty(cr.snippets, 'createRoleInitPermissions',
         cr.snippets.createRoleInitPermissions);
 
 
+cr.snippets.videoDialog = function(title, clip_id) {
+    var dialog = new goog.ui.Dialog()
+    dialog.setTitle(title)
+    dialog.setContent(
+            '<object width="800" height="600"><param name="allowfullscreen" value="true">' +
+            '<param name="allowscriptaccess" value="always" />' +
+            '<param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=' +
+            clip_id + '&amp;server=vimeo.com&amp;show_title=0&amp;show_byline=0' +
+            '&amp;show_portrait=0&amp;color=ff9933&amp;fullscreen=1&amp;autoplay=1' +
+            '&amp;loop=0"/>' +
+            '<embed src="http://vimeo.com/moogaloop.swf?clip_id=' +
+            clip_id + '&amp;server=vimeo.com&amp;show_title=0&amp;show_byline=0' +
+            '&amp;show_portrait=0&amp;color=ff9933&amp;fullscreen=1&amp;autoplay=1' +
+            '&amp;loop=0" type="application/x-shockwave-flash" allowfullscreen="true" ' +
+            'allowscriptaccess="always" width="800" height="600"></embed></object>');
+    var button_set = new goog.ui.Dialog.ButtonSet()
+        .set(goog.ui.Dialog.DefaultButtonKeys.OK, gettext('OK'), true);
+    dialog.setButtonSet(button_set)
+
+    goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
+        dialog.dispose();
+    });
+    dialog.setVisible(true);
+    return false;
+}
+goog.exportProperty(cr.snippets, 'videoDialog', cr.snippets.videoDialog);
+
+
 goog.exportSymbol('cr.snippets', cr.snippets);
