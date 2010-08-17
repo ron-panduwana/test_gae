@@ -153,7 +153,8 @@ def update_cache(post_data):
     if hasattr(cache_model, 'additional_cache'):
         cache_model.additional_cache(items, index, domain)
 
-    new_page_hash = hashlib.sha1(str(feed)).hexdigest()
+    new_page_hash = hashlib.sha1(
+        ''.join(str(item) for item in feed)).hexdigest()
 
     leftover = []
 
