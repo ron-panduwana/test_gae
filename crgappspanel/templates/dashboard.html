@@ -6,6 +6,7 @@
 {% block content %}
 <div class="dashboard">
 
+{% if auth.apps_domain.is_on_trial %}
 <div class="license">
 <h3>{% trans 'License' %}</h3>
 {% if auth.apps_domain.is_expired %}
@@ -24,6 +25,7 @@
         {% endif %}
 {% endif %}
 </div>
+{% endif %}
 
 <div class="sidebar">
         <h3>{% trans 'Status' %}</h3>
@@ -31,10 +33,11 @@
         <h3>{% trans 'Known issues' %}</h3>
         <dl>
                 <dt><a href="https://sites.google.com/a/cloudreach.co.uk/help/controlpanel/support/1873" target="_blank">1873</a>:</dt>
-                <dd>{% blocktrans %}On firts launch the panel takes some time to display all
-                users and groups{% endblocktrans %}</dd>
+                <dd>{% blocktrans %}When launching the control panel for the first
+                time, it can take some time to display all users and groups{% endblocktrans %}</dd>
                 <dt><a href="https://sites.google.com/a/cloudreach.co.uk/help/controlpanel/support/1874" target="_blank">1874</a>:</dt>
-                <dd>{% blocktrans %}Server error when try to access "Calendar Resources"{% endblocktrans %}</dd>
+                <dd>{% blocktrans %}Occasionally server error may be displayed when try to
+                access "Calendar Resources"{% endblocktrans %}</dd>
         </dl>
         <h3>{% trans 'News' %}</h3>
         <p>{% blocktrans %}Version 1.0.1 released to improve speed with larger domains{% endblocktrans %}</p>
@@ -45,23 +48,23 @@
 </div>
 <h1>{% trans 'Welcome to Cloudreach Control Panel' %}</h1>
 <div class="tips_box">
-        <div class="video"><img src="/static/images/video_icon_gs2.png"></div>
+        <div class="video"><a href="#" onclick="return cr.snippets.videoDialog('{% trans 'Getting started' %}', '14255275');"><img src="/static/images/video_icon_gs2.png"></a></div>
         <h3>{% trans 'Getting started' %}</h3>
         <p>{% trans 'An introduction to the Cloudreach Control Panel' %}</p>
 </div>
 
 <div class="tips_box">
-        <div class="video"><a href="#" onclick="return cr.snippets.videoDialog('{% trans 'Tips for Users' %}', '14187039');"><img src="/static/images/video_icon_users2.png"></a></div>
+        <div class="video"><a href="#" onclick="return cr.snippets.videoDialog('{% trans 'Tips for Users' %}', '14255793');"><img src="/static/images/video_icon_users2.png"></a></div>
         <h3>{% trans 'Tips for Users' %}</h3>
         <p>{% trans 'See how to use the Cloudreach Control Panel in this educational video' %}</p>
 </div>
 <div class="tips_box">
-        <div class="video"><img src="/static/images/video_icon_admins1.png"></div>
+        <div class="video"><a href="#" onclick="return cr.snippets.videoDialog('{% trans 'Tips for Administrators' %}', '14255053');"><img src="/static/images/video_icon_admins1.png"></a></div>
         <h3>{% trans 'Tips for Administrators' %}</h3>
         <p>{% trans 'The hints and tips that you need to make the most of the Cloudreach Control Panel' %}</p>
 </div>
 <div class="tips_box">
-        <div class="video"><img src="/static/images/video_icon_roles1.png"></div>
+        <div class="video"><a href="#" onclick="return cr.snippets.videoDialog('{% trans 'Setting up roles' %}', '14255821');"><img src="/static/images/video_icon_roles1.png"></a></div>
         <h3>{% trans 'Setting up roles' %}</h3>
         <p>{% trans 'A video for Administrators showing how to setup and assign roles for your organisation' %}</p>
 </div>
