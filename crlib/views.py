@@ -136,7 +136,9 @@ def gdata_delete(request):
     import pickle
     from crlib.errors import EntityDoesNotExistError
 
-    model = pickle.loads(base64.b64decode(request.POST['model']))
+    model_class = request.POST['model']
+    model = cache._MODELS_DICT[model_class]
+    atom = pickle.loads(base64.b64decode(request.POST['atom']))
     domain = request.POST['domain']
     apps_domain = AppsDomain.get_by_key_name(domain)
     if not apps_domain:
@@ -144,8 +146,9 @@ def gdata_delete(request):
         return HttpResponse('not ok')
     
     users._set_current_user(apps_domain.admin_email, domain)
+
     try:
-        model._mapper.delete(model._atom)
+        model._mapper.delete(atom)
     except EntityDoesNotExistError:
         pass
     return HttpResponse('ok')

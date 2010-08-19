@@ -601,10 +601,12 @@ class Model(object):
                 from django.core.urlresolvers import reverse
                 from google.appengine.api.labs import taskqueue
                 domain = users.get_current_user().domain_name
+                atom = base64.b64encode(
+                    pickle.dumps(self._atom, pickle.HIGHEST_PROTOCOL))
                 taskqueue.add(url=reverse('gdata_delete'), params={
-                    'model': base64.b64encode(
-                        pickle.dumps(self, pickle.HIGHEST_PROTOCOL)),
+                    'atom': atom,
                     'domain': domain,
+                    'model': self.__class__.__name__,
                 })
             else:
                 self._mapper.delete(self._atom)
