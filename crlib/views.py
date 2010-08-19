@@ -134,6 +134,7 @@ def add_user_to_group(request):
 def gdata_delete(request):
     import base64
     import pickle
+    from gdata.client import RequestError
     from crlib.errors import EntityDoesNotExistError
 
     model_class = request.POST['model']
@@ -151,6 +152,9 @@ def gdata_delete(request):
         model._mapper.delete(atom)
     except EntityDoesNotExistError:
         pass
+    except RequestError, e:
+        if e.status != 404:
+            raise
     return HttpResponse('ok')
 
 
