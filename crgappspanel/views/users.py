@@ -89,7 +89,8 @@ def _get_user_roles(domain):
         from crauth.models import UserPermissions
         perms = UserPermissions.get_by_key_name(_get_user_email(domain)(x))
         if perms:
-            return ', '.join(role.name for role in Role.get(perms.roles))
+            return ', '.join(
+                role.name for role in Role.get(perms.roles) if role)
         else:
             return ''
     return new
@@ -284,8 +285,10 @@ def user_roles(request, name=None):
         kwargs = dict(name=user.user_name, role_name=x)
         return reverse('user-remove-role', kwargs=kwargs)
     roles = _get_roles(role_keys)
-    roles_with_remove = [ValueWithRemoveLink(unicode(role.name).encode('UTF-8'), remove_role_link(role.name))
-        for role in roles]
+    roles_with_remove = [
+        ValueWithRemoveLink(unicode(role.name).encode('UTF-8'),
+                            remove_role_link(role.name))
+        for role in roles if role]
     if user.admin:
         obj = ValueWithRemoveLink(_('Administrator'), remove_role_link('admin'))
         roles_with_remove.insert(0, obj)

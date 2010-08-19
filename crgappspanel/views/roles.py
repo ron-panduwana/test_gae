@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from crauth.decorators import has_perm
-from crauth.models import Role
+from crauth.models import Role, UserPermissions
 from crauth import users
 from crgappspanel.forms import RoleForm
 from crgappspanel.helpers.misc import ValueWithRemoveLink
@@ -104,11 +104,22 @@ def role_remove(request, names=None):
     
     from google.appengine.ext import db
     to_delete = []
+    to_save = []
     for name in names.split('/'):
         role = Role.for_domain(users.get_current_domain()).filter(
             'name', name).get()
         if role:
+            key = role.key()
+            user_perms = UserPermissions.all().filter('roles', key)
+            for perm in user_perms:
+                try:
+                    perm.roles.remove(key)
+                    to_save.append(perm)
+                except ValueError:
+                    pass
             to_delete.append(role)
+
     db.delete(to_delete)
+    db.put(to_save)
     
     return redirect_saved('roles', request)
