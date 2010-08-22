@@ -250,8 +250,8 @@ def _update_last_page(updater, added, deleted, key_name, page):
     updater.delete(deleted)
 
     keys = [key_name.replace(str(page), str(x)) for x in (page + 1, page + 2)]
-    indexes = GDataIndex.get_by_key_name(keys)
-    if any(indexes):
+    indexes = [idx for idx in GDataIndex.get_by_key_name(keys) if idx]
+    if indexes:
         db.delete(indexes)
 
 
