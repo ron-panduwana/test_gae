@@ -223,10 +223,12 @@ def domain_setup(request, domain, template='domain_setup.html'):
         form = DomainSetupForm(user, service, initial={
             'callback': request.GET.get('callback', ''),
         })
+    query = '&'.join(x for x in (request.GET.urlencode(), 'other_user') if x)
     ctx = {
         'form': form,
         'domain': domain,
         'fix': request.GET.has_key('fix'),
+        'other_user_url': request.path + '?' + query,
     }
     if not token and not 'other_user' in request.GET:
         ctx['email'] = user.email()
