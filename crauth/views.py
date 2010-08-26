@@ -119,7 +119,7 @@ def openid_start(request, domain=None):
         # We have to use hashed value of redirect_to, because otherwise the URL
         # is too long and we get invalid data back from Google
         hashed = hashlib.sha1(redirect_to).hexdigest()
-        memcache.set(hashed, redirect_to, 60)
+        request.session['callback_%s' % hashed] = redirect_to
         return_to += '?%s' % urllib.urlencode({
             settings.REDIRECT_FIELD_NAME: hashed,
         })
@@ -132,7 +132,7 @@ def openid_start(request, domain=None):
 
 def openid_return(request):
     redirect_to = request.GET.get(settings.REDIRECT_FIELD_NAME, '')
-    redirect_to = memcache.get(redirect_to)
+    redirect_to = request.session.pop('callback_%s' % redirect_to, None)
 
     consumer = Consumer(request.session, store)
     info = consumer.complete(
