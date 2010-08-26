@@ -4,11 +4,8 @@
 {% block title %}{% trans 'Application not ready' %}{% endblock %}
 
 {% block content %}
-<h1>{% trans 'Application not ready' %}</h1>
-
-{% blocktrans %}
-<p>The application is not ready yet. We are currently preparing your domain
-to work with <strong>Cloudreach Controlpanel</strong>.</p>
-<p>Please wait a few seconds and <a href="{{ next }}">try again</a>.</p>
-{% endblocktrans %}
+<h1>{% trans 'Thank you for choosing the Cloudreach Control Panel for Google Apps' %}</h1>
+<p style="font-size: 120%;; margin-top: 2em;">{% blocktrans %}We are preparing your account, which will be ready shortly. This page will
+automatically reload.{% endblocktrans %}</p>
+<script type="text/javascript">setTimeout(function() { window.location = '{{ next }}'; }, 15000);</script>
 {% endblock %}
