@@ -5,7 +5,7 @@
 
 {% block content %}
 <h1>{% trans 'Thank you for choosing the Cloudreach Control Panel for Google Apps' %}</h1>
-<p style="font-size: 120%;; margin-top: 2em;">{% blocktrans %}We are preparing your account, which will be ready shortly. This page will
+<p style="margin-top: 2em;">{% blocktrans %}We are preparing your account, which will be ready shortly. This page will
 automatically reload.{% endblocktrans %}</p>
 <script type="text/javascript">setTimeout(function() { window.location = '{{ next }}'; }, 15000);</script>
 {% endblock %}

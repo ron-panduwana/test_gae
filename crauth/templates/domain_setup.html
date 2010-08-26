@@ -4,13 +4,13 @@
 
 {% block content %}
 <h1>{% trans 'Setup domain' %}</h1>
-<p style="font-size: 120%; margin: 1em 0;">{% blocktrans %}At present we require a valid Google Apps administrator
+<p style="margin: 1em 0;">{% blocktrans %}At present we require a valid Google Apps administrator
 account and password in order to access and control user information in
 your domain. Cloudreach are working with Google to remove the need for this,
 which will come with a future release of the Google Apps Provisioning
 API.{% endblocktrans %}</p>
 
-<p style="font-size: 120%; margin: 1em 0;">{% blocktrans %}For the time being we recommend that you use a
+<p style="margin: 1em 0;">{% blocktrans %}For the time being we recommend that you use a
 dedicated administrator account for the Cloudreach Control Panel, to prevent
 the Panel becoming inactive if an administrator leaves your organisation.
 You may change the administrator account and password at any time from the
@@ -31,7 +31,7 @@ Please enter <strong>valid credentials</strong> to continue using this applicati
 <form method="POST" action="">
         {{ form.callback }}
         {% if email %}
-        <p>{{ form.account.label_tag }}: <strong>{{ email }}</strong> <a href="?other_user">[ {% trans 'use different user' %} ]</a></p>
+        <p>{{ form.account.label_tag }}: <strong>{{ email }}</strong> <a href="{{ other_user_url }}">[ {% trans 'use different user' %} ]</a></p>
         {% else %}
         {% for error in form.account.errors %}
         <div class="error">{{ error }}</div>
