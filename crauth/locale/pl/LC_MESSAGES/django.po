@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-14 10:32+0200\n"
+"POT-Creation-Date: 2010-08-26 23:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,11 +46,11 @@ msgstr "Upewnij się, że wprowadziłeś nazwę i hasło administratora domeny"
 msgid "Please provide correct authentication credentials"
 msgstr "Proszę wprowadzić poprawną nazwę i hasło"
 
-#: models.py:46
+#: models.py:47
 msgid "Enabled"
 msgstr ""
 
-#: models.py:50
+#: models.py:51
 msgid "Independent"
 msgstr ""
 
@@ -75,7 +75,7 @@ msgstr "Może odczytywać obiekty typu Rola"
 msgid "Can %(perm)s %(model_name)s objects"
 msgstr ""
 
-#: views.py:47
+#: views.py:48
 msgid "Other, please specify: www."
 msgstr "Inna, proszę wprowadzić: www."
 
@@ -87,7 +87,36 @@ msgstr "Zmień domenę"
 msgid "Setup domain"
 msgstr "Ustawienia dla domeny Google Apps"
 
-#: templates/domain_setup.html:9
+#: templates/domain_setup.html:7
+msgid ""
+"At present we require a valid Google Apps administrator\n"
+"account and password in order to access and control user information in\n"
+"your domain. Cloudreach are working with Google to remove the need for "
+"this,\n"
+"which will come with a future release of the Google Apps Provisioning\n"
+"API."
+msgstr ""
+"Aktualnie wymagamy podania prawidłowej nazwy użytkownika oraz hasła\n"
+"dla konta administracyjnego Google Apps w celu dostępu do informacji\n"
+"o użytkownikach w Twojej domenie. Cloudreach pracuje wspólnie z Google\n"
+"aby usunąć tę niedogodność, co powinno nastąpić wraz z wydaniem\n"
+"następnej wersji biblioteki Google Apps Provisioning API."
+
+#: templates/domain_setup.html:13
+msgid ""
+"For the time being we recommend that you use a\n"
+"dedicated administrator account for the Cloudreach Control Panel, to "
+"prevent\n"
+"the Panel becoming inactive if an administrator leaves your organisation.\n"
+"You may change the administrator account and password at any time from the\n"
+"Settings menu within the application."
+msgstr ""
+"Zanim to jednak nastąpi, proponoujemy skorzystać z oddzielnego konta\n"
+"administracyjnego - tak aby zapobiec problemom z Panelem gdyby dane\n"
+"konto przestało być aktywne. Nazwę konta i hasło można zmienić w każdej\n"
+"chwili z poziomu menu Ustawienia."
+
+#: templates/domain_setup.html:21
 msgid ""
 "\n"
 "Administrator credentials for this domain <strong>are not correct</strong>.\n"
@@ -100,11 +129,11 @@ msgstr ""
 "Proszę wprowadzić <strong>prawidłowe dane</strong> aby móc kontynuować "
 "używanie tej aplikacji.\n"
 
-#: templates/domain_setup.html:21
+#: templates/domain_setup.html:34
 msgid "use different user"
 msgstr "użyj innego użytkownika"
 
-#: templates/domain_setup.html:39
+#: templates/domain_setup.html:52
 msgid "Save"
 msgstr ""
 
