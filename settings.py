@@ -36,6 +36,8 @@ HELP_BASE_URL = 'https://sites.google.com/a/cloudreach.co.uk/help/' \
 
 MARKETPLACE_NAME = 'Cloudreach Controlpanel'
 MARKETPLACE_DESCRIPTION = ''
+MARKETPLACE_SUPPORT_URL = 'https://sites.google.com/a/cloudreach.co.uk/help/' \
+        'controlpanel/support'
 
 OAUTH_APP_ID = '285282688156'
 OAUTH_CONSUMER = '285282688156.apps.googleusercontent.com'

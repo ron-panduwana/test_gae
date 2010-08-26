@@ -5,15 +5,15 @@
 
   <!-- Administrators and users will be sent to this URL for application support -->
   <Support>
-    {% if support_link %}
-    <Link rel="support" href="{{ support_link }}"/>
+    {% if support_url %}
+    <Link rel="support" href="{{ support_url }}"/>
     {% endif %}
     <Link rel="setup" href="{{ setup_url }}"/>
   </Support>
 
   <!-- Show this link in Google's universal navigation for all users -->
   <Extension id="navLink" type="link">
-    <Name>{{ link_title }}</Name>
+    <Name>{{ name }}</Name>
     <Url>{{ login_url }}?from=google</Url>
     <Scope ref="provisioningAPI"/>
   </Extension>

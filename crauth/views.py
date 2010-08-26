@@ -310,6 +310,7 @@ def generate_manifest(request):
         'realm': abs('/'),
         'name': settings.MARKETPLACE_NAME,
         'description': settings.MARKETPLACE_DESCRIPTION,
+        'support_url': settings.MARKETPLACE_SUPPORT_URL,
     }
     manifest = render_to_string('manifest.xml', ctx)
     return HttpResponse(manifest, mimetype='text/plain')
