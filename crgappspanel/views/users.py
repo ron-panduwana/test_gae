@@ -508,10 +508,10 @@ def user_email_aliases(request, name=None):
                     'address',
                     _('Email address has to exist as a user or an alias on '
                       '%s domain.' % crauth.users.get_current_domain().domain))
-            except errors.EntityNameNotValidError:
+            except (errors.EntityNameNotValidError, errors.InvalidValueError):
                 form.add_error(
                     'address',
-                    _('Email address has to be of form username@%s.' % (
+                    _('Email address has to be of form username@%s' % (
                         crauth.users.get_current_domain().domain)))
     else:
         form = UserEmailAliasesForm(auto_id=True)

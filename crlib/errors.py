@@ -34,6 +34,12 @@ class EntityNameNotValidError(GDataError):
     """
 
 
+class InvalidValueError(GDataError):
+    """ An value specified is not valid.
+
+    """
+
+
 class EntitySizeTooLarge(GDataError):
     pass
 
@@ -54,6 +60,7 @@ APPS_FOR_YOUR_DOMAIN_ERROR_CODES = {
     1300: EntityExistsError,
     1301: EntityDoesNotExistError,
     1303: EntityNameNotValidError,
+    1801: InvalidValueError,
     1000: UnknownGDataError,
 }
 
