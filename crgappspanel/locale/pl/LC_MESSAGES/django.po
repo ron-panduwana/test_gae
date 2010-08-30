@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 12:20+0200\n"
+"POT-Creation-Date: 2010-08-30 12:31+0200\n"
 "PO-Revision-Date: 2010-07-05 16:59+0100\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -175,7 +175,7 @@ msgstr "Używaj Unikodu (UTF-8)"
 msgid "Use default text encoding"
 msgstr "Używaj domyślnego kodowania znaków"
 
-#: forms.py:295 forms.py:838
+#: forms.py:295 forms.py:849
 msgid "Language"
 msgstr "Język"
 
@@ -351,9 +351,9 @@ msgstr "Ustaw %(link_start)sinny%(link_end)s adres zwrotny"
 msgid "%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:484 forms.py:500 forms.py:607 forms.py:794
+#: forms.py:484 forms.py:500 forms.py:607 forms.py:805
 #: templates/calendar_resource_add.html:14 templates/group_create.html:14
-#: templates/role_create.html:10 templates/shared_contacts_list.html:36
+#: templates/role_create.html:14 templates/shared_contacts_list.html:36
 #: views/calendar_resources.py:14 views/groups.py:20 views/roles.py:16
 #: views/users.py:100
 msgid "Name"
@@ -376,7 +376,7 @@ msgstr "Ustaw jako domyślne"
 msgid "Email permission"
 msgstr "Uprawnienia email"
 
-#: forms.py:503 forms.py:798 templates/calendar_resource_add.html:22
+#: forms.py:503 forms.py:809 templates/calendar_resource_add.html:22
 #: templates/group_create.html:22 views/calendar_resources.py:16
 msgid "Description"
 msgstr "Opis"
@@ -403,7 +403,7 @@ msgstr "Właściciele"
 msgid "Members"
 msgstr "Członkowie"
 
-#: forms.py:559 templates/role_create.html:14
+#: forms.py:559 templates/role_create.html:18
 msgid "Manage Users"
 msgstr "Zarządzanie użytkownikami"
 
@@ -428,115 +428,119 @@ msgstr "Wysyłaj jako"
 msgid "Vacation responder"
 msgstr "Wiadomość o niebecności"
 
-#: forms.py:566 templates/role_create.html:20
+#: forms.py:566 templates/role_create.html:24
 msgid "Manage Groups"
 msgstr "Zarządzanie grupami"
 
-#: forms.py:569 templates/role_create.html:26
+#: forms.py:569 templates/role_create.html:30
 msgid "Manage Roles"
 msgstr "Zarządzanie rolami"
 
-#: forms.py:572 templates/role_create.html:32
+#: forms.py:572 templates/role_create.html:36
 msgid "Manage Shared Contacts"
 msgstr "Zarządzanie kontaktami współdzielonymi"
 
-#: forms.py:575 templates/role_create.html:38
+#: forms.py:575 templates/role_create.html:42
 msgid "Manage Calendar Resources"
 msgstr "Zarządzaniem zasobami kalendarza"
 
-#: forms.py:677
+#: forms.py:681
 msgid "Role name is required."
 msgstr "Nazwa roli jest wymagana."
 
-#: forms.py:679
+#: forms.py:683
 msgid "Invalid role name."
 msgstr "Nieprawidłowa nazwa roli."
 
-#: forms.py:683 templates/snippets/user_header.html:3 views/roles.py:26
+#: forms.py:687 templates/snippets/user_header.html:3 views/roles.py:26
 #: views/users.py:80 views/users.py:87 views/users.py:293
 msgid "Administrator"
 msgstr "Administrator"
 
-#: forms.py:684
+#: forms.py:688
 msgid "Role with this name already exists."
 msgstr "Role o podanej nazwie już istnieje."
 
-#: forms.py:693
+#: forms.py:695
+msgid "You have to select at least one permission."
+msgstr "Należy zaznaczyć przynajmniej jedno uprawnienie."
+
+#: forms.py:704
 #, python-format
 msgid "%(link_start)sAdd email%(link_end)s"
 msgstr "%(link_start)sDodaj adres e-mail%(link_end)s"
 
-#: forms.py:694
+#: forms.py:705
 #, python-format
 msgid "Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "Wprowadź adres e-mail:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:695
+#: forms.py:706
 #, python-format
 msgid "%(link_start)sAdd phone number%(link_end)s"
 msgstr "%(link_start)sDodaj numer telefonu%(link_end)s"
 
-#: forms.py:696
+#: forms.py:707
 #, python-format
 msgid "Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr ""
 "Wprowadź numer telefonu:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:701 views/shared_contacts.py:45
+#: forms.py:712 views/shared_contacts.py:45
 msgid "Display name"
 msgstr "Nazwa wyświetlana"
 
-#: forms.py:702 views/shared_contacts.py:46
+#: forms.py:713 views/shared_contacts.py:46
 msgid "Real name"
 msgstr "Imię i nazwisko"
 
-#: forms.py:703 templates/shared_contacts_list.html:51
+#: forms.py:714 templates/shared_contacts_list.html:51
 msgid "Notes"
 msgstr "Uwagi"
 
-#: forms.py:705 templates/shared_contacts_list.html:41
+#: forms.py:716 templates/shared_contacts_list.html:41
 #: views/shared_contacts.py:47
 msgid "Company"
 msgstr "Firma"
 
-#: forms.py:706 templates/shared_contacts_list.html:46
+#: forms.py:717 templates/shared_contacts_list.html:46
 msgid "Role"
 msgstr "Stanowisko"
 
-#: forms.py:709
+#: forms.py:720
 msgid "Email"
 msgstr "Adres e-mail"
 
-#: forms.py:712 views/shared_contacts.py:51
+#: forms.py:723 views/shared_contacts.py:51
 msgid "Emails"
 msgstr "Adresy e-mail"
 
-#: forms.py:717
+#: forms.py:728
 msgid "Phone number"
 msgstr "Numer telefonu"
 
-#: forms.py:719 views/shared_contacts.py:49
+#: forms.py:730 views/shared_contacts.py:49
 msgid "Phone numbers"
 msgstr "Numery telefonów"
 
-#: forms.py:779
+#: forms.py:790
 msgid "Company is required if role is not empty."
 msgstr "Pole firma jest wymagane, jeśli podano stanowisko."
 
-#: forms.py:796 templates/calendar_resource_add.html:18
+#: forms.py:807 templates/calendar_resource_add.html:18
 #: views/calendar_resources.py:15
 msgid "Type"
 msgstr "Typ"
 
-#: forms.py:818
+#: forms.py:829
 msgid "Name is required."
 msgstr "Nazwa jest wymagana."
 
-#: forms.py:840
+#: forms.py:851
 msgid "Items per page"
 msgstr "Wiadomości na stronę"
 
-#: forms.py:842
+#: forms.py:853
 msgid "How many items to show at once on listing pages."
 msgstr "Ile elementów wyświetlać jednocześnie na stronie."
 
@@ -695,12 +699,12 @@ msgid "Add calendar resource"
 msgstr "Utwórz zasób kalendarza"
 
 #: templates/calendar_resource_add.html:26 templates/group_create.html:26
-#: templates/role_create.html:44 templates/user_create.html:28
+#: templates/role_create.html:48 templates/user_create.html:28
 msgid "create"
 msgstr "utwórz"
 
 #: templates/calendar_resource_add.html:27 templates/group_create.html:27
-#: templates/role_create.html:45 templates/user_create.html:29
+#: templates/role_create.html:49 templates/user_create.html:29
 msgid "cancel"
 msgstr "anuluj"
 
@@ -1149,9 +1153,9 @@ msgstr ""
 "w domenie %s."
 
 #: views/users.py:514
-#, fuzzy, python-format
+#, python-format
 msgid "Email address has to be of form username@%s"
-msgstr "Adres e-mail musi być formatu nazwa_uzytkownika@%s."
+msgstr "Adres e-mail musi być formatu nazwa_uzytkownika@%s"
 
 #~ msgid "query"
 #~ msgstr "zapytanie"

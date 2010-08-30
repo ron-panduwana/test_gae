@@ -7,6 +7,9 @@
 {% include "snippets/saved_warning.html" %}
 <form action="{% url role-details role.name %}" method="POST" class="details">
 	{% include "snippets/group_header.html" %}
+    {% for error in form.non_field_errors %}
+    <div class="error">{{ error }}</div>
+    {% endfor %}
 	<table class="details" width="100%">
 		<tbody>
 			{% with form.name as field %}{% include "snippets/form_field.html" %}{% endwith %}
