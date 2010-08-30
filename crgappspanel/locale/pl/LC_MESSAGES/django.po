@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-19 10:12+0200\n"
+"POT-Creation-Date: 2010-08-30 12:20+0200\n"
 "PO-Revision-Date: 2010-07-05 16:59+0100\n"
 "Last-Translator: Kamil Klimkiewicz <miGlanz@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,7 +81,7 @@ msgstr "%(link_start)sDodaj pseudonim%(link_end)s"
 msgid "Enter nickname:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "Wprowadź pseudonim:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:169 templates/user_create.html:14 views/users.py:100
+#: forms.py:169 templates/user_create.html:14 views/users.py:101
 msgid "Username"
 msgstr "Nazwa użytkownika"
 
@@ -123,7 +123,7 @@ msgstr "%(link_start)sDodaj rolę%(link_end)s"
 msgid "Choose role:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "Wybierz rolę:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:238 navigation.py:13 navigation.py:45 views/users.py:102
+#: forms.py:238 navigation.py:13 navigation.py:45 views/users.py:103
 msgid "Roles"
 msgstr "Role"
 
@@ -175,7 +175,7 @@ msgstr "Używaj Unikodu (UTF-8)"
 msgid "Use default text encoding"
 msgstr "Używaj domyślnego kodowania znaków"
 
-#: forms.py:295 forms.py:836
+#: forms.py:295 forms.py:838
 msgid "Language"
 msgstr "Język"
 
@@ -351,11 +351,11 @@ msgstr "Ustaw %(link_start)sinny%(link_end)s adres zwrotny"
 msgid "%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:484 forms.py:500 forms.py:607 forms.py:792
+#: forms.py:484 forms.py:500 forms.py:607 forms.py:794
 #: templates/calendar_resource_add.html:14 templates/group_create.html:14
 #: templates/role_create.html:10 templates/shared_contacts_list.html:36
 #: views/calendar_resources.py:14 views/groups.py:20 views/roles.py:16
-#: views/users.py:99
+#: views/users.py:100
 msgid "Name"
 msgstr "Nazwa"
 
@@ -376,7 +376,7 @@ msgstr "Ustaw jako domyślne"
 msgid "Email permission"
 msgstr "Uprawnienia email"
 
-#: forms.py:503 forms.py:796 templates/calendar_resource_add.html:22
+#: forms.py:503 forms.py:798 templates/calendar_resource_add.html:22
 #: templates/group_create.html:22 views/calendar_resources.py:16
 msgid "Description"
 msgstr "Opis"
@@ -448,91 +448,95 @@ msgstr "Zarządzaniem zasobami kalendarza"
 msgid "Role name is required."
 msgstr "Nazwa roli jest wymagana."
 
-#: forms.py:681 templates/snippets/user_header.html:3 views/roles.py:26
-#: views/users.py:80 views/users.py:87 views/users.py:290
+#: forms.py:679
+msgid "Invalid role name."
+msgstr "Nieprawidłowa nazwa roli."
+
+#: forms.py:683 templates/snippets/user_header.html:3 views/roles.py:26
+#: views/users.py:80 views/users.py:87 views/users.py:293
 msgid "Administrator"
 msgstr "Administrator"
 
-#: forms.py:682
+#: forms.py:684
 msgid "Role with this name already exists."
 msgstr "Role o podanej nazwie już istnieje."
 
-#: forms.py:691
+#: forms.py:693
 #, python-format
 msgid "%(link_start)sAdd email%(link_end)s"
 msgstr "%(link_start)sDodaj adres e-mail%(link_end)s"
 
-#: forms.py:692
+#: forms.py:694
 #, python-format
 msgid "Enter email:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr "Wprowadź adres e-mail:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:693
+#: forms.py:695
 #, python-format
 msgid "%(link_start)sAdd phone number%(link_end)s"
 msgstr "%(link_start)sDodaj numer telefonu%(link_end)s"
 
-#: forms.py:694
+#: forms.py:696
 #, python-format
 msgid "Enter phone number:<br/>%(widget)s %(link_start)sCancel%(link_end)s"
 msgstr ""
 "Wprowadź numer telefonu:<br/>%(widget)s %(link_start)sAnuluj%(link_end)s"
 
-#: forms.py:699 views/shared_contacts.py:45
+#: forms.py:701 views/shared_contacts.py:45
 msgid "Display name"
 msgstr "Nazwa wyświetlana"
 
-#: forms.py:700 views/shared_contacts.py:46
+#: forms.py:702 views/shared_contacts.py:46
 msgid "Real name"
 msgstr "Imię i nazwisko"
 
-#: forms.py:701 templates/shared_contacts_list.html:51
+#: forms.py:703 templates/shared_contacts_list.html:51
 msgid "Notes"
 msgstr "Uwagi"
 
-#: forms.py:703 templates/shared_contacts_list.html:41
+#: forms.py:705 templates/shared_contacts_list.html:41
 #: views/shared_contacts.py:47
 msgid "Company"
 msgstr "Firma"
 
-#: forms.py:704 templates/shared_contacts_list.html:46
+#: forms.py:706 templates/shared_contacts_list.html:46
 msgid "Role"
 msgstr "Stanowisko"
 
-#: forms.py:707
+#: forms.py:709
 msgid "Email"
 msgstr "Adres e-mail"
 
-#: forms.py:710 views/shared_contacts.py:51
+#: forms.py:712 views/shared_contacts.py:51
 msgid "Emails"
 msgstr "Adresy e-mail"
 
-#: forms.py:715
+#: forms.py:717
 msgid "Phone number"
 msgstr "Numer telefonu"
 
-#: forms.py:717 views/shared_contacts.py:49
+#: forms.py:719 views/shared_contacts.py:49
 msgid "Phone numbers"
 msgstr "Numery telefonów"
 
-#: forms.py:777
+#: forms.py:779
 msgid "Company is required if role is not empty."
 msgstr "Pole firma jest wymagane, jeśli podano stanowisko."
 
-#: forms.py:794 templates/calendar_resource_add.html:18
+#: forms.py:796 templates/calendar_resource_add.html:18
 #: views/calendar_resources.py:15
 msgid "Type"
 msgstr "Typ"
 
-#: forms.py:816
+#: forms.py:818
 msgid "Name is required."
 msgstr "Nazwa jest wymagana."
 
-#: forms.py:838
+#: forms.py:840
 msgid "Items per page"
 msgstr "Wiadomości na stronę"
 
-#: forms.py:840
+#: forms.py:842
 msgid "How many items to show at once on listing pages."
 msgstr "Ile elementów wyświetlać jednocześnie na stronie."
 
@@ -712,11 +716,11 @@ msgstr "Zasoby kalendarza"
 msgid "Cloudreach Control Panel Dashboard"
 msgstr "Konsola Cloudreach Control Panel"
 
-#: templates/dashboard.html:10
+#: templates/dashboard.html:11
 msgid "License"
 msgstr "Licencja"
 
-#: templates/dashboard.html:12
+#: templates/dashboard.html:13
 msgid ""
 "\n"
 "        <p>Your current license expired. Please <a href=\"#\" onclick="
@@ -732,7 +736,7 @@ msgstr ""
 "niemożliwe.</p>\n"
 "        "
 
-#: templates/dashboard.html:19
+#: templates/dashboard.html:20
 #, python-format
 msgid ""
 "\n"
@@ -747,20 +751,20 @@ msgstr ""
 "       <a href=\"#\" onclick=\"return buyNow();\">Kup teraz</a></p>\n"
 "       "
 
-#: templates/dashboard.html:29 views/users.py:101
+#: templates/dashboard.html:31 views/users.py:102
 msgid "Status"
 msgstr "Status"
 
-#: templates/dashboard.html:30
+#: templates/dashboard.html:32
 #, python-format
 msgid "<p>Active for %(domain)s</p>"
 msgstr "<p>Aplikacja aktywna dla %(domain)s</p>"
 
-#: templates/dashboard.html:31
+#: templates/dashboard.html:33
 msgid "Known issues"
 msgstr "Znane problemy"
 
-#: templates/dashboard.html:34
+#: templates/dashboard.html:36
 msgid ""
 "When launching the control panel for the first\n"
 "                time, it can take some time to display all users and groups"
@@ -768,30 +772,30 @@ msgstr ""
 "Przy pierwszym uruchomieniu panelu może trochę potrwać zanim\n"
 " wszyscy użytkownicy i grupy będą widoczne"
 
-#: templates/dashboard.html:37
+#: templates/dashboard.html:39
 msgid ""
 "Occasionally server error may be displayed when try to\n"
 "                access \"Calendar Resources\""
 msgstr "Błąd \"Server error\" podczas dostępu do zasobów kalendarza"
 
-#: templates/dashboard.html:40
+#: templates/dashboard.html:42
 msgid "News"
 msgstr "Nowości"
 
-#: templates/dashboard.html:41
+#: templates/dashboard.html:43
 msgid "Version 1.0.1 released to improve speed with larger domains"
 msgstr ""
 "Wydano wersję 1.0.1 aplikacji, która poprawia szybkość dla dużych domen"
 
-#: templates/dashboard.html:42
+#: templates/dashboard.html:44
 msgid "Control Panel launched at Google Innovation @Work event"
 msgstr "Start aplikacji Control Panel podczas imprezy Google Innovation @Work"
 
-#: templates/dashboard.html:43
+#: templates/dashboard.html:45
 msgid "Support"
 msgstr "Wsparcie"
 
-#: templates/dashboard.html:44
+#: templates/dashboard.html:46
 msgid ""
 "To find out how to get support, please read our\n"
 "        <a href=\"https://sites.google.com/a/cloudreach.co.uk/help/"
@@ -801,33 +805,33 @@ msgstr ""
 "        <a href=\"https://sites.google.com/a/cloudreach.co.uk/help/"
 "controlpanel/support\" target=\"_blank\">przewodnik</a> (ang.)."
 
-#: templates/dashboard.html:47
+#: templates/dashboard.html:49
 msgid "Welcome to Cloudreach Control Panel"
 msgstr "Witamy w panelu firmy Cloudreach"
 
-#: templates/dashboard.html:49 templates/dashboard.html.py:50
+#: templates/dashboard.html:51 templates/dashboard.html.py:52
 msgid "Getting started"
 msgstr "Zapoznanie z panelem"
 
-#: templates/dashboard.html:51
+#: templates/dashboard.html:53
 msgid "An introduction to the Cloudreach Control Panel"
 msgstr "Wprowadzenie do aplikacji Cloudreach Control Panel"
 
-#: templates/dashboard.html:55 templates/dashboard.html.py:56
+#: templates/dashboard.html:57 templates/dashboard.html.py:58
 msgid "Tips for Users"
 msgstr "Wskazówki dla użytkowników"
 
-#: templates/dashboard.html:57
+#: templates/dashboard.html:59
 msgid "See how to use the Cloudreach Control Panel in this educational video"
 msgstr ""
 "Dowiedz się jak korzystać z panelu Cloudreach Control Panel z tego materiału "
 "wideo"
 
-#: templates/dashboard.html:60 templates/dashboard.html.py:61
+#: templates/dashboard.html:62 templates/dashboard.html.py:63
 msgid "Tips for Administrators"
 msgstr "Wskazówki dla administratorów"
 
-#: templates/dashboard.html:62
+#: templates/dashboard.html:64
 msgid ""
 "The hints and tips that you need to make the most of the Cloudreach Control "
 "Panel"
@@ -835,11 +839,11 @@ msgstr ""
 "Porady i wskazówki, które mogą się okazać przydatne podczas korzystania z "
 "aplikacji Cloudreach Control Panel"
 
-#: templates/dashboard.html:65 templates/dashboard.html.py:66
+#: templates/dashboard.html:67 templates/dashboard.html.py:68
 msgid "Setting up roles"
 msgstr "Konfigurowanie ról"
 
-#: templates/dashboard.html:67
+#: templates/dashboard.html:69
 msgid ""
 "A video for Administrators showing how to setup and assign roles for your "
 "organisation"
@@ -1098,23 +1102,23 @@ msgstr "Zablokowany"
 msgid "Active"
 msgstr "Aktywny"
 
-#: views/users.py:104
+#: views/users.py:105
 msgid "Email quota"
 msgstr "Limit pojemności"
 
-#: views/users.py:123
+#: views/users.py:124
 msgid "Delete users"
 msgstr "Usuń użytkowników"
 
-#: views/users.py:130
+#: views/users.py:131
 msgid "Are you sure you want to delete selected users?"
 msgstr "Czy jesteś pewny, że chcesz usunąć zaznaczonych użytkowników?"
 
-#: views/users.py:151 views/users.py:165 views/users.py:215
+#: views/users.py:152 views/users.py:166 views/users.py:216
 msgid "Either user or nick with this name already exists."
 msgstr "Użytkownik lub pseudonim o tej nazwie już istnieje."
 
-#: views/users.py:155 views/users.py:219
+#: views/users.py:156 views/users.py:220
 msgid ""
 "User with such name was recently deleted and this name cannot be currently "
 "used."
@@ -1122,31 +1126,31 @@ msgstr ""
 "Użytkownik o takiej nazwie został niedawno usunięty, dlatego ta nazwa nie "
 "może być aktualnie użyta."
 
-#: views/users.py:160
+#: views/users.py:161
 msgid "Your domain user limit has been reached, you cannot create more users."
 msgstr ""
 "Limit ilości użytkowników dla Twojej domeny został osiągnięty. Nie możesz "
 "tworzyć więcej użytkowników."
 
-#: views/users.py:169
+#: views/users.py:170
 msgid "An error occured during the request. Please try again."
 msgstr ""
 "Podczas przetwarzania żądania wystąpił błąd. Proszę spróbować jeszcze raz."
 
-#: views/users.py:211
+#: views/users.py:212
 msgid "This name is already reserved."
 msgstr "Ta nazwa jest już zarezerwowana."
 
-#: views/users.py:506
+#: views/users.py:509
 #, python-format
 msgid "Email address has to exist as a user or an alias on %s domain."
 msgstr ""
 "Podany adres e-mail musi odnosić się do istniejącego użytkownika lub aliasu "
 "w domenie %s."
 
-#: views/users.py:511
-#, python-format
-msgid "Email address has to be of form username@%s."
+#: views/users.py:514
+#, fuzzy, python-format
+msgid "Email address has to be of form username@%s"
 msgstr "Adres e-mail musi być formatu nazwa_uzytkownika@%s."
 
 #~ msgid "query"
