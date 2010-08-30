@@ -675,6 +675,8 @@ class RoleForm(forms.Form):
         name = self.cleaned_data['name'].strip()
         if name == '':
             raise forms.ValidationError(_('Role name is required.'))
+        if name in ('.', '..'):
+            raise forms.ValidationError(_('Invalid role name.'))
         if not hasattr(self, 'old_name') or name != self.old_name:
             role = Role.for_domain(crauth.users.get_current_domain()).filter(
                 'name', name).get()
