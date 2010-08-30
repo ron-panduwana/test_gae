@@ -138,7 +138,7 @@ cr.snippets.createRolePermissionChanged = function(checkbox) {
         } else if (node && !checked && checked_len == 0) {
             node.disabled = false;
             var previous_val = checked_cache.get(node.getAttribute('name'));
-            checked_cache.remove(node.getAttribute('name'));
+            //checked_cache.remove(node.getAttribute('name'));
             if (previous_val) {
                 node.checked = previous_val;
             } else {
@@ -155,6 +155,12 @@ cr.snippets.createRoleInitPermissions = function() {
     var table = goog.dom.$$('table', 'roles');
     if (table.length) {
         table = table[table.length - 1];
+        goog.dom.findNodes(table, function(node) {
+            if (node.className == 'perm_read') {
+                checked_cache.set(node.getAttribute('name'), node.checked);
+            }
+            return false;
+        });
         goog.dom.findNodes(table, function(node) {
             if (node.className == 'perm_add' || node.className == 'perm_change') {
                 cr.snippets.createRolePermissionChanged(node);
