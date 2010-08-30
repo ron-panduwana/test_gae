@@ -622,17 +622,21 @@ class RoleForm(forms.Form):
         for section in OBJECT_TYPES:
             self._add_section(section, perms)
 
+        self._permissions = None
+
     def _data_to_permissions(self):
         data = self.cleaned_data
 
-        permissions = set()
-        for perm in PERMISSION_NAMES:
-            if perm in data and data[perm]:
-                permissions.add(perm)
-                if perm.startswith('change_') or perm.startswith('add_'):
-                    permissions.add(perm.replace('change_', 'read_').replace(
-                        'add_', 'read_'))
-        return list(permissions)
+        if not self._permissions:
+            permissions = set()
+            for perm in PERMISSION_NAMES:
+                if perm in data and data[perm]:
+                    permissions.add(perm)
+                    if perm.startswith('change_') or perm.startswith('add_'):
+                        permissions.add(perm.replace('change_', 'read_').replace(
+                            'add_', 'read_'))
+            self._permissions = list(permissions)
+        return self._permissions
     
     def create(self, domain):
         return crauth.models.Role(
@@ -683,6 +687,13 @@ class RoleForm(forms.Form):
             if role or name == _('Administrator'):
                 raise forms.ValidationError(_('Role with this name already exists.'))
         return name
+
+    def clean(self):
+        permissions = self._data_to_permissions()
+        if not permissions:
+            raise forms.ValidationError(
+                _('You have to select at least one permission.'))
+        return self.cleaned_data
 
 
 ################################################################################

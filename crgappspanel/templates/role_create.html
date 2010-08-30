@@ -6,6 +6,10 @@
 {% block content %}
 <form action="{% url role-create %}" method="POST" class="create">
 	<h1>{% trans "Create new role" %}</h1><br/>
+
+    {% for error in form.non_field_errors %}
+    <div class="error">{{ error }}</div>
+    {% endfor %}
 	
 	<label for="id">{% trans "Name" %}</label><br/>
 	{% with form.name as field %}{% include "snippets/form_bare_field.html" %}{% endwith %}
