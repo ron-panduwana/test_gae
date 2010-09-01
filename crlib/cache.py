@@ -130,6 +130,9 @@ def update_cache(post_data):
     apps_domain = AppsDomain.get_by_key_name(domain)
     users._set_current_user(apps_domain.admin_email, domain)
 
+    if not apps_domain.is_active():
+        return
+
     if not users.is_current_user_admin():
         if not memcache.get('invalid_credentials:%s' % domain):
             index.last_updated = datetime.datetime.now()
