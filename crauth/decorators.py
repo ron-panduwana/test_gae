@@ -44,6 +44,9 @@ def login_required(func):
                 return HttpResponseRedirect(logout_url)
             ga_user = models.GAUser.all().filter(
                 'user_name', user.nickname()).get()
+            if not ga_user:
+                ga_user = models.GAUser.get_by_key_name(
+                    user.nickname(), cached=False)
             if ga_user:
                 return func(request, *args, **kwargs)
             else:

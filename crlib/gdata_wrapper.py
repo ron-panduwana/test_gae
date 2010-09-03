@@ -681,10 +681,10 @@ class Model(object):
         return cls.__name__
 
     @classmethod
-    def get_by_key_name(cls, key_name):
+    def get_by_key_name(cls, key_name, cached=True):
         atom = cls._cache['item:%s' % key_name]
         if atom is None:
-            if hasattr(cls._meta, 'cache_model'):
+            if cached and hasattr(cls._meta, 'cache_model'):
                 domain = users.get_current_domain().domain
                 cached = cls._meta.cache_model.all().filter(
                     '_domain', domain).filter(
