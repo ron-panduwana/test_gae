@@ -44,7 +44,7 @@ Please enter <strong>valid credentials</strong> to continue using this applicati
         <p>{{ form.password.label_tag }}: {{ form.password }}</p>
         {% if form.captcha_url.data %}
         <p><img src="{{ form.captcha_url.data }}"></p>
-        {{ form.captcha_token.as_p }}
+        {{ form.captcha_token }}
         {{ form.captcha_url.as_p }}
         <p>{{ form.captcha.errors }}</p>
         <p>{{ form.captcha.label_tag }}: {{ form.captcha }}</p>
