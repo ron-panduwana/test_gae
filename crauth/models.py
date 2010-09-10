@@ -57,6 +57,9 @@ class AppsDomain(BaseModel):
     is_on_trial = db.BooleanProperty(default=True, required=False)
     #: Expiration date of the trial period (``settings.TRIAL_PERIOD``)
     expiration_date = db.DateProperty(required=False)
+    last_login = db.DateTimeProperty(required=False)
+    last_login_user = db.StringProperty(required=False)
+    status = db.StringProperty(required=False)
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('expiration_date', default_expiration_date())

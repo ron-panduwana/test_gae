@@ -1,3 +1,4 @@
+import logging
 from django.utils.translation import ugettext_lazy as _
 
 from crgappspanel.helpers import tables
@@ -11,13 +12,50 @@ def _get_enabled(x):
     else:
         return _('Disabled')
 
+
+def _get_last_login(domain):
+    if domain.last_login:
+        return u'%s (%s)' % (
+            domain.last_login_user,
+            domain.last_login.strftime('%Y-%m-%d %H:%M'))
+    else:
+        return ''
+
+
+def _get_users_len(domain):
+    from crauth import users
+    from gdata.apps.adminsettings.service import AdminSettingsService
+    users._set_current_user(domain.admin_email, domain.domain)
+    user = users.get_current_user()
+    if not user:
+        return _('No admin credentials')
+    service = AdminSettingsService()
+    service.domain = domain.domain
+    try:
+        user.client_login(service)
+        return '%s/%s' % (
+            service.GetCurrentNumberOfUsers(),
+            service.GetMaximumNumberOfUsers())
+    except Exception:
+        logging.exception(
+            'Error while retrieving number of users for %s' % domain.domain)
+        return _('Error retrieving information')
+
+
+def _get_status(domain):
+    return domain.status or ''
+
+
 _DOMAINS_TABLE_COLUMNS = (
     tables.Column(_('Domain'), 'domain', link=True),
     tables.Column(_('Administrator Email'), 'admin_email'),
     tables.Column(_('Status'), 'status', getter=_get_enabled),
+    tables.Column(_('Last Login'), 'last_login', getter=_get_last_login),
+    tables.Column(_('ClientLogin Status'), 'auth_status', getter=_get_status),
+    tables.Column(_('Number of Users'), 'users_len', getter=_get_users_len),
 )
 _DOMAINS_TABLE_ID = _DOMAINS_TABLE_COLUMNS[0]
-_DOMAINS_TABLE_WIDTHS = ['%d%%' % x for x in (5, 40, 45, 10)]
+_DOMAINS_TABLE_WIDTHS = ['%d%%' % x for x in (5, 20, 15, 10, 20, 15, 15)]
 
 
 #Returns the table of domains sorted alphabetically

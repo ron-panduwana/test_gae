@@ -166,6 +166,13 @@ def openid_return(request):
 
     request.session['just_logged_in'] = True
 
+    domain = session_info['domain']
+    apps_domain = AppsDomain.get_by_key_name(domain)
+    user_name = session_info['email'].rpartition('@')[0]
+    apps_domain.last_login = datetime.datetime.now()
+    apps_domain.last_login_user = user_name
+    apps_domain.put()
+
     return HttpResponseRedirect(redirect_to)
 
 
