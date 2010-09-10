@@ -62,15 +62,26 @@ class User(object):
             service.email = apps_domain.admin_email
             service.password = apps_domain.admin_password
             try:
+                old_status = apps_domain.status
                 service.ProgrammaticLogin(captcha_token, captcha)
+                apps_domain.status = 'OK'
             except CaptchaRequired:
+                apps_domain.status = 'Captcha'
+                logging.exception(
+                    'CaptchaRequired for %s' % apps_domain.domain)
                 challenge = CaptchaChallenge('CAPTCHA Required')
                 challenge.captcha_url = service.captcha_url
                 challenge.captcha_token = service.captcha_token
                 challenge.service = service
                 raise challenge
             except BadAuthentication:
+                apps_domain.status = 'Misconfigured'
+                logging.exception(
+                    'BadAuthentication for %s' % apps_domain.domain)
                 raise SetupRequiredError()
+            finally:
+                if old_status != apps_domain.status:
+                    apps_domain.put()
             token = service.GetClientLoginToken()
             memcache.set(memcache_key, token, 24 * 60 * 60)
         else:
@@ -88,14 +99,21 @@ class User(object):
             email = apps_domain.admin_email
             password = apps_domain.admin_password
             try:
+                old_status = apps_domain.status
                 client.client_login(
                     email, password, settings.CLIENT_LOGIN_SOURCE,
                     captcha_token=captcha_token, captcha_response=captcha)
+                apps_domain.status = 'OK'
             except CaptchaChallenge, challenge:
+                apps_domain.status = 'Captcha'
                 challenge.service = client
                 raise challenge
             except BadAuthentication:
+                apps_domain.status = 'Misconfigured'
                 raise SetupRequiredError()
+            finally:
+                if old_status != apps_domain.status:
+                    apps_domain.put()
             token = client.auth_token.token_string
             memcache.set(memcache_key, token, 24 * 60 * 60)
         else:
