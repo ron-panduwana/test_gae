@@ -56,3 +56,12 @@ def permission_names(with_admin_perms=True):
     return [perm[0] for perm in _permissions
             if with_admin_perms or not perm[0] in ADMIN_PERMS]
 
+
+def permission_deps(with_admin_perms=True):
+    for perm in _permissions:
+        if with_admin_perms or not perm[0] in ADMIN_PERMS:
+            if len(perm) == 3:
+                yield (perm[0], perm[2])
+            else:
+                yield (perm[0], None)
+

@@ -109,6 +109,14 @@ _table_id = Column(None, 'user_name')
 _table_widths = ['%d%%' % x for x in (5, 20, 30, 15, 20, 10)]
 
 
+_DETAILS_LINKS = (
+    ('change_gauser', 'user-details'),
+    ('read_role', 'user-roles'),
+    ('change_gausersettings', 'user-email-settings'),
+    ('change_gauserfilters', 'user-email-filters'),
+    ('change_gauservacation', 'user-email-vacation'),
+)
+
 @has_perm('read_gauser')
 def users(request):
     user = crauth.users.get_current_user()
@@ -123,10 +131,17 @@ def users(request):
     table = Table(_table_fields, _table_id)
     
     delete_link_title = _('Delete users')
+    for perm, link in _DETAILS_LINKS:
+        if user.has_perm(perm):
+            details_link = link
+            break
+    else:
+        details_link = ''
     return render_with_nav(request, 'users_list.html', {
         'table': table.generate_paginator(
             paginator, widths=_table_widths,
             delete_link_title=delete_link_title,
+            details_link=details_link,
             can_change=user.has_perm('change_gauser')),
         'saved': request.session.pop('saved', False),
         'delete_question': _('Are you sure you want to delete selected '
@@ -488,7 +503,7 @@ def user_email_filters(request, name=None):
     }, extra_nav=user_nav(name), help_url='users/filters')
 
 
-@has_perm('change_gauser')
+@has_perm('change_gausersendas')
 def user_email_aliases(request, name=None):
     if not name:
         raise ValueError('name = %s' % name)

@@ -21,6 +21,7 @@ _table_widths = ['%d%%' % x for x in (5, 30, 20, 45)]
 
 @has_perm('read_calendarresource')
 def calendar_resources(request):
+    user = users.get_current_user()
     sortby, asc = get_sortby_asc(request, [f.name for f in _table_fields])
     
     resources = CalendarResource.all().fetch(1000)
@@ -34,13 +35,16 @@ def calendar_resources(request):
     page = get_page(request, resources, per_page);
     
     delete_link_title = _('Delete calendar resources')
+    if user.has_perm('change_calendarresource'):
+        details_link = 'calendar-resource-details'
+    else:
+        details_link = ''
     return render_with_nav(request, 'calendar_resources_list.html', {
         'table': table.generate(
             page.object_list, page=page, qs_wo_page=qs_wo_page(request),
             widths=_table_widths, singular='calendar resource',
-            delete_link_title=delete_link_title,
-            can_change=users.get_current_user().has_perm(
-                'change_calendarresource')),
+            delete_link_title=delete_link_title, details_link=details_link,
+            can_change=user.has_perm('change_calendarresource')),
         'saved': request.session.pop('saved', False),
         'delete_link_title': delete_link_title,
         'delete_question': _('Are you sure you want to delete selected '

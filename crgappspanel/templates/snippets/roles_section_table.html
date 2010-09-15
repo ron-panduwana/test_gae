@@ -16,9 +16,8 @@
 	<tr>
 		<td style="text-align: left">{{ group.name }}</td>
 		<td>{{ group.add|default_if_none:'' }}</td>
-		<td>{{ group.change|default_if_none:'' }}</td>
+        <td>{{ group.change|default_if_none:'' }}</td>
 		<td>{{ group.read|default_if_none:'' }}</td>
 	</tr>
 	{% endfor %}
 </table>
-<script type="text/javascript">cr.snippets.createRoleInitPermissions();</script>

@@ -54,8 +54,8 @@ cr.table.getElementCount = function(tableName) {
 }
 goog.exportProperty(cr.table, 'getElementCount', cr.table.getElementCount);
 
-cr.table.showDetails = function(obj) {
-	window.open(String.format('../details/{0}/', obj), '_self');
+cr.table.showDetails = function(url) {
+	window.open(url, '_self');
     return false;
 }
 goog.exportProperty(cr.table, 'showDetails', cr.table.showDetails);

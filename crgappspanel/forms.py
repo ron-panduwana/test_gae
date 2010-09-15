@@ -555,6 +555,7 @@ class GroupMembersForm(forms.Form):
 
 
 PERMISSION_NAMES = crauth.permissions.permission_names(False)
+PERMISSION_DEPS = list(crauth.permissions.permission_deps(False))
 OBJECT_TYPES = (
     ('users', _('Manage Users'), (
         ('gauser', _('General')),
@@ -603,6 +604,30 @@ class ObjectTypeFields(object):
             return None
 
 
+class PermissionWidget(forms.CheckboxInput):
+    def render(self, name, value, attrs=None):
+        from django.utils.safestring import mark_safe
+        from django.forms.util import flatatt
+        from django.template.loader import render_to_string
+        final_attrs = self.build_attrs(attrs, type='checkbox', name=name)
+        depends_on = final_attrs.pop('depends_on', '')
+        try:
+            result = self.check_test(value)
+        except Exception: # Silently catch exceptions
+            result = False
+        if result:
+            final_attrs['checked'] = 'checked'
+        if value not in ('', True, False, None):
+            # Only add the 'value' attribute if a value is non-empty.
+            final_attrs['value'] = force_unicode(value)
+        return render_to_string(
+            'snippets/permission_widget.html', {
+                'flatatt': flatatt(final_attrs),
+                'id': final_attrs['id'],
+                'depends_on': depends_on,
+            })
+
+
 class RoleForm(forms.Form):
     name = forms.CharField(label=_('Name'), required=True)
     
@@ -612,13 +637,13 @@ class RoleForm(forms.Form):
         self.sections = dict()
         
         perms = dict()
-        for perm in PERMISSION_NAMES:
+        for perm, depends_on in PERMISSION_DEPS:
             action, obj_type = perm.split('_')
             
             actions = perms[obj_type] if obj_type in perms else set()
-            actions.add(action)
+            actions.add((action, depends_on))
             perms[obj_type] = actions
-        
+
         for section in OBJECT_TYPES:
             self._add_section(section, perms)
 
@@ -629,12 +654,11 @@ class RoleForm(forms.Form):
 
         if not self._permissions:
             permissions = set()
-            for perm in PERMISSION_NAMES:
+            for perm, depends_on in PERMISSION_DEPS:
                 if perm in data and data[perm]:
                     permissions.add(perm)
-                    if perm.startswith('change_') or perm.startswith('add_'):
-                        permissions.add(perm.replace('change_', 'read_').replace(
-                            'add_', 'read_'))
+                    if depends_on:
+                        permissions.add(depends_on)
             self._permissions = list(permissions)
         return self._permissions
     
@@ -656,21 +680,21 @@ class RoleForm(forms.Form):
             actions.sort()
             
             # adding fields to the form
-            for action in actions:
-                field = self._add_field(obj_type, action)
+            for action, depends_on in actions:
+                field = self._add_field(obj_type, action, depends_on)
             
             # adding group to section
             group = ObjectTypeFields(self, obj_type, name=name)
             section_obj['groups'].append(group)
         self.sections[section[0]] = section_obj
     
-    def _add_field(self, obj_type, action):
+    def _add_field(self, obj_type, action, depends_on):
         field_name = '%s_%s' % (action, obj_type)
         field = forms.BooleanField(
-            required=False, widget=forms.CheckboxInput(
+            required=False, widget=PermissionWidget(
                 attrs={
                     'class': 'perm_%s' % action,
-                    'onchange': 'cr.snippets.createRolePermissionChanged(this);',
+                    'depends_on': depends_on,
                 }))
         self.fields[field_name] = field
         return field
