@@ -51,7 +51,7 @@ cr.table.tables['{{ table_name }}'] = [
         <tr id="{{ table_name }}_row_{{ forloop.counter0 }}" class="data{% if can_change and row.can_change %} can_change{% endif %}">
             <td>{% if can_change and row.can_change %}<input type="checkbox" id="{{ table_name }}_select_{{ forloop.counter0 }}" onchange="cr.table.onSelectRow(this)"/>{% endif %}</td>
 			{% for obj in row.data %}
-            <td{% if can_change and row.can_change %} onclick="cr.table.showDetails('{{ row.id }}')"{% endif %}>
+            <td{% if can_change and row.can_change %} onclick="return cr.table.showDetails('{{ row.id }}');"{% endif %}>
 				{% include "snippets/objects_table_object.html" %}
 			</td>
 			{% endfor %}

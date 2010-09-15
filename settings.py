@@ -126,6 +126,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'crauth.users.UsersMiddleware',
     'crlib.middleware.LocaleMiddleware',
+    'django_notify.middleware.NotificationsMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -135,6 +136,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'crauth.context_processors.users',
 #    'django.core.context_processors.media',  # 0.97 only.
     'django.core.context_processors.request',
+    'django_notify.context_processors.notifications',
 )
 
 ROOT_URLCONF = 'urls'
