@@ -58,12 +58,16 @@ class GAUser(gd.Model):
     class Meta:
         permissions = (
             ('read_gauser', _('View users in your domain')),
-            ('add_gauser', _('Create users in your domain')),
-            ('change_gauser', _('Modify users in your domain')),
-            ('change_gausersettings', _('Modify users in your domain')),
-            ('change_gauserfilters', _('Modify users in your domain')),
-            ('change_gausersendas', _('Modify users in your domain')),
-            ('change_gauservacation', _('Change vacation responder settings')),
+            ('add_gauser', _('Create users in your domain'), 'read_gauser'),
+            ('change_gauser', _('Modify users in your domain'), 'read_gauser'),
+            ('change_gausersettings', _('Modify users in your domain'),
+             'read_gauser'),
+            ('change_gauserfilters', _('Modify users in your domain'),
+             'read_gauser'),
+            ('change_gausersendas', _('Modify users in your domain'),
+             'read_gauser'),
+            ('change_gauservacation', _('Change vacation responder settings'),
+             'read_gauser'),
         )
         cache_model = crlib_models.UserCache
 
@@ -146,8 +150,9 @@ class GAGroup(gd.Model):
     class Meta:
         permissions = (
             ('read_gagroup', _('View groups in your domain')),
-            ('add_gagroup', _('Create groups in your domain')),
-            ('change_gagroup', _('Modify groups in your domain')),
+            ('add_gagroup', _('Create groups in your domain'), 'read_gagroup'),
+            ('change_gagroup', _('Modify groups in your domain'),
+             'read_gagroup'),
         )
         cache_model = crlib_models.GroupCache
 
@@ -263,9 +268,10 @@ class SharedContact(gd.Model):
     class Meta:
         permissions = (
             ('read_sharedcontact', _('View shared contacts in your domain')),
-            ('add_sharedcontact', _('Create shared contacts in your domain')),
+            ('add_sharedcontact', _('Create shared contacts in your domain'),
+             'read_sharedcontact'),
             ('change_sharedcontact',
-             _('Modify shared contacts in your domain')),
+             _('Modify shared contacts in your domain'), 'read_sharedcontact'),
         )
         cache_model = crlib_models.SharedContactCache
 
@@ -295,9 +301,11 @@ class CalendarResource(gd.Model):
             ('read_calendarresource',
              _('View calendar resources in your domain')),
             ('add_calendarresource',
-             _('Create calendar resources in your domain')),
+             _('Create calendar resources in your domain'),
+             'read_calendarresource'),
             ('change_calendarresource',
-             _('Modify calendar resources in your domain')),
+             _('Modify calendar resources in your domain'),
+             'read_calendarresource'),
         )
 
     id = gd.StringProperty('resource_id', required=True)
