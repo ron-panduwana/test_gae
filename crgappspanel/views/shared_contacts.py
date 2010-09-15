@@ -80,10 +80,15 @@ def shared_contacts(request):
     table = Table(_table_fields, _table_id)
     
     delete_link_title = _('Delete shared contacts')
+    if user.has_perm('change_sharedcontact'):
+        details_link = 'shared-contact-details'
+    else:
+        details_link = ''
     return render_with_nav(request, 'shared_contacts_list.html', {
         'table': table.generate_paginator(
             paginator, widths=_table_widths,
             delete_link_title=delete_link_title,
+            details_link=details_link,
             can_change=user.has_perm('change_sharedcontact')),
         'query': dict(general=query),
         'saved': request.session.pop('saved', False),

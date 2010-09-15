@@ -29,6 +29,7 @@ class _AdminRole(object):
 
 @has_perm('read_role')
 def roles(request):
+    user = users.get_current_user()
     sortby, asc = get_sortby_asc(request, _table_field_names)
     
     roles = Role.for_domain(users.get_current_domain()).fetch(1000)
@@ -39,11 +40,16 @@ def roles(request):
     table.sort(roles)
     
     delete_link_title = _('Delete roles')
+    if user.has_perm('change_role'):
+        details_link = 'role-details'
+    else:
+        details_link = ''
     return render_with_nav(request, 'roles_list.html', {
         'table': table.generate(
             roles, widths=_table_widths, singular='role',
             delete_link_title=delete_link_title,
-            can_change=users.get_current_user().has_perm('change_role')),
+            details_link=details_link,
+            can_change=has_perm('change_role')),
         'saved': request.session.pop('saved', False),
         'delete_link_title': delete_link_title,
         'delete_question': _('Are you sure you want to delete selected '

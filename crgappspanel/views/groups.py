@@ -27,6 +27,7 @@ _table_widths = ['%d%%' % x for x in (5, 40, 40, 15)]
 
 @has_perm('read_gagroup')
 def groups(request):
+    user = users.get_current_user()
     per_page = Preferences.for_current_user().items_per_page
     paginator = Paginator(GAGroup, request, (
         'id', 'name',
@@ -35,11 +36,16 @@ def groups(request):
     table = Table(_table_fields, _table_id)
     
     delete_link_title = _('Delete groups')
+    if user.has_perm('change_gagroup'):
+        details_link = 'group-details'
+    else:
+        details_link = ''
     return render_with_nav(request, 'groups_list.html', {
         'table': table.generate_paginator(
             paginator, widths=_table_widths,
             delete_link_title=delete_link_title,
-            can_change=users.get_current_user().has_perm('change_gagroup')),
+            details_link=details_link,
+            can_change=user.has_perm('change_gagroup')),
         'saved': request.session.pop('saved', False),
         'delete_question': _('Are you sure you want to delete selected '
                              'groups?'),

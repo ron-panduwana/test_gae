@@ -1,4 +1,5 @@
 from django.template.loader import render_to_string
+from django.core.urlresolvers import reverse
 
 
 class Table(object):
@@ -34,7 +35,7 @@ class Table(object):
     
     def generate(self, objs, page=None, qs_wo_page=None, widths=None,
                  table_name='table', singular='object', plural=None,
-                 delete_link_title='', can_change=False):
+                 details_link='', delete_link_title='', can_change=False):
         """Generates table html (using appropriate HTML template).
         
         Arguments:
@@ -55,10 +56,16 @@ class Table(object):
         rows = []
         for obj in objs:
             data = [dict(data=col.value(obj), link=col.link) for col in self.columns]
+            id = self.id_column.value(obj)
+            if details_link:
+                url = reverse(details_link, args=(id,))
+            else:
+                url = None
             rows.append({
-                'id': self.id_column.value(obj),
+                'id': id,
                 'data': data,
                 'can_change': not hasattr(obj, 'cant_change'),
+                'url': url,
             })
         
         plural = plural or ('%ss' % singular)
@@ -80,17 +87,23 @@ class Table(object):
         })
 
     def generate_paginator(self, paginator, widths=[],
-                           delete_link_title='',
+                           delete_link_title='', details_link='',
                            can_change=False, table_name='table'):
         objs = list(paginator.objects)
 
         rows = []
         for obj in objs:
             data = [dict(data=col.value(obj), link=col.link) for col in self.columns]
+            id = self.id_column.value(obj)
+            if details_link:
+                url = reverse(details_link, args=(id,))
+            else:
+                url = None
             rows.append({
-                'id': self.id_column.value(obj),
+                'id': id,
                 'data': data,
                 'can_change': not hasattr(obj, 'cant_change'),
+                'url': url,
             })
         
         return render_to_string('snippets/objects_table_paginator.html', {

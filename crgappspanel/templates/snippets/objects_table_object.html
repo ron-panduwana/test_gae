@@ -1,6 +1,6 @@
 {% load tags_filters %}
 {% spaceless %}
-{% if can_change and row.can_change and obj.link %}<a href="../details/{{ row.id }}/">{% endif %}
+{% if obj.link and row.url %}<a href="{{ row.url }}">{% endif %}
 {% for data in obj.data|iterable %}
 	{% with data as value %}
         {% if value|stringformat:"s"|slice:"50:" %}
@@ -13,5 +13,5 @@
 		{% if not forloop.last %}<br/>{% endif %}
 	{% endwith %}
 {% endfor %}
-{% if can_change and row_can_change and obj.link %}</a>{% endif %}
+{% if obj.link and row.url %}</a>{% endif %}
 {% endspaceless %}
