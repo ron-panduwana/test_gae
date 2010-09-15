@@ -609,7 +609,11 @@ class Model(object):
                     'model': self.__class__.__name__,
                 })
             else:
-                self._mapper.delete(self._atom)
+                from crlib import errors
+                try:
+                    self._mapper.delete(self._atom)
+                except errors.EntityDoesNotExistError:
+                    pass
             self._delete_cache()
             del self._cache['item:%s' % self.key()]
             del self._cache['retrieve_all']
@@ -682,21 +686,29 @@ class Model(object):
 
     @classmethod
     def get_by_key_name(cls, key_name, cached=True):
-        atom = cls._cache['item:%s' % key_name]
-        if atom is None:
-            if cached and hasattr(cls._meta, 'cache_model'):
-                domain = users.get_current_domain().domain
-                cached = cls._meta.cache_model.all().filter(
-                    '_domain', domain).filter(
-                        '_gdata_key_name', key_name).get()
-                return cls._from_cached(cached)
-            else:
-                try:
-                    atom = cls._mapper.retrieve(key_name)
-                    cls._cache['item:%s' % key_name] = atom
-                except Exception, e:
-                    return None
-        return atom and cls._from_atom(atom) or None
+        if cached and hasattr(cls._meta, 'cache_model'):
+            domain = users.get_current_domain().domain
+            cached = cls._meta.cache_model.all().filter(
+                '_domain', domain).filter(
+                    '_gdata_key_name', key_name).get()
+            return cls._from_cached(cached)
+        else:
+            try:
+                atom = cls._mapper.retrieve(key_name)
+                return atom and cls._from_atom(atom) or None
+            except Exception:
+                return None
+
+    @classmethod
+    def get_by_key_name_and_check(cls, key_name):
+        from crlib import errors
+        obj = cls.get_by_key_name(key_name, cached=False)
+        if not obj:
+            cached = cls.get_by_key_name(key_name)
+            if cached:
+                cached._delete_cache()
+            raise errors.EntityDoesNotExistError()
+        return obj
 
     @classmethod
     def _atom_to_kwargs(cls, atom):

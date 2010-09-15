@@ -8,6 +8,7 @@ from google.appengine.api.labs import taskqueue
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 from django.http import HttpResponseRedirect, Http404
 
 import crauth
@@ -187,10 +188,13 @@ def user_details(request, name=None):
         raise ValueError('name = %s' % name)
     
     domain = crauth.users.get_current_user().domain_name
-    user = GAUser.get_by_key_name(name)
-    if not user:
+    try:
+        user = GAUser.get_by_key_name_and_check(name)
+    except errors.EntityDoesNotExistError:
+        request.notifications.error(mark_safe(
+            _('User %s does not exist.' % name)))
         return redirect('users')
-    
+
     if request.method == 'POST':
         form = UserForm(request.POST, auto_id=True)
         if form.is_valid():
@@ -582,7 +586,11 @@ def user_remove(request, names=None):
     
     for name in names.split('/'):
         user = GAUser.get_by_key_name(name)
-        user.delete()
+        try:
+            user.delete()
+        except Exception:
+            logging.exception('Error while deleting user %s' % name)
+            pass
     
     return redirect_saved('users', request)
 

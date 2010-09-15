@@ -138,6 +138,7 @@ class UserEntryMapper(AtomMapper):
     def key(self, atom):
         return atom.login.user_name
 
+    @apps_for_your_domain_exception_wrapper
     def delete(self, atom):
         from google.appengine.api.urlfetch_errors import DownloadError
         try:
