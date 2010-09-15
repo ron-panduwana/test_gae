@@ -501,6 +501,13 @@ _SIGNATURE_ATOM = """<?xml version="1.0" encoding="utf-8"?>
 xmlns:apps="http://schemas.google.com/apps/2006">
     <apps:property name="signature" value="%(signature)s"/>
 </atom:entry>"""
+_SIGNATURE_ESCAPE_TABLE = {
+    '&': '&amp;',
+    '"': '&quot;',
+    "'": '&apos;',
+    '>': '&gt;',
+    '<': '&lt;',
+}
 
 class _EmailSettingsWrapper(object):
     _OPERATIONS = {
@@ -532,10 +539,14 @@ class _EmailSettingsWrapper(object):
         self._service.domain = user.domain_name
         user.client_login(self._service)
 
+    def _escape_signature(self, signature):
+        return ''.join(_SIGNATURE_ESCAPE_TABLE.get(c, c) for c in signature)
+
     def update_signature(self, signature):
         # This is a temporary workaround for:
         # http://code.google.com/p/gdata-python-client/issues/detail?id=190
         signature = signature.replace('\n', '&#xA;')
+        signature = self._escape_signature(signature)
         self._service.Put(
             _SIGNATURE_ATOM % {'signature': signature},
             self._service._serviceUrl('signature', self._user_name))
