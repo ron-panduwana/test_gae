@@ -6,6 +6,9 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 
 
+RE_SPLIT = re.compile(r'[^\w\d]+', re.UNICODE)
+
+
 def _model_kwargs(model_instance, fields):
     kwargs = {}
     for field in fields:
@@ -32,6 +35,7 @@ class GDataIndex(BaseModel):
     last_updated = db.DateTimeProperty()
     domain = db.StringProperty()
     model_class = db.StringProperty()
+    full_precache = db.BooleanProperty(default=False)
 
 
 # Cache models
@@ -85,6 +89,7 @@ class UserCache(_CacheBase):
     agreed_to_terms = db.BooleanProperty()
     quota = db.IntegerProperty()
     change_password = db.BooleanProperty(default=False)
+    search_index = db.StringListProperty()
 
     @classmethod
     def additional_cache(cls, items, index, domain):
@@ -119,6 +124,22 @@ class UserCache(_CacheBase):
                     'index': key_name,
                 })
 
+    @classmethod
+    def model_to_kwargs(cls, model_instance, **kwargs):
+        kwargs = dict(kwargs)
+        props = [prop for prop in cls._properties.keys()
+                 if not prop.startswith('_')]
+        props.remove('search_index')
+        kwargs.update(_model_kwargs(model_instance, props))
+
+        index = set()
+        index.add(model_instance.user_name.lower())
+        index.add(model_instance.given_name.lower())
+        index.add(model_instance.family_name.lower())
+        kwargs['search_index'] = [item.decode('utf8') for item in index]
+
+        return kwargs
+
 
 class GroupCache(_CacheBase):
     id = db.StringProperty()
@@ -141,8 +162,6 @@ class NicknameCache(_CacheBase):
         })
         return kwargs
 
-
-RE_SPLIT = re.compile(r'[^\w\d]+', re.UNICODE)
 
 class SharedContactCache(_CacheBase):
     name = db.StringProperty()

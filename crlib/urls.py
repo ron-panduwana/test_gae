@@ -9,6 +9,7 @@ urlpatterns = patterns(
     url(r'^__add_user_to_group/$', 'add_user_to_group',
         name='add_user_to_group'),
     url(r'^__gdata_delete/$', 'gdata_delete', name='gdata_delete'),
+    url(r'^__full_precache/$', 'full_precache', name='full_precache'),
     url(r'^__precache_everything/$', 'precache_everything',
         name='precache_everything'),
     url(r'^__precache_domain_item/$', 'precache_domain_item',

@@ -161,7 +161,9 @@ def update_cache(post_data):
 
     leftover = []
 
-    if new_page_hash != index.page_hash or prev_hashes:
+    full_precache = index.full_precache
+
+    if new_page_hash != index.page_hash or prev_hashes or full_precache:
         index.page_hash = new_page_hash
         old_hashes = prev_hashes + index.hashes
         index.keys, index.hashes = [], []
@@ -187,7 +189,9 @@ def update_cache(post_data):
 
         leftover = []
 
-        if cursor and common:
+        if full_precache:
+            _full_precache(updater, old_hashes, new_hashes)
+        elif cursor and common:
             leftover = _update_middle_page(
                 updater, common, old_hashes, new_hashes)
         elif not cursor:
@@ -202,6 +206,7 @@ def update_cache(post_data):
     if not page:
         index.last_updated = datetime.datetime.now()
 
+    index.full_precache = False
     index.put()
 
     if cursor:
@@ -276,4 +281,14 @@ def _update_whole_page(updater, old_hashes, new_hashes):
     db.put(created)
 
     return leftover
+
+
+def _full_precache(updater, old_hashes, new_hashes):
+    updater.delete(new_hashes)
+    updater.delete(old_hashes)
+
+    created = []
+    for hsh in new_hashes:
+        created.append(updater.create(hsh))
+    db.put(created)
 
