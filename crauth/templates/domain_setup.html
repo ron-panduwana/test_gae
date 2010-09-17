@@ -31,6 +31,7 @@ Please enter <strong>valid credentials</strong> to continue using this applicati
 <form method="POST" action="">
         {{ form.callback }}
         {% if email %}
+        <input type="hidden" name="account" value="{{ account }}"/>
         <p>{{ form.account.label_tag }}: <strong>{{ email }}</strong> <a href="{{ other_user_url }}">[ {% trans 'use different user' %} ]</a></p>
         {% else %}
         {% for error in form.account.errors %}
