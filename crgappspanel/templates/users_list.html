@@ -8,6 +8,16 @@
     {% if auth.perms.add_gauser %}
     <a href="{% url user-create %}" class="action-link">{% trans 'Create new user' %}</a>
     {% endif %}
+	<form id="users-search" action="{% url users %}" style="margin-top: 2em">
+		<table>
+			<tbody>
+				<tr>
+					<td><input type="text" name="q" value="{{ query.general }}"/></td>
+					<td><input type="submit" value="{% trans "Search for user" %}"/></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
     {% include "snippets/objects_table_delete_script.html" %}
 	{{ table }}
 {% endblock %}

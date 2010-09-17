@@ -122,11 +122,24 @@ def users(request):
     user = crauth.users.get_current_user()
     domain = user.domain_name
     _table_fields = _table_fields_gen(domain)
+
+    query = request.GET.get('q', '')
+    if query:
+        query = query.lower().split()[0]
+        def query_gen():
+            q = GAUser.all()
+            # This doesn't work as expected on development server, but is OK
+            # on GAE instance.
+            q.filter('search_index >=', query).filter(
+                'search_index <', query + u'\ufffd')
+            return q
+    else:
+        query_gen = None
     
     per_page = Preferences.for_current_user().items_per_page
     paginator = Paginator(GAUser, request, (
         'user_name', 'family_name', 'suspended', 'admin',
-    ), per_page)
+    ), per_page, query=query_gen)
     
     table = Table(_table_fields, _table_id)
     
@@ -147,6 +160,7 @@ def users(request):
         'delete_question': _('Are you sure you want to delete selected '
                              'users?'),
         'delete_link_title': delete_link_title,
+        'query': dict(general=query),
     }, help_url='users/list')
 
 

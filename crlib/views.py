@@ -22,6 +22,29 @@ def cache_not_ready(request, template='cache_not_ready.html'):
     return render_with_nav(request, template, ctx)
 
 
+def full_precache(request):
+    query = GDataIndex.all(keys_only=True)
+    if request.method == 'POST':
+        query.with_cursor(request.POST['cursor'])
+
+    def txn(key):
+        index = GDataIndex.get(key)
+        index.full_precache = True
+        index.put()
+
+    for key in query.fetch(100):
+        db.run_in_transaction(txn, key)
+
+    cursor = query.cursor()
+    has_more = bool(GDataIndex.all(keys_only=True).with_cursor(
+        cursor).fetch(1))
+    if has_more:
+        taskqueue.add(url=reverse('full_precache'), params={
+            'cursor': cursor,
+        })
+    return HttpResponse('ok')
+
+
 def precache_everything(request):
     treshold = datetime.datetime.now() - datetime.timedelta(
         seconds=settings.CACHE_UPDATE_INTERVAL)
