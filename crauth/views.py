@@ -238,7 +238,11 @@ def domain_setup(request, domain, template='domain_setup.html'):
         'other_user_url': request.path + '?' + query,
     }
     if not token and not 'other_user' in request.GET:
-        ctx['email'] = user.email()
+        if apps_domain.admin_email:
+            ctx['email'] = apps_domain.admin_email
+        else:
+            ctx['email'] = user.email()
+        ctx['account'] = ctx['email'].rpartition('@')[0]
     return render_with_nav(request, template, ctx, help_url='settings/setup')
 
 
